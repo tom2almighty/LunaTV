@@ -1990,6 +1990,11 @@ function PlayPageClient() {
 
               {/* 关键信息行 */}
               <div className='flex flex-wrap items-center gap-3 text-base mb-4 opacity-80 flex-shrink-0'>
+                {detail?.score && detail.score !== '0.0' && detail.score !== '0' && (
+                  <span className='text-amber-500 font-bold text-lg mr-1'>
+                    {detail.score} 分
+                  </span>
+                )}
                 {detail?.class && (
                   <span className='text-green-600 font-semibold'>
                     {detail.class}
@@ -1998,6 +2003,8 @@ function PlayPageClient() {
                 {(detail?.year || videoYear) && (
                   <span>{detail?.year || videoYear}</span>
                 )}
+                {detail?.area && <span>{detail.area}</span>}
+                {detail?.lang && <span>{detail.lang}</span>}
                 {detail?.source_name && (
                   <span className='border border-gray-500/60 px-2 py-[1px] rounded'>
                     {detail.source_name}
@@ -2005,6 +2012,24 @@ function PlayPageClient() {
                 )}
                 {detail?.type_name && <span>{detail.type_name}</span>}
               </div>
+
+              {/* 演职员信息 */}
+              {(detail?.directors || detail?.actors) && (
+                <div className='text-sm opacity-80 mb-4 space-y-1 leading-relaxed'>
+                  {detail?.directors && (
+                    <div className='line-clamp-1'>
+                      <span className='font-semibold mr-2'>导演:</span>
+                      {detail.directors}
+                    </div>
+                  )}
+                  {detail?.actors && (
+                    <div className='line-clamp-2'>
+                      <span className='font-semibold mr-2'>主演:</span>
+                      {detail.actors}
+                    </div>
+                  )}
+                </div>
+              )}
               {/* 剧情简介 */}
               {detail?.desc && (
                 <div

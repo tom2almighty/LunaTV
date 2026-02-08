@@ -16,6 +16,11 @@ interface ApiSearchItem {
   vod_content?: string;
   vod_douban_id?: number;
   type_name?: string;
+  vod_score?: string;
+  vod_actor?: string;
+  vod_director?: string;
+  vod_area?: string;
+  vod_lang?: string;
 }
 
 /**
@@ -114,6 +119,12 @@ async function searchWithCache(
         desc: cleanHtmlTags(item.vod_content || ''),
         type_name: item.type_name,
         douban_id: item.vod_douban_id,
+        score: item.vod_score,
+        actors: item.vod_actor,
+        directors: item.vod_director,
+        area: item.vod_area,
+        lang: item.vod_lang,
+        remark: item.vod_remarks,
       };
     });
 
@@ -283,6 +294,12 @@ export async function getDetailFromApi(
     desc: cleanHtmlTags(videoDetail.vod_content),
     type_name: videoDetail.type_name,
     douban_id: videoDetail.vod_douban_id,
+    score: videoDetail.vod_score,
+    actors: videoDetail.vod_actor,
+    directors: videoDetail.vod_director,
+    area: videoDetail.vod_area,
+    lang: videoDetail.vod_lang,
+    remark: videoDetail.vod_remarks,
   };
 }
 
