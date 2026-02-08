@@ -1,6 +1,5 @@
 /* eslint-disable no-console,@typescript-eslint/no-explicit-any */
 
-import * as crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getConfig, refineConfig } from '@/lib/config';
@@ -175,7 +174,7 @@ async function refreshRecordAndFavorites() {
 
       // 收藏
       try {
-        let favorites = await db.getAllFavorites(user);
+        const favorites = await db.getAllFavorites(user);
         const totalFavorites = Object.keys(favorites).length;
         let processedFavorites = 0;
 
