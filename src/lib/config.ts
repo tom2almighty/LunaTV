@@ -11,13 +11,6 @@ export interface ApiSite {
   detail?: string;
 }
 
-export interface LiveCfg {
-  name: string;
-  url: string;
-  ua?: string;
-  epg?: string; // 节目单
-}
-
 interface ConfigFileStruct {
   cache_time?: number;
   api_site?: {
@@ -28,9 +21,6 @@ interface ConfigFileStruct {
     type: 'movie' | 'tv';
     query: string;
   }[];
-  lives?: {
-    [key: string]: LiveCfg;
-  }
 }
 
 export const API_CONFIG = {
@@ -142,43 +132,6 @@ export function refineConfig(adminConfig: AdminConfig): AdminConfig {
   // 将 Map 转换回数组
   adminConfig.CustomCategories = Array.from(currentCustomCategories.values());
 
-  const livesFromFile = Object.entries(fileConfig.lives || []);
-  const currentLives = new Map(
-    (adminConfig.LiveConfig || []).map((l) => [l.key, l])
-  );
-  livesFromFile.forEach(([key, site]) => {
-    const existingLive = currentLives.get(key);
-    if (existingLive) {
-      existingLive.name = site.name;
-      existingLive.url = site.url;
-      existingLive.ua = site.ua;
-      existingLive.epg = site.epg;
-    } else {
-      // 如果不存在，创建新条目
-      currentLives.set(key, {
-        key,
-        name: site.name,
-        url: site.url,
-        ua: site.ua,
-        epg: site.epg,
-        channelNumber: 0,
-        from: 'config',
-        disabled: false,
-      });
-    }
-  });
-
-  // 检查现有 LiveConfig 是否在 fileConfig.lives 中，如果不在则标记为 custom
-  const livesFromFileKeys = new Set(livesFromFile.map(([key]) => key));
-  currentLives.forEach((live) => {
-    if (!livesFromFileKeys.has(live.key)) {
-      live.from = 'custom';
-    }
-  });
-
-  // 将 Map 转换回数组
-  adminConfig.LiveConfig = Array.from(currentLives.values());
-
   return adminConfig;
 }
 
@@ -218,13 +171,14 @@ async function getInitConfig(configFile: string, subConfig: {
         process.env.NEXT_PUBLIC_DISABLE_YELLOW_FILTER === 'true',
       FluidSearch:
         process.env.NEXT_PUBLIC_FLUID_SEARCH !== 'false',
+      EnableOptimization:
+        process.env.NEXT_PUBLIC_ENABLE_OPTIMIZATION !== 'false',
     },
     UserConfig: {
       Users: [],
     },
     SourceConfig: [],
     CustomCategories: [],
-    LiveConfig: [],
   };
 
   // 补充用户信息
@@ -269,22 +223,7 @@ async function getInitConfig(configFile: string, subConfig: {
     });
   });
 
-  // 从配置文件中补充直播源信息
-  Object.entries(cfgFile.lives || []).forEach(([key, live]) => {
-    if (!adminConfig.LiveConfig) {
-      adminConfig.LiveConfig = [];
-    }
-    adminConfig.LiveConfig.push({
-      key,
-      name: live.name,
-      url: live.url,
-      ua: live.ua,
-      epg: live.epg,
-      channelNumber: 0,
-      from: 'config',
-      disabled: false,
-    });
-  });
+
 
   return adminConfig;
 }
@@ -326,9 +265,6 @@ export function configSelfCheck(adminConfig: AdminConfig): AdminConfig {
   }
   if (!adminConfig.CustomCategories || !Array.isArray(adminConfig.CustomCategories)) {
     adminConfig.CustomCategories = [];
-  }
-  if (!adminConfig.LiveConfig || !Array.isArray(adminConfig.LiveConfig)) {
-    adminConfig.LiveConfig = [];
   }
 
   // 站长变更自检
@@ -381,15 +317,7 @@ export function configSelfCheck(adminConfig: AdminConfig): AdminConfig {
     return true;
   });
 
-  // 直播源去重
-  const seenLiveKeys = new Set<string>();
-  adminConfig.LiveConfig = adminConfig.LiveConfig.filter((live) => {
-    if (seenLiveKeys.has(live.key)) {
-      return false;
-    }
-    seenLiveKeys.add(live.key);
-    return true;
-  });
+
 
   return adminConfig;
 }

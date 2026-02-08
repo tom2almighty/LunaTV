@@ -178,8 +178,12 @@ export const UserMenu: React.FC = () => {
 
       const savedEnableOptimization =
         localStorage.getItem('enableOptimization');
+      const defaultEnableOptimization =
+        (window as any).RUNTIME_CONFIG?.ENABLE_OPTIMIZATION !== false;
       if (savedEnableOptimization !== null) {
         setEnableOptimization(JSON.parse(savedEnableOptimization));
+      } else if (defaultEnableOptimization !== undefined) {
+        setEnableOptimization(defaultEnableOptimization);
       }
 
       const savedFluidSearch = localStorage.getItem('fluidSearch');
@@ -189,11 +193,6 @@ export const UserMenu: React.FC = () => {
         setFluidSearch(JSON.parse(savedFluidSearch));
       } else if (defaultFluidSearch !== undefined) {
         setFluidSearch(defaultFluidSearch);
-      }
-
-      const savedLiveDirectConnect = localStorage.getItem('liveDirectConnect');
-      if (savedLiveDirectConnect !== null) {
-        setLiveDirectConnect(JSON.parse(savedLiveDirectConnect));
       }
     }
   }, []);

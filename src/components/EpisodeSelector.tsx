@@ -184,6 +184,11 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
           /* ignore */
         }
       }
+      // 如果本地没有设置，读取后台配置默认值
+      const defaultValue = (window as any).RUNTIME_CONFIG?.ENABLE_OPTIMIZATION;
+      if (defaultValue !== undefined) {
+        return defaultValue !== false;
+      }
     }
     return true;
   });
