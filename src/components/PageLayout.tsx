@@ -1,9 +1,6 @@
-import { BackButton } from './BackButton';
 import MobileBottomNav from './MobileBottomNav';
 import MobileHeader from './MobileHeader';
-import Sidebar from './Sidebar';
-import { ThemeToggle } from './ThemeToggle';
-import { UserMenu } from './UserMenu';
+import { Navbar } from './Navbar';
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -12,46 +9,24 @@ interface PageLayoutProps {
 
 const PageLayout = ({ children, activePath = '/' }: PageLayoutProps) => {
   return (
-    <div className='w-full min-h-screen'>
-      {/* 移动端头部 */}
-      <MobileHeader showBackButton={['/play', '/live'].includes(activePath)} />
-
-      {/* 主要布局容器 */}
-      <div className='flex md:grid md:grid-cols-[auto_1fr] w-full min-h-screen md:min-h-auto'>
-        {/* 侧边栏 - 桌面端显示，移动端隐藏 */}
-        <div className='hidden md:block'>
-          <Sidebar activePath={activePath} />
-        </div>
-
-        {/* 主内容区域 */}
-        <div className='relative min-w-0 flex-1 transition-all duration-300'>
-          {/* 桌面端左上角返回按钮 */}
-          {['/play', '/live'].includes(activePath) && (
-            <div className='absolute top-3 left-1 z-20 hidden md:flex'>
-              <BackButton />
-            </div>
-          )}
-
-          {/* 桌面端顶部按钮 */}
-          <div className='absolute top-2 right-4 z-20 hidden md:flex items-center gap-2'>
-            <ThemeToggle />
-            <UserMenu />
-          </div>
-
-          {/* 主内容 */}
-          <main
-            className='flex-1 md:min-h-0 mb-14 md:mb-0 md:mt-0 mt-12'
-            style={{
-              paddingBottom: 'calc(3.5rem + env(safe-area-inset-bottom))',
-            }}
-          >
-            {children}
-          </main>
-        </div>
+    <div className='w-full min-h-screen bg-background text-foreground'>
+      {/* Mobile Header (Hidden on desktop) */}
+      <div className='md:hidden'>
+        <MobileHeader showBackButton={['/play', '/live'].includes(activePath)} />
       </div>
 
-      {/* 移动端底部导航 */}
-      <div className='md:hidden'>
+      {/* Desktop Navbar (Hidden on mobile) */}
+      <div className='hidden md:block'>
+        <Navbar />
+      </div>
+
+      {/* Main Content */}
+      <main className='relative min-w-0 flex-1 transition-all duration-300 md:pt-16 pb-16 md:pb-0'>
+        {children}
+      </main>
+
+      {/* Mobile Bottom Nav (Hidden on desktop) */}
+      <div className='md:hidden fixed bottom-0 w-full z-50'>
         <MobileBottomNav activePath={activePath} />
       </div>
     </div>

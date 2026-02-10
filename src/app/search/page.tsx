@@ -644,7 +644,7 @@ function SearchPageClient() {
         <div className='mb-8'>
           <form onSubmit={handleSearch} className='max-w-2xl mx-auto'>
             <div className='relative'>
-              <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500' />
+              <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground' />
               <input
                 id='searchInput'
                 type='text'
@@ -653,7 +653,7 @@ function SearchPageClient() {
                 onFocus={handleInputFocus}
                 placeholder='搜索电影、电视剧...'
                 autoComplete="off"
-                className='w-full h-12 rounded-lg bg-gray-50/80 py-3 pl-10 pr-12 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:bg-white border border-gray-200/50 shadow-sm dark:bg-gray-800 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:bg-gray-700 dark:border-gray-700'
+                className='w-full h-12 rounded-lg bg-muted/80 py-3 pl-10 pr-12 text-sm text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-card border border-border/50 shadow-sm bg-card text-foreground dark:placeholder-gray-500 dark:focus:bg-gray-700 border-border'
               />
 
               {/* 清除按钮 */}
@@ -665,7 +665,7 @@ function SearchPageClient() {
                     setShowSuggestions(false);
                     document.getElementById('searchInput')?.focus();
                   }}
-                  className='absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors dark:text-gray-500 dark:hover:text-gray-300'
+                  className='absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors text-muted-foreground dark:hover:text-gray-300'
                   aria-label='清除搜索内容'
                 >
                   <X className='h-5 w-5' />
@@ -702,16 +702,16 @@ function SearchPageClient() {
             <section className='mb-12'>
               {/* 标题 */}
               <div className='mb-4'>
-                <h2 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
+                <h2 className='text-xl font-bold text-foreground'>
                   搜索结果
                   {totalSources > 0 && useFluidSearch && (
-                    <span className='ml-2 text-sm font-normal text-gray-500 dark:text-gray-400'>
+                    <span className='ml-2 text-sm font-normal text-muted-foreground'>
                       {completedSources}/{totalSources}
                     </span>
                   )}
                   {isLoading && useFluidSearch && (
                     <span className='ml-2 inline-block align-middle'>
-                      <span className='inline-block h-3 w-3 border-2 border-gray-300 border-t-green-500 rounded-full animate-spin'></span>
+                      <span className='inline-block h-3 w-3 border-2 border-border border-t-primary rounded-full animate-spin'></span>
                     </span>
                   )}
                 </h2>
@@ -735,7 +735,7 @@ function SearchPageClient() {
                 </div>
                 {/* 聚合开关 */}
                 <label className='flex items-center gap-2 cursor-pointer select-none shrink-0'>
-                  <span className='text-xs sm:text-sm text-gray-700 dark:text-gray-300'>聚合</span>
+                  <span className='text-xs sm:text-sm text-foreground'>聚合</span>
                   <div className='relative'>
                     <input
                       type='checkbox'
@@ -743,18 +743,18 @@ function SearchPageClient() {
                       checked={viewMode === 'agg'}
                       onChange={() => setViewMode(viewMode === 'agg' ? 'all' : 'agg')}
                     />
-                    <div className='w-9 h-5 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors dark:bg-gray-600'></div>
-                    <div className='absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4'></div>
+                    <div className='w-9 h-5 bg-gray-300 rounded-full peer-checked:bg-primary transition-colors bg-card'></div>
+                    <div className='absolute top-0.5 left-0.5 w-4 h-4 bg-card rounded-full transition-transform peer-checked:translate-x-4'></div>
                   </div>
                 </label>
               </div>
               {searchResults.length === 0 ? (
                 isLoading ? (
                   <div className='flex justify-center items-center h-40'>
-                    <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-green-500'></div>
+                    <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
                   </div>
                 ) : (
-                  <div className='text-center text-gray-500 py-8 dark:text-gray-400'>
+                  <div className='text-center text-muted-foreground py-8 text-muted-foreground'>
                     未找到相关结果
                   </div>
                 )
@@ -828,14 +828,14 @@ function SearchPageClient() {
           ) : searchHistory.length > 0 ? (
             // 搜索历史
             <section className='mb-12'>
-              <h2 className='mb-4 text-xl font-bold text-gray-800 text-left dark:text-gray-200'>
+              <h2 className='mb-4 text-xl font-bold text-foreground text-left text-foreground'>
                 搜索历史
                 {searchHistory.length > 0 && (
                   <button
                     onClick={() => {
                       clearSearchHistory(); // 事件监听会自动更新界面
                     }}
-                    className='ml-3 text-sm text-gray-500 hover:text-red-500 transition-colors dark:text-gray-400 dark:hover:text-red-500'
+                    className='ml-3 text-sm text-muted-foreground hover:text-red-500 transition-colors text-muted-foreground hover:text-red-500'
                   >
                     清空
                   </button>
@@ -851,7 +851,7 @@ function SearchPageClient() {
                           `/search?q=${encodeURIComponent(item.trim())}`
                         );
                       }}
-                      className='px-4 py-2 bg-gray-500/10 hover:bg-gray-300 rounded-full text-sm text-gray-700 transition-colors duration-200 dark:bg-gray-700/50 dark:hover:bg-gray-600 dark:text-gray-300'
+                      className='px-4 py-2 bg-muted/10 hover:bg-gray-300 rounded-full text-sm text-foreground transition-colors duration-200 bg-card/50 hover:bg-muted text-foreground'
                     >
                       {item}
                     </button>
@@ -878,7 +878,7 @@ function SearchPageClient() {
       {/* 返回顶部悬浮按钮 */}
       <button
         onClick={scrollToTop}
-        className={`fixed bottom-20 md:bottom-6 right-6 z-[500] w-12 h-12 bg-green-500/90 hover:bg-green-500 text-white rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 ease-in-out flex items-center justify-center group ${showBackToTop
+        className={`fixed bottom-20 md:bottom-6 right-6 z-[500] w-12 h-12 bg-primary/90 hover:bg-primary text-white rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 ease-in-out flex items-center justify-center group ${showBackToTop
           ? 'opacity-100 translate-y-0 pointer-events-auto'
           : 'opacity-0 translate-y-4 pointer-events-none'
           }`}

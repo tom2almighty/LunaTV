@@ -473,30 +473,30 @@ export const UserMenu: React.FC = () => {
       />
 
       {/* 菜单面板 */}
-      <div className='fixed top-14 right-4 w-56 bg-white dark:bg-gray-900 rounded-lg shadow-xl z-[1001] border border-gray-200/50 dark:border-gray-700/50 overflow-hidden select-none'>
+      <div className='fixed top-14 right-4 w-56 bg-popover text-popover-foreground border-border rounded-lg shadow-xl z-[1001] border border-border/50 overflow-hidden select-none'>
         {/* 用户信息区域 */}
-        <div className='px-3 py-2.5 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-800 dark:to-gray-800/50'>
+        <div className='px-3 py-2.5 border-b border-border bg-muted/50'>
           <div className='space-y-1'>
             <div className='flex items-center justify-between'>
-              <span className='text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
+              <span className='text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                 当前用户
               </span>
               <span
                 className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${(authInfo?.role || 'user') === 'owner'
-                  ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+                  ? 'bg-accent/10 text-accent'
                   : (authInfo?.role || 'user') === 'admin'
-                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                    : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-secondary text-secondary-foreground'
                   }`}
               >
                 {getRoleText(authInfo?.role || 'user')}
               </span>
             </div>
             <div className='flex items-center justify-between'>
-              <div className='font-semibold text-gray-900 dark:text-gray-100 text-sm truncate'>
+              <div className='font-semibold text-foreground text-sm truncate'>
                 {authInfo?.username || 'default'}
               </div>
-              <div className='text-[10px] text-gray-400 dark:text-gray-500'>
+              <div className='text-[10px] text-muted-foreground'>
                 数据存储：
                 {storageType === 'localstorage' ? '本地' : storageType}
               </div>
@@ -509,9 +509,9 @@ export const UserMenu: React.FC = () => {
           {/* 设置按钮 */}
           <button
             onClick={handleSettings}
-            className='w-full px-3 py-2 text-left flex items-center gap-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm'
+            className='w-full px-3 py-2 text-left flex items-center gap-2.5 text-foreground hover:bg-muted transition-colors text-sm'
           >
-            <Settings className='w-4 h-4 text-gray-500 dark:text-gray-400' />
+            <Settings className='w-4 h-4 text-muted-foreground' />
             <span className='font-medium'>设置</span>
           </button>
 
@@ -519,9 +519,9 @@ export const UserMenu: React.FC = () => {
           {showAdminPanel && (
             <button
               onClick={handleAdminPanel}
-              className='w-full px-3 py-2 text-left flex items-center gap-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm'
+              className='w-full px-3 py-2 text-left flex items-center gap-2.5 text-foreground hover:bg-muted transition-colors text-sm'
             >
-              <Shield className='w-4 h-4 text-gray-500 dark:text-gray-400' />
+              <Shield className='w-4 h-4 text-muted-foreground' />
               <span className='font-medium'>管理面板</span>
             </button>
           )}
@@ -530,15 +530,15 @@ export const UserMenu: React.FC = () => {
           {showChangePassword && (
             <button
               onClick={handleChangePassword}
-              className='w-full px-3 py-2 text-left flex items-center gap-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm'
+              className='w-full px-3 py-2 text-left flex items-center gap-2.5 text-foreground hover:bg-muted transition-colors text-sm'
             >
-              <KeyRound className='w-4 h-4 text-gray-500 dark:text-gray-400' />
+              <KeyRound className='w-4 h-4 text-muted-foreground' />
               <span className='font-medium'>修改密码</span>
             </button>
           )}
 
           {/* 分割线 */}
-          <div className='my-1 border-t border-gray-200 dark:border-gray-700'></div>
+          <div className='my-1 border-t border-border'></div>
 
           {/* 登出按钮 */}
           <button
@@ -550,7 +550,7 @@ export const UserMenu: React.FC = () => {
           </button>
 
           {/* 分割线 */}
-          <div className='my-1 border-t border-gray-200 dark:border-gray-700'></div>
+          <div className='my-1 border-t border-border'></div>
 
           {/* 版本信息 */}
           <button
@@ -558,7 +558,7 @@ export const UserMenu: React.FC = () => {
               setIsVersionPanelOpen(true);
               handleCloseMenu();
             }}
-            className='w-full px-3 py-2 text-center flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-xs'
+            className='w-full px-3 py-2 text-center flex items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors text-xs'
           >
             <div className='flex items-center gap-1'>
               <span className='font-mono'>v{CURRENT_VERSION}</span>
@@ -586,7 +586,7 @@ export const UserMenu: React.FC = () => {
     <>
       {/* 背景遮罩 */}
       <div
-        className='fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000]'
+        className='fixed inset-0 bg-background/50 backdrop-blur-sm z-[1000]'
         onClick={handleCloseSettings}
         onTouchMove={(e) => {
           // 只阻止滚动，允许其他触摸事件
@@ -603,7 +603,7 @@ export const UserMenu: React.FC = () => {
 
       {/* 设置面板 */}
       <div
-        className='fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl max-h-[90vh] bg-white dark:bg-gray-900 rounded-xl shadow-xl z-[1001] flex flex-col'
+        className='fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl max-h-[90vh] bg-popover text-popover-foreground border-border rounded-xl shadow-xl z-[1001] flex flex-col'
       >
         {/* 内容容器 - 独立的滚动区域 */}
         <div
@@ -617,12 +617,12 @@ export const UserMenu: React.FC = () => {
           {/* 标题栏 */}
           <div className='flex items-center justify-between mb-6'>
             <div className='flex items-center gap-3'>
-              <h3 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
+              <h3 className='text-xl font-bold text-foreground'>
                 本地设置
               </h3>
               <button
                 onClick={handleResetSettings}
-                className='px-2 py-1 text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 border border-red-200 hover:border-red-300 dark:border-red-800 dark:hover:border-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors'
+                className='px-2 py-1 text-xs text-destructive hover:text-destructive/80 border border-destructive/20 hover:border-destructive/30 hover:bg-destructive/10 rounded transition-colors'
                 title='重置为默认设置'
               >
                 恢复默认
@@ -630,7 +630,7 @@ export const UserMenu: React.FC = () => {
             </div>
             <button
               onClick={handleCloseSettings}
-              className='w-8 h-8 p-1 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors'
+              className='w-8 h-8 p-1 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors'
               aria-label='Close'
             >
               <X className='w-full h-full' />
@@ -642,10 +642,10 @@ export const UserMenu: React.FC = () => {
             {/* 豆瓣数据源选择 */}
             <div className='space-y-3'>
               <div>
-                <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                <h4 className='text-sm font-medium text-foreground'>
                   豆瓣数据代理
                 </h4>
-                <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                <p className='text-xs text-muted-foreground mt-1'>
                   选择获取豆瓣数据的方式
                 </p>
               </div>
@@ -654,7 +654,7 @@ export const UserMenu: React.FC = () => {
                 <button
                   type='button'
                   onClick={() => setIsDoubanDropdownOpen(!isDoubanDropdownOpen)}
-                  className='w-full px-3 py-2.5 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm hover:border-gray-400 dark:hover:border-gray-500 text-left'
+                  className='w-full px-3 py-2.5 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 bg-card text-foreground shadow-sm hover:border-border/80 text-left'
                 >
                   {
                     doubanDataSourceOptions.find(
@@ -666,14 +666,14 @@ export const UserMenu: React.FC = () => {
                 {/* 下拉箭头 */}
                 <div className='absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none'>
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${isDoubanDropdownOpen ? 'rotate-180' : ''
+                    className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isDoubanDropdownOpen ? 'rotate-180' : ''
                       }`}
                   />
                 </div>
 
                 {/* 下拉选项列表 */}
                 {isDoubanDropdownOpen && (
-                  <div className='absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-auto'>
+                  <div className='absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-auto'>
                     {doubanDataSourceOptions.map((option) => (
                       <button
                         key={option.value}
@@ -682,14 +682,14 @@ export const UserMenu: React.FC = () => {
                           handleDoubanDataSourceChange(option.value);
                           setIsDoubanDropdownOpen(false);
                         }}
-                        className={`w-full px-3 py-2.5 text-left text-sm transition-colors duration-150 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 ${doubanDataSource === option.value
-                          ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                          : 'text-gray-900 dark:text-gray-100'
+                        className={`w-full px-3 py-2.5 text-left text-sm transition-colors duration-150 flex items-center justify-between hover:bg-muted ${doubanDataSource === option.value
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-foreground'
                           }`}
                       >
                         <span className='truncate'>{option.label}</span>
                         {doubanDataSource === option.value && (
-                          <Check className='w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 ml-2' />
+                          <Check className='w-4 h-4 text-primary flex-shrink-0 ml-2' />
                         )}
                       </button>
                     ))}
@@ -705,7 +705,7 @@ export const UserMenu: React.FC = () => {
                     onClick={() =>
                       window.open(getThanksInfo(doubanDataSource)!.url, '_blank')
                     }
-                    className='flex items-center justify-center gap-1.5 w-full px-3 text-xs text-gray-500 dark:text-gray-400 cursor-pointer'
+                    className='flex items-center justify-center gap-1.5 w-full px-3 text-xs text-muted-foreground cursor-pointer'
                   >
                     <span className='font-medium'>
                       {getThanksInfo(doubanDataSource)!.text}
@@ -720,16 +720,16 @@ export const UserMenu: React.FC = () => {
             {doubanDataSource === 'custom' && (
               <div className='space-y-3'>
                 <div>
-                  <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                  <h4 className='text-sm font-medium text-foreground'>
                     豆瓣代理地址
                   </h4>
-                  <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                  <p className='text-xs text-muted-foreground mt-1'>
                     自定义代理服务器地址
                   </p>
                 </div>
                 <input
                   type='text'
-                  className='w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 shadow-sm hover:border-gray-400 dark:hover:border-gray-500'
+                  className='w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 bg-card text-foreground placeholder:text-muted-foreground shadow-sm hover:border-border/80'
                   placeholder='例如: https://proxy.example.com/fetch?url='
                   value={doubanProxyUrl}
                   onChange={(e) => handleDoubanProxyUrlChange(e.target.value)}
@@ -738,15 +738,15 @@ export const UserMenu: React.FC = () => {
             )}
 
             {/* 分割线 */}
-            <div className='border-t border-gray-200 dark:border-gray-700'></div>
+            <div className='border-t border-border'></div>
 
             {/* 豆瓣图片代理设置 */}
             <div className='space-y-3'>
               <div>
-                <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                <h4 className='text-sm font-medium text-foreground'>
                   豆瓣图片代理
                 </h4>
-                <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                <p className='text-xs text-muted-foreground mt-1'>
                   选择获取豆瓣图片的方式
                 </p>
               </div>
@@ -759,7 +759,7 @@ export const UserMenu: React.FC = () => {
                       !isDoubanImageProxyDropdownOpen
                     )
                   }
-                  className='w-full px-3 py-2.5 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm hover:border-gray-400 dark:hover:border-gray-500 text-left'
+                  className='w-full px-3 py-2.5 pr-10 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 bg-card text-foreground shadow-sm hover:border-border/80 text-left'
                 >
                   {
                     doubanImageProxyTypeOptions.find(
@@ -771,14 +771,14 @@ export const UserMenu: React.FC = () => {
                 {/* 下拉箭头 */}
                 <div className='absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none'>
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${isDoubanDropdownOpen ? 'rotate-180' : ''
+                    className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isDoubanDropdownOpen ? 'rotate-180' : ''
                       }`}
                   />
                 </div>
 
                 {/* 下拉选项列表 */}
                 {isDoubanImageProxyDropdownOpen && (
-                  <div className='absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-auto'>
+                  <div className='absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-auto'>
                     {doubanImageProxyTypeOptions.map((option) => (
                       <button
                         key={option.value}
@@ -787,14 +787,14 @@ export const UserMenu: React.FC = () => {
                           handleDoubanImageProxyTypeChange(option.value);
                           setIsDoubanImageProxyDropdownOpen(false);
                         }}
-                        className={`w-full px-3 py-2.5 text-left text-sm transition-colors duration-150 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 ${doubanImageProxyType === option.value
-                          ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                          : 'text-gray-900 dark:text-gray-100'
+                        className={`w-full px-3 py-2.5 text-left text-sm transition-colors duration-150 flex items-center justify-between hover:bg-muted ${doubanImageProxyType === option.value
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-foreground'
                           }`}
                       >
                         <span className='truncate'>{option.label}</span>
                         {doubanImageProxyType === option.value && (
-                          <Check className='w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0 ml-2' />
+                          <Check className='w-4 h-4 text-primary flex-shrink-0 ml-2' />
                         )}
                       </button>
                     ))}
@@ -813,7 +813,7 @@ export const UserMenu: React.FC = () => {
                         '_blank'
                       )
                     }
-                    className='flex items-center justify-center gap-1.5 w-full px-3 text-xs text-gray-500 dark:text-gray-400 cursor-pointer'
+                    className='flex items-center justify-center gap-1.5 w-full px-3 text-xs text-muted-foreground cursor-pointer'
                   >
                     <span className='font-medium'>
                       {getThanksInfo(doubanImageProxyType)!.text}
@@ -828,16 +828,16 @@ export const UserMenu: React.FC = () => {
             {doubanImageProxyType === 'custom' && (
               <div className='space-y-3'>
                 <div>
-                  <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                  <h4 className='text-sm font-medium text-foreground'>
                     豆瓣图片代理地址
                   </h4>
-                  <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                  <p className='text-xs text-muted-foreground mt-1'>
                     自定义图片代理服务器地址
                   </p>
                 </div>
                 <input
                   type='text'
-                  className='w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 shadow-sm hover:border-gray-400 dark:hover:border-gray-500'
+                  className='w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 bg-card text-foreground placeholder:text-muted-foreground shadow-sm hover:border-border/80'
                   placeholder='例如: https://proxy.example.com/fetch?url='
                   value={doubanImageProxyUrl}
                   onChange={(e) =>
@@ -848,15 +848,15 @@ export const UserMenu: React.FC = () => {
             )}
 
             {/* 分割线 */}
-            <div className='border-t border-gray-200 dark:border-gray-700'></div>
+            <div className='border-t border-border'></div>
 
             {/* 默认聚合搜索结果 */}
             <div className='flex items-center justify-between'>
               <div>
-                <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                <h4 className='text-sm font-medium text-foreground'>
                   默认聚合搜索结果
                 </h4>
-                <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                <p className='text-xs text-muted-foreground mt-1'>
                   搜索时默认按标题和年份聚合显示结果
                 </p>
               </div>
@@ -868,8 +868,8 @@ export const UserMenu: React.FC = () => {
                     checked={defaultAggregateSearch}
                     onChange={(e) => handleAggregateToggle(e.target.checked)}
                   />
-                  <div className='w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors dark:bg-gray-600'></div>
-                  <div className='absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5'></div>
+                  <div className='w-11 h-6 bg-muted rounded-full peer-checked:bg-primary transition-colors'></div>
+                  <div className='absolute top-0.5 left-0.5 w-5 h-5 bg-card rounded-full transition-transform peer-checked:translate-x-5'></div>
                 </div>
               </label>
             </div>
@@ -877,10 +877,10 @@ export const UserMenu: React.FC = () => {
             {/* 优选和测速 */}
             <div className='flex items-center justify-between'>
               <div>
-                <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                <h4 className='text-sm font-medium text-foreground'>
                   优选和测速
                 </h4>
-                <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                <p className='text-xs text-muted-foreground mt-1'>
                   如出现播放器劫持问题可关闭
                 </p>
               </div>
@@ -892,8 +892,8 @@ export const UserMenu: React.FC = () => {
                     checked={enableOptimization}
                     onChange={(e) => handleOptimizationToggle(e.target.checked)}
                   />
-                  <div className='w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors dark:bg-gray-600'></div>
-                  <div className='absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5'></div>
+                  <div className='w-11 h-6 bg-muted rounded-full peer-checked:bg-primary transition-colors'></div>
+                  <div className='absolute top-0.5 left-0.5 w-5 h-5 bg-card rounded-full transition-transform peer-checked:translate-x-5'></div>
                 </div>
               </label>
             </div>
@@ -901,10 +901,10 @@ export const UserMenu: React.FC = () => {
             {/* 流式搜索 */}
             <div className='flex items-center justify-between'>
               <div>
-                <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                <h4 className='text-sm font-medium text-foreground'>
                   流式搜索输出
                 </h4>
-                <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                <p className='text-xs text-muted-foreground mt-1'>
                   启用搜索结果实时流式输出，关闭后使用传统一次性搜索
                 </p>
               </div>
@@ -916,16 +916,16 @@ export const UserMenu: React.FC = () => {
                     checked={fluidSearch}
                     onChange={(e) => handleFluidSearchToggle(e.target.checked)}
                   />
-                  <div className='w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors dark:bg-gray-600'></div>
-                  <div className='absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5'></div>
+                  <div className='w-11 h-6 bg-muted rounded-full peer-checked:bg-primary transition-colors'></div>
+                  <div className='absolute top-0.5 left-0.5 w-5 h-5 bg-card rounded-full transition-transform peer-checked:translate-x-5'></div>
                 </div>
               </label>
             </div>
           </div>
 
           {/* 底部说明 */}
-          <div className='mt-6 pt-4 border-t border-gray-200 dark:border-gray-700'>
-            <p className='text-xs text-gray-500 dark:text-gray-400 text-center'>
+          <div className='mt-6 pt-4 border-t border-border'>
+            <p className='text-xs text-muted-foreground text-center'>
               这些设置保存在本地浏览器中
             </p>
           </div>
@@ -939,7 +939,7 @@ export const UserMenu: React.FC = () => {
     <>
       {/* 背景遮罩 */}
       <div
-        className='fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000]'
+        className='fixed inset-0 bg-background/50 backdrop-blur-sm z-[1000]'
         onClick={handleCloseChangePassword}
         onTouchMove={(e) => {
           // 只阻止滚动，允许其他触摸事件
@@ -956,7 +956,7 @@ export const UserMenu: React.FC = () => {
 
       {/* 修改密码面板 */}
       <div
-        className='fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-xl z-[1001] overflow-hidden'
+        className='fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-popover text-popover-foreground border-border rounded-xl shadow-xl z-[1001] overflow-hidden'
       >
         {/* 内容容器 - 独立的滚动区域 */}
         <div
@@ -972,12 +972,12 @@ export const UserMenu: React.FC = () => {
         >
           {/* 标题栏 */}
           <div className='flex items-center justify-between mb-6'>
-            <h3 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
+            <h3 className='text-xl font-bold text-foreground'>
               修改密码
             </h3>
             <button
               onClick={handleCloseChangePassword}
-              className='w-8 h-8 p-1 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors'
+              className='w-8 h-8 p-1 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors'
               aria-label='Close'
             >
               <X className='w-full h-full' />
@@ -988,12 +988,12 @@ export const UserMenu: React.FC = () => {
           <div className='space-y-4'>
             {/* 新密码输入 */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
+              <label className='block text-sm font-medium text-foreground mb-2'>
                 新密码
               </label>
               <input
                 type='password'
-                className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400'
+                className='w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors bg-card text-foreground placeholder:text-muted-foreground'
                 placeholder='请输入新密码'
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -1003,12 +1003,12 @@ export const UserMenu: React.FC = () => {
 
             {/* 确认密码输入 */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
+              <label className='block text-sm font-medium text-foreground mb-2'>
                 确认密码
               </label>
               <input
                 type='password'
-                className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400'
+                className='w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors bg-card text-foreground placeholder:text-muted-foreground'
                 placeholder='请再次输入新密码'
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -1025,17 +1025,17 @@ export const UserMenu: React.FC = () => {
           </div>
 
           {/* 操作按钮 */}
-          <div className='flex gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700'>
+          <div className='flex gap-3 mt-6 pt-4 border-t border-border'>
             <button
               onClick={handleCloseChangePassword}
-              className='flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors'
+              className='flex-1 px-4 py-2 text-sm font-medium text-foreground bg-muted hover:bg-muted/80 rounded-md transition-colors'
               disabled={passwordLoading}
             >
               取消
             </button>
             <button
               onClick={handleSubmitChangePassword}
-              className='flex-1 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+              className='flex-1 px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
               disabled={passwordLoading || !newPassword || !confirmPassword}
             >
               {passwordLoading ? '修改中...' : '确认修改'}
@@ -1043,8 +1043,8 @@ export const UserMenu: React.FC = () => {
           </div>
 
           {/* 底部说明 */}
-          <div className='mt-4 pt-4 border-t border-gray-200 dark:border-gray-700'>
-            <p className='text-xs text-gray-500 dark:text-gray-400 text-center'>
+          <div className='mt-4 pt-4 border-t border-border'>
+            <p className='text-xs text-muted-foreground text-center'>
               修改密码后需要重新登录
             </p>
           </div>
@@ -1058,7 +1058,7 @@ export const UserMenu: React.FC = () => {
       <div className='relative'>
         <button
           onClick={handleMenuClick}
-          className='w-10 h-10 p-2 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200/50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors'
+          className='w-10 h-10 p-2 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors'
           aria-label='User Menu'
         >
           <User className='w-full h-full' />

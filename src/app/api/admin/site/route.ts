@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
       DisableYellowFilter,
       FluidSearch,
       EnableOptimization,
+      EnableRegistration,
     } = body as {
       SiteName: string;
       Announcement: string;
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest) {
       DisableYellowFilter: boolean;
       FluidSearch: boolean;
       EnableOptimization: boolean;
+      EnableRegistration: boolean;
     };
 
     // 参数校验
@@ -66,7 +68,8 @@ export async function POST(request: NextRequest) {
       typeof DoubanImageProxy !== 'string' ||
       typeof DisableYellowFilter !== 'boolean' ||
       typeof FluidSearch !== 'boolean' ||
-      typeof EnableOptimization !== 'boolean'
+      typeof EnableOptimization !== 'boolean' ||
+      typeof EnableRegistration !== 'boolean'
     ) {
       return NextResponse.json({ error: '参数格式错误' }, { status: 400 });
     }
@@ -97,6 +100,7 @@ export async function POST(request: NextRequest) {
       DisableYellowFilter,
       FluidSearch,
       EnableOptimization,
+      EnableRegistration,
     };
 
     // 写入数据库

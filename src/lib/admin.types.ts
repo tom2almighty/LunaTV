@@ -17,6 +17,7 @@ export interface AdminConfig {
     DisableYellowFilter: boolean;
     FluidSearch: boolean;
     EnableOptimization: boolean;
+    EnableRegistration: boolean; // 是否开启前台注册功能
   };
   UserConfig: {
     Users: {

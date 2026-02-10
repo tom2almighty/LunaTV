@@ -1,67 +1,448 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer utilities {
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+@theme {
+  --font-primary: Inter, sans-serif;
+
+  /* Semantic Map - Maps to generic utility classes */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Additional semantic colors */
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  /* Animation definitions remain the same */
+  --animate-flicker: flicker 3s linear infinite;
+  --animate-shimmer: shimmer 1.3s linear infinite;
+  --animate-fade-in: fadeIn 0.3s ease-in-out;
+  --animate-slide-up: slideUp 0.3s ease-in-out;
+  --animate-slide-down: slideDown 0.3s ease-in-out;
+  --animate-slide-in-from-right: slideInFromRight 0.3s ease-out;
+
+  @keyframes flicker {
+    0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+      opacity: 0.99;
+      filter: drop-shadow(0 0 1px rgba(229, 9, 20, 0.5)) drop-shadow(0 0 15px rgba(229, 9, 20, 0.3));
+    }
+    20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+      opacity: 0.4;
+      filter: none;
+    }
   }
 
-  .scrollbar-hide::-webkit-scrollbar {
+  @keyframes shimmer {
+    0% { background-position: -700px 0; }
+    100% { background-position: 700px 0; }
+  }
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    0% { transform: translateY(10px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes slideDown {
+    0% { transform: translateY(-10px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes slideInFromRight {
+    0% { transform: translateX(100%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+}
+
+/* Custom Utilities */
+@utility scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
   }
 }
 
+/* 
+  THEMING SYSTEM
+  Using CSS variables to define semantic colors.
+  Values change based on [data-theme] and [data-mode] attributes.
+*/
+
 :root {
-  --foreground-rgb: 255, 255, 255;
+  /* Default fallbacks */
+  --radius: 0.5rem;
 }
 
-html,
+/* NETFLIX THEME (Default) */
+:root[data-theme="netflix"] {
+  /* Light Mode */
+  --background: #ffffff;
+  --foreground: #141414;
+
+  --primary: #E50914; /* Netflix Red */
+  --primary-foreground: #ffffff;
+
+  --secondary: #e5e5e5;
+  --secondary-foreground: #141414;
+
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+
+  --card: #ffffff;
+  --card-foreground: #141414;
+
+  --popover: #ffffff;
+  --popover-foreground: #141414;
+
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #E50914;
+
+  /* Additional semantic colors */
+  --accent: #E50914;
+  --accent-foreground: #ffffff;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+
+  --warning: #eab308;
+  --warning-foreground: #000000;
+}
+
+:root[data-theme="netflix"][data-mode="dark"] {
+  /* Dark Mode */
+  --background: #0a0a0a; /* Slightly lighter than pure black */
+  --foreground: #ffffff;
+
+  --primary: #E50914;
+  --primary-foreground: #ffffff;
+
+  --secondary: #333333;
+  --secondary-foreground: #ffffff;
+
+  --muted: #1a1a1a;
+  --muted-foreground: #a3a3a3;
+
+  --card: #1a1a1a; /* Slightly lighter than background for cards */
+  --card-foreground: #ffffff;
+
+  --popover: #1a1a1a;
+  --popover-foreground: #ffffff;
+
+  --border: #333333;
+  --input: #333333;
+  --ring: #E50914;
+
+  /* Additional semantic colors */
+  --accent: #E50914;
+  --accent-foreground: #ffffff;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+
+  --warning: #eab308;
+  --warning-foreground: #000000;
+}
+
+/* CLASSIC THEME (Blue) */
+:root[data-theme="classic"] {
+  --background: #ffffff;
+  --foreground: #0f172a;
+
+  --primary: #2563eb; /* Blue 600 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #2563eb;
+
+  /* Additional semantic colors */
+  --accent: #2563eb;
+  --accent-foreground: #ffffff;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+
+  --warning: #eab308;
+  --warning-foreground: #000000;
+}
+
+:root[data-theme="classic"][data-mode="dark"] {
+  --background: #0f172a; /* Slate 950 */
+  --foreground: #f8fafc;
+
+  --primary: #3b82f6; /* Blue 500 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+
+  --popover: #0f172a;
+  --popover-foreground: #f8fafc;
+
+  --border: #334155;
+  --input: #334155;
+  --ring: #3b82f6;
+
+  /* Additional semantic colors */
+  --accent: #3b82f6;
+  --accent-foreground: #ffffff;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+
+  --warning: #eab308;
+  --warning-foreground: #000000;
+}
+
+/* OCEAN THEME (Teal/Cyan) */
+:root[data-theme="ocean"] {
+  --background: #ffffff;
+  --foreground: #0e1b21;
+
+  --primary: #0891b2; /* Cyan 600 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #ecfeff;
+  --secondary-foreground: #0e1b21;
+
+  --muted: #f0fdfa;
+  --muted-foreground: #5d7479;
+
+  --card: #ffffff;
+  --card-foreground: #0e1b21;
+
+  --popover: #ffffff;
+  --popover-foreground: #0e1b21;
+
+  --border: #cffafe;
+  --input: #cffafe;
+  --ring: #0891b2;
+
+  /* Additional semantic colors */
+  --accent: #0891b2;
+  --accent-foreground: #ffffff;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+
+  --warning: #eab308;
+  --warning-foreground: #000000;
+}
+
+:root[data-theme="ocean"][data-mode="dark"] {
+  --background: #041016;
+  --foreground: #ecfeff;
+
+  --primary: #06b6d4; /* Cyan 500 */
+  --primary-foreground: #000000;
+
+  --secondary: #164e63;
+  --secondary-foreground: #ecfeff;
+
+  --muted: #0c3b4a;
+  --muted-foreground: #9ca3af;
+
+  --card: #0c3b4a;
+  --card-foreground: #ecfeff;
+
+  --popover: #041016;
+  --popover-foreground: #ecfeff;
+
+  --border: #155e75;
+  --input: #155e75;
+  --ring: #06b6d4;
+
+  /* Additional semantic colors */
+  --accent: #06b6d4;
+  --accent-foreground: #000000;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+
+  --warning: #eab308;
+  --warning-foreground: #000000;
+}
+
+/* FOREST THEME (Green) */
+:root[data-theme="forest"] {
+  --background: #ffffff;
+  --foreground: #152010;
+
+  --primary: #16a34a; /* Green 600 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #f0fdf4;
+  --secondary-foreground: #152010;
+
+  --muted: #dcfce7;
+  --muted-foreground: #4a664e;
+
+  --card: #ffffff;
+  --card-foreground: #152010;
+
+  --popover: #ffffff;
+  --popover-foreground: #152010;
+
+  --border: #bbf7d0;
+  --input: #bbf7d0;
+  --ring: #16a34a;
+
+  /* Additional semantic colors */
+  --accent: #16a34a;
+  --accent-foreground: #ffffff;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+
+  --warning: #eab308;
+  --warning-foreground: #000000;
+}
+
+:root[data-theme="forest"][data-mode="dark"] {
+  --background: #020617; /* Slate 950 base but greener */
+  --foreground: #f0fdf4;
+
+  --primary: #22c55e; /* Green 500 */
+  --primary-foreground: #000000;
+
+  --secondary: #14532d;
+  --secondary-foreground: #f0fdf4;
+
+  --muted: #052e16;
+  --muted-foreground: #86efac;
+
+  --card: #052e16;
+  --card-foreground: #f0fdf4;
+
+  --popover: #020617;
+  --popover-foreground: #f0fdf4;
+
+  --border: #14532d;
+  --input: #14532d;
+  --ring: #22c55e;
+
+  /* Additional semantic colors */
+  --accent: #22c55e;
+  --accent-foreground: #000000;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --success: #22c55e;
+  --success-foreground: #000000;
+
+  --warning: #eab308;
+  --warning-foreground: #000000;
+}
+
+
+/* Base Styles */
+html {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 body {
   height: 100%;
   overflow-x: hidden;
-  /* 阻止 iOS Safari 拉动回弹 */
   overscroll-behavior: none;
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-}
-
-html:not(.dark) body {
-  background: linear-gradient(
-    180deg,
-    #e6f3fb 0%,
-    #eaf3f7 18%,
-    #f7f7f3 38%,
-    #e9ecef 60%,
-    #dbe3ea 80%,
-    #d3dde6 100%
-  );
-  background-attachment: fixed;
-}
-
-/* 自定义滚动条样式 */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(31, 41, 55, 0.1);
+  background: var(--muted);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(75, 85, 99, 0.3);
+  background: var(--muted-foreground);
   border-radius: 4px;
+  opacity: 0.5;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(107, 114, 128, 0.5);
+  background: var(--primary);
 }
 
-/* 视频卡片悬停效果 */
+/* Video Card Hover */
 .video-card-hover {
   transition: transform 0.3s ease;
 }
@@ -70,98 +451,44 @@ html:not(.dark) body {
   transform: scale(1.05);
 }
 
-/* 渐变遮罩 */
+/* Gradient Overlay - Adaptive to theme */
 .gradient-overlay {
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.8) 100%
+    transparent 0%,
+    var(--background) 100%
   );
 }
 
-/* 隐藏移动端（<768px）垂直滚动条 */
+/* Hide scrollbar on mobile */
 @media (max-width: 767px) {
   html,
   body {
-    -ms-overflow-style: none; /* IE & Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; 
+    scrollbar-width: none;
   }
-
   html::-webkit-scrollbar,
   body::-webkit-scrollbar {
-    display: none; /* Chrome Safari */
+    display: none;
   }
 }
 
-
-
-/* View Transitions API 动画 */
-@keyframes slide-from-top {
-  from {
-    clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
-  }
-  to {
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-  }
-}
-
-@keyframes slide-from-bottom {
-  from {
-    clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
-  }
-  to {
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-  }
-}
-
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 0.8s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  animation-fill-mode: both;
-}
-
-/*
-  切换时，旧的视图不应该有动画，它应该在下面，等待被新的视图覆盖。
-  这可以防止在动画完成前，页面底部提前变色。
-*/
-::view-transition-old(root) {
-  animation: none;
-}
-
-/* 从浅色到深色：新内容（深色）从顶部滑入 */
-html.dark::view-transition-new(root) {
-  animation-name: slide-from-top;
-}
-
-/* 从深色到浅色：新内容（浅色）从底部滑入 */
-html:not(.dark)::view-transition-new(root) {
-  animation-name: slide-from-bottom;
-}
-
-/* 强制播放器内部的 video 元素高度为 100%，并保持内容完整显示 */
+/* Player overrides */
 div[data-media-provider] video {
   height: 100%;
   object-fit: contain;
 }
 
 .art-poster {
-  background-size: contain !important; /* 使图片完整展示 */
-  background-position: center center !important; /* 居中显示 */
-  background-repeat: no-repeat !important; /* 防止重复 */
-  background-color: #000 !important; /* 其余区域填充为黑色 */
+  background-size: contain !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-color: #000 !important;
 }
 
-/* 隐藏移动端竖屏时的 pip 按钮 */
 @media (max-width: 768px) {
-  .art-control-pip {
-    display: none !important;
-  }
-
-  .art-control-fullscreenWeb {
-    display: none !important;
-  }
-
+  .art-control-pip,
+  .art-control-fullscreenWeb,
   .art-control-volume {
     display: none !important;
   }

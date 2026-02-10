@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function WarningPage() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4'>
-      <div className='max-w-2xl w-full bg-white rounded-2xl shadow-2xl p-4 sm:p-8 border border-red-200'>
+      <div className='max-w-2xl w-full bg-card rounded-2xl shadow-2xl p-4 sm:p-8 border border-red-200'>
         {/* 警告图标 */}
         <div className='flex justify-center mb-4 sm:mb-6'>
           <div className='w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center'>
@@ -30,14 +30,14 @@ export default function WarningPage() {
 
         {/* 标题 */}
         <div className='text-center mb-6 sm:mb-8'>
-          <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-2'>
+          <h1 className='text-2xl sm:text-3xl font-bold text-foreground mb-2'>
             安全合规配置警告
           </h1>
           <div className='w-12 sm:w-16 h-1 bg-red-500 mx-auto rounded-full'></div>
         </div>
 
         {/* 警告内容 */}
-        <div className='space-y-4 sm:space-y-6 text-gray-700'>
+        <div className='space-y-4 sm:space-y-6 text-foreground'>
           <div className='bg-red-50 border-l-4 border-red-500 p-3 sm:p-4 rounded-r-lg'>
             <p className='text-base sm:text-lg font-semibold text-red-800 mb-2'>
               ⚠️ 安全风险提示
@@ -48,10 +48,10 @@ export default function WarningPage() {
           </div>
 
           <div className='space-y-3 sm:space-y-4'>
-            <h2 className='text-lg sm:text-xl font-semibold text-gray-900'>
+            <h2 className='text-lg sm:text-xl font-semibold text-foreground'>
               主要风险
             </h2>
-            <ul className='space-y-2 sm:space-y-3 text-sm sm:text-base text-gray-600'>
+            <ul className='space-y-2 sm:space-y-3 text-sm sm:text-base text-muted-foreground'>
               <li className='flex items-start'>
                 <span className='text-red-500 mr-2 mt-0.5'>•</span>
                 <span>未经授权的访问可能导致内容被恶意传播</span>
@@ -86,8 +86,8 @@ export default function WarningPage() {
         </div>
 
         {/* 底部装饰 */}
-        <div className='mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200'>
-          <div className='text-center text-xs sm:text-sm text-gray-500'>
+        <div className='mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-border'>
+          <div className='text-center text-xs sm:text-sm text-muted-foreground'>
             <p>为确保系统安全性和合规性，请及时完成安全配置</p>
           </div>
         </div>

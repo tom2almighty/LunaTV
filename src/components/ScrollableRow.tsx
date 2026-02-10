@@ -128,9 +128,9 @@ export default function ScrollableRow({
           >
             <button
               onClick={handleScrollLeftClick}
-              className='w-12 h-12 bg-white/95 rounded-full shadow-lg flex items-center justify-center hover:bg-white border border-gray-200 transition-transform hover:scale-105 dark:bg-gray-800/90 dark:hover:bg-gray-700 dark:border-gray-600'
+              className='w-12 h-12 bg-card/95 rounded-full shadow-lg flex items-center justify-center hover:bg-card border border-border transition-transform hover:scale-105 bg-card/90 dark:hover:bg-muted border-border'
             >
-              <ChevronLeft className='w-6 h-6 text-gray-600 dark:text-gray-300' />
+              <ChevronLeft className='w-6 h-6 text-muted-foreground text-foreground' />
             </button>
           </div>
         </div>
@@ -157,9 +157,9 @@ export default function ScrollableRow({
           >
             <button
               onClick={handleScrollRightClick}
-              className='w-12 h-12 bg-white/95 rounded-full shadow-lg flex items-center justify-center hover:bg-white border border-gray-200 transition-transform hover:scale-105 dark:bg-gray-800/90 dark:hover:bg-gray-700 dark:border-gray-600'
+              className='w-12 h-12 bg-card/95 rounded-full shadow-lg flex items-center justify-center hover:bg-card border border-border transition-transform hover:scale-105 bg-card/90 dark:hover:bg-muted border-border'
             >
-              <ChevronRight className='w-6 h-6 text-gray-600 dark:text-gray-300' />
+              <ChevronRight className='w-6 h-6 text-muted-foreground text-foreground' />
             </button>
           </div>
         </div>

@@ -173,6 +173,8 @@ async function getInitConfig(configFile: string, subConfig: {
         process.env.NEXT_PUBLIC_FLUID_SEARCH !== 'false',
       EnableOptimization:
         process.env.NEXT_PUBLIC_ENABLE_OPTIMIZATION !== 'false',
+      EnableRegistration:
+        process.env.NEXT_PUBLIC_ENABLE_REGISTRATION === 'true', // 默认关闭注册
     },
     UserConfig: {
       Users: [],
