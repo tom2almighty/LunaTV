@@ -1,12 +1,14 @@
 'use client';
 
-import { Moon, Sun, Palette, Check, SunMoon } from 'lucide-react';
+import { Check, Moon, Palette, Sun, SunMoon } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+
 import { useTheme } from '@/context/ThemeContext';
-import { useEffect, useState, useRef } from 'react';
 
 export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
-  const { mode, setMode, colorScheme, setColorScheme, resolvedMode } = useTheme();
+  const { mode, setMode, colorScheme, setColorScheme, resolvedMode } =
+    useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -25,7 +27,7 @@ export function ThemeToggle() {
   }, []);
 
   if (!mounted) {
-    return <div className='w-10 h-10' />;
+    return <div className='h-10 w-10' />;
   }
 
   const toggleMode = () => {
@@ -41,39 +43,39 @@ export function ThemeToggle() {
   ] as const;
 
   return (
-    <div className="relative" ref={menuRef}>
-      <div className="flex items-center gap-2 bg-secondary/50 rounded-full p-1 border border-border/50">
+    <div className='relative' ref={menuRef}>
+      <div className='bg-secondary/50 border-border/50 flex items-center gap-2 rounded-full border p-1'>
         {/* Mode Toggle */}
         <button
           onClick={toggleMode}
-          className='w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors'
+          className='text-muted-foreground hover:bg-muted hover:text-foreground flex h-8 w-8 items-center justify-center rounded-full transition-colors'
           aria-label='Toggle theme mode'
           title={resolvedMode === 'dark' ? '切换到亮色模式' : '切换到暗色模式'}
         >
           {resolvedMode === 'dark' ? (
-            <Sun className='w-4 h-4' />
+            <Sun className='h-4 w-4' />
           ) : (
-            <Moon className='w-4 h-4' />
+            <Moon className='h-4 w-4' />
           )}
         </button>
 
-        <div className="w-px h-4 bg-border/50"></div>
+        <div className='bg-border/50 h-4 w-px'></div>
 
         {/* Scheme Selector Trigger */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isOpen ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+          className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${isOpen ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
           aria-label='Select color scheme'
-          title="切换配色"
+          title='切换配色'
         >
-          <Palette className='w-4 h-4' />
+          <Palette className='h-4 w-4' />
         </button>
       </div>
 
       {/* Scheme Dropdown */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-48 py-2 bg-popover border border-border rounded-lg shadow-xl z-99 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
-          <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <div className='bg-popover border-border z-99 animate-in fade-in zoom-in-95 absolute right-0 top-full mt-2 w-48 origin-top-right rounded-lg border py-2 shadow-xl duration-200'>
+          <div className='text-muted-foreground px-3 py-1.5 text-xs font-semibold uppercase tracking-wider'>
             配色
           </div>
           {schemes.map((scheme) => (
@@ -83,40 +85,42 @@ export function ThemeToggle() {
                 setColorScheme(scheme.id);
                 setIsOpen(false);
               }}
-              className={`w-full text-left px-3 py-2 text-sm flex items-center gap-3 hover:bg-muted/50 transition-colors ${colorScheme === scheme.id ? 'text-foreground font-medium' : 'text-muted-foreground'}`}
+              className={`hover:bg-muted/50 flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors ${colorScheme === scheme.id ? 'text-foreground font-medium' : 'text-muted-foreground'}`}
             >
               <span
-                className="w-3 h-3 rounded-full shadow-sm ring-1 ring-inset ring-black/10 dark:ring-white/10"
+                className='h-3 w-3 rounded-full shadow-sm ring-1 ring-inset ring-black/10 dark:ring-white/10'
                 style={{ backgroundColor: scheme.color }}
               ></span>
-              <span className="flex-1">{scheme.name}</span>
-              {colorScheme === scheme.id && <Check className="w-3 h-3 text-primary" />}
+              <span className='flex-1'>{scheme.name}</span>
+              {colorScheme === scheme.id && (
+                <Check className='text-primary h-3 w-3' />
+              )}
             </button>
           ))}
 
-          <div className="my-1 border-t border-border/50"></div>
+          <div className='border-border/50 my-1 border-t'></div>
 
-          <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <div className='text-muted-foreground px-3 py-1.5 text-xs font-semibold uppercase tracking-wider'>
             模式
           </div>
-          <div className="px-2 pb-1 flex gap-1">
+          <div className='flex gap-1 px-2 pb-1'>
             <button
               onClick={() => setMode('light')}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs transition-colors ${mode === 'light' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs transition-colors ${mode === 'light' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
-              <Sun className="w-3 h-3" /> 亮色
+              <Sun className='h-3 w-3' /> 亮色
             </button>
             <button
               onClick={() => setMode('dark')}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs transition-colors ${mode === 'dark' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs transition-colors ${mode === 'dark' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
-              <Moon className="w-3 h-3" /> 暗色
+              <Moon className='h-3 w-3' /> 暗色
             </button>
             <button
               onClick={() => setMode('system')}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs transition-colors ${mode === 'system' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs transition-colors ${mode === 'system' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
-              <SunMoon className="w-3 h-3" /> 自动
+              <SunMoon className='h-3 w-3' /> 自动
             </button>
           </div>
         </div>

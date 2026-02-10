@@ -2,69 +2,10 @@
 
 'use client';
 
-import { AlertCircle, CheckCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 
-import { CURRENT_VERSION } from '@/lib/version';
-import { checkForUpdates, UpdateStatus } from '@/lib/version_check';
-
 import { useSite } from '@/components/SiteProvider';
-
-// 版本显示组件
-function VersionDisplay() {
-  const [updateStatus, setUpdateStatus] = useState<UpdateStatus | null>(null);
-  const [isChecking, setIsChecking] = useState(true);
-
-  useEffect(() => {
-    const checkUpdate = async () => {
-      try {
-        const status = await checkForUpdates();
-        setUpdateStatus(status);
-      } catch (_) {
-        // do nothing
-      } finally {
-        setIsChecking(false);
-      }
-    };
-
-    checkUpdate();
-  }, []);
-
-  return (
-    <button
-      onClick={() =>
-        window.open('https://github.com/MoonTechLab/LunaTV', '_blank')
-      }
-      className='absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 text-xs text-muted-foreground transition-colors cursor-pointer'
-    >
-      <span className='font-mono'>v{CURRENT_VERSION}</span>
-      {!isChecking && updateStatus !== UpdateStatus.FETCH_FAILED && (
-        <div
-          className={`flex items-center gap-1.5 ${updateStatus === UpdateStatus.HAS_UPDATE
-            ? 'text-warning'
-            : updateStatus === UpdateStatus.NO_UPDATE
-              ? 'text-success'
-              : ''
-            }`}
-        >
-          {updateStatus === UpdateStatus.HAS_UPDATE && (
-            <>
-              <AlertCircle className='w-3.5 h-3.5' />
-              <span className='font-semibold text-xs'>有新版本</span>
-            </>
-          )}
-          {updateStatus === UpdateStatus.NO_UPDATE && (
-            <>
-              <CheckCircle className='w-3.5 h-3.5' />
-              <span className='font-semibold text-xs'>已是最新</span>
-            </>
-          )}
-        </div>
-      )}
-    </button>
-  );
-}
 
 function LoginPageClient() {
   const router = useRouter();
@@ -151,17 +92,15 @@ function LoginPageClient() {
     }
   };
 
-
-
   return (
-    <div className='relative min-h-screen flex items-center justify-center px-4 overflow-hidden'>
-      <div className='bg-card/80 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md border border-border transform hover:scale-[1.01] transition-all duration-300'>
-        <div className='flex justify-center mb-6'>
+    <div className='relative flex min-h-screen items-center justify-center overflow-hidden px-4'>
+      <div className='bg-card/80 border-border w-full max-w-md transform rounded-2xl border p-8 shadow-2xl backdrop-blur-md transition-all duration-300 hover:scale-[1.01]'>
+        <div className='mb-6 flex justify-center'>
           <span className='text-primary text-5xl font-bold tracking-tighter drop-shadow-md'>
             {siteName}
           </span>
         </div>
-        <h1 className='text-foreground tracking-tight text-center text-3xl font-extrabold mb-8 drop-shadow-sm'>
+        <h1 className='text-foreground mb-8 text-center text-3xl font-extrabold tracking-tight drop-shadow-sm'>
           {isRegisterMode ? 'Sign Up' : 'Sign In'}
         </h1>
         <form onSubmit={handleSubmit} className='space-y-6'>
@@ -174,7 +113,7 @@ function LoginPageClient() {
                 id='username'
                 type='text'
                 autoComplete='username'
-                className='block w-full rounded-lg border-0 py-3 px-4 text-foreground shadow-sm ring-1 ring-border placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:outline-none sm:text-base bg-input/60 backdrop-blur'
+                className='text-foreground ring-border placeholder:text-muted-foreground focus:ring-primary bg-input/60 block w-full rounded-lg border-0 px-4 py-3 shadow-sm ring-1 backdrop-blur focus:outline-none focus:ring-2 sm:text-base'
                 placeholder='输入用户名'
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -189,9 +128,13 @@ function LoginPageClient() {
             <input
               id='password'
               type='password'
-              autoComplete={isRegisterMode ? 'new-password' : 'current-password'}
-              className='block w-full rounded-lg border-0 py-3 px-4 text-foreground shadow-sm ring-1 ring-border placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:outline-none sm:text-base bg-input/60 backdrop-blur'
-              placeholder={isRegisterMode ? '设置密码 (至少6位)' : '输入访问密码'}
+              autoComplete={
+                isRegisterMode ? 'new-password' : 'current-password'
+              }
+              className='text-foreground ring-border placeholder:text-muted-foreground focus:ring-primary bg-input/60 block w-full rounded-lg border-0 px-4 py-3 shadow-sm ring-1 backdrop-blur focus:outline-none focus:ring-2 sm:text-base'
+              placeholder={
+                isRegisterMode ? '设置密码 (至少6位)' : '输入访问密码'
+              }
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -206,7 +149,7 @@ function LoginPageClient() {
                 id='confirmPassword'
                 type='password'
                 autoComplete='new-password'
-                className='block w-full rounded-lg border-0 py-3 px-4 text-foreground shadow-sm ring-1 ring-border placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:outline-none sm:text-base bg-input/60 backdrop-blur'
+                className='text-foreground ring-border placeholder:text-muted-foreground focus:ring-primary bg-input/60 block w-full rounded-lg border-0 px-4 py-3 shadow-sm ring-1 backdrop-blur focus:outline-none focus:ring-2 sm:text-base'
                 placeholder='确认密码'
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -214,17 +157,21 @@ function LoginPageClient() {
             </div>
           )}
 
-          {error && (
-            <p className='text-sm text-destructive'>{error}</p>
-          )}
+          {error && <p className='text-destructive text-sm'>{error}</p>}
 
           {/* 提交按钮 */}
           <button
             type='submit'
             disabled={loading}
-            className='inline-flex w-full justify-center rounded-lg bg-primary py-3 text-base font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50'
+            className='bg-primary text-primary-foreground inline-flex w-full justify-center rounded-lg py-3 text-base font-semibold shadow-lg transition-all duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50'
           >
-            {loading ? (isRegisterMode ? '注册中...' : '登录中...') : (isRegisterMode ? '注册' : '登录')}
+            {loading
+              ? isRegisterMode
+                ? '注册中...'
+                : '登录中...'
+              : isRegisterMode
+                ? '注册'
+                : '登录'}
           </button>
 
           {/* 切换登录/注册模式 */}
@@ -238,7 +185,7 @@ function LoginPageClient() {
                   setPassword('');
                   setConfirmPassword('');
                 }}
-                className='text-sm text-muted-foreground hover:text-primary transition-colors'
+                className='text-muted-foreground hover:text-primary text-sm transition-colors'
               >
                 {isRegisterMode ? '已有账号？去登录' : '没有账号？去注册'}
               </button>
@@ -246,9 +193,6 @@ function LoginPageClient() {
           )}
         </form>
       </div>
-
-      {/* 版本信息显示 */}
-      <VersionDisplay />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
@@ -76,7 +76,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     // Set color-scheme property for system UI
     root.style.colorScheme = resolvedMode;
-
   }, [mode, colorScheme, resolvedMode, mounted]);
 
   // Avoid hydration mismatch
@@ -85,7 +84,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ mode, setMode, colorScheme, setColorScheme, resolvedMode }}>
+    <ThemeContext.Provider
+      value={{ mode, setMode, colorScheme, setColorScheme, resolvedMode }}
+    >
       {children}
     </ThemeContext.Provider>
   );

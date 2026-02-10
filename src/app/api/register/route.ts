@@ -18,7 +18,7 @@ const STORAGE_TYPE =
 // 生成签名
 async function generateSignature(
   data: string,
-  secret: string
+  secret: string,
 ): Promise<string> {
   const encoder = new TextEncoder();
   const keyData = encoder.encode(secret);
@@ -30,7 +30,7 @@ async function generateSignature(
     keyData,
     { name: 'HMAC', hash: 'SHA-256' },
     false,
-    ['sign']
+    ['sign'],
   );
 
   // 生成签名
@@ -45,7 +45,7 @@ async function generateSignature(
 // 生成认证Cookie（带签名）
 async function generateAuthCookie(
   username: string,
-  role: 'owner' | 'admin' | 'user' = 'user'
+  role: 'owner' | 'admin' | 'user' = 'user',
 ): Promise<string> {
   const authData: any = { role };
 
@@ -66,17 +66,14 @@ export async function POST(req: NextRequest) {
     if (STORAGE_TYPE === 'localstorage') {
       return NextResponse.json(
         { error: 'localStorage 模式不支持注册功能' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // 检查注册开关
     const config = await getConfig();
     if (!config.SiteConfig.EnableRegistration) {
-      return NextResponse.json(
-        { error: '注册功能已关闭' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: '注册功能已关闭' }, { status: 403 });
     }
 
     // 获取用户名和密码
@@ -89,14 +86,14 @@ export async function POST(req: NextRequest) {
     if (username.length < 3 || username.length > 20) {
       return NextResponse.json(
         { error: '用户名长度必须在 3-20 个字符之间' },
-        { status: 400 }
+        { status: 400 },
       );
     }
     // 用户名只能包含字母、数字、下划线
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
       return NextResponse.json(
         { error: '用户名只能包含字母、数字和下划线' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -107,25 +104,19 @@ export async function POST(req: NextRequest) {
     if (password.length < 6 || password.length > 50) {
       return NextResponse.json(
         { error: '密码长度必须在 6-50 个字符之间' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // 检查用户名是否与站长用户名冲突
     if (username === process.env.USERNAME) {
-      return NextResponse.json(
-        { error: '该用户名已被使用' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '该用户名已被使用' }, { status: 400 });
     }
 
     // 检查用户是否已存在
     const userExists = await db.checkUserExist(username);
     if (userExists) {
-      return NextResponse.json(
-        { error: '用户名已存在' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '用户名已存在' }, { status: 400 });
     }
 
     // 创建用户
@@ -159,4 +150,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '服务器错误' }, { status: 500 });
   }
 }
-

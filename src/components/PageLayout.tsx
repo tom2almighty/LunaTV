@@ -9,10 +9,12 @@ interface PageLayoutProps {
 
 const PageLayout = ({ children, activePath = '/' }: PageLayoutProps) => {
   return (
-    <div className='w-full min-h-screen bg-background text-foreground'>
+    <div className='bg-background text-foreground min-h-screen w-full'>
       {/* Mobile Header (Hidden on desktop) */}
       <div className='md:hidden'>
-        <MobileHeader showBackButton={['/play', '/live'].includes(activePath)} />
+        <MobileHeader
+          showBackButton={['/play', '/live'].includes(activePath)}
+        />
       </div>
 
       {/* Desktop Navbar (Hidden on mobile) */}
@@ -21,12 +23,12 @@ const PageLayout = ({ children, activePath = '/' }: PageLayoutProps) => {
       </div>
 
       {/* Main Content */}
-      <main className='relative min-w-0 flex-1 transition-all duration-300 md:pt-16 pb-16 md:pb-0'>
+      <main className='relative min-w-0 flex-1 pb-16 transition-all duration-300 md:pb-0 md:pt-16'>
         {children}
       </main>
 
       {/* Mobile Bottom Nav (Hidden on desktop) */}
-      <div className='md:hidden fixed bottom-0 w-full z-50'>
+      <div className='fixed bottom-0 z-50 w-full md:hidden'>
         <MobileBottomNav activePath={activePath} />
       </div>
     </div>

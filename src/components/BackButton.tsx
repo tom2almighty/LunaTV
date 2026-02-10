@@ -4,10 +4,10 @@ export function BackButton() {
   return (
     <button
       onClick={() => window.history.back()}
-      className='w-10 h-10 p-2 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors'
+      className='text-muted-foreground hover:bg-muted/50 flex h-10 w-10 items-center justify-center rounded-full p-2 transition-colors'
       aria-label='Back'
     >
-      <ArrowLeft className='w-full h-full' />
+      <ArrowLeft className='h-full w-full' />
     </button>
   );
 }

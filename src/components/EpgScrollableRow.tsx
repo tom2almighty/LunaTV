@@ -37,7 +37,7 @@ export default function EpgScrollableRow({
       // 根据滚轮方向进行横向滚动
       container.scrollBy({
         left: scrollAmount,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };
@@ -52,9 +52,13 @@ export default function EpgScrollableRow({
   // 自动滚动到正在播放的节目
   const scrollToCurrentProgram = () => {
     if (containerRef.current) {
-      const currentProgramIndex = programs.findIndex(program => isCurrentlyPlaying(program));
+      const currentProgramIndex = programs.findIndex((program) =>
+        isCurrentlyPlaying(program),
+      );
       if (currentProgramIndex !== -1) {
-        const programElement = containerRef.current.children[currentProgramIndex] as HTMLElement;
+        const programElement = containerRef.current.children[
+          currentProgramIndex
+        ] as HTMLElement;
         if (programElement) {
           const container = containerRef.current;
           const programLeft = programElement.offsetLeft;
@@ -62,11 +66,12 @@ export default function EpgScrollableRow({
           const programWidth = programElement.offsetWidth;
 
           // 计算滚动位置，使正在播放的节目居中显示
-          const scrollLeft = programLeft - (containerWidth / 2) + (programWidth / 2);
+          const scrollLeft =
+            programLeft - containerWidth / 2 + programWidth / 2;
 
           container.scrollTo({
             left: Math.max(0, scrollLeft),
-            behavior: 'smooth'
+            behavior: 'smooth',
           });
         }
       }
@@ -95,7 +100,9 @@ export default function EpgScrollableRow({
     // 延迟执行，确保DOM完全渲染
     const timer = setTimeout(() => {
       // 初始化当前正在播放的节目索引
-      const initialPlayingIndex = programs.findIndex(program => isCurrentlyPlaying(program));
+      const initialPlayingIndex = programs.findIndex((program) =>
+        isCurrentlyPlaying(program),
+      );
       setCurrentPlayingIndex(initialPlayingIndex);
       scrollToCurrentProgram();
     }, 100);
@@ -108,7 +115,7 @@ export default function EpgScrollableRow({
     // 每分钟刷新一次正在播放状态
     const interval = setInterval(() => {
       // 更新当前正在播放的节目索引
-      const newPlayingIndex = programs.findIndex(program => {
+      const newPlayingIndex = programs.findIndex((program) => {
         try {
           const start = parseCustomTimeFormat(program.start);
           const end = parseCustomTimeFormat(program.end);
@@ -147,18 +154,18 @@ export default function EpgScrollableRow({
   // 加载中状态
   if (isLoading) {
     return (
-      <div className="pt-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h4 className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-2">
-            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+      <div className='pt-4'>
+        <div className='mb-3 flex items-center justify-between'>
+          <h4 className='text-foreground flex items-center gap-2 text-xs font-medium sm:text-sm'>
+            <Clock className='h-3 w-3 sm:h-4 sm:w-4' />
             今日节目单
           </h4>
-          <div className="w-16 sm:w-20"></div>
+          <div className='w-16 sm:w-20'></div>
         </div>
-        <div className="min-h-[100px] sm:min-h-[120px] flex items-center justify-center">
-          <div className="flex items-center gap-3 sm:gap-4 text-muted-foreground">
-            <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-border border-t-primary rounded-full animate-spin"></div>
-            <span className="text-sm sm:text-base">加载节目单...</span>
+        <div className='flex min-h-[100px] items-center justify-center sm:min-h-[120px]'>
+          <div className='text-muted-foreground flex items-center gap-3 sm:gap-4'>
+            <div className='border-border border-t-primary h-5 w-5 animate-spin rounded-full border-2 sm:h-6 sm:w-6'></div>
+            <span className='text-sm sm:text-base'>加载节目单...</span>
           </div>
         </div>
       </div>
@@ -168,18 +175,18 @@ export default function EpgScrollableRow({
   // 无节目单状态
   if (!programs || programs.length === 0) {
     return (
-      <div className="pt-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h4 className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-2">
-            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+      <div className='pt-4'>
+        <div className='mb-3 flex items-center justify-between'>
+          <h4 className='text-foreground flex items-center gap-2 text-xs font-medium sm:text-sm'>
+            <Clock className='h-3 w-3 sm:h-4 sm:w-4' />
             今日节目单
           </h4>
-          <div className="w-16 sm:w-20"></div>
+          <div className='w-16 sm:w-20'></div>
         </div>
-        <div className="min-h-[100px] sm:min-h-[120px] flex items-center justify-center">
-          <div className="flex items-center gap-2 sm:gap-3 text-muted-foreground">
-            <Tv className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="text-sm sm:text-base">暂无节目单数据</span>
+        <div className='flex min-h-[100px] items-center justify-center sm:min-h-[120px]'>
+          <div className='text-muted-foreground flex items-center gap-2 sm:gap-3'>
+            <Tv className='h-4 w-4 sm:h-5 sm:w-5' />
+            <span className='text-sm sm:text-base'>暂无节目单数据</span>
           </div>
         </div>
       </div>
@@ -187,21 +194,21 @@ export default function EpgScrollableRow({
   }
 
   return (
-    <div className="pt-4 mt-2">
-      <div className="mb-3 flex items-center justify-between">
-        <h4 className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-2">
-          <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+    <div className='mt-2 pt-4'>
+      <div className='mb-3 flex items-center justify-between'>
+        <h4 className='text-foreground flex items-center gap-2 text-xs font-medium sm:text-sm'>
+          <Clock className='h-3 w-3 sm:h-4 sm:w-4' />
           今日节目单
         </h4>
         {currentPlayingIndex !== -1 && (
           <button
             onClick={scrollToCurrentProgram}
-            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 text-xs font-medium text-muted-foreground hover:text-primary bg-muted/50 bg-card hover:bg-primary/10 rounded-lg border border-border hover:border-primary/50 transition-all duration-200"
-            title="滚动到当前播放位置"
+            className='text-muted-foreground hover:text-primary bg-muted/50 bg-card hover:bg-primary/10 border-border hover:border-primary/50 flex items-center gap-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition-all duration-200 sm:gap-1.5 sm:px-2.5 sm:py-2'
+            title='滚动到当前播放位置'
           >
-            <Target className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-            <span className="hidden sm:inline">当前播放</span>
-            <span className="sm:hidden">当前</span>
+            <Target className='h-2.5 w-2.5 sm:h-3 sm:w-3' />
+            <span className='hidden sm:inline'>当前播放</span>
+            <span className='sm:hidden'>当前</span>
           </button>
         )}
       </div>
@@ -213,7 +220,7 @@ export default function EpgScrollableRow({
       >
         <div
           ref={containerRef}
-          className='flex overflow-x-auto scrollbar-hide py-2 pb-4 px-2 sm:px-4 min-h-[100px] sm:min-h-[120px]'
+          className='scrollbar-hide flex min-h-[100px] overflow-x-auto px-2 py-2 pb-4 sm:min-h-[120px] sm:px-4'
         >
           {programs.map((program, index) => {
             // 使用 currentPlayingIndex 来判断播放状态，确保样式能正确更新
@@ -224,42 +231,47 @@ export default function EpgScrollableRow({
             return (
               <div
                 key={index}
-                className={`flex-shrink-0 w-36 sm:w-48 p-2 sm:p-3 rounded-lg border transition-all duration-200 flex flex-col min-h-[100px] sm:min-h-[120px] ${isPlaying
-                  ? 'bg-primary/10 border-primary/30'
-                  : isFinishedProgram
-                    ? 'bg-muted/50 bg-card border-border border-border'
-                    : isUpcomingProgram
-                      ? 'bg-muted border-border'
-                      : 'bg-card border-border hover:border-border hover:border-border'
-                  }`}
+                className={`flex min-h-[100px] w-36 flex-shrink-0 flex-col rounded-lg border p-2 transition-all duration-200 sm:min-h-[120px] sm:w-48 sm:p-3 ${
+                  isPlaying
+                    ? 'bg-primary/10 border-primary/30'
+                    : isFinishedProgram
+                      ? 'bg-muted/50 bg-card border-border border-border'
+                      : isUpcomingProgram
+                        ? 'bg-muted border-border'
+                        : 'bg-card border-border hover:border-border hover:border-border'
+                }`}
               >
                 {/* 时间显示在顶部 */}
-                <div className="flex items-center justify-between mb-2 sm:mb-3 flex-shrink-0">
-                  <span className={`text-xs font-medium ${isPlaying
-                    ? 'text-primary'
-                    : isFinishedProgram
-                      ? 'text-muted-foreground'
-                      : isUpcomingProgram
-                        ? 'text-muted-foreground'
-                        : 'text-muted-foreground text-foreground'
-                    }`}>
+                <div className='mb-2 flex flex-shrink-0 items-center justify-between sm:mb-3'>
+                  <span
+                    className={`text-xs font-medium ${
+                      isPlaying
+                        ? 'text-primary'
+                        : isFinishedProgram
+                          ? 'text-muted-foreground'
+                          : isUpcomingProgram
+                            ? 'text-muted-foreground'
+                            : 'text-muted-foreground text-foreground'
+                    }`}
+                  >
                     {formatTime(program.start)}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className='text-muted-foreground text-xs'>
                     {formatTime(program.end)}
                   </span>
                 </div>
 
                 {/* 标题在中间，占据剩余空间 */}
                 <div
-                  className={`text-xs sm:text-sm font-medium flex-1 ${isPlaying
-                    ? 'text-primary'
-                    : isFinishedProgram
-                      ? 'text-muted-foreground'
-                      : isUpcomingProgram
-                        ? 'text-foreground'
-                        : 'text-foreground'
-                    }`}
+                  className={`flex-1 text-xs font-medium sm:text-sm ${
+                    isPlaying
+                      ? 'text-primary'
+                      : isFinishedProgram
+                        ? 'text-muted-foreground'
+                        : isUpcomingProgram
+                          ? 'text-foreground'
+                          : 'text-foreground'
+                  }`}
                   style={{
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
@@ -267,7 +279,7 @@ export default function EpgScrollableRow({
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     lineHeight: '1.4',
-                    maxHeight: '2.8em'
+                    maxHeight: '2.8em',
                   }}
                   title={program.title}
                 >
@@ -276,9 +288,9 @@ export default function EpgScrollableRow({
 
                 {/* 正在播放状态在底部 */}
                 {isPlaying && (
-                  <div className="mt-auto pt-1 sm:pt-2 flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full animate-pulse"></div>
-                    <span className="text-xs text-primary font-medium">
+                  <div className='mt-auto flex flex-shrink-0 items-center gap-1 pt-1 sm:gap-1.5 sm:pt-2'>
+                    <div className='bg-primary h-1.5 w-1.5 animate-pulse rounded-full sm:h-2 sm:w-2'></div>
+                    <span className='text-primary text-xs font-medium'>
                       正在播放
                     </span>
                   </div>

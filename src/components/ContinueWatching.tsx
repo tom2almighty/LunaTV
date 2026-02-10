@@ -33,7 +33,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
 
     // 按 save_time 降序排序（最新的在前面）
     const sortedRecords = recordsArray.sort(
-      (a, b) => b.save_time - a.save_time
+      (a, b) => b.save_time - a.save_time,
     );
 
     setPlayRecords(sortedRecords);
@@ -62,7 +62,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
       'playRecordsUpdated',
       (newRecords: Record<string, PlayRecord>) => {
         updatePlayRecords(newRecords);
-      }
+      },
     );
 
     return unsubscribe;
@@ -88,12 +88,10 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
   return (
     <section className={`mb-8 ${className || ''}`}>
       <div className='mb-4 flex items-center justify-between'>
-        <h2 className='text-xl font-bold text-foreground'>
-          继续观看
-        </h2>
+        <h2 className='text-foreground text-xl font-bold'>继续观看</h2>
         {!loading && playRecords.length > 0 && (
           <button
-            className='text-sm text-muted-foreground hover:text-foreground text-muted-foreground dark:hover:text-gray-200'
+            className='text-muted-foreground hover:text-foreground text-muted-foreground text-sm dark:hover:text-gray-200'
             onClick={async () => {
               await clearAllPlayRecords();
               setPlayRecords([]);
@@ -109,13 +107,13 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
             Array.from({ length: 6 }).map((_, index) => (
               <div
                 key={index}
-                className='min-w-[96px] w-24 sm:min-w-[180px] sm:w-44'
+                className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
               >
-                <div className='relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-muted animate-pulse bg-card'>
-                  <div className='absolute inset-0 bg-muted bg-card'></div>
+                <div className='bg-muted bg-card relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
+                  <div className='bg-muted bg-card absolute inset-0'></div>
                 </div>
-                <div className='mt-2 h-4 bg-muted rounded animate-pulse bg-card'></div>
-                <div className='mt-1 h-3 bg-muted rounded animate-pulse bg-card'></div>
+                <div className='bg-muted bg-card mt-2 h-4 animate-pulse rounded'></div>
+                <div className='bg-muted bg-card mt-1 h-3 animate-pulse rounded'></div>
               </div>
             ))
           : // 显示真实数据
@@ -124,7 +122,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
               return (
                 <div
                   key={record.key}
-                  className='min-w-[96px] w-24 sm:min-w-[180px] sm:w-44'
+                  className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
                 >
                   <VideoCard
                     id={id}
@@ -140,7 +138,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
                     from='playrecord'
                     onDelete={() =>
                       setPlayRecords((prev) =>
-                        prev.filter((r) => r.key !== record.key)
+                        prev.filter((r) => r.key !== record.key),
                       )
                     }
                     type={record.total_episodes > 1 ? 'tv' : ''}

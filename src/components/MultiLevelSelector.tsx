@@ -36,7 +36,7 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
 
   // 根据内容类型获取对应的类型选项
   const getTypeOptions = (
-    contentType: 'movie' | 'tv' | 'show' | 'anime-tv' | 'anime-movie'
+    contentType: 'movie' | 'tv' | 'show' | 'anime-tv' | 'anime-movie',
   ) => {
     const baseOptions = [{ label: '全部', value: 'all' }];
 
@@ -107,7 +107,7 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
 
   // 根据内容类型获取对应的地区选项
   const getRegionOptions = (
-    contentType: 'movie' | 'tv' | 'show' | 'anime-tv' | 'anime-movie'
+    contentType: 'movie' | 'tv' | 'show' | 'anime-tv' | 'anime-movie',
   ) => {
     const baseOptions = [{ label: '全部', value: 'all' }];
 
@@ -174,7 +174,7 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
   };
 
   const getLabelOptions = (
-    contentType: 'movie' | 'tv' | 'show' | 'anime-tv' | 'anime-movie'
+    contentType: 'movie' | 'tv' | 'show' | 'anime-tv' | 'anime-movie',
   ) => {
     const baseOptions = [{ label: '全部', value: 'all' }];
     switch (contentType) {
@@ -230,7 +230,7 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
 
   // 根据内容类型获取对应的平台选项
   const getPlatformOptions = (
-    contentType: 'movie' | 'tv' | 'show' | 'anime-tv' | 'anime-movie'
+    contentType: 'movie' | 'tv' | 'show' | 'anime-tv' | 'anime-movie',
   ) => {
     const baseOptions = [{ label: '全部', value: 'all' }];
 
@@ -263,19 +263,19 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
   const categories: MultiLevelCategory[] = [
     ...(contentType !== 'anime-tv' && contentType !== 'anime-movie'
       ? [
-        {
-          key: 'type',
-          label: '类型',
-          options: getTypeOptions(contentType),
-        },
-      ]
+          {
+            key: 'type',
+            label: '类型',
+            options: getTypeOptions(contentType),
+          },
+        ]
       : [
-        {
-          key: 'label',
-          label: '类型',
-          options: getLabelOptions(contentType),
-        },
-      ]),
+          {
+            key: 'label',
+            label: '类型',
+            options: getLabelOptions(contentType),
+          },
+        ]),
     {
       key: 'region',
       label: '地区',
@@ -305,15 +305,15 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
     },
     // 只在电视剧和综艺时显示平台选项
     ...(contentType === 'tv' ||
-      contentType === 'show' ||
-      contentType === 'anime-tv'
+    contentType === 'show' ||
+    contentType === 'anime-tv'
       ? [
-        {
-          key: 'platform',
-          label: '平台',
-          options: getPlatformOptions(contentType),
-        },
-      ]
+          {
+            key: 'platform',
+            label: '平台',
+            options: getPlatformOptions(contentType),
+          },
+        ]
       : []),
     {
       key: 'sort',
@@ -491,7 +491,7 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node) &&
         !Object.values(categoryRefs.current).some(
-          (ref) => ref && ref.contains(event.target as Node)
+          (ref) => ref && ref.contains(event.target as Node),
         )
       ) {
         setActiveCategory(null);
@@ -505,7 +505,7 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
   return (
     <>
       {/* 胶囊样式筛选栏 */}
-      <div className='relative inline-flex rounded-full p-0.5 sm:p-1 bg-transparent gap-1 sm:gap-2'>
+      <div className='relative inline-flex gap-1 rounded-full bg-transparent p-0.5 sm:gap-2 sm:p-1'>
         {categories.map((category) => (
           <div
             key={category.key}
@@ -516,19 +516,21 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
           >
             <button
               onClick={() => handleCategoryClick(category.key)}
-              className={`relative z-10 px-1.5 py-0.5 sm:px-2 sm:py-1 md:px-4 md:py-2 text-xs sm:text-sm font-medium rounded-full transition-all duration-200 whitespace-nowrap ${activeCategory === category.key
-                ? isDefaultValue(category.key)
-                  ? 'text-foreground cursor-default'
-                  : 'text-primary cursor-default'
-                : isDefaultValue(category.key)
-                  ? 'text-foreground hover:text-foreground text-muted-foreground hover:text-foreground cursor-pointer'
-                  : 'text-primary hover:text-primary/80 cursor-pointer'
-                }`}
+              className={`relative z-10 whitespace-nowrap rounded-full px-1.5 py-0.5 text-xs font-medium transition-all duration-200 sm:px-2 sm:py-1 sm:text-sm md:px-4 md:py-2 ${
+                activeCategory === category.key
+                  ? isDefaultValue(category.key)
+                    ? 'text-foreground cursor-default'
+                    : 'text-primary cursor-default'
+                  : isDefaultValue(category.key)
+                    ? 'text-foreground hover:text-foreground text-muted-foreground hover:text-foreground cursor-pointer'
+                    : 'text-primary hover:text-primary/80 cursor-pointer'
+              }`}
             >
               <span>{getDisplayText(category.key)}</span>
               <svg
-                className={`inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 ml-0.5 sm:ml-1 transition-transform duration-200 ${activeCategory === category.key ? 'rotate-180' : ''
-                  }`}
+                className={`ml-0.5 inline-block h-2.5 w-2.5 transition-transform duration-200 sm:ml-1 sm:h-3 sm:w-3 ${
+                  activeCategory === category.key ? 'rotate-180' : ''
+                }`}
                 fill='none'
                 stroke='currentColor'
                 viewBox='0 0 24 24'
@@ -550,7 +552,7 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
         createPortal(
           <div
             ref={dropdownRef}
-            className='fixed z-[9999] bg-card/95 bg-card/95 rounded-xl border border-border/50 border-border/50 backdrop-blur-sm'
+            className='bg-card/95 bg-card/95 border-border/50 border-border/50 fixed z-[9999] rounded-xl border backdrop-blur-sm'
             style={{
               left: `${dropdownPosition.x}px`,
               top: `${dropdownPosition.y}px`,
@@ -562,7 +564,7 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
             }}
           >
             <div className='p-2 sm:p-4'>
-              <div className='grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1 sm:gap-2'>
+              <div className='grid grid-cols-3 gap-1 sm:grid-cols-4 sm:gap-2 md:grid-cols-5'>
                 {categories
                   .find((cat) => cat.key === activeCategory)
                   ?.options.map((option) => (
@@ -571,10 +573,11 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
                       onClick={() =>
                         handleOptionSelect(activeCategory, option.value)
                       }
-                      className={`px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm rounded-lg transition-all duration-200 text-left ${isOptionSelected(activeCategory, option.value)
-                        ? 'bg-primary/10 text-primary border border-primary/20'
-                        : 'text-foreground hover:bg-muted/80 hover:bg-muted/80'
-                        }`}
+                      className={`rounded-lg px-2 py-1.5 text-left text-xs transition-all duration-200 sm:px-3 sm:py-2 sm:text-sm ${
+                        isOptionSelected(activeCategory, option.value)
+                          ? 'bg-primary/10 text-primary border-primary/20 border'
+                          : 'text-foreground hover:bg-muted/80 hover:bg-muted/80'
+                      }`}
                     >
                       {option.label}
                     </button>
@@ -582,7 +585,7 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
               </div>
             </div>
           </div>,
-          document.body
+          document.body,
         )}
     </>
   );

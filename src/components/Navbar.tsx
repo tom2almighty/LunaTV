@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Fragment, useEffect, useState } from 'react';
 
-import { ThemeToggle } from './ThemeToggle';
 import { SearchModal } from './SearchModal';
 import { useSite } from './SiteProvider';
+import { ThemeToggle } from './ThemeToggle';
 import { UserMenu } from './UserMenu';
 
 const Logo = () => {
@@ -15,9 +15,9 @@ const Logo = () => {
   return (
     <Link
       href='/'
-      className='flex items-center justify-center select-none hover:opacity-80 transition-opacity duration-200 mr-8'
+      className='mr-8 flex select-none items-center justify-center transition-opacity duration-200 hover:opacity-80'
     >
-      <span className='text-2xl font-bold text-primary tracking-tight'>
+      <span className='text-primary text-2xl font-bold tracking-tight'>
         {siteName}
       </span>
     </Link>
@@ -76,7 +76,8 @@ export const Navbar = () => {
       const typeMatch = href.match(/type=([^&]+)/)?.[1];
       const currentType = searchParams.get('type');
       if (typeMatch && currentType === typeMatch) return true;
-      if (href === '/douban?type=custom' && currentType === 'custom') return true;
+      if (href === '/douban?type=custom' && currentType === 'custom')
+        return true;
     }
     return false;
   };
@@ -84,21 +85,25 @@ export const Navbar = () => {
   return (
     <>
       <nav
-        className={`fixed top-0 w-full z-40 transition-colors duration-300 ${isScrolled ? 'bg-background/90 backdrop-blur-md border-b border-border/50' : 'bg-gradient-to-b from-black/60 to-transparent'
-          }`}
+        className={`fixed top-0 z-40 w-full transition-colors duration-300 ${
+          isScrolled
+            ? 'bg-background/90 border-border/50 border-b backdrop-blur-md'
+            : 'bg-gradient-to-b from-black/60 to-transparent'
+        }`}
       >
-        <div className='px-4 md:px-12 h-16 flex items-center justify-between'>
+        <div className='flex h-16 items-center justify-between px-4 md:px-12'>
           <div className='flex items-center'>
             <Logo />
-            <div className='hidden md:flex gap-6'>
+            <div className='hidden gap-6 md:flex'>
               {menuItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`text-sm font-medium transition-colors duration-200 ${isActive(item.href)
-                    ? 'text-primary font-bold'
-                    : 'text-muted-foreground hover:text-foreground'
-                    }`}
+                  className={`text-sm font-medium transition-colors duration-200 ${
+                    isActive(item.href)
+                      ? 'text-primary font-bold'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
                 >
                   {item.label}
                 </Link>
@@ -112,7 +117,7 @@ export const Navbar = () => {
               className='text-foreground hover:text-primary transition-colors'
               aria-label='Search'
             >
-              <Search className='w-5 h-5' />
+              <Search className='h-5 w-5' />
             </button>
 
             {/* Notification bell - Placeholder for future */}
@@ -125,7 +130,10 @@ export const Navbar = () => {
           </div>
         </div>
       </nav>
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </>
   );
 };

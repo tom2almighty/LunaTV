@@ -62,13 +62,14 @@ const CapsuleSwitch: React.FC<CapsuleSwitchProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`relative inline-flex bg-muted rounded-full p-1 ${className || ''
-        }`}
+      className={`bg-muted relative inline-flex rounded-full p-1 ${
+        className || ''
+      }`}
     >
       {/* 滑动的白色背景指示器 */}
       {indicatorStyle.width > 0 && (
         <div
-          className='absolute top-1 bottom-1 bg-card rounded-full shadow-sm transition-all duration-300 ease-out'
+          className='bg-card absolute bottom-1 top-1 rounded-full shadow-sm transition-all duration-300 ease-out'
           style={{
             left: `${indicatorStyle.left}px`,
             width: `${indicatorStyle.width}px`,
@@ -85,10 +86,11 @@ const CapsuleSwitch: React.FC<CapsuleSwitchProps> = ({
               buttonRefs.current[index] = el;
             }}
             onClick={() => onChange(opt.value)}
-            className={`relative z-10 w-16 px-3 py-1 text-xs sm:w-20 sm:py-2 sm:text-sm rounded-full font-medium transition-all duration-200 cursor-pointer ${isActive
-              ? 'text-foreground'
-              : 'text-muted-foreground hover:text-foreground'
-              }`}
+            className={`relative z-10 w-16 cursor-pointer rounded-full px-3 py-1 text-xs font-medium transition-all duration-200 sm:w-20 sm:py-2 sm:text-sm ${
+              isActive
+                ? 'text-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
           >
             {opt.label}
           </button>

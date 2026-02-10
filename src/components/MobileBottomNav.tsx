@@ -74,7 +74,7 @@ const MobileBottomNav = ({ activePath }: MobileBottomNavProps) => {
 
   return (
     <nav
-      className='md:hidden fixed left-0 right-0 z-[600] bg-background/90 backdrop-blur-xl border-t border-border overflow-hidden'
+      className='bg-background/90 border-border fixed left-0 right-0 z-[600] overflow-hidden border-t backdrop-blur-xl md:hidden'
       style={{
         /* 紧贴视口底部，同时在内部留出安全区高度 */
         bottom: 0,
@@ -82,7 +82,7 @@ const MobileBottomNav = ({ activePath }: MobileBottomNavProps) => {
         minHeight: 'calc(3.5rem + env(safe-area-inset-bottom))',
       }}
     >
-      <ul className='flex items-center overflow-x-auto scrollbar-hide'>
+      <ul className='scrollbar-hide flex items-center overflow-x-auto'>
         {navItems.map((item) => {
           const active = isActive(item.href);
           return (
@@ -93,20 +93,15 @@ const MobileBottomNav = ({ activePath }: MobileBottomNavProps) => {
             >
               <Link
                 href={item.href}
-                className='flex flex-col items-center justify-center w-full h-14 gap-1 text-xs'
+                className='flex h-14 w-full flex-col items-center justify-center gap-1 text-xs'
               >
                 <item.icon
-                  className={`h-6 w-6 ${active
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                    }`}
+                  className={`h-6 w-6 ${
+                    active ? 'text-primary' : 'text-muted-foreground'
+                  }`}
                 />
                 <span
-                  className={
-                    active
-                      ? 'text-primary'
-                      : 'text-muted-foreground'
-                  }
+                  className={active ? 'text-primary' : 'text-muted-foreground'}
                 >
                   {item.label}
                 </span>

@@ -31,9 +31,8 @@ const WeekdaySelector: React.FC<WeekdaySelectorProps> = ({
     return weekdayMap[today];
   };
 
-  const [selectedWeekday, setSelectedWeekday] = useState<string>(
-    getTodayWeekday()
-  );
+  const [selectedWeekday, setSelectedWeekday] =
+    useState<string>(getTodayWeekday());
 
   // 组件初始化时通知父组件默认选中的星期
   useEffect(() => {
@@ -54,10 +53,11 @@ const WeekdaySelector: React.FC<WeekdaySelectorProps> = ({
               onWeekdayChange(weekday.value);
             }}
             className={`
-              relative z-10 px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium rounded-full transition-all duration-200 whitespace-nowrap
-              ${isActive
-                ? 'text-primary font-semibold'
-                : 'text-muted-foreground hover:text-foreground cursor-pointer'
+              relative z-10 whitespace-nowrap rounded-full px-2 py-1 text-xs font-medium transition-all duration-200 sm:px-4 sm:py-2 sm:text-sm
+              ${
+                isActive
+                  ? 'text-primary font-semibold'
+                  : 'text-muted-foreground hover:text-foreground cursor-pointer'
               }
             `}
             title={weekday.label}

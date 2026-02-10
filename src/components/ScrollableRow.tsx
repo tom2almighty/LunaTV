@@ -102,14 +102,14 @@ export default function ScrollableRow({
     >
       <div
         ref={containerRef}
-        className='flex space-x-6 overflow-x-auto scrollbar-hide py-1 sm:py-2 pb-12 sm:pb-14 px-4 sm:px-6'
+        className='scrollbar-hide flex space-x-6 overflow-x-auto px-4 py-1 pb-12 sm:px-6 sm:py-2 sm:pb-14'
         onScroll={checkScroll}
       >
         {children}
       </div>
       {showLeftScroll && (
         <div
-          className={`hidden sm:flex absolute left-0 top-0 bottom-0 w-16 items-center justify-center z-[600] transition-opacity duration-200 ${
+          className={`absolute bottom-0 left-0 top-0 z-[600] hidden w-16 items-center justify-center transition-opacity duration-200 sm:flex ${
             isHovered ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
@@ -128,9 +128,9 @@ export default function ScrollableRow({
           >
             <button
               onClick={handleScrollLeftClick}
-              className='w-12 h-12 bg-card/95 rounded-full shadow-lg flex items-center justify-center hover:bg-card border border-border transition-transform hover:scale-105 bg-card/90 dark:hover:bg-muted border-border'
+              className='bg-card/95 hover:bg-card border-border bg-card/90 dark:hover:bg-muted border-border flex h-12 w-12 items-center justify-center rounded-full border shadow-lg transition-transform hover:scale-105'
             >
-              <ChevronLeft className='w-6 h-6 text-muted-foreground text-foreground' />
+              <ChevronLeft className='text-muted-foreground text-foreground h-6 w-6' />
             </button>
           </div>
         </div>
@@ -138,7 +138,7 @@ export default function ScrollableRow({
 
       {showRightScroll && (
         <div
-          className={`hidden sm:flex absolute right-0 top-0 bottom-0 w-16 items-center justify-center z-[600] transition-opacity duration-200 ${
+          className={`absolute bottom-0 right-0 top-0 z-[600] hidden w-16 items-center justify-center transition-opacity duration-200 sm:flex ${
             isHovered ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
@@ -157,9 +157,9 @@ export default function ScrollableRow({
           >
             <button
               onClick={handleScrollRightClick}
-              className='w-12 h-12 bg-card/95 rounded-full shadow-lg flex items-center justify-center hover:bg-card border border-border transition-transform hover:scale-105 bg-card/90 dark:hover:bg-muted border-border'
+              className='bg-card/95 hover:bg-card border-border bg-card/90 dark:hover:bg-muted border-border flex h-12 w-12 items-center justify-center rounded-full border shadow-lg transition-transform hover:scale-105'
             >
-              <ChevronRight className='w-6 h-6 text-muted-foreground text-foreground' />
+              <ChevronRight className='text-muted-foreground text-foreground h-6 w-6' />
             </button>
           </div>
         </div>

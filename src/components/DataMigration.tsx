@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { AlertCircle, AlertTriangle, CheckCircle, Download, FileCheck, Lock, Upload } from 'lucide-react';
+import {
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle,
+  Download,
+  FileCheck,
+  Lock,
+  Upload,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -32,7 +40,7 @@ const AlertModal = ({
   confirmText = '确定',
   onConfirm,
   showConfirm = false,
-  timer
+  timer,
 }: AlertModalProps) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -55,11 +63,11 @@ const AlertModal = ({
   const getIcon = () => {
     switch (type) {
       case 'success':
-        return <CheckCircle className="w-12 h-12 text-green-500" />;
+        return <CheckCircle className='h-12 w-12 text-green-500' />;
       case 'error':
-        return <AlertCircle className="w-12 h-12 text-red-500" />;
+        return <AlertCircle className='h-12 w-12 text-red-500' />;
       case 'warning':
-        return <AlertTriangle className="w-12 h-12 text-yellow-500" />;
+        return <AlertTriangle className='h-12 w-12 text-yellow-500' />;
       default:
         return null;
     }
@@ -79,36 +87,36 @@ const AlertModal = ({
   };
 
   return createPortal(
-    <div className={`fixed inset-0 bg-background bg-opacity-50 z-50 flex items-center justify-center p-4 transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`} onClick={onClose}>
-      <div className={`bg-card rounded-lg shadow-xl max-w-md w-full border ${getBgColor()} transition-all duration-200 ${isVisible ? 'scale-100' : 'scale-95'}`} onClick={(e) => e.stopPropagation()}>
-        <div className="p-6 text-center">
-          <div className="flex justify-center mb-4">
-            {getIcon()}
-          </div>
+    <div
+      className={`bg-background fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 p-4 transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      onClick={onClose}
+    >
+      <div
+        className={`bg-card w-full max-w-md rounded-lg border shadow-xl ${getBgColor()} transition-all duration-200 ${isVisible ? 'scale-100' : 'scale-95'}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className='p-6 text-center'>
+          <div className='mb-4 flex justify-center'>{getIcon()}</div>
 
-          <h3 className="text-lg font-semibold text-foreground mb-2">
+          <h3 className='text-foreground mb-2 text-lg font-semibold'>
             {title}
           </h3>
 
-          {message && (
-            <p className="text-muted-foreground mb-4">
-              {message}
-            </p>
-          )}
+          {message && <p className='text-muted-foreground mb-4'>{message}</p>}
 
           {html && (
             <div
-              className="text-left text-muted-foreground mb-4"
+              className='text-muted-foreground mb-4 text-left'
               dangerouslySetInnerHTML={{ __html: html }}
             />
           )}
 
-          <div className="flex justify-center space-x-3">
+          <div className='flex justify-center space-x-3'>
             {showConfirm && onConfirm ? (
               <>
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 text-sm font-medium text-foreground bg-muted bg-card hover:bg-muted rounded-lg transition-colors"
+                  className='text-foreground bg-muted bg-card hover:bg-muted rounded-lg px-4 py-2 text-sm font-medium transition-colors'
                 >
                   取消
                 </button>
@@ -117,7 +125,7 @@ const AlertModal = ({
                     onConfirm();
                     onClose();
                   }}
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors"
+                  className='bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors'
                 >
                   {confirmText}
                 </button>
@@ -125,7 +133,7 @@ const AlertModal = ({
             ) : (
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors"
+                className='bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors'
               >
                 确定
               </button>
@@ -134,7 +142,7 @@ const AlertModal = ({
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };
 
@@ -166,7 +174,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
   };
 
   const hideAlert = () => {
-    setAlertModal(prev => ({ ...prev, isOpen: false }));
+    setAlertModal((prev) => ({ ...prev, isOpen: false }));
   };
 
   // 导出数据
@@ -327,54 +335,56 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
 
   return (
     <>
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className='mx-auto max-w-6xl space-y-6'>
         {/* 简洁警告提示 */}
-        <div className="flex items-center gap-3 p-4 border border-amber-200 dark:border-amber-700 rounded-lg bg-amber-50/30 dark:bg-amber-900/5">
-          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-          <p className="text-sm text-amber-800 dark:text-amber-200">
+        <div className='flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50/30 p-4 dark:border-amber-700 dark:bg-amber-900/5'>
+          <AlertTriangle className='h-5 w-5 flex-shrink-0 text-amber-600 dark:text-amber-400' />
+          <p className='text-sm text-amber-800 dark:text-amber-200'>
             数据迁移操作请谨慎，确保已备份重要数据
           </p>
         </div>
 
         {/* 主要操作区域 - 响应式布局 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
           {/* 数据导出 */}
-          <div className="border border-border rounded-lg p-6 bg-card hover:shadow-sm transition-shadow flex flex-col">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Download className="w-4 h-4 text-primary" />
+          <div className='border-border bg-card flex flex-col rounded-lg border p-6 transition-shadow hover:shadow-sm'>
+            <div className='mb-6 flex items-center gap-3'>
+              <div className='bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg'>
+                <Download className='text-primary h-4 w-4' />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">数据导出</h3>
-                <p className="text-sm text-muted-foreground">创建加密备份文件</p>
+                <h3 className='text-foreground font-semibold'>数据导出</h3>
+                <p className='text-muted-foreground text-sm'>
+                  创建加密备份文件
+                </p>
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col">
-              <div className="space-y-4">
+            <div className='flex flex-1 flex-col'>
+              <div className='space-y-4'>
                 {/* 密码输入 */}
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
-                    <Lock className="w-4 h-4" />
+                  <label className='text-foreground mb-2 flex items-center gap-2 text-sm font-medium'>
+                    <Lock className='h-4 w-4' />
                     加密密码
                   </label>
                   <input
-                    type="password"
+                    type='password'
                     value={exportPassword}
                     onChange={(e) => setExportPassword(e.target.value)}
-                    placeholder="设置强密码保护备份文件"
-                    className="w-full px-3 py-2.5 border border-border rounded-lg bg-card text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                    placeholder='设置强密码保护备份文件'
+                    className='border-border bg-card text-foreground focus:ring-primary focus:border-primary w-full rounded-lg border px-3 py-2.5 transition-colors focus:ring-2'
                     disabled={isExporting}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className='text-muted-foreground mt-1 text-xs'>
                     导入时需要使用相同密码
                   </p>
                 </div>
 
                 {/* 备份内容列表 */}
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <p className="font-medium text-foreground mb-2">备份内容：</p>
-                  <div className="grid grid-cols-2 gap-1">
+                <div className='text-muted-foreground space-y-1 text-xs'>
+                  <p className='text-foreground mb-2 font-medium'>备份内容：</p>
+                  <div className='grid grid-cols-2 gap-1'>
                     <div>• 管理配置</div>
                     <div>• 用户数据</div>
                     <div>• 播放记录</div>
@@ -387,19 +397,20 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
               <button
                 onClick={handleExport}
                 disabled={isExporting || !exportPassword.trim()}
-                className={`w-full px-4 py-2.5 rounded-lg font-medium transition-colors mt-10 ${isExporting || !exportPassword.trim()
-                  ? 'bg-muted bg-card cursor-not-allowed text-muted-foreground'
-                  : 'bg-primary hover:bg-primary/90 text-white'
-                  }`}
+                className={`mt-10 w-full rounded-lg px-4 py-2.5 font-medium transition-colors ${
+                  isExporting || !exportPassword.trim()
+                    ? 'bg-muted bg-card text-muted-foreground cursor-not-allowed'
+                    : 'bg-primary hover:bg-primary/90 text-white'
+                }`}
               >
                 {isExporting ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className='flex items-center justify-center gap-2'>
+                    <div className='h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent'></div>
                     导出中...
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center gap-2">
-                    <Download className="w-4 h-4" />
+                  <div className='flex items-center justify-center gap-2'>
+                    <Download className='h-4 w-4' />
                     导出数据
                   </div>
                 )}
@@ -408,52 +419,55 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
           </div>
 
           {/* 数据导入 */}
-          <div className="border border-border rounded-lg p-6 bg-card hover:shadow-sm transition-shadow flex flex-col">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Upload className="w-4 h-4 text-primary" />
+          <div className='border-border bg-card flex flex-col rounded-lg border p-6 transition-shadow hover:shadow-sm'>
+            <div className='mb-6 flex items-center gap-3'>
+              <div className='bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg'>
+                <Upload className='text-primary h-4 w-4' />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">数据导入</h3>
-                <p className="text-sm text-red-600 dark:text-red-400">⚠️ 将清空现有数据</p>
+                <h3 className='text-foreground font-semibold'>数据导入</h3>
+                <p className='text-sm text-red-600 dark:text-red-400'>
+                  ⚠️ 将清空现有数据
+                </p>
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col">
-              <div className="space-y-4">
+            <div className='flex flex-1 flex-col'>
+              <div className='space-y-4'>
                 {/* 文件选择 */}
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
-                    <FileCheck className="w-4 h-4" />
+                  <label className='text-foreground mb-2 flex items-center gap-2 text-sm font-medium'>
+                    <FileCheck className='h-4 w-4' />
                     备份文件
                     {selectedFile && (
-                      <span className="ml-auto text-xs text-green-600 dark:text-green-400 font-normal">
-                        {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                      <span className='ml-auto text-xs font-normal text-green-600 dark:text-green-400'>
+                        {selectedFile.name} (
+                        {(selectedFile.size / 1024).toFixed(1)} KB)
                       </span>
                     )}
                   </label>
                   <input
                     ref={fileInputRef}
-                    type="file"
-                    accept=".dat"
+                    type='file'
+                    accept='.dat'
                     onChange={handleFileSelect}
-                    className="w-full px-3 py-2.5 border border-border rounded-lg bg-card text-foreground focus:ring-2 focus:ring-red-500 focus:border-red-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-card file:text-foreground hover:file:bg-muted transition-colors"
+                    className='border-border bg-card text-foreground file:bg-card file:text-foreground hover:file:bg-muted w-full rounded-lg border px-3 py-2.5 transition-colors file:mr-3 file:rounded file:border-0 file:px-3 file:py-1.5 file:text-sm file:font-medium focus:border-red-500 focus:ring-2 focus:ring-red-500'
                     disabled={isImporting}
                   />
                 </div>
 
                 {/* 密码输入 */}
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
-                    <Lock className="w-4 h-4" />
+                  <label className='text-foreground mb-2 flex items-center gap-2 text-sm font-medium'>
+                    <Lock className='h-4 w-4' />
                     解密密码
                   </label>
                   <input
-                    type="password"
+                    type='password'
                     value={importPassword}
                     onChange={(e) => setImportPassword(e.target.value)}
-                    placeholder="输入导出时的加密密码"
-                    className="w-full px-3 py-2.5 border border-border rounded-lg bg-card text-foreground focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+                    placeholder='输入导出时的加密密码'
+                    className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2.5 transition-colors focus:border-red-500 focus:ring-2 focus:ring-red-500'
                     disabled={isImporting}
                   />
                 </div>
@@ -462,20 +476,23 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
               {/* 导入按钮 */}
               <button
                 onClick={handleImport}
-                disabled={isImporting || !selectedFile || !importPassword.trim()}
-                className={`w-full px-4 py-2.5 rounded-lg font-medium transition-colors mt-10 ${isImporting || !selectedFile || !importPassword.trim()
-                  ? 'bg-muted bg-card cursor-not-allowed text-muted-foreground'
-                  : 'bg-red-600 hover:bg-red-700 text-white'
-                  }`}
+                disabled={
+                  isImporting || !selectedFile || !importPassword.trim()
+                }
+                className={`mt-10 w-full rounded-lg px-4 py-2.5 font-medium transition-colors ${
+                  isImporting || !selectedFile || !importPassword.trim()
+                    ? 'bg-muted bg-card text-muted-foreground cursor-not-allowed'
+                    : 'bg-red-600 text-white hover:bg-red-700'
+                }`}
               >
                 {isImporting ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className='flex items-center justify-center gap-2'>
+                    <div className='h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent'></div>
                     导入中...
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center gap-2">
-                    <Upload className="w-4 h-4" />
+                  <div className='flex items-center justify-center gap-2'>
+                    <Upload className='h-4 w-4' />
                     导入数据
                   </div>
                 )}

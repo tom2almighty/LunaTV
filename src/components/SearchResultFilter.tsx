@@ -1,6 +1,10 @@
 'use client';
 
-import { ArrowDownWideNarrow, ArrowUpDown, ArrowUpNarrowWide } from 'lucide-react';
+import {
+  ArrowDownWideNarrow,
+  ArrowUpDown,
+  ArrowUpNarrowWide,
+} from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -30,9 +34,19 @@ const DEFAULTS: Record<SearchFilterKey, string> = {
   yearOrder: 'none',
 };
 
-const SearchResultFilter: React.FC<SearchResultFilterProps> = ({ categories, values, onChange }) => {
-  const [activeCategory, setActiveCategory] = useState<SearchFilterKey | null>(null);
-  const [dropdownPosition, setDropdownPosition] = useState<{ x: number; y: number; width: number }>({ x: 0, y: 0, width: 0 });
+const SearchResultFilter: React.FC<SearchResultFilterProps> = ({
+  categories,
+  values,
+  onChange,
+}) => {
+  const [activeCategory, setActiveCategory] = useState<SearchFilterKey | null>(
+    null,
+  );
+  const [dropdownPosition, setDropdownPosition] = useState<{
+    x: number;
+    y: number;
+    width: number;
+  }>({ x: 0, y: 0, width: 0 });
   const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -70,7 +84,11 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({ categories, val
         }
       }
 
-      setDropdownPosition({ x, y: rect.bottom, width: useFixedWidth ? dropdownWidth : rect.width });
+      setDropdownPosition({
+        x,
+        y: rect.bottom,
+        width: useFixedWidth ? dropdownWidth : rect.width,
+      });
     }
   };
 
@@ -83,7 +101,10 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({ categories, val
     }
   };
 
-  const handleOptionSelect = (categoryKey: SearchFilterKey, optionValue: string) => {
+  const handleOptionSelect = (
+    categoryKey: SearchFilterKey,
+    optionValue: string,
+  ) => {
     const newValues = {
       ...mergedValues,
       [categoryKey]: optionValue,
@@ -106,7 +127,10 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({ categories, val
     return !value || value === DEFAULTS[categoryKey];
   };
 
-  const isOptionSelected = (categoryKey: SearchFilterKey, optionValue: string) => {
+  const isOptionSelected = (
+    categoryKey: SearchFilterKey,
+    optionValue: string,
+  ) => {
     const value = mergedValues[categoryKey] ?? DEFAULTS[categoryKey];
     return value === optionValue;
   };
@@ -135,7 +159,9 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({ categories, val
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node) &&
-        !Object.values(categoryRefs.current).some((ref) => ref && ref.contains(event.target as Node))
+        !Object.values(categoryRefs.current).some(
+          (ref) => ref && ref.contains(event.target as Node),
+        )
       ) {
         setActiveCategory(null);
       }
@@ -146,23 +172,40 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({ categories, val
 
   return (
     <>
-      <div className='relative inline-flex rounded-full p-0.5 sm:p-1 bg-transparent gap-1 sm:gap-2'>
+      <div className='relative inline-flex gap-1 rounded-full bg-transparent p-0.5 sm:gap-2 sm:p-1'>
         {categories.map((category) => (
-          <div key={category.key} ref={(el) => { categoryRefs.current[category.key] = el; }} className='relative'>
+          <div
+            key={category.key}
+            ref={(el) => {
+              categoryRefs.current[category.key] = el;
+            }}
+            className='relative'
+          >
             <button
               onClick={() => handleCategoryClick(category.key)}
-              className={`relative z-10 px-1.5 py-0.5 sm:px-2 sm:py-1 md:px-4 md:py-2 text-xs sm:text-sm font-medium rounded-full transition-all duration-200 whitespace-nowrap ${activeCategory === category.key
-                ? isDefaultValue(category.key)
-                  ? 'text-foreground cursor-default'
-                  : 'text-primary cursor-default'
-                : isDefaultValue(category.key)
-                  ? 'text-muted-foreground hover:text-foreground cursor-pointer'
-                  : 'text-primary hover:text-primary/80 cursor-pointer'
-                }`}
+              className={`relative z-10 whitespace-nowrap rounded-full px-1.5 py-0.5 text-xs font-medium transition-all duration-200 sm:px-2 sm:py-1 sm:text-sm md:px-4 md:py-2 ${
+                activeCategory === category.key
+                  ? isDefaultValue(category.key)
+                    ? 'text-foreground cursor-default'
+                    : 'text-primary cursor-default'
+                  : isDefaultValue(category.key)
+                    ? 'text-muted-foreground hover:text-foreground cursor-pointer'
+                    : 'text-primary hover:text-primary/80 cursor-pointer'
+              }`}
             >
               <span>{getDisplayText(category.key)}</span>
-              <svg className={`inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 ml-0.5 sm:ml-1 transition-transform duration-200 ${activeCategory === category.key ? 'rotate-180' : ''}`} fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+              <svg
+                className={`ml-0.5 inline-block h-2.5 w-2.5 transition-transform duration-200 sm:ml-1 sm:h-3 sm:w-3 ${activeCategory === category.key ? 'rotate-180' : ''}`}
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M19 9l-7 7-7-7'
+                />
               </svg>
             </button>
           </div>
@@ -187,59 +230,68 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({ categories, val
               }
               onChange({ ...mergedValues, yearOrder: next });
             }}
-            className={`relative z-10 px-1.5 py-0.5 sm:px-2 sm:py-1 md:px-4 md:py-2 text-xs sm:text-sm font-medium rounded-full transition-all duration-200 whitespace-nowrap ${mergedValues.yearOrder === 'none'
-              ? 'text-muted-foreground hover:text-foreground cursor-pointer'
-              : 'text-primary hover:text-primary/80 cursor-pointer'
-              }`}
+            className={`relative z-10 whitespace-nowrap rounded-full px-1.5 py-0.5 text-xs font-medium transition-all duration-200 sm:px-2 sm:py-1 sm:text-sm md:px-4 md:py-2 ${
+              mergedValues.yearOrder === 'none'
+                ? 'text-muted-foreground hover:text-foreground cursor-pointer'
+                : 'text-primary hover:text-primary/80 cursor-pointer'
+            }`}
             aria-label={`按年份${mergedValues.yearOrder === 'none' ? '排序' : mergedValues.yearOrder === 'desc' ? '降序' : '升序'}排序`}
           >
             <span>年份</span>
             {mergedValues.yearOrder === 'none' ? (
-              <ArrowUpDown className='inline-block ml-1 w-4 h-4 sm:w-4 sm:h-4' />
+              <ArrowUpDown className='ml-1 inline-block h-4 w-4 sm:h-4 sm:w-4' />
             ) : mergedValues.yearOrder === 'desc' ? (
-              <ArrowDownWideNarrow className='inline-block ml-1 w-4 h-4 sm:w-4 sm:h-4' />
+              <ArrowDownWideNarrow className='ml-1 inline-block h-4 w-4 sm:h-4 sm:w-4' />
             ) : (
-              <ArrowUpNarrowWide className='inline-block ml-1 w-4 h-4 sm:w-4 sm:h-4' />
+              <ArrowUpNarrowWide className='ml-1 inline-block h-4 w-4 sm:h-4 sm:w-4' />
             )}
           </button>
         </div>
       </div>
 
-      {activeCategory && createPortal(
-        <div
-          ref={dropdownRef}
-          className='fixed z-[9999] bg-card/95 rounded-xl border border-border/50 backdrop-blur-sm max-h-[50vh] flex flex-col'
-          style={{
-            left: `${dropdownPosition.x}px`,
-            top: `${dropdownPosition.y}px`,
-            ...(typeof window !== 'undefined' && window.innerWidth < 768 ? { width: `${dropdownPosition.width}px` } : { minWidth: `${Math.max(dropdownPosition.width, activeCategory === 'title' ? 400 : 240)}px` }),
-            maxWidth: '600px',
-            position: 'fixed',
-          }}
-        >
-          <div className='p-2 sm:p-4 overflow-y-auto flex-1 min-h-0'>
-            <div className='grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1 sm:gap-2'>
-              {categories.find((cat) => cat.key === activeCategory)?.options.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => handleOptionSelect(activeCategory, option.value)}
-                  className={`px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm rounded-lg transition-all duration-200 text-left ${isOptionSelected(activeCategory, option.value)
-                    ? 'bg-primary/10 text-primary border border-primary/20'
-                    : 'text-foreground hover:bg-muted'
-                    }`}
-                >
-                  {option.label}
-                </button>
-              ))}
+      {activeCategory &&
+        createPortal(
+          <div
+            ref={dropdownRef}
+            className='bg-card/95 border-border/50 fixed z-[9999] flex max-h-[50vh] flex-col rounded-xl border backdrop-blur-sm'
+            style={{
+              left: `${dropdownPosition.x}px`,
+              top: `${dropdownPosition.y}px`,
+              ...(typeof window !== 'undefined' && window.innerWidth < 768
+                ? { width: `${dropdownPosition.width}px` }
+                : {
+                    minWidth: `${Math.max(dropdownPosition.width, activeCategory === 'title' ? 400 : 240)}px`,
+                  }),
+              maxWidth: '600px',
+              position: 'fixed',
+            }}
+          >
+            <div className='min-h-0 flex-1 overflow-y-auto p-2 sm:p-4'>
+              <div className='grid grid-cols-3 gap-1 sm:grid-cols-4 sm:gap-2 md:grid-cols-5'>
+                {categories
+                  .find((cat) => cat.key === activeCategory)
+                  ?.options.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() =>
+                        handleOptionSelect(activeCategory, option.value)
+                      }
+                      className={`rounded-lg px-2 py-1.5 text-left text-xs transition-all duration-200 sm:px-3 sm:py-2 sm:text-sm ${
+                        isOptionSelected(activeCategory, option.value)
+                          ? 'bg-primary/10 text-primary border-primary/20 border'
+                          : 'text-foreground hover:bg-muted'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+              </div>
             </div>
-          </div>
-        </div>,
-        document.body
-      )}
+          </div>,
+          document.body,
+        )}
     </>
   );
 };
 
 export default SearchResultFilter;
-
-

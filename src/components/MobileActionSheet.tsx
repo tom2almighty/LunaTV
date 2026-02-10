@@ -162,7 +162,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-end justify-center"
+      className='fixed inset-0 z-[9999] flex items-end justify-center'
       onTouchMove={(e) => {
         // 阻止最外层容器的触摸移动，防止背景滚动
         e.preventDefault();
@@ -174,8 +174,9 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
     >
       {/* 背景遮罩 */}
       <div
-        className={`absolute inset-0 bg-background/50 transition-opacity duration-200 ease-out ${isAnimating ? 'opacity-100' : 'opacity-0'
-          }`}
+        className={`bg-background/50 absolute inset-0 transition-opacity duration-200 ease-out ${
+          isAnimating ? 'opacity-100' : 'opacity-0'
+        }`}
         onClick={onClose}
         onTouchMove={(e) => {
           // 只阻止滚动，允许其他触摸事件（包括点击）
@@ -194,7 +195,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
 
       {/* 操作表单 */}
       <div
-        className="relative w-full max-w-lg mx-4 mb-4 bg-card rounded-2xl shadow-2xl transition-all duration-200 ease-out"
+        className='bg-card relative mx-4 mb-4 w-full max-w-lg rounded-2xl shadow-2xl transition-all duration-200 ease-out'
         onTouchMove={(e) => {
           // 允许操作表单内部滚动，阻止事件冒泡到外层
           e.stopPropagation();
@@ -211,49 +212,52 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
         }}
       >
         {/* 头部 */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100 border-border">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className='border-border flex items-center justify-between border-b border-gray-100 p-4'>
+          <div className='flex min-w-0 flex-1 items-center gap-3'>
             {poster && (
-              <div className="relative w-12 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+              <div className='bg-muted relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg'>
                 <Image
                   src={poster}
                   alt={title}
                   fill
-                  className={origin === 'live' ? 'object-contain' : 'object-cover'}
-                  loading="lazy"
+                  className={
+                    origin === 'live' ? 'object-contain' : 'object-cover'
+                  }
+                  loading='lazy'
                 />
               </div>
             )}
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-lg font-semibold text-foreground truncate">
+            <div className='min-w-0 flex-1'>
+              <div className='mb-1 flex items-center gap-2'>
+                <h3 className='text-foreground truncate text-lg font-semibold'>
                   {title}
                 </h3>
                 {sourceName && (
-                  <span className="flex-shrink-0 text-xs px-2 py-1 border border-border rounded text-muted-foreground bg-muted bg-card">
+                  <span className='border-border text-muted-foreground bg-muted bg-card flex-shrink-0 rounded border px-2 py-1 text-xs'>
                     {origin === 'live' && (
-                      <Radio size={12} className="inline-block text-muted-foreground mr-1.5" />
+                      <Radio
+                        size={12}
+                        className='text-muted-foreground mr-1.5 inline-block'
+                      />
                     )}
                     {sourceName}
                   </span>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
-                选择操作
-              </p>
+              <p className='text-muted-foreground text-sm'>选择操作</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-muted dark:hover:bg-card transition-colors duration-150"
+            className='hover:bg-muted dark:hover:bg-card rounded-full p-2 transition-colors duration-150'
           >
-            <X size={20} className="text-muted-foreground" />
+            <X size={20} className='text-muted-foreground' />
           </button>
         </div>
 
         {/* 操作列表 */}
-        <div className="px-4 py-2">
+        <div className='px-4 py-2'>
           {actions.map((action, index) => (
             <div key={action.id}>
               <button
@@ -263,48 +267,53 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
                 }}
                 disabled={action.disabled}
                 className={`
-                  w-full flex items-center gap-4 py-4 px-2 transition-all duration-150 ease-out
-                  ${action.disabled
-                    ? 'opacity-50 cursor-not-allowed'
-                    : `${getActionHoverColor(action.color)} active:scale-[0.98]`
+                  flex w-full items-center gap-4 px-2 py-4 transition-all duration-150 ease-out
+                  ${
+                    action.disabled
+                      ? 'cursor-not-allowed opacity-50'
+                      : `${getActionHoverColor(action.color)} active:scale-[0.98]`
                   }
                 `}
                 style={{ willChange: 'transform, background-color' }}
               >
                 {/* 图标 - 使用线条风格 */}
-                <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
-                  <span className={`transition-colors duration-150 ${action.disabled
-                    ? 'text-muted-foreground text-muted-foreground'
-                    : getActionColor(action.color)
-                    }`}>
+                <div className='flex h-6 w-6 flex-shrink-0 items-center justify-center'>
+                  <span
+                    className={`transition-colors duration-150 ${
+                      action.disabled
+                        ? 'text-muted-foreground text-muted-foreground'
+                        : getActionColor(action.color)
+                    }`}
+                  >
                     {action.icon}
                   </span>
                 </div>
 
                 {/* 文字 */}
-                <span className={`
-                  text-left font-medium text-base flex-1
-                  ${action.disabled
-                    ? 'text-muted-foreground text-muted-foreground'
-                    : 'text-foreground'
+                <span
+                  className={`
+                  flex-1 text-left text-base font-medium
+                  ${
+                    action.disabled
+                      ? 'text-muted-foreground text-muted-foreground'
+                      : 'text-foreground'
                   }
-                `}>
+                `}
+                >
                   {action.label}
                 </span>
 
                 {/* 播放进度 - 只在播放按钮且有播放记录时显示 */}
                 {action.id === 'play' && currentEpisode && totalEpisodes && (
-                  <span className="text-sm text-muted-foreground font-medium">
+                  <span className='text-muted-foreground text-sm font-medium'>
                     {currentEpisode}/{totalEpisodes}
                   </span>
                 )}
-
-
               </button>
 
               {/* 分割线 - 最后一项不显示 */}
               {index < actions.length - 1 && (
-                <div className="border-b border-gray-100 border-border ml-10"></div>
+                <div className='border-border ml-10 border-b border-gray-100'></div>
               )}
             </div>
           ))}
@@ -312,27 +321,27 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
 
         {/* 播放源信息展示区域 */}
         {isAggregate && sources && sources.length > 0 && (
-          <div className="px-4 py-3 border-t border-gray-100 border-border">
+          <div className='border-border border-t border-gray-100 px-4 py-3'>
             {/* 标题区域 */}
-            <div className="mb-3">
-              <h4 className="text-sm font-medium text-foreground mb-1">
+            <div className='mb-3'>
+              <h4 className='text-foreground mb-1 text-sm font-medium'>
                 可用播放源
               </h4>
-              <p className="text-xs text-muted-foreground">
+              <p className='text-muted-foreground text-xs'>
                 共 {sources.length} 个播放源
               </p>
             </div>
 
             {/* 播放源列表 */}
-            <div className="max-h-32 overflow-y-auto">
-              <div className="grid grid-cols-2 gap-2">
+            <div className='max-h-32 overflow-y-auto'>
+              <div className='grid grid-cols-2 gap-2'>
                 {sources.map((source, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-2 py-2 px-3 rounded-lg border border-border bg-muted/30 bg-card/30"
+                    className='border-border bg-muted/30 bg-card/30 flex items-center gap-2 rounded-lg border px-3 py-2'
                   >
-                    <div className="w-1 h-1 bg-muted bg-muted rounded-full flex-shrink-0" />
-                    <span className="text-xs text-muted-foreground truncate">
+                    <div className='bg-muted bg-muted h-1 w-1 flex-shrink-0 rounded-full' />
+                    <span className='text-muted-foreground truncate text-xs'>
                       {source}
                     </span>
                   </div>

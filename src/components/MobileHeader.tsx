@@ -18,15 +18,15 @@ const MobileHeader = ({ showBackButton = false }: MobileHeaderProps) => {
 
   return (
     <>
-      <header className='md:hidden fixed top-0 left-0 right-0 z-[999] w-full bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm'>
-        <div className='h-12 flex items-center justify-between px-4'>
+      <header className='bg-background/80 border-border/50 fixed left-0 right-0 top-0 z-[999] w-full border-b shadow-sm backdrop-blur-xl md:hidden'>
+        <div className='flex h-12 items-center justify-between px-4'>
           {/* 左侧：搜索按钮、返回按钮和设置按钮 */}
           <div className='flex items-center gap-2'>
             <button
               onClick={() => setIsSearchOpen(true)}
-              className='w-10 h-10 p-2 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors'
+              className='text-muted-foreground hover:bg-muted flex h-10 w-10 items-center justify-center rounded-full p-2 transition-colors'
             >
-              <Search className='w-5 h-5' />
+              <Search className='h-5 w-5' />
             </button>
             {showBackButton && <BackButton />}
           </div>
@@ -39,16 +39,19 @@ const MobileHeader = ({ showBackButton = false }: MobileHeaderProps) => {
         </div>
 
         {/* 中间：Logo（绝对居中） */}
-        <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
+        <div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'>
           <Link
             href='/'
-            className='text-2xl font-bold text-primary tracking-tight hover:opacity-80 transition-opacity'
+            className='text-primary text-2xl font-bold tracking-tight transition-opacity hover:opacity-80'
           >
             {siteName}
           </Link>
         </div>
       </header>
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </>
   );
 };
