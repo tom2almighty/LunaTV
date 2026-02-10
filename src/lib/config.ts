@@ -163,6 +163,8 @@ async function getInitConfig(
       SearchDownstreamMaxPage:
         Number(process.env.NEXT_PUBLIC_SEARCH_MAX_PAGE) || 5,
       SiteInterfaceCacheTime: cfgFile.cache_time || 7200,
+      DoubanDataCacheTime:
+        Number(process.env.NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME) || 7200,
       DoubanProxyType:
         process.env.NEXT_PUBLIC_DOUBAN_PROXY_TYPE || 'cmliussss-cdn-tencent',
       DoubanProxy: process.env.NEXT_PUBLIC_DOUBAN_PROXY || '',
@@ -359,6 +361,11 @@ export async function resetConfig() {
 export async function getCacheTime(): Promise<number> {
   const config = await getConfig();
   return config.SiteConfig.SiteInterfaceCacheTime || 7200;
+}
+
+export async function getDoubanCacheTime(): Promise<number> {
+  const config = await getConfig();
+  return config.SiteConfig.DoubanDataCacheTime || 7200;
 }
 
 export async function getAvailableApiSites(user?: string): Promise<ApiSite[]> {

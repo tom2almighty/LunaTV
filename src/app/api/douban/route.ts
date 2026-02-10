@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { getCacheTime } from '@/lib/config';
+import { getDoubanCacheTime } from '@/lib/config';
 import { fetchDoubanData } from '@/lib/douban';
 import { DoubanItem, DoubanResult } from '@/lib/types';
 
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
       list: list,
     };
 
-    const cacheTime = await getCacheTime();
+    const cacheTime = await getDoubanCacheTime();
     return NextResponse.json(response, {
       headers: {
         'Cache-Control': `public, max-age=${cacheTime}, s-maxage=${cacheTime}`,
@@ -154,7 +154,7 @@ function handleTop250(pageStart: number) {
         list: movies,
       };
 
-      const cacheTime = await getCacheTime();
+      const cacheTime = await getDoubanCacheTime();
       return NextResponse.json(apiResponse, {
         headers: {
           'Cache-Control': `public, max-age=${cacheTime}, s-maxage=${cacheTime}`,

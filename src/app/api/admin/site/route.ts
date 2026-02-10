@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
       Announcement,
       SearchDownstreamMaxPage,
       SiteInterfaceCacheTime,
+      DoubanDataCacheTime,
       DoubanProxyType,
       DoubanProxy,
       DoubanImageProxyType,
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
       Announcement: string;
       SearchDownstreamMaxPage: number;
       SiteInterfaceCacheTime: number;
+      DoubanDataCacheTime: number;
       DoubanProxyType: string;
       DoubanProxy: string;
       DoubanImageProxyType: string;
@@ -62,6 +64,7 @@ export async function POST(request: NextRequest) {
       typeof Announcement !== 'string' ||
       typeof SearchDownstreamMaxPage !== 'number' ||
       typeof SiteInterfaceCacheTime !== 'number' ||
+      typeof DoubanDataCacheTime !== 'number' ||
       typeof DoubanProxyType !== 'string' ||
       typeof DoubanProxy !== 'string' ||
       typeof DoubanImageProxyType !== 'string' ||
@@ -93,6 +96,7 @@ export async function POST(request: NextRequest) {
       Announcement,
       SearchDownstreamMaxPage,
       SiteInterfaceCacheTime,
+      DoubanDataCacheTime,
       DoubanProxyType,
       DoubanProxy,
       DoubanImageProxyType,

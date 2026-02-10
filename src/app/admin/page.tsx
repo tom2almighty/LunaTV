@@ -280,6 +280,7 @@ interface SiteConfig {
   Announcement: string;
   SearchDownstreamMaxPage: number;
   SiteInterfaceCacheTime: number;
+  DoubanDataCacheTime: number;
   DoubanProxyType: string;
   DoubanProxy: string;
   DoubanImageProxyType: string;
@@ -3973,6 +3974,7 @@ const SiteConfigComponent = ({
     Announcement: '',
     SearchDownstreamMaxPage: 1,
     SiteInterfaceCacheTime: 7200,
+    DoubanDataCacheTime: 7200,
     DoubanProxyType: 'cmliussss-cdn-tencent',
     DoubanProxy: '',
     DoubanImageProxyType: 'cmliussss-cdn-tencent',
@@ -4415,6 +4417,25 @@ const SiteConfigComponent = ({
             setSiteSettings((prev) => ({
               ...prev,
               SiteInterfaceCacheTime: Number(e.target.value),
+            }))
+          }
+          className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-green-500'
+        />
+      </div>
+
+      {/* 豆瓣数据缓存时间 */}
+      <div>
+        <label className='text-foreground mb-2 block text-sm font-medium'>
+          豆瓣数据缓存时间（秒）
+        </label>
+        <input
+          type='number'
+          min={1}
+          value={siteSettings.DoubanDataCacheTime}
+          onChange={(e) =>
+            setSiteSettings((prev) => ({
+              ...prev,
+              DoubanDataCacheTime: Number(e.target.value),
             }))
           }
           className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-green-500'

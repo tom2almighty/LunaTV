@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getCacheTime } from '@/lib/config';
+import { getDoubanCacheTime } from '@/lib/config';
 import { fetchDoubanData } from '@/lib/douban';
 import { DoubanResult } from '@/lib/types';
 
@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
       list: list,
     };
 
-    const cacheTime = await getCacheTime();
+    const cacheTime = await getDoubanCacheTime();
     return NextResponse.json(response, {
       headers: {
         'Cache-Control': `public, max-age=${cacheTime}, s-maxage=${cacheTime}`,

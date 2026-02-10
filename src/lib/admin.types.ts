@@ -10,6 +10,7 @@ export interface AdminConfig {
     Announcement: string;
     SearchDownstreamMaxPage: number;
     SiteInterfaceCacheTime: number;
+    DoubanDataCacheTime: number; // 豆瓣数据缓存时间（秒）
     DoubanProxyType: string;
     DoubanProxy: string;
     DoubanImageProxyType: string;
