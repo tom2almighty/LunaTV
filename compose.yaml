@@ -1,15 +1,17 @@
 services:
   moontv-core:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/tom2almighty/lunatv:latest
+    # 本地构建
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     container_name: moontv-core
     restart: on-failure
     ports:
       - '3000:3000'
     environment:
       - USERNAME=admin
-      - PASSWORD=qw2444
+      - PASSWORD=your_password
       - NEXT_PUBLIC_STORAGE_TYPE=kvrocks
       - KVROCKS_URL=redis://moontv-kvrocks:6666
     networks:
