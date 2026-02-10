@@ -40,13 +40,13 @@ function SearchPageClient() {
   const flushTimerRef = useRef<number | null>(null);
   const [useFluidSearch, setUseFluidSearch] = useState(true);
   // 聚合卡片 refs 与聚合统计缓存
-  const groupRefs = useRef<Map<string, React.RefObject<VideoCardHandle>>>(new Map());
+  const groupRefs = useRef<Map<string, React.RefObject<VideoCardHandle | null>>>(new Map());
   const groupStatsRef = useRef<Map<string, { douban_id?: number; episodes?: number; source_names: string[] }>>(new Map());
 
-  const getGroupRef = (key: string) => {
+  const getGroupRef = (key: string): React.RefObject<VideoCardHandle | null> => {
     let ref = groupRefs.current.get(key);
     if (!ref) {
-      ref = React.createRef<VideoCardHandle>();
+      ref = { current: null };
       groupRefs.current.set(key, ref);
     }
     return ref;
