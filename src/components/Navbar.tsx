@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { Fragment, useEffect, useState } from 'react';
 
 import { SearchModal } from './SearchModal';
-import { useSite } from './SiteProvider';
+import { useSite } from '@/context/SiteContext';
 import { ThemeToggle } from './ThemeToggle';
 import { UserMenu } from './UserMenu';
 

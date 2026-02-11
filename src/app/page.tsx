@@ -24,7 +24,7 @@ import CapsuleSwitch from '@/components/CapsuleSwitch';
 import ContinueWatching from '@/components/ContinueWatching';
 import PageLayout from '@/components/PageLayout';
 import ScrollableRow from '@/components/ScrollableRow';
-import { useSite } from '@/components/SiteProvider';
+import { useSite } from '@/context/SiteContext';
 import VideoCard from '@/components/VideoCard';
 
 function HomeClient() {
@@ -241,34 +241,34 @@ function HomeClient() {
                 <ScrollableRow>
                   {loading
                     ? // 加载状态显示灰色占位数据
-                      Array.from({ length: 8 }).map((_, index) => (
-                        <div
-                          key={index}
-                          className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
-                        >
-                          <div className='bg-muted relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
-                            <div className='bg-muted-foreground/20 absolute inset-0'></div>
-                          </div>
-                          <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
+                    Array.from({ length: 8 }).map((_, index) => (
+                      <div
+                        key={index}
+                        className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
+                      >
+                        <div className='bg-muted relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
+                          <div className='bg-muted-foreground/20 absolute inset-0'></div>
                         </div>
-                      ))
+                        <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
+                      </div>
+                    ))
                     : // 显示真实数据
-                      hotMovies.map((movie, index) => (
-                        <div
-                          key={index}
-                          className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
-                        >
-                          <VideoCard
-                            from='douban'
-                            title={movie.title}
-                            poster={movie.poster}
-                            douban_id={Number(movie.id)}
-                            rate={movie.rate}
-                            year={movie.year}
-                            type='movie'
-                          />
-                        </div>
-                      ))}
+                    hotMovies.map((movie, index) => (
+                      <div
+                        key={index}
+                        className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
+                      >
+                        <VideoCard
+                          from='douban'
+                          title={movie.title}
+                          poster={movie.poster}
+                          douban_id={Number(movie.id)}
+                          rate={movie.rate}
+                          year={movie.year}
+                          type='movie'
+                        />
+                      </div>
+                    ))}
                 </ScrollableRow>
               </section>
 
@@ -289,33 +289,33 @@ function HomeClient() {
                 <ScrollableRow>
                   {loading
                     ? // 加载状态显示灰色占位数据
-                      Array.from({ length: 8 }).map((_, index) => (
-                        <div
-                          key={index}
-                          className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
-                        >
-                          <div className='bg-muted relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
-                            <div className='bg-muted-foreground/20 absolute inset-0'></div>
-                          </div>
-                          <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
+                    Array.from({ length: 8 }).map((_, index) => (
+                      <div
+                        key={index}
+                        className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
+                      >
+                        <div className='bg-muted relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
+                          <div className='bg-muted-foreground/20 absolute inset-0'></div>
                         </div>
-                      ))
+                        <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
+                      </div>
+                    ))
                     : // 显示真实数据
-                      hotTvShows.map((show, index) => (
-                        <div
-                          key={index}
-                          className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
-                        >
-                          <VideoCard
-                            from='douban'
-                            title={show.title}
-                            poster={show.poster}
-                            douban_id={Number(show.id)}
-                            rate={show.rate}
-                            year={show.year}
-                          />
-                        </div>
-                      ))}
+                    hotTvShows.map((show, index) => (
+                      <div
+                        key={index}
+                        className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
+                      >
+                        <VideoCard
+                          from='douban'
+                          title={show.title}
+                          poster={show.poster}
+                          douban_id={Number(show.id)}
+                          rate={show.rate}
+                          year={show.year}
+                        />
+                      </div>
+                    ))}
                 </ScrollableRow>
               </section>
 
@@ -336,61 +336,61 @@ function HomeClient() {
                 <ScrollableRow>
                   {loading
                     ? // 加载状态显示灰色占位数据
-                      Array.from({ length: 8 }).map((_, index) => (
+                    Array.from({ length: 8 }).map((_, index) => (
+                      <div
+                        key={index}
+                        className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
+                      >
+                        <div className='bg-muted relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
+                          <div className='bg-muted-foreground/20 absolute inset-0'></div>
+                        </div>
+                        <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
+                      </div>
+                    ))
+                    : // 展示当前日期的番剧
+                    (() => {
+                      // 获取当前日期对应的星期
+                      const today = new Date();
+                      const weekdays = [
+                        'Sun',
+                        'Mon',
+                        'Tue',
+                        'Wed',
+                        'Thu',
+                        'Fri',
+                        'Sat',
+                      ];
+                      const currentWeekday = weekdays[today.getDay()];
+
+                      // 找到当前星期对应的番剧数据
+                      const todayAnimes =
+                        bangumiCalendarData.find(
+                          (item) => item.weekday.en === currentWeekday,
+                        )?.items || [];
+
+                      return todayAnimes.map((anime, index) => (
                         <div
-                          key={index}
+                          key={`${anime.id}-${index}`}
                           className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
                         >
-                          <div className='bg-muted relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
-                            <div className='bg-muted-foreground/20 absolute inset-0'></div>
-                          </div>
-                          <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
+                          <VideoCard
+                            from='douban'
+                            title={anime.name_cn || anime.name}
+                            poster={
+                              anime.images.large ||
+                              anime.images.common ||
+                              anime.images.medium ||
+                              anime.images.small ||
+                              anime.images.grid
+                            }
+                            douban_id={anime.id}
+                            rate={anime.rating?.score?.toFixed(1) || ''}
+                            year={anime.air_date?.split('-')?.[0] || ''}
+                            isBangumi={true}
+                          />
                         </div>
-                      ))
-                    : // 展示当前日期的番剧
-                      (() => {
-                        // 获取当前日期对应的星期
-                        const today = new Date();
-                        const weekdays = [
-                          'Sun',
-                          'Mon',
-                          'Tue',
-                          'Wed',
-                          'Thu',
-                          'Fri',
-                          'Sat',
-                        ];
-                        const currentWeekday = weekdays[today.getDay()];
-
-                        // 找到当前星期对应的番剧数据
-                        const todayAnimes =
-                          bangumiCalendarData.find(
-                            (item) => item.weekday.en === currentWeekday,
-                          )?.items || [];
-
-                        return todayAnimes.map((anime, index) => (
-                          <div
-                            key={`${anime.id}-${index}`}
-                            className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
-                          >
-                            <VideoCard
-                              from='douban'
-                              title={anime.name_cn || anime.name}
-                              poster={
-                                anime.images.large ||
-                                anime.images.common ||
-                                anime.images.medium ||
-                                anime.images.small ||
-                                anime.images.grid
-                              }
-                              douban_id={anime.id}
-                              rate={anime.rating?.score?.toFixed(1) || ''}
-                              year={anime.air_date?.split('-')?.[0] || ''}
-                              isBangumi={true}
-                            />
-                          </div>
-                        ));
-                      })()}
+                      ));
+                    })()}
                 </ScrollableRow>
               </section>
 
@@ -411,33 +411,33 @@ function HomeClient() {
                 <ScrollableRow>
                   {loading
                     ? // 加载状态显示灰色占位数据
-                      Array.from({ length: 8 }).map((_, index) => (
-                        <div
-                          key={index}
-                          className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
-                        >
-                          <div className='bg-muted relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
-                            <div className='bg-muted-foreground/20 absolute inset-0'></div>
-                          </div>
-                          <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
+                    Array.from({ length: 8 }).map((_, index) => (
+                      <div
+                        key={index}
+                        className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
+                      >
+                        <div className='bg-muted relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
+                          <div className='bg-muted-foreground/20 absolute inset-0'></div>
                         </div>
-                      ))
+                        <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
+                      </div>
+                    ))
                     : // 显示真实数据
-                      hotVarietyShows.map((show, index) => (
-                        <div
-                          key={index}
-                          className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
-                        >
-                          <VideoCard
-                            from='douban'
-                            title={show.title}
-                            poster={show.poster}
-                            douban_id={Number(show.id)}
-                            rate={show.rate}
-                            year={show.year}
-                          />
-                        </div>
-                      ))}
+                    hotVarietyShows.map((show, index) => (
+                      <div
+                        key={index}
+                        className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
+                      >
+                        <VideoCard
+                          from='douban'
+                          title={show.title}
+                          poster={show.poster}
+                          douban_id={Number(show.id)}
+                          rate={show.rate}
+                          year={show.year}
+                        />
+                      </div>
+                    ))}
                 </ScrollableRow>
               </section>
             </>
@@ -446,9 +446,8 @@ function HomeClient() {
       </div>
       {announcement && showAnnouncement && (
         <div
-          className={`bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300 ${
-            showAnnouncement ? '' : 'pointer-events-none opacity-0'
-          }`}
+          className={`bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300 ${showAnnouncement ? '' : 'pointer-events-none opacity-0'
+            }`}
           onTouchStart={(e) => {
             // 如果点击的是背景区域，阻止触摸事件冒泡，防止背景滚动
             if (e.target === e.currentTarget) {

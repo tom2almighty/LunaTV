@@ -5,7 +5,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 
-import { useSite } from '@/components/SiteProvider';
+import { useSite } from '@/context/SiteContext';
 
 function LoginPageClient() {
   const router = useRouter();
