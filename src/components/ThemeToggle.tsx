@@ -108,21 +108,21 @@ export function ThemeToggle() {
               onClick={() => setMode('light')}
               className={`flex flex-1 flex-row items-center justify-center gap-1 rounded px-1.5 py-1.5 text-xs transition-colors ${mode === 'light' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
-              <Sun className='h-3.5 w-3.5 flex-shrink-0' />
+              <Sun className='h-3.5 w-3.5 shrink-0' />
               <span className='whitespace-nowrap'>亮色</span>
             </button>
             <button
               onClick={() => setMode('dark')}
               className={`flex flex-1 flex-row items-center justify-center gap-1 rounded px-1.5 py-1.5 text-xs transition-colors ${mode === 'dark' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
-              <Moon className='h-3.5 w-3.5 flex-shrink-0' />
+              <Moon className='h-3.5 w-3.5 shrink-0' />
               <span className='whitespace-nowrap'>暗色</span>
             </button>
             <button
               onClick={() => setMode('system')}
               className={`flex flex-1 flex-row items-center justify-center gap-1 rounded px-1.5 py-1.5 text-xs transition-colors ${mode === 'system' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
-              <SunMoon className='h-3.5 w-3.5 flex-shrink-0' />
+              <SunMoon className='h-3.5 w-3.5 shrink-0' />
               <span className='whitespace-nowrap'>自动</span>
             </button>
           </div>
