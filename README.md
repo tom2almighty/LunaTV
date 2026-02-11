@@ -11,11 +11,13 @@
 
 
 <div align="center">
+
 ![Next.js](https://img.shields.io/badge/Next.js-14-000?logo=nextdotjs)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-38bdf8?logo=tailwindcss)
 ![TypeScript](https://img.shields.io/badge/TypeScript-4.x-3178c6?logo=typescript)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Docker Ready](https://img.shields.io/badge/Docker-ready-blue?logo=docker)
+
 </div>
 
 ---

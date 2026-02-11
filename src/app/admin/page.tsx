@@ -48,37 +48,36 @@ import PageLayout from '@/components/PageLayout';
 
 // 统一按钮样式系统
 const buttonStyles = {
-  // 主要操作按钮（红色）- 用于配置、设置、确认等
+
   primary:
     'px-3 py-1.5 text-sm font-medium bg-primary hover:opacity-90 text-primary-foreground rounded-lg transition-colors',
-  // 成功操作按钮（绿色）- 用于添加、启用、保存等
+
   success:
     'px-3 py-1.5 text-sm font-medium bg-success hover:opacity-90 text-success-foreground rounded-lg transition-colors',
-  // 危险操作按钮（红色）- 用于删除、禁用、重置等
+
   danger:
     'px-3 py-1.5 text-sm font-medium bg-destructive hover:opacity-90 text-destructive-foreground rounded-lg transition-colors',
-  // 次要操作按钮（灰色）- 用于取消、关闭等
+
   secondary:
     'px-3 py-1.5 text-sm font-medium bg-secondary hover:opacity-90 text-secondary-foreground rounded-lg transition-colors',
-  // 警告操作按钮（黄色）- 用于批量禁用等
+
   warning:
     'px-3 py-1.5 text-sm font-medium bg-warning hover:opacity-90 text-warning-foreground rounded-lg transition-colors',
-  // 小尺寸主要按钮
+
   primarySmall:
     'px-2 py-1 text-xs font-medium bg-primary hover:opacity-90 text-primary-foreground rounded-md transition-colors',
-  // 小尺寸成功按钮
+
   successSmall:
     'px-2 py-1 text-xs font-medium bg-success hover:opacity-90 text-success-foreground rounded-md transition-colors',
-  // 小尺寸危险按钮
+
   dangerSmall:
     'px-2 py-1 text-xs font-medium bg-destructive hover:opacity-90 text-destructive-foreground rounded-md transition-colors',
-  // 小尺寸次要按钮
+
   secondarySmall:
     'px-2 py-1 text-xs font-medium bg-secondary hover:opacity-90 text-secondary-foreground rounded-md transition-colors',
-  // 小尺寸警告按钮
+
   warningSmall:
     'px-2 py-1 text-xs font-medium bg-warning hover:opacity-90 text-warning-foreground rounded-md transition-colors',
-  // 圆角小按钮（用于表格操作）
   roundedPrimary:
     'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors',
   roundedSuccess:
@@ -91,18 +90,16 @@ const buttonStyles = {
     'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-warning/10 text-warning hover:bg-warning/20 transition-colors',
   roundedPurple:
     'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-accent/10 text-accent hover:bg-accent/20 transition-colors',
-  // 禁用状态
+
   disabled:
     'px-3 py-1.5 text-sm font-medium bg-muted cursor-not-allowed text-muted-foreground rounded-lg transition-colors opacity-50',
   disabledSmall:
     'px-2 py-1 text-xs font-medium bg-muted cursor-not-allowed text-muted-foreground rounded-md transition-colors opacity-50',
-  // 开关按钮样式
-  toggleOn: 'bg-success',
+  toggleOn: 'bg-primary',
   toggleOff: 'bg-muted',
   toggleThumb: 'bg-card',
   toggleThumbOn: 'translate-x-6',
   toggleThumbOff: 'translate-x-1',
-  // 快速操作按钮样式
   quickAction:
     'px-3 py-1.5 text-xs font-medium text-muted-foreground bg-card border border-border hover:bg-muted rounded-md transition-colors',
 };

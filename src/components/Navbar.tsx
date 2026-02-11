@@ -27,7 +27,6 @@ const Logo = () => {
 export const Navbar = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [menuItems, setMenuItems] = useState([
     { label: '首页', href: '/' },
@@ -36,20 +35,6 @@ export const Navbar = () => {
     { label: '动漫', href: '/douban?type=anime' },
     { label: '综艺', href: '/douban?type=show' },
   ]);
-
-  // Handle scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 0) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Load custom categories
   useEffect(() => {
@@ -84,12 +69,7 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav
-        className={`fixed top-0 z-40 w-full transition-colors duration-300 ${
-          isScrolled
-            ? 'bg-background/90 border-border/50 border-b backdrop-blur-md'
-            : 'bg-gradient-to-b from-black/60 to-transparent'
-        }`}
+      <nav className="fixed top-0 z-40 w-full bg-background/95 border-b border-border/50 backdrop-blur-sm"
       >
         <div className='flex h-16 items-center justify-between px-4 md:px-12'>
           <div className='flex items-center'>
@@ -99,11 +79,10 @@ export const Navbar = () => {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`text-sm font-medium transition-colors duration-200 ${
-                    isActive(item.href)
-                      ? 'text-primary font-bold'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  className={`text-sm font-medium transition-colors duration-200 ${isActive(item.href)
+                    ? 'text-primary font-bold'
+                    : 'text-muted-foreground hover:text-foreground'
+                    }`}
                 >
                   {item.label}
                 </Link>
@@ -111,10 +90,10 @@ export const Navbar = () => {
             </div>
           </div>
 
-          <div className='flex items-center gap-6'>
+          <div className='flex items-center gap-3'>
             <button
               onClick={() => setIsSearchOpen(true)}
-              className='text-foreground hover:text-primary transition-colors'
+              className='text-muted-foreground hover:bg-muted hover:text-foreground flex h-10 w-10 items-center justify-center rounded-full transition-colors'
               aria-label='Search'
             >
               <Search className='h-5 w-5' />

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type ThemeMode = 'light' | 'dark' | 'system';
-type ColorScheme = 'netflix' | 'classic' | 'ocean' | 'forest';
+type ColorScheme = 'red' | 'blue' | 'cyan' | 'green';
 
 interface ThemeContextType {
   mode: ThemeMode;
@@ -17,7 +17,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<ThemeMode>('system');
-  const [colorScheme, setColorScheme] = useState<ColorScheme>('netflix');
+  const [colorScheme, setColorScheme] = useState<ColorScheme>('red');
   const [resolvedMode, setResolvedMode] = useState<'light' | 'dark'>('dark');
   const [mounted, setMounted] = useState(false);
 

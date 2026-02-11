@@ -3,7 +3,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 
-import './globals.css';
+import '../styles/globals.css';
 
 import { getConfig } from '@/lib/config';
 

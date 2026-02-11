@@ -36,10 +36,10 @@ export function ThemeToggle() {
   };
 
   const schemes = [
-    { id: 'netflix', name: '红色', color: '#E50914' },
-    { id: 'classic', name: '天空', color: '#2563eb' },
-    { id: 'ocean', name: '海洋', color: '#0891b2' },
-    { id: 'forest', name: '森林', color: '#16a34a' },
+    { id: 'red', name: '红色', color: '#E50914' },
+    { id: 'blue', name: '蓝色', color: '#2563eb' },
+    { id: 'cyan', name: '青色', color: '#0891b2' },
+    { id: 'green', name: '绿色', color: '#16a34a' },
   ] as const;
 
   return (
@@ -74,7 +74,7 @@ export function ThemeToggle() {
 
       {/* Scheme Dropdown */}
       {isOpen && (
-        <div className='bg-popover border-border z-99 animate-in fade-in zoom-in-95 absolute right-0 top-full mt-2 w-48 origin-top-right rounded-lg border py-2 shadow-xl duration-200'>
+        <div className='bg-popover border-border z-99 animate-in fade-in zoom-in-95 absolute right-0 top-full mt-2 min-w-52 origin-top-right rounded-lg border py-2 shadow-xl duration-200'>
           <div className='text-muted-foreground px-3 py-1.5 text-xs font-semibold uppercase tracking-wider'>
             配色
           </div>
@@ -106,21 +106,24 @@ export function ThemeToggle() {
           <div className='flex gap-1 px-2 pb-1'>
             <button
               onClick={() => setMode('light')}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs transition-colors ${mode === 'light' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
+              className={`flex flex-1 flex-row items-center justify-center gap-1 rounded px-1.5 py-1.5 text-xs transition-colors ${mode === 'light' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
-              <Sun className='h-3 w-3' /> 亮色
+              <Sun className='h-3.5 w-3.5 flex-shrink-0' />
+              <span className='whitespace-nowrap'>亮色</span>
             </button>
             <button
               onClick={() => setMode('dark')}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs transition-colors ${mode === 'dark' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
+              className={`flex flex-1 flex-row items-center justify-center gap-1 rounded px-1.5 py-1.5 text-xs transition-colors ${mode === 'dark' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
-              <Moon className='h-3 w-3' /> 暗色
+              <Moon className='h-3.5 w-3.5 flex-shrink-0' />
+              <span className='whitespace-nowrap'>暗色</span>
             </button>
             <button
               onClick={() => setMode('system')}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs transition-colors ${mode === 'system' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
+              className={`flex flex-1 flex-row items-center justify-center gap-1 rounded px-1.5 py-1.5 text-xs transition-colors ${mode === 'system' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
-              <SunMoon className='h-3 w-3' /> 自动
+              <SunMoon className='h-3.5 w-3.5 flex-shrink-0' />
+              <span className='whitespace-nowrap'>自动</span>
             </button>
           </div>
         </div>
