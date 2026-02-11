@@ -24,8 +24,9 @@ import CapsuleSwitch from '@/components/CapsuleSwitch';
 import ContinueWatching from '@/components/ContinueWatching';
 import PageLayout from '@/components/PageLayout';
 import ScrollableRow from '@/components/ScrollableRow';
-import { useSite } from '@/context/SiteContext';
 import VideoCard from '@/components/VideoCard';
+
+import { useSite } from '@/context/SiteContext';
 
 function HomeClient() {
   const [activeTab, setActiveTab] = useState<'home' | 'favorites'>('home');

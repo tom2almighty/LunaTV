@@ -2,9 +2,10 @@ import { Search } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { useSite } from '@/context/SiteContext';
+
 import { BackButton } from './BackButton';
 import { SearchModal } from './SearchModal';
-import { useSite } from '@/context/SiteContext';
 import { ThemeToggle } from './ThemeToggle';
 import { UserMenu } from './UserMenu';
 

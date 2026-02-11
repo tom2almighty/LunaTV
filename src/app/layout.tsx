@@ -7,10 +7,10 @@ import '../styles/globals.css';
 
 import { getConfig } from '@/lib/config';
 
+import { SiteProvider } from '@/context/SiteContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 
 import { GlobalErrorIndicator } from '../components/GlobalErrorIndicator';
-import { SiteProvider } from '@/context/SiteContext';
 
 const inter = Inter({ subsets: ['latin'] });
 export const dynamic = 'force-dynamic';
