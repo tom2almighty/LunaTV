@@ -80,7 +80,19 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Avoid hydration mismatch
   if (!mounted) {
-    return <>{children}</>;
+    return (
+      <ThemeContext.Provider
+        value={{
+          mode: 'system',
+          setMode: () => { },
+          colorScheme: 'red',
+          setColorScheme: () => { },
+          resolvedMode: 'dark',
+        }}
+      >
+        <div style={{ visibility: 'hidden' }}>{children}</div>
+      </ThemeContext.Provider>
+    );
   }
 
   return (
