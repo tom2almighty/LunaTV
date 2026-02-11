@@ -85,10 +85,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         value={{
           mode: 'system',
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          setMode: () => { },
+          setMode: () => {},
           colorScheme: 'red',
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          setColorScheme: () => { },
+          setColorScheme: () => {},
           resolvedMode: 'dark',
         }}
       >

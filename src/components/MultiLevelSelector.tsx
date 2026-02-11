@@ -522,7 +522,7 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
                     ? 'text-foreground cursor-default'
                     : 'text-primary cursor-default'
                   : isDefaultValue(category.key)
-                    ? 'text-foreground hover:text-foreground text-muted-foreground hover:text-foreground cursor-pointer'
+                    ? 'text-muted-foreground hover:text-foreground cursor-pointer'
                     : 'text-primary hover:text-primary/80 cursor-pointer'
               }`}
             >
@@ -552,7 +552,7 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
         createPortal(
           <div
             ref={dropdownRef}
-            className='bg-card/95 bg-card/95 border-border/50 border-border/50 fixed z-[9999] rounded-xl border backdrop-blur-sm'
+            className='bg-card/95 border-border/50 fixed z-50 rounded-xl border backdrop-blur-sm'
             style={{
               left: `${dropdownPosition.x}px`,
               top: `${dropdownPosition.y}px`,
@@ -576,7 +576,7 @@ const MultiLevelSelector: React.FC<MultiLevelSelectorProps> = ({
                       className={`rounded-lg px-2 py-1.5 text-left text-xs transition-all duration-200 sm:px-3 sm:py-2 sm:text-sm ${
                         isOptionSelected(activeCategory, option.value)
                           ? 'bg-primary/10 text-primary border-primary/20 border'
-                          : 'text-foreground hover:bg-muted/80 hover:bg-muted/80'
+                          : 'text-foreground hover:bg-muted/80'
                       }`}
                     >
                       {option.label}

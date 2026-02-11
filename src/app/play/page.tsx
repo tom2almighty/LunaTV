@@ -1744,7 +1744,7 @@ function PlayPageClient() {
               </div>
 
               {/* 进度条 */}
-              <div className='bg-muted bg-card h-2 w-full overflow-hidden rounded-full'>
+              <div className='bg-card h-2 w-full overflow-hidden rounded-full'>
                 <div
                   className='bg-primary h-full rounded-full transition-all duration-1000 ease-out'
                   style={{
@@ -1779,10 +1779,10 @@ function PlayPageClient() {
           <div className='mx-auto max-w-md px-6 text-center'>
             {/* 错误图标 */}
             <div className='relative mb-8'>
-              <div className='relative mx-auto flex h-24 w-24 transform items-center justify-center rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 shadow-2xl transition-transform duration-300 hover:scale-105'>
+              <div className='bg-linear-to-r relative mx-auto flex h-24 w-24 transform items-center justify-center rounded-2xl from-red-500 to-orange-500 shadow-2xl transition-transform duration-300 hover:scale-105'>
                 <div className='text-4xl text-white'>😵</div>
                 {/* 脉冲效果 */}
-                <div className='absolute -inset-2 animate-pulse rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 opacity-20'></div>
+                <div className='bg-linear-to-r absolute -inset-2 animate-pulse rounded-2xl from-red-500 to-orange-500 opacity-20'></div>
               </div>
 
               {/* 浮动错误粒子 */}
@@ -1829,7 +1829,7 @@ function PlayPageClient() {
 
               <button
                 onClick={() => window.location.reload()}
-                className='bg-muted bg-card text-foreground hover:bg-muted w-full rounded-xl px-6 py-3 font-medium transition-colors duration-200'
+                className='bg-card text-foreground hover:bg-muted w-full rounded-xl px-6 py-3 font-medium transition-colors duration-200'
               >
                 🔄 重新尝试
               </button>
@@ -1842,7 +1842,7 @@ function PlayPageClient() {
 
   return (
     <PageLayout activePath='/play'>
-      <div className='flex flex-col gap-3 px-5 py-4 lg:px-[3rem] 2xl:px-20'>
+      <div className='flex flex-col gap-3 px-5 py-4 lg:px-12 2xl:px-20'>
         {/* 第一行：影片标题 */}
         <div className='py-1'>
           <h1 className='text-foreground text-xl font-semibold'>
@@ -1862,7 +1862,7 @@ function PlayPageClient() {
               onClick={() =>
                 setIsEpisodeSelectorCollapsed(!isEpisodeSelectorCollapsed)
               }
-              className='bg-card/80 hover:bg-card/80 dark:hover:bg-card border-border/50 border-border/50 group relative flex items-center space-x-1.5 rounded-full border px-3 py-1.5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md'
+              className='bg-card/80 hover:bg-card/80 dark:hover:bg-card border-border/50 group relative flex items-center space-x-1.5 rounded-full border px-3 py-1.5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md'
               title={
                 isEpisodeSelectorCollapsed ? '显示选集面板' : '隐藏选集面板'
               }
@@ -1882,7 +1882,7 @@ function PlayPageClient() {
                   d='M9 5l7 7-7 7'
                 />
               </svg>
-              <span className='text-muted-foreground text-foreground text-xs font-medium'>
+              <span className='text-foreground text-xs font-medium'>
                 {isEpisodeSelectorCollapsed ? '显示' : '隐藏'}
               </span>
 
@@ -1918,7 +1918,7 @@ function PlayPageClient() {
 
                 {/* 换源加载蒙层 */}
                 {isVideoLoading && (
-                  <div className='bg-background/85 absolute inset-0 z-[500] flex items-center justify-center rounded-xl backdrop-blur-sm transition-all duration-300'>
+                  <div className='bg-background/85 z-500 absolute inset-0 flex items-center justify-center rounded-xl backdrop-blur-sm transition-all duration-300'>
                     <div className='mx-auto max-w-md px-6 text-center'>
                       {/* 动画影院图标 */}
                       <div className='relative mb-8'>
@@ -1988,21 +1988,21 @@ function PlayPageClient() {
           <div className='md:col-span-3'>
             <div className='flex min-h-0 flex-col p-6'>
               {/* 标题 */}
-              <h1 className='mb-2 flex w-full flex-shrink-0 items-center text-center text-3xl font-bold tracking-wide md:text-left'>
+              <h1 className='mb-2 flex w-full shrink-0 items-center text-center text-3xl font-bold tracking-wide md:text-left'>
                 {videoTitle || '影片标题'}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     handleToggleFavorite();
                   }}
-                  className='ml-3 flex-shrink-0 transition-opacity hover:opacity-80'
+                  className='ml-3 shrink-0 transition-opacity hover:opacity-80'
                 >
                   <FavoriteIcon filled={favorited} />
                 </button>
               </h1>
 
               {/* 关键信息行 */}
-              <div className='mb-4 flex flex-shrink-0 flex-wrap items-center gap-3 text-base opacity-80'>
+              <div className='mb-4 flex shrink-0 flex-wrap items-center gap-3 text-base opacity-80'>
                 {detail?.score &&
                   detail.score !== '0.0' &&
                   detail.score !== '0' && (
@@ -2021,7 +2021,7 @@ function PlayPageClient() {
                 {detail?.area && <span>{detail.area}</span>}
                 {detail?.lang && <span>{detail.lang}</span>}
                 {detail?.source_name && (
-                  <span className='border-border/60 rounded border px-2 py-[1px]'>
+                  <span className='border-border/60 rounded border px-2 py-px'>
                     {detail.source_name}
                   </span>
                 )}
@@ -2060,7 +2060,7 @@ function PlayPageClient() {
           {/* 封面展示 */}
           <div className='hidden md:order-first md:col-span-1 md:block'>
             <div className='py-4 pl-0 pr-6'>
-              <div className='bg-muted bg-card relative flex aspect-[2/3] items-center justify-center overflow-hidden rounded-xl'>
+              <div className='bg-card aspect-2/3 relative flex items-center justify-center overflow-hidden rounded-xl'>
                 {videoCover ? (
                   <>
                     <img
@@ -2127,9 +2127,7 @@ const FavoriteIcon = ({ filled }: { filled: boolean }) => {
       </svg>
     );
   }
-  return (
-    <Heart className='text-muted-foreground text-foreground h-7 w-7 stroke-[1]' />
-  );
+  return <Heart className='text-muted-foreground h-7 w-7 stroke-1' />;
 };
 
 export default function PlayPage() {

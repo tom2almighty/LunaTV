@@ -551,7 +551,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
     return (
       <>
         <div
-          className='group relative w-full cursor-pointer rounded-lg bg-transparent transition-all duration-300 ease-in-out hover:z-[500] hover:scale-[1.05]'
+          className='group relative w-full cursor-pointer rounded-lg bg-transparent transition-all duration-300 ease-in-out hover:z-50 hover:scale-[1.05]'
           onClick={handleClick}
           {...longPressProps}
           style={
@@ -595,7 +595,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
         >
           {/* 海报容器 */}
           <div
-            className={`relative aspect-[2/3] overflow-hidden rounded-lg ${origin === 'live' ? 'ring-border/80 ring-1' : ''}`}
+            className={`aspect-2/3 relative overflow-hidden rounded-lg ${origin === 'live' ? 'ring-border/80 ring-1' : ''}`}
             style={
               {
                 WebkitUserSelect: 'none',
@@ -609,7 +609,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             }}
           >
             {/* 骨架屏 */}
-            {!isLoading && <ImagePlaceholder aspectRatio='aspect-[2/3]' />}
+            {!isLoading && <ImagePlaceholder aspectRatio='aspect-2/3' />}
             {/* 图片 */}
             <Image
               src={processImageUrl(actualPoster)}
@@ -650,7 +650,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
 
             {/* 悬浮遮罩 */}
             <div
-              className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100'
+              className='bg-linear-to-t absolute inset-0 from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100'
               style={
                 {
                   WebkitUserSelect: 'none',
@@ -964,7 +964,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
 
                         return (
                           <div
-                            className='pointer-events-none invisible absolute bottom-full right-0 z-50 mb-2 -translate-x-0 opacity-0 transition-all delay-100 duration-200 ease-out group-hover/sources:visible group-hover/sources:opacity-100 sm:right-0 sm:translate-x-0'
+                            className='pointer-events-none invisible absolute bottom-full right-0 z-50 mb-2 translate-x-0 opacity-0 transition-all delay-100 duration-200 ease-out group-hover/sources:visible group-hover/sources:opacity-100 sm:right-0 sm:translate-x-0'
                             style={
                               {
                                 WebkitUserSelect: 'none',
@@ -998,7 +998,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                                     key={index}
                                     className='flex items-center gap-1 sm:gap-1.5'
                                   >
-                                    <div className='bg-primary/60 h-0.5 w-0.5 flex-shrink-0 rounded-full sm:h-1 sm:w-1'></div>
+                                    <div className='bg-primary/60 h-0.5 w-0.5 shrink-0 rounded-full sm:h-1 sm:w-1'></div>
                                     <span
                                       className='truncate text-[10px] leading-tight sm:text-xs'
                                       title={sourceName}
@@ -1021,7 +1021,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                               )}
 
                               {/* 小箭头 */}
-                              <div className='border-t-popover/90 absolute right-2 top-full h-0 w-0 border-l-[4px] border-r-[4px] border-t-[4px] border-transparent sm:right-3 sm:border-l-[6px] sm:border-r-[6px] sm:border-t-[6px]'></div>
+                              <div className='border-t-popover/90 absolute right-2 top-full h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent sm:right-3 sm:border-l-[6px] sm:border-r-[6px] sm:border-t-[6px]'></div>
                             </div>
                           </div>
                         );

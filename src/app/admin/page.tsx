@@ -914,7 +914,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
         </div>
 
         {/* 用户组列表 */}
-        <div className='border-border relative max-h-[20rem] overflow-x-auto overflow-y-auto rounded-lg border'>
+        <div className='border-border relative max-h-80 overflow-x-auto overflow-y-auto rounded-lg border'>
           <table className='divide-border min-w-full divide-y'>
             <thead className='bg-muted sticky top-0 z-10'>
               <tr>
@@ -1099,7 +1099,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
 
         {/* 修改密码表单 */}
         {showChangePasswordForm && (
-          <div className='bg-primary/10 border-primary/20 border-primary/20 mb-4 rounded-lg border p-4'>
+          <div className='bg-primary/10 border-primary/20 mb-4 rounded-lg border p-4'>
             <h5 className='text-primary mb-3 text-sm font-medium'>
               修改用户密码
             </h5>
@@ -1150,7 +1150,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
 
         {/* 用户列表 */}
         <div
-          className='border-border relative max-h-[28rem] overflow-x-auto overflow-y-auto rounded-lg border'
+          className='border-border max-h-112 relative overflow-x-auto overflow-y-auto rounded-lg border'
           data-table='user-list'
         >
           <table className='divide-border min-w-full divide-y'>
@@ -2846,18 +2846,18 @@ const VideoSourceConfig = ({
           {source.key}
         </td>
         <td
-          className='text-foreground max-w-[12rem] truncate whitespace-nowrap px-6 py-4 text-sm'
+          className='text-foreground max-w-48 truncate whitespace-nowrap px-6 py-4 text-sm'
           title={source.api}
         >
           {source.api}
         </td>
         <td
-          className='text-foreground max-w-[8rem] truncate whitespace-nowrap px-6 py-4 text-sm'
+          className='text-foreground max-w-32 truncate whitespace-nowrap px-6 py-4 text-sm'
           title={source.detail || '-'}
         >
           {source.detail || '-'}
         </td>
-        <td className='max-w-[1rem] whitespace-nowrap px-6 py-4'>
+        <td className='max-w-4 whitespace-nowrap px-6 py-4'>
           <span
             className={`rounded-full px-2 py-1 text-xs ${
               !source.disabled
@@ -2868,7 +2868,7 @@ const VideoSourceConfig = ({
             {!source.disabled ? '启用中' : '已禁用'}
           </span>
         </td>
-        <td className='max-w-[1rem] whitespace-nowrap px-6 py-4'>
+        <td className='max-w-4 whitespace-nowrap px-6 py-4'>
           {(() => {
             const status = getValidationStatus(source.key);
             if (!status) {
@@ -3156,7 +3156,7 @@ const VideoSourceConfig = ({
 
       {/* 视频源表格 */}
       <div
-        className='border-border relative max-h-[28rem] overflow-x-auto overflow-y-auto rounded-lg border'
+        className='border-border max-h-112 relative overflow-x-auto overflow-y-auto rounded-lg border'
         data-table='source-list'
       >
         <table className='divide-border min-w-full divide-y'>
@@ -3535,12 +3535,12 @@ const CategoryConfig = ({
           </span>
         </td>
         <td
-          className='text-foreground max-w-[12rem] truncate whitespace-nowrap px-6 py-4 text-sm'
+          className='text-foreground max-w-48 truncate whitespace-nowrap px-6 py-4 text-sm'
           title={category.query}
         >
           {category.query}
         </td>
-        <td className='max-w-[1rem] whitespace-nowrap px-6 py-4'>
+        <td className='max-w-4 whitespace-nowrap px-6 py-4'>
           <span
             className={`rounded-full px-2 py-1 text-xs ${
               !category.disabled
@@ -3650,7 +3650,7 @@ const CategoryConfig = ({
       )}
 
       {/* 分类表格 */}
-      <div className='border-border relative max-h-[28rem] overflow-x-auto overflow-y-auto rounded-lg border'>
+      <div className='border-border max-h-112 relative overflow-x-auto overflow-y-auto rounded-lg border'>
         <table className='divide-border min-w-full divide-y'>
           <thead className='bg-muted sticky top-0 z-10'>
             <tr>
@@ -4210,7 +4210,7 @@ const SiteConfigComponent = ({
                   >
                     <span className='truncate'>{option.label}</span>
                     {siteSettings.DoubanProxyType === option.value && (
-                      <Check className='text-success ml-2 h-4 w-4 flex-shrink-0' />
+                      <Check className='text-success ml-2 h-4 w-4 shrink-0' />
                     )}
                   </button>
                 ))}
@@ -4321,7 +4321,7 @@ const SiteConfigComponent = ({
                   >
                     <span className='truncate'>{option.label}</span>
                     {siteSettings.DoubanImageProxyType === option.value && (
-                      <Check className='text-success ml-2 h-4 w-4 flex-shrink-0' />
+                      <Check className='text-success ml-2 h-4 w-4 shrink-0' />
                     )}
                   </button>
                 ))}

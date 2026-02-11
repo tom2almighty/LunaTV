@@ -201,7 +201,7 @@ function HomeClient() {
                   </button>
                 )}
               </div>
-              <div className='grid grid-cols-3 justify-start gap-x-2 gap-y-14 px-0 sm:grid-cols-[repeat(auto-fill,_minmax(11rem,_1fr))] sm:gap-x-8 sm:gap-y-20 sm:px-2'>
+              <div className='grid grid-cols-3 justify-start gap-x-2 gap-y-14 px-0 sm:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] sm:gap-x-8 sm:gap-y-20 sm:px-2'>
                 {favoriteItems.map((item) => (
                   <div key={item.id + item.source} className='w-full'>
                     <VideoCard
@@ -247,7 +247,7 @@ function HomeClient() {
                           key={index}
                           className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
                         >
-                          <div className='bg-muted relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
+                          <div className='bg-muted aspect-2/3 relative w-full animate-pulse overflow-hidden rounded-lg'>
                             <div className='bg-muted-foreground/20 absolute inset-0'></div>
                           </div>
                           <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
@@ -295,7 +295,7 @@ function HomeClient() {
                           key={index}
                           className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
                         >
-                          <div className='bg-muted relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
+                          <div className='bg-muted aspect-2/3 relative w-full animate-pulse overflow-hidden rounded-lg'>
                             <div className='bg-muted-foreground/20 absolute inset-0'></div>
                           </div>
                           <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
@@ -342,7 +342,7 @@ function HomeClient() {
                           key={index}
                           className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
                         >
-                          <div className='bg-muted relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
+                          <div className='bg-muted aspect-2/3 relative w-full animate-pulse overflow-hidden rounded-lg'>
                             <div className='bg-muted-foreground/20 absolute inset-0'></div>
                           </div>
                           <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>
@@ -417,7 +417,7 @@ function HomeClient() {
                           key={index}
                           className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
                         >
-                          <div className='bg-muted relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
+                          <div className='bg-muted aspect-2/3 relative w-full animate-pulse overflow-hidden rounded-lg'>
                             <div className='bg-muted-foreground/20 absolute inset-0'></div>
                           </div>
                           <div className='bg-muted mt-2 h-4 animate-pulse rounded'></div>

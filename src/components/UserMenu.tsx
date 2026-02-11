@@ -453,12 +453,12 @@ export const UserMenu: React.FC = () => {
     <>
       {/* 背景遮罩 - 普通菜单无需模糊 */}
       <div
-        className='fixed inset-0 z-[1000] bg-transparent'
+        className='fixed inset-0 z-50 bg-transparent'
         onClick={handleCloseMenu}
       />
 
       {/* 菜单面板 */}
-      <div className='bg-popover text-popover-foreground border-border border-border/50 fixed right-4 top-14 z-[1001] w-56 select-none overflow-hidden rounded-lg border shadow-xl'>
+      <div className='bg-popover text-popover-foreground border-border/50 fixed right-4 top-14 z-50 w-56 select-none overflow-hidden rounded-lg border shadow-xl'>
         {/* 用户信息区域 */}
         <div className='border-border bg-muted/50 border-b px-3 py-2.5'>
           <div className='space-y-1'>
@@ -544,7 +544,7 @@ export const UserMenu: React.FC = () => {
     <>
       {/* 背景遮罩 */}
       <div
-        className='bg-background/50 fixed inset-0 z-[1000] backdrop-blur-sm'
+        className='bg-background/50 fixed inset-0 z-50 backdrop-blur-sm'
         onClick={handleCloseSettings}
         onTouchMove={(e) => {
           // 只阻止滚动，允许其他触摸事件
@@ -560,7 +560,7 @@ export const UserMenu: React.FC = () => {
       />
 
       {/* 设置面板 */}
-      <div className='bg-popover text-popover-foreground border-border fixed left-1/2 top-1/2 z-[1001] flex max-h-[90vh] w-full max-w-xl -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl shadow-xl'>
+      <div className='bg-popover text-popover-foreground border-border fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-full max-w-xl -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl shadow-xl'>
         {/* 内容容器 - 独立的滚动区域 */}
         <div
           className='flex-1 overflow-y-auto p-6'
@@ -645,7 +645,7 @@ export const UserMenu: React.FC = () => {
                       >
                         <span className='truncate'>{option.label}</span>
                         {doubanDataSource === option.value && (
-                          <Check className='text-primary ml-2 h-4 w-4 flex-shrink-0' />
+                          <Check className='text-primary ml-2 h-4 w-4 shrink-0' />
                         )}
                       </button>
                     ))}
@@ -755,7 +755,7 @@ export const UserMenu: React.FC = () => {
                       >
                         <span className='truncate'>{option.label}</span>
                         {doubanImageProxyType === option.value && (
-                          <Check className='text-primary ml-2 h-4 w-4 flex-shrink-0' />
+                          <Check className='text-primary ml-2 h-4 w-4 shrink-0' />
                         )}
                       </button>
                     ))}
@@ -900,7 +900,7 @@ export const UserMenu: React.FC = () => {
     <>
       {/* 背景遮罩 */}
       <div
-        className='bg-background/50 fixed inset-0 z-[1000] backdrop-blur-sm'
+        className='bg-background/50 z-1000 fixed inset-0 backdrop-blur-sm'
         onClick={handleCloseChangePassword}
         onTouchMove={(e) => {
           // 只阻止滚动，允许其他触摸事件
@@ -916,7 +916,7 @@ export const UserMenu: React.FC = () => {
       />
 
       {/* 修改密码面板 */}
-      <div className='bg-popover text-popover-foreground border-border fixed left-1/2 top-1/2 z-[1001] w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl shadow-xl'>
+      <div className='bg-popover text-popover-foreground border-border z-1001 fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl shadow-xl'>
         {/* 内容容器 - 独立的滚动区域 */}
         <div
           className='h-full p-6'
