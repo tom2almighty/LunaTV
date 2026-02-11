@@ -8,8 +8,6 @@
 
 > 🎬 **LunaTV** 是一个开箱即用的、跨平台的影视聚合播放器。它基于 **Next.js 14** + **Tailwind&nbsp;CSS** + **TypeScript** 构建，支持多资源搜索、在线播放、收藏同步、播放记录、云端存储，让你可以随时随地畅享海量免费影视内容。
 
-
-
 <div align="center">
 
 ![Next.js](https://img.shields.io/badge/Next.js-14-000?logo=nextdotjs)
@@ -158,52 +156,52 @@ MoonTV 支持标准的苹果 CMS V10 API 格式。
 
 ### 必需环境变量
 
-| 变量名 | 说明 | 默认值 | 示例 |
-|--------|------|--------|------|
-| `PASSWORD` | 系统管理员密码，用于身份验证 | 无 | `PASSWORD=your_secure_password` |
-| `USERNAME` | 系统管理员用户名（多用户模式必需） | 无 | `USERNAME=admin` |
+| 变量名     | 说明                               | 默认值 | 示例                            |
+| ---------- | ---------------------------------- | ------ | ------------------------------- |
+| `PASSWORD` | 系统管理员密码，用于身份验证       | 无     | `PASSWORD=your_secure_password` |
+| `USERNAME` | 系统管理员用户名（多用户模式必需） | 无     | `USERNAME=admin`                |
 
 ### 存储配置
 
-| 变量名 | 说明 | 默认值 | 示例 |
-|--------|------|--------|------|
-| `NEXT_PUBLIC_STORAGE_TYPE` | 数据存储类型：`localstorage`（单用户）/ `redis` / `kvrocks`/ `upstash` | `localstorage` | `NEXT_PUBLIC_STORAGE_TYPE=kvrocks` |
-| `REDIS_URL` | Redis 数据库连接地址（当 STORAGE_TYPE=redis 时必需） | 无 | `REDIS_URL=redis://localhost:6379` |
-| `KVROCKS_URL` | Kvrocks 数据库连接地址（当 STORAGE_TYPE=kvrocks 时必需） | 无 | `KVROCKS_URL=redis://localhost:6666` |
-| `UPSTASH_URL` | Upstash Redis 连接地址（当 STORAGE_TYPE=upstash 时必需） | 无 | `UPSTASH_URL=https://your-instance.upstash.io` |
-| `UPSTASH_TOKEN` | Upstash Redis 访问令牌（当 STORAGE_TYPE=upstash 时必需） | 无 | `UPSTASH_TOKEN=your_upstash_token` |
+| 变量名                     | 说明                                                                   | 默认值         | 示例                                           |
+| -------------------------- | ---------------------------------------------------------------------- | -------------- | ---------------------------------------------- |
+| `NEXT_PUBLIC_STORAGE_TYPE` | 数据存储类型：`localstorage`（单用户）/ `redis` / `kvrocks`/ `upstash` | `localstorage` | `NEXT_PUBLIC_STORAGE_TYPE=kvrocks`             |
+| `REDIS_URL`                | Redis 数据库连接地址（当 STORAGE_TYPE=redis 时必需）                   | 无             | `REDIS_URL=redis://localhost:6379`             |
+| `KVROCKS_URL`              | Kvrocks 数据库连接地址（当 STORAGE_TYPE=kvrocks 时必需）               | 无             | `KVROCKS_URL=redis://localhost:6666`           |
+| `UPSTASH_URL`              | Upstash Redis 连接地址（当 STORAGE_TYPE=upstash 时必需）               | 无             | `UPSTASH_URL=https://your-instance.upstash.io` |
+| `UPSTASH_TOKEN`            | Upstash Redis 访问令牌（当 STORAGE_TYPE=upstash 时必需）               | 无             | `UPSTASH_TOKEN=your_upstash_token`             |
 
 ### 站点配置
 
-| 变量名 | 说明 | 默认值 | 示例 |
-|--------|------|--------|------|
-| `NEXT_PUBLIC_SITE_NAME` | 网站名称 | `MoonTV` | `NEXT_PUBLIC_SITE_NAME=我的影视站` |
-| `ANNOUNCEMENT` | 网站公告内容 | 默认免责声明 | `ANNOUNCEMENT=欢迎使用本站!` |
+| 变量名                  | 说明         | 默认值       | 示例                               |
+| ----------------------- | ------------ | ------------ | ---------------------------------- |
+| `NEXT_PUBLIC_SITE_NAME` | 网站名称     | `MoonTV`     | `NEXT_PUBLIC_SITE_NAME=我的影视站` |
+| `ANNOUNCEMENT`          | 网站公告内容 | 默认免责声明 | `ANNOUNCEMENT=欢迎使用本站!`       |
 
 ### 搜索配置
 
-| 变量名 | 说明 | 默认值 | 示例 |
-|--------|------|--------|------|
-| `NEXT_PUBLIC_SEARCH_MAX_PAGE` | 搜索下游最大页数 | `5` | `NEXT_PUBLIC_SEARCH_MAX_PAGE=10` |
-| `NEXT_PUBLIC_FLUID_SEARCH` | 是否启用流式搜索 | `true` | `NEXT_PUBLIC_FLUID_SEARCH=false` |
+| 变量名                        | 说明             | 默认值 | 示例                             |
+| ----------------------------- | ---------------- | ------ | -------------------------------- |
+| `NEXT_PUBLIC_SEARCH_MAX_PAGE` | 搜索下游最大页数 | `5`    | `NEXT_PUBLIC_SEARCH_MAX_PAGE=10` |
+| `NEXT_PUBLIC_FLUID_SEARCH`    | 是否启用流式搜索 | `true` | `NEXT_PUBLIC_FLUID_SEARCH=false` |
 
 ### 豆瓣配置
 
-| 变量名 | 说明 | 默认值 | 示例 |
-|--------|------|--------|------|
-| `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME` | 豆瓣数据缓存时间（秒） | `7200` | `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME=3600` |
-| `NEXT_PUBLIC_DOUBAN_PROXY_TYPE` | 豆瓣 API 代理类型 | `cmliussss-cdn-tencent` | `NEXT_PUBLIC_DOUBAN_PROXY_TYPE=direct` |
-| `NEXT_PUBLIC_DOUBAN_PROXY` | 自定义豆瓣 API 代理地址 | 空 | `NEXT_PUBLIC_DOUBAN_PROXY=https://proxy.com` |
-| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE` | 豆瓣图片代理类型 | `cmliussss-cdn-tencent` | `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE=server` |
-| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY` | 自定义豆瓣图片代理地址 | 空 | `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY=https://img-proxy.com` |
+| 变量名                                | 说明                    | 默认值                  | 示例                                                   |
+| ------------------------------------- | ----------------------- | ----------------------- | ------------------------------------------------------ |
+| `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME`  | 豆瓣数据缓存时间（秒）  | `7200`                  | `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME=3600`              |
+| `NEXT_PUBLIC_DOUBAN_PROXY_TYPE`       | 豆瓣 API 代理类型       | `cmliussss-cdn-tencent` | `NEXT_PUBLIC_DOUBAN_PROXY_TYPE=direct`                 |
+| `NEXT_PUBLIC_DOUBAN_PROXY`            | 自定义豆瓣 API 代理地址 | 空                      | `NEXT_PUBLIC_DOUBAN_PROXY=https://proxy.com`           |
+| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE` | 豆瓣图片代理类型        | `cmliussss-cdn-tencent` | `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE=server`           |
+| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY`      | 自定义豆瓣图片代理地址  | 空                      | `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY=https://img-proxy.com` |
 
 ### 功能开关
 
-| 变量名 | 说明 | 默认值 | 示例 |
-|--------|------|--------|------|
-| `NEXT_PUBLIC_DISABLE_YELLOW_FILTER` | 是否禁用黄色内容过滤 | `false` | `NEXT_PUBLIC_DISABLE_YELLOW_FILTER=true` |
-| `NEXT_PUBLIC_ENABLE_OPTIMIZATION` | 是否启用性能优化 | `true` | `NEXT_PUBLIC_ENABLE_OPTIMIZATION=false` |
-| `NEXT_PUBLIC_ENABLE_REGISTRATION` | 是否开启前台用户注册功能（仅多用户模式） | `false` | `NEXT_PUBLIC_ENABLE_REGISTRATION=true` |
+| 变量名                              | 说明                                     | 默认值  | 示例                                     |
+| ----------------------------------- | ---------------------------------------- | ------- | ---------------------------------------- |
+| `NEXT_PUBLIC_DISABLE_YELLOW_FILTER` | 是否禁用黄色内容过滤                     | `false` | `NEXT_PUBLIC_DISABLE_YELLOW_FILTER=true` |
+| `NEXT_PUBLIC_ENABLE_OPTIMIZATION`   | 是否启用性能优化                         | `true`  | `NEXT_PUBLIC_ENABLE_OPTIMIZATION=false`  |
+| `NEXT_PUBLIC_ENABLE_REGISTRATION`   | 是否开启前台用户注册功能（仅多用户模式） | `false` | `NEXT_PUBLIC_ENABLE_REGISTRATION=true`   |
 
 ### 豆瓣代理类型说明
 
@@ -227,6 +225,7 @@ MoonTV 支持标准的苹果 CMS V10 API 格式。
 ### 部署示例
 
 **单用户模式（localstorage）：**
+
 ```bash
 PASSWORD=your_password
 NEXT_PUBLIC_STORAGE_TYPE=localstorage
@@ -234,6 +233,7 @@ NEXT_PUBLIC_SITE_NAME=我的影视站
 ```
 
 **多用户模式（Kvrocks - 推荐）：**
+
 ```bash
 PASSWORD=your_password
 USERNAME=admin
@@ -245,6 +245,7 @@ NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME=3600
 ```
 
 **云端部署（Upstash）：**
+
 ```bash
 PASSWORD=your_password
 USERNAME=admin

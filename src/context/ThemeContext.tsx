@@ -84,9 +84,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       <ThemeContext.Provider
         value={{
           mode: 'system',
-          setMode: () => { },
+          setMode: () => {},
           colorScheme: 'red',
-          setColorScheme: () => { },
+          setColorScheme: () => {},
           resolvedMode: 'dark',
         }}
       >

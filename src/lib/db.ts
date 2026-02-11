@@ -185,7 +185,10 @@ export class DbManager {
 
   // 获取全部用户名
   async getAllUsers(): Promise<string[]> {
-    if (this.storage && typeof (this.storage as any).getAllUsers === 'function') {
+    if (
+      this.storage &&
+      typeof (this.storage as any).getAllUsers === 'function'
+    ) {
       return (this.storage as any).getAllUsers();
     }
     return [];
@@ -193,14 +196,20 @@ export class DbManager {
 
   // ---------- 管理员配置 ----------
   async getAdminConfig(): Promise<AdminConfig | null> {
-    if (this.storage && typeof (this.storage as any).getAdminConfig === 'function') {
+    if (
+      this.storage &&
+      typeof (this.storage as any).getAdminConfig === 'function'
+    ) {
       return (this.storage as any).getAdminConfig();
     }
     return null;
   }
 
   async saveAdminConfig(config: AdminConfig): Promise<void> {
-    if (this.storage && typeof (this.storage as any).setAdminConfig === 'function') {
+    if (
+      this.storage &&
+      typeof (this.storage as any).setAdminConfig === 'function'
+    ) {
       await (this.storage as any).setAdminConfig(config);
     }
   }
@@ -211,7 +220,10 @@ export class DbManager {
     source: string,
     id: string,
   ): Promise<SkipConfig | null> {
-    if (this.storage && typeof (this.storage as any).getSkipConfig === 'function') {
+    if (
+      this.storage &&
+      typeof (this.storage as any).getSkipConfig === 'function'
+    ) {
       return (this.storage as any).getSkipConfig(userName, source, id);
     }
     return null;
@@ -223,7 +235,10 @@ export class DbManager {
     id: string,
     config: SkipConfig,
   ): Promise<void> {
-    if (this.storage && typeof (this.storage as any).setSkipConfig === 'function') {
+    if (
+      this.storage &&
+      typeof (this.storage as any).setSkipConfig === 'function'
+    ) {
       await (this.storage as any).setSkipConfig(userName, source, id, config);
     }
   }
@@ -233,7 +248,10 @@ export class DbManager {
     source: string,
     id: string,
   ): Promise<void> {
-    if (this.storage && typeof (this.storage as any).deleteSkipConfig === 'function') {
+    if (
+      this.storage &&
+      typeof (this.storage as any).deleteSkipConfig === 'function'
+    ) {
       await (this.storage as any).deleteSkipConfig(userName, source, id);
     }
   }
@@ -241,7 +259,10 @@ export class DbManager {
   async getAllSkipConfigs(
     userName: string,
   ): Promise<{ [key: string]: SkipConfig }> {
-    if (this.storage && typeof (this.storage as any).getAllSkipConfigs === 'function') {
+    if (
+      this.storage &&
+      typeof (this.storage as any).getAllSkipConfigs === 'function'
+    ) {
       return (this.storage as any).getAllSkipConfigs(userName);
     }
     return {};
@@ -249,7 +270,10 @@ export class DbManager {
 
   // ---------- 数据清理 ----------
   async clearAllData(): Promise<void> {
-    if (this.storage && typeof (this.storage as any).clearAllData === 'function') {
+    if (
+      this.storage &&
+      typeof (this.storage as any).clearAllData === 'function'
+    ) {
       await (this.storage as any).clearAllData();
     } else {
       // throw new Error('存储类型不支持清空数据操作');

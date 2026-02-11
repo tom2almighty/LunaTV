@@ -18,7 +18,7 @@ const MobileHeader = ({ showBackButton = false }: MobileHeaderProps) => {
 
   return (
     <>
-      <header className='bg-background/80 border-border/50 fixed left-0 right-0 top-0 z-999 w-full border-b shadow-sm backdrop-blur-xl md:hidden'>
+      <header className='bg-background/80 border-border/50 z-999 fixed left-0 right-0 top-0 w-full border-b shadow-sm backdrop-blur-xl md:hidden'>
         <div className='flex h-12 items-center justify-between px-4'>
           {/* 左侧：搜索按钮、返回按钮和设置按钮 */}
           <div className='flex items-center gap-2'>

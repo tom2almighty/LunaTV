@@ -167,8 +167,9 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
       <div className='hidden md:flex'>
         <aside
           data-sidebar
-          className={`bg-card/40 border-border/50 fixed left-0 top-0 z-10 h-screen border-r shadow-lg backdrop-blur-xl transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'
-            }`}
+          className={`bg-card/40 border-border/50 fixed left-0 top-0 z-10 h-screen border-r shadow-lg backdrop-blur-xl transition-all duration-300 ${
+            isCollapsed ? 'w-16' : 'w-64'
+          }`}
           style={{
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
@@ -178,8 +179,9 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
             {/* 顶部 Logo 区域 */}
             <div className='relative h-16'>
               <div
-                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${isCollapsed ? 'opacity-0' : 'opacity-100'
-                  }`}
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${
+                  isCollapsed ? 'opacity-0' : 'opacity-100'
+                }`}
               >
                 <div className='flex w-[calc(100%-4rem)] justify-center'>
                   {!isCollapsed && <Logo />}
@@ -187,8 +189,9 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
               </div>
               <button
                 onClick={handleToggle}
-                className={`text-muted-foreground hover:text-foreground hover:bg-muted/50 absolute top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg transition-colors duration-200 ${isCollapsed ? 'left-1/2 -translate-x-1/2' : 'right-2'
-                  }`}
+                className={`text-muted-foreground hover:text-foreground hover:bg-muted/50 absolute top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg transition-colors duration-200 ${
+                  isCollapsed ? 'left-1/2 -translate-x-1/2' : 'right-2'
+                }`}
               >
                 <Menu className='h-4 w-4' />
               </button>
@@ -200,8 +203,9 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
                 href='/'
                 onClick={() => setActive('/')}
                 data-active={active === '/'}
-                className={`text-foreground hover:bg-muted/30 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary group flex min-h-[40px] items-center rounded-lg px-2 py-2 pl-4 font-medium transition-colors duration-200 ${isCollapsed ? 'mx-0 w-full max-w-none' : 'mx-0'
-                  } justify-start gap-3`}
+                className={`text-foreground hover:bg-muted/30 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary group flex min-h-[40px] items-center rounded-lg px-2 py-2 pl-4 font-medium transition-colors duration-200 ${
+                  isCollapsed ? 'mx-0 w-full max-w-none' : 'mx-0'
+                } justify-start gap-3`}
               >
                 <div className='flex h-4 w-4 items-center justify-center'>
                   <Home className='text-muted-foreground group-hover:text-primary data-[active=true]:text-primary h-4 w-4' />
@@ -220,8 +224,9 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
                   setActive('/search');
                 }}
                 data-active={active === '/search'}
-                className={`text-foreground hover:bg-muted/30 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary group flex min-h-[40px] items-center rounded-lg px-2 py-2 pl-4 font-medium transition-colors duration-200 ${isCollapsed ? 'mx-0 w-full max-w-none' : 'mx-0'
-                  } justify-start gap-3`}
+                className={`text-foreground hover:bg-muted/30 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary group flex min-h-[40px] items-center rounded-lg px-2 py-2 pl-4 font-medium transition-colors duration-200 ${
+                  isCollapsed ? 'mx-0 w-full max-w-none' : 'mx-0'
+                } justify-start gap-3`}
               >
                 <div className='flex h-4 w-4 items-center justify-center'>
                   <Search className='text-muted-foreground group-hover:text-primary data-[active=true]:text-primary h-4 w-4' />
@@ -256,8 +261,9 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
                       href={item.href}
                       onClick={() => setActive(item.href)}
                       data-active={isActive}
-                      className={`text-foreground hover:bg-muted/30 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary group flex min-h-[40px] items-center rounded-lg px-2 py-2 pl-4 text-sm transition-colors duration-200 ${isCollapsed ? 'mx-0 w-full max-w-none' : 'mx-0'
-                        } justify-start gap-3`}
+                      className={`text-foreground hover:bg-muted/30 hover:text-primary data-[active=true]:bg-primary/20 data-[active=true]:text-primary group flex min-h-[40px] items-center rounded-lg px-2 py-2 pl-4 text-sm transition-colors duration-200 ${
+                        isCollapsed ? 'mx-0 w-full max-w-none' : 'mx-0'
+                      } justify-start gap-3`}
                     >
                       <div className='flex h-4 w-4 items-center justify-center'>
                         <Icon className='text-muted-foreground group-hover:text-primary data-[active=true]:text-primary h-4 w-4' />
@@ -275,8 +281,9 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
           </div>
         </aside>
         <div
-          className={`sidebar-offset transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'
-            }`}
+          className={`sidebar-offset transition-all duration-300 ${
+            isCollapsed ? 'w-16' : 'w-64'
+          }`}
         ></div>
       </div>
     </SidebarContext.Provider>

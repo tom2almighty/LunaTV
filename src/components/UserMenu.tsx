@@ -192,8 +192,6 @@ export const UserMenu: React.FC = () => {
     }
   }, []);
 
-
-
   // 点击外部区域关闭下拉框
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -469,12 +467,13 @@ export const UserMenu: React.FC = () => {
                 当前用户
               </span>
               <span
-                className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium ${(authInfo?.role || 'user') === 'owner'
-                  ? 'bg-accent/10 text-accent'
-                  : (authInfo?.role || 'user') === 'admin'
-                    ? 'bg-primary/10 text-primary'
-                    : 'bg-secondary text-secondary-foreground'
-                  }`}
+                className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium ${
+                  (authInfo?.role || 'user') === 'owner'
+                    ? 'bg-accent/10 text-accent'
+                    : (authInfo?.role || 'user') === 'admin'
+                      ? 'bg-primary/10 text-primary'
+                      : 'bg-secondary text-secondary-foreground'
+                }`}
               >
                 {getRoleText(authInfo?.role || 'user')}
               </span>
@@ -535,7 +534,6 @@ export const UserMenu: React.FC = () => {
             <LogOut className='h-4 w-4' />
             <span className='font-medium'>登出</span>
           </button>
-
         </div>
       </div>
     </>
@@ -622,8 +620,9 @@ export const UserMenu: React.FC = () => {
                 {/* 下拉箭头 */}
                 <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3'>
                   <ChevronDown
-                    className={`text-muted-foreground h-4 w-4 transition-transform duration-200 ${isDoubanDropdownOpen ? 'rotate-180' : ''
-                      }`}
+                    className={`text-muted-foreground h-4 w-4 transition-transform duration-200 ${
+                      isDoubanDropdownOpen ? 'rotate-180' : ''
+                    }`}
                   />
                 </div>
 
@@ -638,10 +637,11 @@ export const UserMenu: React.FC = () => {
                           handleDoubanDataSourceChange(option.value);
                           setIsDoubanDropdownOpen(false);
                         }}
-                        className={`hover:bg-muted flex w-full items-center justify-between px-3 py-2.5 text-left text-sm transition-colors duration-150 ${doubanDataSource === option.value
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-foreground'
-                          }`}
+                        className={`hover:bg-muted flex w-full items-center justify-between px-3 py-2.5 text-left text-sm transition-colors duration-150 ${
+                          doubanDataSource === option.value
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-foreground'
+                        }`}
                       >
                         <span className='truncate'>{option.label}</span>
                         {doubanDataSource === option.value && (
@@ -730,8 +730,9 @@ export const UserMenu: React.FC = () => {
                 {/* 下拉箭头 */}
                 <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3'>
                   <ChevronDown
-                    className={`text-muted-foreground h-4 w-4 transition-transform duration-200 ${isDoubanDropdownOpen ? 'rotate-180' : ''
-                      }`}
+                    className={`text-muted-foreground h-4 w-4 transition-transform duration-200 ${
+                      isDoubanDropdownOpen ? 'rotate-180' : ''
+                    }`}
                   />
                 </div>
 
@@ -746,10 +747,11 @@ export const UserMenu: React.FC = () => {
                           handleDoubanImageProxyTypeChange(option.value);
                           setIsDoubanImageProxyDropdownOpen(false);
                         }}
-                        className={`hover:bg-muted flex w-full items-center justify-between px-3 py-2.5 text-left text-sm transition-colors duration-150 ${doubanImageProxyType === option.value
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-foreground'
-                          }`}
+                        className={`hover:bg-muted flex w-full items-center justify-between px-3 py-2.5 text-left text-sm transition-colors duration-150 ${
+                          doubanImageProxyType === option.value
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-foreground'
+                        }`}
                       >
                         <span className='truncate'>{option.label}</span>
                         {doubanImageProxyType === option.value && (

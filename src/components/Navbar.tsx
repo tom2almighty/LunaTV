@@ -69,8 +69,7 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 z-40 w-full bg-background/95 border-b border-border/50 backdrop-blur-sm"
-      >
+      <nav className='bg-background/95 border-border/50 fixed top-0 z-40 w-full border-b backdrop-blur-sm'>
         <div className='flex h-16 items-center justify-between px-4 md:px-12'>
           <div className='flex items-center'>
             <Logo />
@@ -79,10 +78,11 @@ export const Navbar = () => {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`text-sm font-medium transition-colors duration-200 ${isActive(item.href)
-                    ? 'text-primary font-bold'
-                    : 'text-muted-foreground hover:text-foreground'
-                    }`}
+                  className={`text-sm font-medium transition-colors duration-200 ${
+                    isActive(item.href)
+                      ? 'text-primary font-bold'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
                 >
                   {item.label}
                 </Link>
