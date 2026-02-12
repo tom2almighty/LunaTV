@@ -4,7 +4,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
-import { db } from '@/lib/db';
+import {
+  changePassword,
+  deleteUser,
+  registerUser,
+  saveAdminConfig,
+} from '@/lib/db';
 
 export const runtime = 'nodejs';
 
@@ -24,16 +29,6 @@ const ACTIONS = [
 ] as const;
 
 export async function POST(request: NextRequest) {
-  const storageType = process.env.NEXT_PUBLIC_STORAGE_TYPE || 'localstorage';
-  if (storageType === 'localstorage') {
-    return NextResponse.json(
-      {
-        error: '不支持本地存储进行管理员配置',
-      },
-      { status: 400 },
-    );
-  }
-
   try {
     const body = await request.json();
 
@@ -85,7 +80,7 @@ export async function POST(request: NextRequest) {
 
     // 判定操作者角色
     let operatorRole: 'owner' | 'admin';
-    if (username === process.env.USERNAME) {
+    if (username === process.env.APP_ADMIN_USER) {
       operatorRole = 'owner';
     } else {
       const userEntry = adminConfig.UserConfig.Users.find(
@@ -134,7 +129,7 @@ export async function POST(request: NextRequest) {
             { status: 400 },
           );
         }
-        await db.registerUser(targetUsername!, targetPassword);
+        await registerUser(targetUsername!, targetPassword);
 
         // 获取用户组信息
         const { userGroup } = body as { userGroup?: string };
@@ -266,7 +261,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        await db.changePassword(targetUsername!, targetPassword);
+        await changePassword(targetUsername!, targetPassword);
         break;
       }
       case 'deleteUser': {
@@ -289,7 +284,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        await db.deleteUser(targetUsername!);
+        await deleteUser(targetUsername!);
 
         // 从配置中移除用户
         const userIndex = adminConfig.UserConfig.Users.findIndex(
@@ -503,7 +498,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 将更新后的配置写入数据库
-    await db.saveAdminConfig(adminConfig);
+    await saveAdminConfig(adminConfig);
 
     return NextResponse.json(
       { ok: true },

@@ -4,7 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
-import { db } from '@/lib/db';
+import {
+  addSearchHistory,
+  deleteSearchHistory,
+  getSearchHistory,
+} from '@/lib/db';
 
 export const runtime = 'nodejs';
 
@@ -24,7 +28,7 @@ export async function GET(request: NextRequest) {
     }
 
     const config = await getConfig();
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       // 非站长，检查用户存在或被封禁
       const user = config.UserConfig.Users.find(
         (u) => u.username === authInfo.username,
@@ -37,7 +41,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const history = await db.getSearchHistory(authInfo.username);
+    const history = await getSearchHistory(authInfo.username);
     return NextResponse.json(history, { status: 200 });
   } catch (err) {
     console.error('获取搜索历史失败', err);
@@ -61,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
 
     const config = await getConfig();
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       // 非站长，检查用户存在或被封禁
       const user = config.UserConfig.Users.find(
         (u) => u.username === authInfo.username,
@@ -84,10 +88,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await db.addSearchHistory(authInfo.username, keyword);
+    await addSearchHistory(authInfo.username, keyword);
 
     // 再次获取最新列表，确保客户端与服务端同步
-    const history = await db.getSearchHistory(authInfo.username);
+    const history = await getSearchHistory(authInfo.username);
     return NextResponse.json(history.slice(0, HISTORY_LIMIT), { status: 200 });
   } catch (err) {
     console.error('添加搜索历史失败', err);
@@ -113,7 +117,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const config = await getConfig();
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       // 非站长，检查用户存在或被封禁
       const user = config.UserConfig.Users.find(
         (u) => u.username === authInfo.username,
@@ -129,7 +133,7 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const kw = searchParams.get('keyword')?.trim();
 
-    await db.deleteSearchHistory(authInfo.username, kw || undefined);
+    await deleteSearchHistory(authInfo.username, kw || undefined);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {

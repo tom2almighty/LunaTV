@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, no-console, @typescript-eslint/no-non-null-assertion */
 
-import { db } from '@/lib/db';
+import { getAdminConfig, getAllUsers, saveAdminConfig } from '@/lib/db';
 
 import { AdminConfig } from './admin.types';
 
@@ -165,12 +165,10 @@ async function getInitConfig(
       SiteInterfaceCacheTime: cfgFile.cache_time || 7200,
       DoubanDataCacheTime:
         Number(process.env.NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME) || 7200,
-      DoubanProxyType:
-        process.env.NEXT_PUBLIC_DOUBAN_PROXY_TYPE || 'cmliussss-cdn-tencent',
+      DoubanProxyType: process.env.NEXT_PUBLIC_DOUBAN_PROXY_TYPE || 'server',
       DoubanProxy: process.env.NEXT_PUBLIC_DOUBAN_PROXY || '',
       DoubanImageProxyType:
-        process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE ||
-        'cmliussss-cdn-tencent',
+        process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE || 'server',
       DoubanImageProxy: process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY || '',
       DisableYellowFilter:
         process.env.NEXT_PUBLIC_DISABLE_YELLOW_FILTER === 'true',
@@ -190,19 +188,19 @@ async function getInitConfig(
   // 补充用户信息
   let userNames: string[] = [];
   try {
-    userNames = await db.getAllUsers();
+    userNames = await getAllUsers();
   } catch (e) {
     console.error('获取用户列表失败:', e);
   }
   const allUsers = userNames
-    .filter((u) => u !== process.env.USERNAME)
+    .filter((u) => u !== process.env.APP_ADMIN_USER)
     .map((u) => ({
       username: u,
       role: 'user',
       banned: false,
     }));
   allUsers.unshift({
-    username: process.env.USERNAME!,
+    username: process.env.APP_ADMIN_USER!,
     role: 'owner',
     banned: false,
   });
@@ -243,7 +241,7 @@ export async function getConfig(): Promise<AdminConfig> {
   // 读 db
   let adminConfig: AdminConfig | null = null;
   try {
-    adminConfig = await db.getAdminConfig();
+    adminConfig = await getAdminConfig();
   } catch (e) {
     console.error('获取管理员配置失败:', e);
   }
@@ -254,7 +252,7 @@ export async function getConfig(): Promise<AdminConfig> {
   }
   adminConfig = configSelfCheck(adminConfig);
   cachedConfig = adminConfig;
-  db.saveAdminConfig(cachedConfig);
+  saveAdminConfig(cachedConfig);
   return cachedConfig;
 }
 
@@ -280,7 +278,7 @@ export function configSelfCheck(adminConfig: AdminConfig): AdminConfig {
   }
 
   // 站长变更自检
-  const ownerUser = process.env.USERNAME;
+  const ownerUser = process.env.APP_ADMIN_USER;
 
   // 去重
   const seenUsernames = new Set<string>();
@@ -341,7 +339,7 @@ export function configSelfCheck(adminConfig: AdminConfig): AdminConfig {
 export async function resetConfig() {
   let originConfig: AdminConfig | null = null;
   try {
-    originConfig = await db.getAdminConfig();
+    originConfig = await getAdminConfig();
   } catch (e) {
     console.error('获取管理员配置失败:', e);
   }
@@ -353,7 +351,7 @@ export async function resetConfig() {
     originConfig.ConfigSubscribtion,
   );
   cachedConfig = adminConfig;
-  await db.saveAdminConfig(adminConfig);
+  await saveAdminConfig(adminConfig);
 
   return;
 }

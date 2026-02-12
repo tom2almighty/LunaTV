@@ -5,7 +5,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import MultiLevelSelector from './MultiLevelSelector';
-import WeekdaySelector from './WeekdaySelector';
 
 interface SelectorOption {
   label: string;
@@ -13,13 +12,12 @@ interface SelectorOption {
 }
 
 interface DoubanSelectorProps {
-  type: 'movie' | 'tv' | 'show' | 'anime';
+  type: 'movie' | 'tv' | 'show';
   primarySelection?: string;
   secondarySelection?: string;
   onPrimaryChange: (value: string) => void;
   onSecondaryChange: (value: string) => void;
   onMultiLevelChange?: (values: Record<string, string>) => void;
-  onWeekdayChange: (weekday: string) => void;
 }
 
 const DoubanSelector: React.FC<DoubanSelectorProps> = ({
@@ -29,7 +27,6 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
   onPrimaryChange,
   onSecondaryChange,
   onMultiLevelChange,
-  onWeekdayChange,
 }) => {
   // 为不同的选择器创建独立的refs和状态
   const primaryContainerRef = useRef<HTMLDivElement>(null);
@@ -94,13 +91,6 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
     { label: '国外', value: 'show_foreign' },
   ];
 
-  // 动漫一级选择器选项
-  const animePrimaryOptions: SelectorOption[] = [
-    { label: '每日放送', value: '每日放送' },
-    { label: '番剧', value: '番剧' },
-    { label: '剧场版', value: '剧场版' },
-  ];
-
   // 处理多级选择器变化
   const handleMultiLevelChange = (values: Record<string, string>) => {
     onMultiLevelChange?.(values);
@@ -156,17 +146,6 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
     } else if (type === 'tv') {
       const activeIndex = tvPrimaryOptions.findIndex(
         (opt) => opt.value === (primarySelection || tvPrimaryOptions[1].value),
-      );
-      updateIndicatorPosition(
-        activeIndex,
-        primaryContainerRef,
-        primaryButtonRefs,
-        setPrimaryIndicatorStyle,
-      );
-    } else if (type === 'anime') {
-      const activeIndex = animePrimaryOptions.findIndex(
-        (opt) =>
-          opt.value === (primarySelection || animePrimaryOptions[0].value),
       );
       updateIndicatorPosition(
         activeIndex,
@@ -231,17 +210,6 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
       return cleanup;
     } else if (type === 'tv') {
       const activeIndex = tvPrimaryOptions.findIndex(
-        (opt) => opt.value === primarySelection,
-      );
-      const cleanup = updateIndicatorPosition(
-        activeIndex,
-        primaryContainerRef,
-        primaryButtonRefs,
-        setPrimaryIndicatorStyle,
-      );
-      return cleanup;
-    } else if (type === 'anime') {
-      const activeIndex = animePrimaryOptions.findIndex(
         (opt) => opt.value === primarySelection,
       );
       const cleanup = updateIndicatorPosition(
@@ -316,12 +284,12 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
     return (
       <div
         ref={containerRef}
-        className='bg-muted/60 bg-card/60 relative inline-flex rounded-full p-0.5 backdrop-blur-sm sm:p-1'
+        className='bg-muted/60 relative inline-flex rounded-full p-0.5 backdrop-blur-sm sm:p-1'
       >
         {/* 滑动的白色背景指示器 */}
         {indicatorStyle.width > 0 && (
           <div
-            className='bg-card bg-muted absolute bottom-0.5 top-0.5 rounded-full shadow-sm transition-all duration-300 ease-out sm:bottom-1 sm:top-1'
+            className='bg-card absolute bottom-0.5 top-0.5 rounded-full shadow-sm transition-all duration-300 ease-out sm:bottom-1 sm:top-1'
             style={{
               left: `${indicatorStyle.left}px`,
               width: `${indicatorStyle.width}px`,
@@ -341,7 +309,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
               className={`relative z-10 whitespace-nowrap rounded-full px-2 py-1 text-xs font-medium transition-all duration-200 sm:px-4 sm:py-2 sm:text-sm ${
                 isActive
                   ? 'text-foreground cursor-default'
-                  : 'text-foreground hover:text-foreground text-muted-foreground hover:text-foreground cursor-pointer'
+                  : 'text-foreground hover:text-foreground cursor-pointer'
               }`}
             >
               {option.label}
@@ -359,7 +327,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
         <div className='space-y-3 sm:space-y-4'>
           {/* 一级选择器 */}
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-            <span className='text-muted-foreground min-w-[48px] text-xs font-medium sm:text-sm'>
+            <span className='text-muted-foreground min-w-12 text-xs font-medium sm:text-sm'>
               分类
             </span>
             <div className='overflow-x-auto'>
@@ -375,7 +343,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
           {/* 二级选择器 - 只在非"全部"时显示 */}
           {primarySelection !== '全部' ? (
             <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-              <span className='text-muted-foreground min-w-[48px] text-xs font-medium sm:text-sm'>
+              <span className='text-muted-foreground min-w-12 text-xs font-medium sm:text-sm'>
                 地区
               </span>
               <div className='overflow-x-auto'>
@@ -390,7 +358,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
           ) : (
             /* 多级选择器 - 只在选中"全部"时显示 */
             <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-              <span className='text-muted-foreground min-w-[48px] text-xs font-medium sm:text-sm'>
+              <span className='text-muted-foreground min-w-12 text-xs font-medium sm:text-sm'>
                 筛选
               </span>
               <div className='overflow-x-auto'>
@@ -410,7 +378,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
         <div className='space-y-3 sm:space-y-4'>
           {/* 一级选择器 */}
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-            <span className='text-muted-foreground min-w-[48px] text-xs font-medium sm:text-sm'>
+            <span className='text-muted-foreground min-w-12 text-xs font-medium sm:text-sm'>
               分类
             </span>
             <div className='overflow-x-auto'>
@@ -426,7 +394,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
           {/* 二级选择器 - 只在选中"最近热门"时显示，选中"全部"时显示多级选择器 */}
           {(primarySelection || tvPrimaryOptions[1].value) === '最近热门' ? (
             <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-              <span className='text-muted-foreground min-w-[48px] text-xs font-medium sm:text-sm'>
+              <span className='text-muted-foreground min-w-12 text-xs font-medium sm:text-sm'>
                 类型
               </span>
               <div className='overflow-x-auto'>
@@ -441,7 +409,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
           ) : (primarySelection || tvPrimaryOptions[1].value) === '全部' ? (
             /* 多级选择器 - 只在选中"全部"时显示 */
             <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-              <span className='text-muted-foreground min-w-[48px] text-xs font-medium sm:text-sm'>
+              <span className='text-muted-foreground min-w-12 text-xs font-medium sm:text-sm'>
                 筛选
               </span>
               <div className='overflow-x-auto'>
@@ -456,67 +424,12 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
         </div>
       )}
 
-      {/* 动漫类型 - 显示一级选择器和多级选择器 */}
-      {type === 'anime' && (
-        <div className='space-y-3 sm:space-y-4'>
-          <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-            <span className='text-muted-foreground min-w-[48px] text-xs font-medium sm:text-sm'>
-              分类
-            </span>
-            <div className='overflow-x-auto'>
-              {renderCapsuleSelector(
-                animePrimaryOptions,
-                primarySelection || animePrimaryOptions[0].value,
-                onPrimaryChange,
-                true,
-              )}
-            </div>
-          </div>
-
-          {/* 筛选部分 - 根据一级选择器显示不同内容 */}
-          {(primarySelection || animePrimaryOptions[0].value) === '每日放送' ? (
-            // 每日放送分类下显示星期选择器
-            <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-              <span className='text-muted-foreground min-w-[48px] text-xs font-medium sm:text-sm'>
-                星期
-              </span>
-              <div className='overflow-x-auto'>
-                <WeekdaySelector onWeekdayChange={onWeekdayChange} />
-              </div>
-            </div>
-          ) : (
-            // 其他分类下显示原有的筛选功能
-            <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-              <span className='text-muted-foreground min-w-[48px] text-xs font-medium sm:text-sm'>
-                筛选
-              </span>
-              <div className='overflow-x-auto'>
-                {(primarySelection || animePrimaryOptions[0].value) ===
-                '番剧' ? (
-                  <MultiLevelSelector
-                    key={`anime-tv-${primarySelection}`}
-                    onChange={handleMultiLevelChange}
-                    contentType='anime-tv'
-                  />
-                ) : (
-                  <MultiLevelSelector
-                    key={`anime-movie-${primarySelection}`}
-                    onChange={handleMultiLevelChange}
-                    contentType='anime-movie'
-                  />
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
       {/* 综艺类型 - 显示两级选择器 */}
       {type === 'show' && (
         <div className='space-y-3 sm:space-y-4'>
           {/* 一级选择器 */}
           <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-            <span className='text-muted-foreground min-w-[48px] text-xs font-medium sm:text-sm'>
+            <span className='text-muted-foreground min-w-12 text-xs font-medium sm:text-sm'>
               分类
             </span>
             <div className='overflow-x-auto'>
@@ -532,7 +445,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
           {/* 二级选择器 - 只在选中"最近热门"时显示，选中"全部"时显示多级选择器 */}
           {(primarySelection || showPrimaryOptions[1].value) === '最近热门' ? (
             <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-              <span className='text-muted-foreground min-w-[48px] text-xs font-medium sm:text-sm'>
+              <span className='text-muted-foreground min-w-12 text-xs font-medium sm:text-sm'>
                 类型
               </span>
               <div className='overflow-x-auto'>
@@ -547,7 +460,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
           ) : (primarySelection || showPrimaryOptions[1].value) === '全部' ? (
             /* 多级选择器 - 只在选中"全部"时显示 */
             <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-              <span className='text-muted-foreground min-w-[48px] text-xs font-medium sm:text-sm'>
+              <span className='text-muted-foreground min-w-12 text-xs font-medium sm:text-sm'>
                 筛选
               </span>
               <div className='overflow-x-auto'>

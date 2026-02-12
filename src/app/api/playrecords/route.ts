@@ -4,7 +4,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
-import { db } from '@/lib/db';
+import {
+  deleteAllPlayRecords,
+  deletePlayRecord,
+  getAllPlayRecords,
+  savePlayRecord,
+} from '@/lib/db';
 import { PlayRecord } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -18,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     const config = await getConfig();
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       // 非站长，检查用户存在或被封禁
       const user = config.UserConfig.Users.find(
         (u) => u.username === authInfo.username,
@@ -31,7 +36,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const records = await db.getAllPlayRecords(authInfo.username);
+    const records = await getAllPlayRecords(authInfo.username);
     return NextResponse.json(records, { status: 200 });
   } catch (err) {
     console.error('获取播放记录失败', err);
@@ -51,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const config = await getConfig();
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       // 非站长，检查用户存在或被封禁
       const user = config.UserConfig.Users.find(
         (u) => u.username === authInfo.username,
@@ -96,7 +101,7 @@ export async function POST(request: NextRequest) {
       save_time: record.save_time ?? Date.now(),
     } as PlayRecord;
 
-    await db.savePlayRecord(authInfo.username, source, id, finalRecord);
+    await savePlayRecord(authInfo.username, source, id, finalRecord);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
@@ -117,7 +122,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const config = await getConfig();
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       // 非站长，检查用户存在或被封禁
       const user = config.UserConfig.Users.find(
         (u) => u.username === authInfo.username,
@@ -144,17 +149,10 @@ export async function DELETE(request: NextRequest) {
         );
       }
 
-      await db.deletePlayRecord(username, source, id);
+      await deletePlayRecord(username, source, id);
     } else {
       // 未提供 key，则清空全部播放记录
-      // 目前 DbManager 没有对应方法，这里直接遍历删除
-      const all = await db.getAllPlayRecords(username);
-      await Promise.all(
-        Object.keys(all).map(async (k) => {
-          const [s, i] = k.split('+');
-          if (s && i) await db.deletePlayRecord(username, s, i);
-        }),
-      );
+      await deleteAllPlayRecords(username);
     }
 
     return NextResponse.json({ success: true }, { status: 200 });

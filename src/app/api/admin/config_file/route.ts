@@ -4,21 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig, refineConfig } from '@/lib/config';
-import { db } from '@/lib/db';
+import { saveAdminConfig } from '@/lib/db';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
-  const storageType = process.env.NEXT_PUBLIC_STORAGE_TYPE || 'localstorage';
-  if (storageType === 'localstorage') {
-    return NextResponse.json(
-      {
-        error: '不支持本地存储进行管理员配置',
-      },
-      { status: 400 },
-    );
-  }
-
   const authInfo = getAuthInfoFromCookie(request);
   if (!authInfo || !authInfo.username) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -30,7 +20,7 @@ export async function POST(request: NextRequest) {
     let adminConfig = await getConfig();
 
     // 仅站长可以修改配置文件
-    if (username !== process.env.USERNAME) {
+    if (username !== process.env.APP_ADMIN_USER) {
       return NextResponse.json(
         { error: '权限不足，只有站长可以修改配置文件' },
         { status: 401 },
@@ -78,7 +68,7 @@ export async function POST(request: NextRequest) {
 
     adminConfig = refineConfig(adminConfig);
     // 更新配置文件
-    await db.saveAdminConfig(adminConfig);
+    await saveAdminConfig(adminConfig);
     return NextResponse.json({
       success: true,
       message: '配置文件更新成功',

@@ -2,18 +2,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getConfig } from '@/lib/config';
-import { db } from '@/lib/db';
+import { checkUserExist, registerUser, saveAdminConfig } from '@/lib/db';
 
 export const runtime = 'nodejs';
-
-// 读取存储类型环境变量，默认 localstorage
-const STORAGE_TYPE =
-  (process.env.NEXT_PUBLIC_STORAGE_TYPE as
-    | 'localstorage'
-    | 'redis'
-    | 'upstash'
-    | 'kvrocks'
-    | undefined) || 'localstorage';
 
 // 生成签名
 async function generateSignature(
@@ -62,14 +53,6 @@ async function generateAuthCookie(
 
 export async function POST(req: NextRequest) {
   try {
-    // localStorage 模式不支持注册
-    if (STORAGE_TYPE === 'localstorage') {
-      return NextResponse.json(
-        { error: 'localStorage 模式不支持注册功能' },
-        { status: 400 },
-      );
-    }
-
     // 检查注册开关
     const config = await getConfig();
     if (!config.SiteConfig.EnableRegistration) {
@@ -109,18 +92,18 @@ export async function POST(req: NextRequest) {
     }
 
     // 检查用户名是否与站长用户名冲突
-    if (username === process.env.USERNAME) {
+    if (username === process.env.APP_ADMIN_USER) {
       return NextResponse.json({ error: '该用户名已被使用' }, { status: 400 });
     }
 
     // 检查用户是否已存在
-    const userExists = await db.checkUserExist(username);
+    const userExists = await checkUserExist(username);
     if (userExists) {
       return NextResponse.json({ error: '用户名已存在' }, { status: 400 });
     }
 
     // 创建用户
-    await db.registerUser(username, password);
+    await registerUser(username, password);
 
     // 更新配置，将新用户添加到 UserConfig.Users 数组
     config.UserConfig.Users.push({
@@ -128,7 +111,7 @@ export async function POST(req: NextRequest) {
       role: 'user',
       banned: false,
     });
-    await db.saveAdminConfig(config);
+    await saveAdminConfig(config);
 
     // 自动登录：生成认证 Cookie
     const response = NextResponse.json({ ok: true });

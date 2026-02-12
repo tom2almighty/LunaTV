@@ -15,18 +15,14 @@ function LoginPageClient() {
   const [username, setUsername] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [shouldAskUsername, setShouldAskUsername] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [enableRegistration, setEnableRegistration] = useState(false);
 
   const { siteName } = useSite();
 
-  // 在客户端挂载后设置配置
+  // 在客户端挂载后获取注册开关状态
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const storageType = (window as any).RUNTIME_CONFIG?.STORAGE_TYPE;
-      setShouldAskUsername(storageType && storageType !== 'localstorage');
-
       // 获取注册开关状态
       fetch('/api/server-config')
         .then((res) => res.json())
@@ -58,8 +54,8 @@ function LoginPageClient() {
         return;
       }
     } else {
-      // 登录模式验证
-      if (!password || (shouldAskUsername && !username)) return;
+      // 登录模式验证：需要用户名和密码
+      if (!password || !username) return;
     }
 
     try {
@@ -70,7 +66,7 @@ function LoginPageClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           password,
-          ...(shouldAskUsername || isRegisterMode ? { username } : {}),
+          username,
         }),
       });
 
@@ -104,22 +100,21 @@ function LoginPageClient() {
           {isRegisterMode ? 'Sign Up' : 'Sign In'}
         </h1>
         <form onSubmit={handleSubmit} className='space-y-6'>
-          {(shouldAskUsername || isRegisterMode) && (
-            <div>
-              <label htmlFor='username' className='sr-only'>
-                用户名
-              </label>
-              <input
-                id='username'
-                type='text'
-                autoComplete='username'
-                className='text-foreground ring-border placeholder:text-muted-foreground focus:ring-primary bg-input/60 block w-full rounded-lg border-0 px-4 py-3 shadow-sm ring-1 backdrop-blur focus:outline-none focus:ring-2 sm:text-base'
-                placeholder='输入用户名'
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-          )}
+          {/* 用户名输入框 - 始终显示 */}
+          <div>
+            <label htmlFor='username' className='sr-only'>
+              用户名
+            </label>
+            <input
+              id='username'
+              type='text'
+              autoComplete='username'
+              className='text-foreground ring-border placeholder:text-muted-foreground focus:ring-primary bg-input/60 block w-full rounded-lg border-0 px-4 py-3 shadow-sm ring-1 backdrop-blur focus:outline-none focus:ring-2 sm:text-base'
+              placeholder='输入用户名'
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
 
           <div>
             <label htmlFor='password' className='sr-only'>
@@ -175,7 +170,7 @@ function LoginPageClient() {
           </button>
 
           {/* 切换登录/注册模式 */}
-          {shouldAskUsername && enableRegistration && (
+          {enableRegistration && (
             <div className='text-center'>
               <button
                 type='button'

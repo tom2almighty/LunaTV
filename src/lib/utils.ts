@@ -3,25 +3,22 @@ import he from 'he';
 import Hls from 'hls.js';
 
 function getDoubanImageProxyConfig(): {
-  proxyType:
-    | 'direct'
-    | 'server'
-    | 'img3'
-    | 'cmliussss-cdn-tencent'
-    | 'cmliussss-cdn-ali'
-    | 'custom';
+  proxyType: 'server' | 'custom';
   proxyUrl: string;
 } {
+  if (typeof window === 'undefined') {
+    return { proxyType: 'server', proxyUrl: '' };
+  }
   const doubanImageProxyType =
     localStorage.getItem('doubanImageProxyType') ||
     (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY_TYPE ||
-    'cmliussss-cdn-tencent';
+    'server';
   const doubanImageProxy =
     localStorage.getItem('doubanImageProxyUrl') ||
     (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY ||
     '';
   return {
-    proxyType: doubanImageProxyType,
+    proxyType: doubanImageProxyType === 'custom' ? 'custom' : 'server',
     proxyUrl: doubanImageProxy,
   };
 }
@@ -39,25 +36,13 @@ export function processImageUrl(originalUrl: string): string {
 
   const { proxyType, proxyUrl } = getDoubanImageProxyConfig();
   switch (proxyType) {
-    case 'server':
-      return `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`;
-    case 'img3':
-      return originalUrl.replace(/img\d+\.doubanio\.com/g, 'img3.doubanio.com');
-    case 'cmliussss-cdn-tencent':
-      return originalUrl.replace(
-        /img\d+\.doubanio\.com/g,
-        'img.doubanio.cmliussss.net',
-      );
-    case 'cmliussss-cdn-ali':
-      return originalUrl.replace(
-        /img\d+\.doubanio\.com/g,
-        'img.doubanio.cmliussss.com',
-      );
     case 'custom':
-      return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
-    case 'direct':
+      return proxyUrl
+        ? `${proxyUrl}${encodeURIComponent(originalUrl)}`
+        : `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`;
+    case 'server':
     default:
-      return originalUrl;
+      return `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`;
   }
 }
 

@@ -7,7 +7,15 @@ import { gunzip } from 'zlib';
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { configSelfCheck, setCachedConfig } from '@/lib/config';
 import { SimpleCrypto } from '@/lib/crypto';
-import { db } from '@/lib/db';
+import {
+  addSearchHistory,
+  clearAllData,
+  registerUser,
+  saveAdminConfig,
+  saveFavorite,
+  savePlayRecord,
+  setSkipConfig,
+} from '@/lib/db';
 
 export const runtime = 'nodejs';
 
@@ -15,15 +23,6 @@ const gunzipAsync = promisify(gunzip);
 
 export async function POST(req: NextRequest) {
   try {
-    // 检查存储类型
-    const storageType = process.env.NEXT_PUBLIC_STORAGE_TYPE || 'localstorage';
-    if (storageType === 'localstorage') {
-      return NextResponse.json(
-        { error: '不支持本地存储进行数据迁移' },
-        { status: 400 },
-      );
-    }
-
     // 验证身份和权限
     const authInfo = getAuthInfoFromCookie(req);
     if (!authInfo || !authInfo.username) {
@@ -31,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 检查用户权限（只有站长可以导入数据）
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       return NextResponse.json(
         { error: '权限不足，只有站长可以导入数据' },
         { status: 401 },
@@ -88,11 +87,11 @@ export async function POST(req: NextRequest) {
     }
 
     // 开始导入数据 - 先清空现有数据
-    await db.clearAllData();
+    await clearAllData();
 
     // 导入管理员配置
     importData.data.adminConfig = configSelfCheck(importData.data.adminConfig);
-    await db.saveAdminConfig(importData.data.adminConfig);
+    await saveAdminConfig(importData.data.adminConfig);
     await setCachedConfig(importData.data.adminConfig);
 
     // 导入用户数据
@@ -102,20 +101,26 @@ export async function POST(req: NextRequest) {
 
       // 重新注册用户（包含密码）
       if (user.password) {
-        await db.registerUser(username, user.password);
+        await registerUser(username, user.password);
       }
 
       // 导入播放记录
       if (user.playRecords) {
         for (const [key, record] of Object.entries(user.playRecords)) {
-          await (db as any).storage.setPlayRecord(username, key, record);
+          const [source, videoId] = key.split('+');
+          if (source && videoId) {
+            await savePlayRecord(username, source, videoId, record as any);
+          }
         }
       }
 
       // 导入收藏夹
       if (user.favorites) {
         for (const [key, favorite] of Object.entries(user.favorites)) {
-          await (db as any).storage.setFavorite(username, key, favorite);
+          const [source, videoId] = key.split('+');
+          if (source && videoId) {
+            await saveFavorite(username, source, videoId, favorite as any);
+          }
         }
       }
 
@@ -123,7 +128,7 @@ export async function POST(req: NextRequest) {
       if (user.searchHistory && Array.isArray(user.searchHistory)) {
         for (const keyword of user.searchHistory.reverse()) {
           // 反转以保持顺序
-          await db.addSearchHistory(username, keyword);
+          await addSearchHistory(username, keyword);
         }
       }
 
@@ -132,7 +137,7 @@ export async function POST(req: NextRequest) {
         for (const [key, skipConfig] of Object.entries(user.skipConfigs)) {
           const [source, id] = key.split('+');
           if (source && id) {
-            await db.setSkipConfig(username, source, id, skipConfig as any);
+            await setSkipConfig(username, source, id, skipConfig as any);
           }
         }
       }

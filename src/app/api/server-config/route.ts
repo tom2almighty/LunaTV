@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
   const config = await getConfig();
   const result = {
     SiteName: config.SiteConfig.SiteName,
-    StorageType: process.env.NEXT_PUBLIC_STORAGE_TYPE || 'localstorage',
     EnableRegistration: config.SiteConfig.EnableRegistration || false,
   };
   return NextResponse.json(result);

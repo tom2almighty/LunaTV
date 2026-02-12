@@ -4,7 +4,13 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
-import { db } from '@/lib/db';
+import {
+  deleteAllFavorites,
+  deleteFavorite,
+  getAllFavorites,
+  getFavorite,
+  saveFavorite,
+} from '@/lib/db';
 import { Favorite } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -25,7 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     const config = await getConfig();
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       // 非站长，检查用户存在或被封禁
       const user = config.UserConfig.Users.find(
         (u) => u.username === authInfo.username,
@@ -50,12 +56,12 @@ export async function GET(request: NextRequest) {
           { status: 400 },
         );
       }
-      const fav = await db.getFavorite(authInfo.username, source, id);
+      const fav = await getFavorite(authInfo.username, source, id);
       return NextResponse.json(fav, { status: 200 });
     }
 
     // 查询全部收藏
-    const favorites = await db.getAllFavorites(authInfo.username);
+    const favorites = await getAllFavorites(authInfo.username);
     return NextResponse.json(favorites, { status: 200 });
   } catch (err) {
     console.error('获取收藏失败', err);
@@ -79,7 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     const config = await getConfig();
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       // 非站长，检查用户存在或被封禁
       const user = config.UserConfig.Users.find(
         (u) => u.username === authInfo.username,
@@ -123,7 +129,7 @@ export async function POST(request: NextRequest) {
       save_time: favorite.save_time ?? Date.now(),
     } as Favorite;
 
-    await db.saveFavorite(authInfo.username, source, id, finalFavorite);
+    await saveFavorite(authInfo.username, source, id, finalFavorite);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
@@ -150,7 +156,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const config = await getConfig();
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       // 非站长，检查用户存在或被封禁
       const user = config.UserConfig.Users.find(
         (u) => u.username === authInfo.username,
@@ -176,16 +182,10 @@ export async function DELETE(request: NextRequest) {
           { status: 400 },
         );
       }
-      await db.deleteFavorite(username, source, id);
+      await deleteFavorite(username, source, id);
     } else {
       // 清空全部
-      const all = await db.getAllFavorites(username);
-      await Promise.all(
-        Object.keys(all).map(async (k) => {
-          const [s, i] = k.split('+');
-          if (s && i) await db.deleteFavorite(username, s, i);
-        }),
-      );
+      await deleteAllFavorites(username);
     }
 
     return NextResponse.json({ success: true }, { status: 200 });

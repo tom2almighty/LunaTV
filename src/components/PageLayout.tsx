@@ -1,3 +1,5 @@
+'use client';
+
 import MobileBottomNav from './MobileBottomNav';
 import MobileHeader from './MobileHeader';
 import { Navbar } from './Navbar';

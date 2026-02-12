@@ -4,7 +4,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
-import { db } from '@/lib/db';
+import {
+  deleteSkipConfig,
+  getAllSkipConfigs,
+  getSkipConfig,
+  setSkipConfig,
+} from '@/lib/db';
 import { SkipConfig } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -17,7 +22,7 @@ export async function GET(request: NextRequest) {
     }
 
     const config = await getConfig();
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       // 非站长，检查用户存在或被封禁
       const user = config.UserConfig.Users.find(
         (u) => u.username === authInfo.username,
@@ -36,11 +41,11 @@ export async function GET(request: NextRequest) {
 
     if (source && id) {
       // 获取单个配置
-      const config = await db.getSkipConfig(authInfo.username, source, id);
-      return NextResponse.json(config);
+      const skipCfg = await getSkipConfig(authInfo.username, source, id);
+      return NextResponse.json(skipCfg);
     } else {
       // 获取所有配置
-      const configs = await db.getAllSkipConfigs(authInfo.username);
+      const configs = await getAllSkipConfigs(authInfo.username);
       return NextResponse.json(configs);
     }
   } catch (error) {
@@ -60,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
 
     const adminConfig = await getConfig();
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       // 非站长，检查用户存在或被封禁
       const user = adminConfig.UserConfig.Users.find(
         (u) => u.username === authInfo.username,
@@ -93,7 +98,7 @@ export async function POST(request: NextRequest) {
       outro_time: Number(config.outro_time) || 0,
     };
 
-    await db.setSkipConfig(authInfo.username, source, id, skipConfig);
+    await setSkipConfig(authInfo.username, source, id, skipConfig);
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -113,7 +118,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const adminConfig = await getConfig();
-    if (authInfo.username !== process.env.USERNAME) {
+    if (authInfo.username !== process.env.APP_ADMIN_USER) {
       // 非站长，检查用户存在或被封禁
       const user = adminConfig.UserConfig.Users.find(
         (u) => u.username === authInfo.username,
@@ -139,7 +144,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: '无效的key格式' }, { status: 400 });
     }
 
-    await db.deleteSkipConfig(authInfo.username, source, id);
+    await deleteSkipConfig(authInfo.username, source, id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

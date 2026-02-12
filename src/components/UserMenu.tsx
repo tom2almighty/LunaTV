@@ -30,7 +30,6 @@ export const UserMenu: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [authInfo, setAuthInfo] = useState<AuthInfo | null>(null);
-  const [storageType, setStorageType] = useState<string>('localstorage');
   const [mounted, setMounted] = useState(false);
 
   // Body 滚动锁定 - 使用 overflow 方式避免布局问题
@@ -60,39 +59,22 @@ export const UserMenu: React.FC = () => {
   const [doubanProxyUrl, setDoubanProxyUrl] = useState('');
   const [enableOptimization, setEnableOptimization] = useState(true);
   const [fluidSearch, setFluidSearch] = useState(true);
-  const [doubanDataSource, setDoubanDataSource] = useState(
-    'cmliussss-cdn-tencent',
-  );
-  const [doubanImageProxyType, setDoubanImageProxyType] = useState(
-    'cmliussss-cdn-tencent',
-  );
+  const [doubanDataSource, setDoubanDataSource] = useState('server');
+  const [doubanImageProxyType, setDoubanImageProxyType] = useState('server');
   const [doubanImageProxyUrl, setDoubanImageProxyUrl] = useState('');
   const [isDoubanDropdownOpen, setIsDoubanDropdownOpen] = useState(false);
   const [isDoubanImageProxyDropdownOpen, setIsDoubanImageProxyDropdownOpen] =
     useState(false);
 
-  // 豆瓣数据源选项
+  // 豆瓣数据源选项（简化为服务端代理和自定义代理）
   const doubanDataSourceOptions = [
-    { value: 'direct', label: '直连（服务器直接请求豆瓣）' },
-    { value: 'cors-proxy-zwei', label: 'Cors Proxy By Zwei' },
-    {
-      value: 'cmliussss-cdn-tencent',
-      label: '豆瓣 CDN By CMLiussss（腾讯云）',
-    },
-    { value: 'cmliussss-cdn-ali', label: '豆瓣 CDN By CMLiussss（阿里云）' },
+    { value: 'server', label: '服务端代理（服务器直接请求豆瓣）' },
     { value: 'custom', label: '自定义代理' },
   ];
 
-  // 豆瓣图片代理选项
+  // 豆瓣图片代理选项（简化为服务端代理和自定义代理）
   const doubanImageProxyTypeOptions = [
-    { value: 'direct', label: '直连（浏览器直接请求豆瓣）' },
     { value: 'server', label: '服务器代理（由服务器代理请求豆瓣）' },
-    { value: 'img3', label: '豆瓣官方精品 CDN（阿里云）' },
-    {
-      value: 'cmliussss-cdn-tencent',
-      label: '豆瓣 CDN By CMLiussss（腾讯云）',
-    },
-    { value: 'cmliussss-cdn-ali', label: '豆瓣 CDN By CMLiussss（阿里云）' },
     { value: 'custom', label: '自定义代理' },
   ];
 
@@ -107,15 +89,11 @@ export const UserMenu: React.FC = () => {
     setMounted(true);
   }, []);
 
-  // 获取认证信息和存储类型
+  // 获取认证信息
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const auth = getAuthInfoFromBrowserCookie();
       setAuthInfo(auth);
-
-      const type =
-        (window as any).RUNTIME_CONFIG?.STORAGE_TYPE || 'localstorage';
-      setStorageType(type);
     }
   }, []);
 
@@ -430,9 +408,8 @@ export const UserMenu: React.FC = () => {
   const showAdminPanel =
     authInfo?.role === 'owner' || authInfo?.role === 'admin';
 
-  // 检查是否显示修改密码按钮
-  const showChangePassword =
-    authInfo?.role !== 'owner' && storageType !== 'localstorage';
+  // 检查是否显示修改密码按钮（非站长用户可以修改密码）
+  const showChangePassword = authInfo?.role !== 'owner';
 
   // 角色中文映射
   const getRoleText = (role?: string) => {
@@ -483,8 +460,7 @@ export const UserMenu: React.FC = () => {
                 {authInfo?.username || 'default'}
               </div>
               <div className='text-muted-foreground text-[10px]'>
-                数据存储：
-                {storageType === 'localstorage' ? '本地' : storageType}
+                数据存储：SQLite
               </div>
             </div>
           </div>

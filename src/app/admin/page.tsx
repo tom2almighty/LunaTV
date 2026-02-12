@@ -29,7 +29,6 @@ import {
   ChevronDown,
   ChevronUp,
   Database,
-  ExternalLink,
   FileText,
   FolderOpen,
   Settings,
@@ -884,7 +883,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                   }}
                   className='peer sr-only'
                 />
-                <div className="bg-muted peer-focus:ring-primary/20 after:border-border peer-checked:bg-primary peer h-6 w-11 rounded-full after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 rtl:peer-checked:after:-translate-x-full"></div>
+                <div className="bg-muted peer-focus:ring-primary/20 after:border-border peer-checked:bg-primary peer h-6 w-11 rounded-full after:absolute after:start-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 rtl:peer-checked:after:-translate-x-full"></div>
               </label>
             </div>
           </div>
@@ -3971,9 +3970,9 @@ const SiteConfigComponent = ({
     SearchDownstreamMaxPage: 1,
     SiteInterfaceCacheTime: 7200,
     DoubanDataCacheTime: 7200,
-    DoubanProxyType: 'cmliussss-cdn-tencent',
+    DoubanProxyType: 'server',
     DoubanProxy: '',
-    DoubanImageProxyType: 'cmliussss-cdn-tencent',
+    DoubanImageProxyType: 'server',
     DoubanImageProxy: '',
     DisableYellowFilter: false,
     FluidSearch: true,
@@ -3986,59 +3985,26 @@ const SiteConfigComponent = ({
   const [isDoubanImageProxyDropdownOpen, setIsDoubanImageProxyDropdownOpen] =
     useState(false);
 
-  // 豆瓣数据源选项
+  // 豆瓣数据源选项（简化为服务端代理和自定义代理）
   const doubanDataSourceOptions = [
-    { value: 'direct', label: '直连（服务器直接请求豆瓣）' },
-    { value: 'cors-proxy-zwei', label: 'Cors Proxy By Zwei' },
-    {
-      value: 'cmliussss-cdn-tencent',
-      label: '豆瓣 CDN By CMLiussss（腾讯云）',
-    },
-    { value: 'cmliussss-cdn-ali', label: '豆瓣 CDN By CMLiussss（阿里云）' },
+    { value: 'server', label: '服务端代理（服务器直接请求豆瓣）' },
     { value: 'custom', label: '自定义代理' },
   ];
 
-  // 豆瓣图片代理选项
+  // 豆瓣图片代理选项（简化为服务端代理和自定义代理）
   const doubanImageProxyTypeOptions = [
-    { value: 'direct', label: '直连（浏览器直接请求豆瓣）' },
     { value: 'server', label: '服务器代理（由服务器代理请求豆瓣）' },
-    { value: 'img3', label: '豆瓣官方精品 CDN（阿里云）' },
-    {
-      value: 'cmliussss-cdn-tencent',
-      label: '豆瓣 CDN By CMLiussss（腾讯云）',
-    },
-    { value: 'cmliussss-cdn-ali', label: '豆瓣 CDN By CMLiussss（阿里云）' },
     { value: 'custom', label: '自定义代理' },
   ];
-
-  // 获取感谢信息
-  const getThanksInfo = (dataSource: string) => {
-    switch (dataSource) {
-      case 'cors-proxy-zwei':
-        return {
-          text: 'Thanks to @Zwei',
-          url: 'https://github.com/bestzwei',
-        };
-      case 'cmliussss-cdn-tencent':
-      case 'cmliussss-cdn-ali':
-        return {
-          text: 'Thanks to @CMLiussss',
-          url: 'https://github.com/cmliu',
-        };
-      default:
-        return null;
-    }
-  };
 
   useEffect(() => {
     if (config?.SiteConfig) {
       setSiteSettings({
         ...config.SiteConfig,
-        DoubanProxyType:
-          config.SiteConfig.DoubanProxyType || 'cmliussss-cdn-tencent',
+        DoubanProxyType: config.SiteConfig.DoubanProxyType || 'server',
         DoubanProxy: config.SiteConfig.DoubanProxy || '',
         DoubanImageProxyType:
-          config.SiteConfig.DoubanImageProxyType || 'cmliussss-cdn-tencent',
+          config.SiteConfig.DoubanImageProxyType || 'server',
         DoubanImageProxy: config.SiteConfig.DoubanImageProxy || '',
         DisableYellowFilter: config.SiteConfig.DisableYellowFilter || false,
         FluidSearch: config.SiteConfig.FluidSearch || true,
@@ -4220,27 +4186,6 @@ const SiteConfigComponent = ({
           <p className='text-muted-foreground mt-1 text-xs'>
             选择获取豆瓣数据的方式
           </p>
-
-          {/* 感谢信息 */}
-          {getThanksInfo(siteSettings.DoubanProxyType) && (
-            <div className='mt-3'>
-              <button
-                type='button'
-                onClick={() =>
-                  window.open(
-                    getThanksInfo(siteSettings.DoubanProxyType)!.url,
-                    '_blank',
-                  )
-                }
-                className='text-muted-foreground flex w-full cursor-pointer items-center justify-center gap-1.5 px-3 text-xs'
-              >
-                <span className='font-medium'>
-                  {getThanksInfo(siteSettings.DoubanProxyType)!.text}
-                </span>
-                <ExternalLink className='w-3.5 opacity-70' />
-              </button>
-            </div>
-          )}
         </div>
 
         {/* 豆瓣代理地址设置 - 仅在选择自定义代理时显示 */}
@@ -4331,27 +4276,6 @@ const SiteConfigComponent = ({
           <p className='text-muted-foreground mt-1 text-xs'>
             选择获取豆瓣图片的方式
           </p>
-
-          {/* 感谢信息 */}
-          {getThanksInfo(siteSettings.DoubanImageProxyType) && (
-            <div className='mt-3'>
-              <button
-                type='button'
-                onClick={() =>
-                  window.open(
-                    getThanksInfo(siteSettings.DoubanImageProxyType)!.url,
-                    '_blank',
-                  )
-                }
-                className='text-muted-foreground flex w-full cursor-pointer items-center justify-center gap-1.5 px-3 text-xs'
-              >
-                <span className='font-medium'>
-                  {getThanksInfo(siteSettings.DoubanImageProxyType)!.text}
-                </span>
-                <ExternalLink className='w-3.5 opacity-70' />
-              </button>
-            </div>
-          )}
         </div>
 
         {/* 豆瓣代理地址设置 - 仅在选择自定义代理时显示 */}

@@ -3,23 +3,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getAuthInfoFromCookie } from '@/lib/auth';
-import { db } from '@/lib/db';
+import { changePassword } from '@/lib/db';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
-  const storageType = process.env.NEXT_PUBLIC_STORAGE_TYPE || 'localstorage';
-
-  // 不支持 localstorage 模式
-  if (storageType === 'localstorage') {
-    return NextResponse.json(
-      {
-        error: '不支持本地存储模式修改密码',
-      },
-      { status: 400 },
-    );
-  }
-
   try {
     const body = await request.json();
     const { newPassword } = body;
@@ -37,8 +25,8 @@ export async function POST(request: NextRequest) {
 
     const username = authInfo.username;
 
-    // 不允许站长修改密码（站长用户名等于 process.env.USERNAME）
-    if (username === process.env.USERNAME) {
+    // 不允许站长修改密码（站长用户名等于 process.env.APP_ADMIN_USER）
+    if (username === process.env.APP_ADMIN_USER) {
       return NextResponse.json(
         { error: '站长不能通过此接口修改密码' },
         { status: 403 },
@@ -46,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 修改密码
-    await db.changePassword(username, newPassword);
+    await changePassword(username, newPassword);
 
     return NextResponse.json({ ok: true });
   } catch (error) {
