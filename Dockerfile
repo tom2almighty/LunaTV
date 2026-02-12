@@ -59,8 +59,6 @@ ENV NODE_ENV=production \
 
 # 批量复制文件(减少层数)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
-COPY --from=builder --chown=nextjs:nodejs /app/start.js ./start.js
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
@@ -75,4 +73,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 # 使用 tini 作为 init 进程
 ENTRYPOINT ["tini", "--"]
-CMD ["node", "start.js"]
+CMD ["node", "server.js"]

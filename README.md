@@ -25,7 +25,7 @@
 - **多源聚合搜索**：一次搜索立刻返回全源结果。
 - **丰富详情页**：支持剧集列表、演员、年份、简介等完整信息展示。
 - **流畅在线播放**：集成 HLS.js & ArtPlayer。
-- **跨设备同步记录**：支持 Kvrocks/Redis/Upstash 存储，多端同步进度。
+- **跨设备同步记录**：支持 SQLite 存储，多端同步进度。
 - **PWA**：离线缓存、安装到桌面/主屏，移动端原生体验。
 - **智能去广告**：自动跳过视频中的切片广告（实验性）。
 
@@ -37,9 +37,7 @@
 
 本项目**仅支持 Docker 或其他基于 Docker 的平台** 部署。
 
-### Kvrocks 存储
-
-```yml
+```yaml
 services:
   moontv-core:
     image: ghcr.io/tom2almighty/lunatv:latest
@@ -48,59 +46,10 @@ services:
     ports:
       - '3000:3000'
     environment:
-      - USERNAME=admin
+      - APP_ADMIN_USER=admin
       - PASSWORD=admin_password
-      - NEXT_PUBLIC_STORAGE_TYPE=kvrocks
-      - KVROCKS_URL=redis://moontv-kvrocks:6666
-    networks:
-      - moontv-network
-    depends_on:
-      - moontv-kvrocks
-  moontv-kvrocks:
-    image: apache/kvrocks
-    container_name: moontv-kvrocks
-    restart: unless-stopped
     volumes:
-      - kvrocks-data:/var/lib/kvrocks
-    networks:
-      - moontv-network
-networks:
-  moontv-network:
-    driver: bridge
-volumes:
-  kvrocks-data:
-```
-
-### Redis 存储
-
-```yml
-services:
-  moontv-core:
-    image: ghcr.io/tom2almighty/lunatv:latest
-    container_name: moontv-core
-    restart: on-failure
-    ports:
-      - '3000:3000'
-    environment:
-      - USERNAME=admin
-      - PASSWORD=admin_password
-      - NEXT_PUBLIC_STORAGE_TYPE=redis
-      - REDIS_URL=redis://moontv-redis:6379
-    networks:
-      - moontv-network
-    depends_on:
-      - moontv-redis
-  moontv-redis:
-    image: redis:alpine
-    container_name: moontv-redis
-    restart: unless-stopped
-    networks:
-      - moontv-network
-    volumes:
-      - ./data:/data
-networks:
-  moontv-network:
-    driver: bridge
+      - ./data:/app/data
 ```
 
 ## 配置文件
@@ -156,20 +105,10 @@ MoonTV 支持标准的苹果 CMS V10 API 格式。
 
 ### 必需环境变量
 
-| 变量名     | 说明                               | 默认值 | 示例                            |
-| ---------- | ---------------------------------- | ------ | ------------------------------- |
-| `PASSWORD` | 系统管理员密码，用于身份验证       | 无     | `PASSWORD=your_secure_password` |
-| `USERNAME` | 系统管理员用户名（多用户模式必需） | 无     | `USERNAME=admin`                |
-
-### 存储配置
-
-| 变量名                     | 说明                                                                   | 默认值         | 示例                                           |
-| -------------------------- | ---------------------------------------------------------------------- | -------------- | ---------------------------------------------- |
-| `NEXT_PUBLIC_STORAGE_TYPE` | 数据存储类型：`localstorage`（单用户）/ `redis` / `kvrocks`/ `upstash` | `localstorage` | `NEXT_PUBLIC_STORAGE_TYPE=kvrocks`             |
-| `REDIS_URL`                | Redis 数据库连接地址（当 STORAGE_TYPE=redis 时必需）                   | 无             | `REDIS_URL=redis://localhost:6379`             |
-| `KVROCKS_URL`              | Kvrocks 数据库连接地址（当 STORAGE_TYPE=kvrocks 时必需）               | 无             | `KVROCKS_URL=redis://localhost:6666`           |
-| `UPSTASH_URL`              | Upstash Redis 连接地址（当 STORAGE_TYPE=upstash 时必需）               | 无             | `UPSTASH_URL=https://your-instance.upstash.io` |
-| `UPSTASH_TOKEN`            | Upstash Redis 访问令牌（当 STORAGE_TYPE=upstash 时必需）               | 无             | `UPSTASH_TOKEN=your_upstash_token`             |
+| 变量名           | 说明                               | 默认值 | 示例                            |
+| ---------------- | ---------------------------------- | ------ | ------------------------------- |
+| `APP_ADMIN_USER` | 系统管理员密码，用于身份验证       | 无     | `PASSWORD=your_secure_password` |
+| `USERNAME`       | 系统管理员用户名（多用户模式必需） | 无     | `USERNAME=admin`                |
 
 ### 站点配置
 
@@ -187,13 +126,13 @@ MoonTV 支持标准的苹果 CMS V10 API 格式。
 
 ### 豆瓣配置
 
-| 变量名                                | 说明                    | 默认值                  | 示例                                                   |
-| ------------------------------------- | ----------------------- | ----------------------- | ------------------------------------------------------ |
-| `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME`  | 豆瓣数据缓存时间（秒）  | `7200`                  | `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME=3600`              |
-| `NEXT_PUBLIC_DOUBAN_PROXY_TYPE`       | 豆瓣 API 代理类型       | `cmliussss-cdn-tencent` | `NEXT_PUBLIC_DOUBAN_PROXY_TYPE=direct`                 |
-| `NEXT_PUBLIC_DOUBAN_PROXY`            | 自定义豆瓣 API 代理地址 | 空                      | `NEXT_PUBLIC_DOUBAN_PROXY=https://proxy.com`           |
-| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE` | 豆瓣图片代理类型        | `cmliussss-cdn-tencent` | `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE=server`           |
-| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY`      | 自定义豆瓣图片代理地址  | 空                      | `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY=https://img-proxy.com` |
+| 变量名                                | 说明                    | 默认值   | 示例                                                   |
+| ------------------------------------- | ----------------------- | -------- | ------------------------------------------------------ |
+| `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME`  | 豆瓣数据缓存时间（秒）  | `7200`   | `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME=3600`              |
+| `NEXT_PUBLIC_DOUBAN_PROXY_TYPE`       | 豆瓣 API 代理类型       | `server` | `NEXT_PUBLIC_DOUBAN_PROXY_TYPE=direct`                 |
+| `NEXT_PUBLIC_DOUBAN_PROXY`            | 自定义豆瓣 API 代理地址 | 空       | `NEXT_PUBLIC_DOUBAN_PROXY=https://proxy.com`           |
+| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE` | 豆瓣图片代理类型        | `server` | `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE=server`           |
+| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY`      | 自定义豆瓣图片代理地址  | 空       | `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY=https://img-proxy.com` |
 
 ### 功能开关
 
@@ -203,59 +142,6 @@ MoonTV 支持标准的苹果 CMS V10 API 格式。
 | `NEXT_PUBLIC_ENABLE_OPTIMIZATION`   | 是否启用性能优化                         | `true`  | `NEXT_PUBLIC_ENABLE_OPTIMIZATION=false`  |
 | `NEXT_PUBLIC_ENABLE_REGISTRATION`   | 是否开启前台用户注册功能（仅多用户模式） | `false` | `NEXT_PUBLIC_ENABLE_REGISTRATION=true`   |
 
-### 豆瓣代理类型说明
-
-**NEXT_PUBLIC_DOUBAN_PROXY_TYPE 可选值：**
-
-- `direct`: 服务器直接请求豆瓣源站
-- `cors-proxy-zwei`: 浏览器通过 CORS 代理请求豆瓣数据（由 [Zwei](https://github.com/bestzwei) 提供）
-- `cmliussss-cdn-tencent`: 腾讯云 CDN（推荐，由 [CMLiussss](https://github.com/cmliu) 提供）
-- `cmliussss-cdn-ali`: 阿里云 CDN（由 [CMLiussss](https://github.com/cmliu) 提供）
-- `custom`: 自定义代理（需配置 `NEXT_PUBLIC_DOUBAN_PROXY`）
-
-**NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE 可选值：**
-
-- `direct`: 浏览器直接请求豆瓣图片域名
-- `server`: 服务器代理请求（缓存 6 个月）
-- `img3`: 豆瓣官方精品 CDN（阿里云）
-- `cmliussss-cdn-tencent`: 腾讯云 CDN（推荐）
-- `cmliussss-cdn-ali`: 阿里云 CDN
-- `custom`: 自定义代理（需配置 `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY`）
-
-### 部署示例
-
-**单用户模式（localstorage）：**
-
-```bash
-PASSWORD=your_password
-NEXT_PUBLIC_STORAGE_TYPE=localstorage
-NEXT_PUBLIC_SITE_NAME=我的影视站
-```
-
-**多用户模式（Kvrocks - 推荐）：**
-
-```bash
-PASSWORD=your_password
-USERNAME=admin
-NEXT_PUBLIC_STORAGE_TYPE=kvrocks
-KVROCKS_URL=redis://localhost:6666
-NEXT_PUBLIC_SITE_NAME=我的影视站
-NEXT_PUBLIC_ENABLE_REGISTRATION=true
-NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME=3600
-```
-
-**云端部署（Upstash）：**
-
-```bash
-PASSWORD=your_password
-USERNAME=admin
-NEXT_PUBLIC_STORAGE_TYPE=upstash
-UPSTASH_URL=https://your-instance.upstash.io
-UPSTASH_TOKEN=your_upstash_token
-NEXT_PUBLIC_SITE_NAME=我的影视站
-NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME=3600
-```
-
 ## 安全与隐私提醒
 
 ### 请设置密码保护并关闭公网注册
@@ -264,9 +150,8 @@ NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME=3600
 
 ### 部署要求
 
-1. **设置环境变量 `PASSWORD`**：为您的实例设置一个强密码
-2. **仅供个人使用**：请勿将您的实例链接公开分享或传播
-3. **遵守当地法律**：请确保您的使用行为符合当地法律法规
+1. **仅供个人使用**：请勿将您的实例链接公开分享或传播
+2. **遵守当地法律**：请确保您的使用行为符合当地法律法规
 
 ### 重要声明
 
@@ -287,6 +172,4 @@ NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME=3600
 - [LibreTV](https://github.com/LibreSpark/LibreTV) — 由此启发，站在巨人的肩膀上
 - [ArtPlayer](https://github.com/zhw2590582/ArtPlayer) — 提供强大的网页视频播放器
 - [HLS.js](https://github.com/video-dev/hls.js) — 实现 HLS 流媒体在浏览器中的播放支持
-- [Zwei](https://github.com/bestzwei) — 提供获取豆瓣数据的 CORS 代理
-- [CMLiussss](https://github.com/cmliu) — 提供豆瓣 CDN 服务
 - 感谢所有提供免费影视接口的站点
