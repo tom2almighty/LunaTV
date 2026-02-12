@@ -1,19 +1,12 @@
 services:
   moontv-core:
     image: ghcr.io/tom2almighty/lunatv:latest
-    # 本地构建
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
     container_name: moontv-core
     restart: on-failure
     ports:
       - '3000:3000'
     environment:
-      - USERNAME=admin
+      - APP_ADMIN_USER=admin
       - PASSWORD=your_password
     volumes:
       - ./data:/app/data
-networks:
-  moontv-network:
-    driver: bridge
