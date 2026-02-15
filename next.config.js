@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 const nextConfig = {
-  output: 'standalone',
+  output: process.env.DOCKER_ENV === 'true' ? 'standalone' : undefined,
   eslint: {
     dirs: ['src'],
   },

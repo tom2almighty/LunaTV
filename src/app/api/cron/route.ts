@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getConfig, refineConfig } from '@/lib/config';
-import { db } from '@/lib/db';
+import * as db from '@/lib/db';
 import { fetchVideoDetail } from '@/lib/fetchVideoDetail';
 import { SearchResult } from '@/lib/types';
 
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   try {
     console.log('Cron job triggered:', new Date().toISOString());
 
-    cronJob();
+    await cronJob();
 
     return NextResponse.json({
       success: true,
@@ -137,7 +137,7 @@ async function refreshRecordAndFavorites() {
 
         for (const [key, record] of Object.entries(playRecords)) {
           try {
-            const [source, id] = key.split('+');
+            const { source, videoId: id } = db.parseStorageKey(key);
             if (!source || !id) {
               console.warn(`跳过无效的播放记录键: ${key}`);
               continue;
@@ -188,7 +188,7 @@ async function refreshRecordAndFavorites() {
 
         for (const [key, fav] of Object.entries(favorites)) {
           try {
-            const [source, id] = key.split('+');
+            const { source, videoId: id } = db.parseStorageKey(key);
             if (!source || !id) {
               console.warn(`跳过无效的收藏键: ${key}`);
               continue;
