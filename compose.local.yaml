@@ -1,0 +1,14 @@
+services:
+  moontv-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: moontv-core
+    restart: on-failure
+    ports:
+      - '3000:3000'
+    environment:
+      - APP_ADMIN_USER=admin
+      - PASSWORD=your_password
+    volumes:
+      - ./data:/app/data

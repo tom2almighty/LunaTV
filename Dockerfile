@@ -67,7 +67,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
 # 切换到非特权用户
-USER nextjs
+# USER nextjs
 
 EXPOSE 3000
 
