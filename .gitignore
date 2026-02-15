@@ -45,3 +45,4 @@ src/lib/runtime.ts
 public/sw.js
 public/workbox-*.js
 public/worker-*.js
+data/

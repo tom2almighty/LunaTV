@@ -63,6 +63,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/start.js ./start.js
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# 确保数据目录存在并设置权限
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
+
 # 切换到非特权用户
 USER nextjs
 
