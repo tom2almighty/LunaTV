@@ -10,7 +10,7 @@ RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app
 
 # 仅复制依赖清单
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # 安装依赖(使用 --frozen-lockfile 确保版本一致)
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
@@ -70,7 +70,7 @@ EXPOSE 3000
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
+    CMD node -e "require('http').get('http://localhost:3000', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
 # 使用 tini 作为 init 进程
 ENTRYPOINT ["tini", "--"]
