@@ -27,7 +27,6 @@ export interface SiteConfig {
   DoubanImageProxy: string;
   DisableYellowFilter: boolean;
   FluidSearch: boolean;
-  EnableOptimization: boolean;
   EnableRegistration: boolean;
 }
 
