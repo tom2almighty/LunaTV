@@ -602,7 +602,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
               className={origin === 'live' ? 'object-contain pointer-events-none' : 'object-cover pointer-events-none'}
               referrerPolicy='no-referrer'
               loading='lazy'
-              onLoadingComplete={() => setIsLoading(true)}
+              onLoad={() => setIsLoading(true)}
               onError={(e) => {
                 // 图片加载失败时的重试机制
                 const img = e.target as HTMLImageElement;
