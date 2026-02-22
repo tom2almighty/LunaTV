@@ -3,13 +3,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type ThemeMode = 'light' | 'dark' | 'system';
-type ColorScheme = 'red' | 'slate' | 'zinc' | 'gray';
 
 interface ThemeContextType {
   mode: ThemeMode;
   setMode: (mode: ThemeMode) => void;
-  colorScheme: ColorScheme;
-  setColorScheme: (scheme: ColorScheme) => void;
   resolvedMode: 'light' | 'dark';
 }
 
@@ -17,17 +14,13 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<ThemeMode>('system');
-  const [colorScheme, setColorScheme] = useState<ColorScheme>('red');
   const [resolvedMode, setResolvedMode] = useState<'light' | 'dark'>('dark');
   const [mounted, setMounted] = useState(false);
 
   // Initialize from localStorage
   useEffect(() => {
     const savedMode = localStorage.getItem('theme-mode') as ThemeMode;
-    const savedScheme = localStorage.getItem('color-scheme') as ColorScheme;
-
     if (savedMode) setMode(savedMode);
-    if (savedScheme) setColorScheme(savedScheme);
     setMounted(true);
   }, []);
 
@@ -57,11 +50,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     const root = document.documentElement;
 
-    // Save to localStorage
     localStorage.setItem('theme-mode', mode);
-    localStorage.setItem('color-scheme', colorScheme);
 
-    // Apply class for Tailwind dark mode
     if (resolvedMode === 'dark') {
       root.classList.add('dark');
       root.classList.remove('light');
@@ -70,13 +60,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.add('light');
     }
 
-    // Apply data attributes for CSS variables
     root.setAttribute('data-mode', resolvedMode);
-    root.setAttribute('data-theme', colorScheme);
-
-    // Set color-scheme property for system UI
     root.style.colorScheme = resolvedMode;
-  }, [mode, colorScheme, resolvedMode, mounted]);
+  }, [mode, resolvedMode, mounted]);
 
   // Avoid hydration mismatch
   if (!mounted) {
@@ -86,9 +72,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           mode: 'system',
           // eslint-disable-next-line @typescript-eslint/no-empty-function
           setMode: () => {},
-          colorScheme: 'red',
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          setColorScheme: () => {},
           resolvedMode: 'dark',
         }}
       >
@@ -98,9 +81,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ThemeContext.Provider
-      value={{ mode, setMode, colorScheme, setColorScheme, resolvedMode }}
-    >
+    <ThemeContext.Provider value={{ mode, setMode, resolvedMode }}>
       {children}
     </ThemeContext.Provider>
   );

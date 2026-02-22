@@ -26,7 +26,7 @@ import { createPortal } from 'react-dom';
 import { AdminConfig, DataSource } from '@/lib/admin.types';
 
 import { AlertModal, showError, showSuccess, useAlertModal } from './AlertModal';
-import { buttonStyles } from './buttonStyles';
+import { buttonStyles, inputStyles } from './buttonStyles';
 import { useLoadingState } from './LoadingSystem';
 
 // 视频源配置组件
@@ -406,7 +406,7 @@ export const VideoSourceConfig = ({
             type='checkbox'
             checked={selectedSources.has(source.key)}
             onChange={(e) => handleSelectSource(source.key, e.target.checked)}
-            className='text-primary bg-card border-border focus:ring-primary h-4 w-4 rounded  focus:ring-2 '
+            className={inputStyles.checkbox}
           />
         </td>
         <td className='text-foreground whitespace-nowrap px-6 py-4 text-sm'>
@@ -738,7 +738,7 @@ export const VideoSourceConfig = ({
                   type='checkbox'
                   checked={selectAll}
                   onChange={(e) => handleSelectAll(e.target.checked)}
-                  className='text-primary bg-card border-border focus:ring-primary h-4 w-4 rounded  focus:ring-2 '
+                  className={inputStyles.checkbox}
                 />
               </th>
               <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>

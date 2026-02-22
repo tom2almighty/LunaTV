@@ -192,7 +192,7 @@ export const SiteConfigComponent = ({
             <button
               type='button'
               onClick={() => setIsDoubanDropdownOpen(!isDoubanDropdownOpen)}
-              className='border-border focus:ring-primary bg-card text-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 pr-10 text-left text-sm shadow-sm transition-all duration-200 focus:border-green-500 focus:outline-none focus:ring-2'
+              className='border-border bg-card text-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 pr-10 text-left text-sm shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary'
             >
               {
                 doubanDataSourceOptions.find(
@@ -257,7 +257,7 @@ export const SiteConfigComponent = ({
                   DoubanProxy: e.target.value,
                 }))
               }
-              className='border-border focus:ring-primary bg-card text-foreground placeholder:text-muted-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm transition-all duration-200 focus:border-green-500 focus:outline-none focus:ring-2'
+              className='border-border bg-card text-foreground placeholder:text-muted-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary'
             />
             <p className='text-muted-foreground mt-1 text-xs'>
               自定义代理服务器地址
@@ -281,7 +281,7 @@ export const SiteConfigComponent = ({
                   !isDoubanImageProxyDropdownOpen,
                 )
               }
-              className='border-border focus:ring-primary bg-card text-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 pr-10 text-left text-sm shadow-sm transition-all duration-200 focus:border-green-500 focus:outline-none focus:ring-2'
+              className='border-border bg-card text-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 pr-10 text-left text-sm shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary'
             >
               {
                 doubanImageProxyTypeOptions.find(
@@ -347,7 +347,7 @@ export const SiteConfigComponent = ({
                   DoubanImageProxy: e.target.value,
                 }))
               }
-              className='border-border focus:ring-primary bg-card text-foreground placeholder:text-muted-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm transition-all duration-200 focus:border-green-500 focus:outline-none focus:ring-2'
+              className='border-border bg-card text-foreground placeholder:text-muted-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary'
             />
             <p className='text-muted-foreground mt-1 text-xs'>
               自定义图片代理服务器地址
@@ -373,7 +373,7 @@ export const SiteConfigComponent = ({
               SearchDownstreamMaxPage: Number(e.target.value),
             }))
           }
-          className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-green-500'
+          className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary'
         />
       </div>
 
@@ -392,7 +392,7 @@ export const SiteConfigComponent = ({
               SiteInterfaceCacheTime: Number(e.target.value),
             }))
           }
-          className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-green-500'
+          className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary'
         />
       </div>
 
@@ -411,7 +411,7 @@ export const SiteConfigComponent = ({
               DoubanDataCacheTime: Number(e.target.value),
             }))
           }
-          className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-green-500'
+          className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary'
         />
       </div>
 
@@ -429,7 +429,7 @@ export const SiteConfigComponent = ({
                 DisableYellowFilter: !prev.DisableYellowFilter,
               }))
             }
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
               siteSettings.DisableYellowFilter
                 ? buttonStyles.toggleOn
                 : buttonStyles.toggleOff
@@ -463,7 +463,7 @@ export const SiteConfigComponent = ({
                 FluidSearch: !prev.FluidSearch,
               }))
             }
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
               siteSettings.FluidSearch
                 ? buttonStyles.toggleOn
                 : buttonStyles.toggleOff

@@ -7,7 +7,7 @@ import { createPortal } from 'react-dom';
 import { AdminConfig } from '@/lib/admin.types';
 import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
 import { AlertModal, showError, showSuccess, useAlertModal } from './AlertModal';
-import { buttonStyles } from './buttonStyles';
+import { buttonStyles, inputStyles } from './buttonStyles';
 import { useLoadingState } from './LoadingSystem';
 
 // 用户配置组件
@@ -701,7 +701,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                       username: e.target.value,
                     }))
                   }
-                  className='border-border bg-card text-foreground focus:ring-primary rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2'
+                  className={inputStyles.base}
                 />
                 <input
                   type='password'
@@ -713,7 +713,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                       password: e.target.value,
                     }))
                   }
-                  className='border-border bg-card text-foreground focus:ring-primary rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2'
+                  className={inputStyles.base}
                 />
               </div>
               <div>
@@ -728,7 +728,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                       userGroup: e.target.value,
                     }))
                   }
-                  className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2'
+                  className={inputStyles.select}
                 >
                   <option value=''>无用户组（无限制）</option>
                   {userGroups.map((group) => (
@@ -789,7 +789,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                     password: e.target.value,
                   }))
                 }
-                className='border-border bg-card text-foreground focus:ring-primary flex-1 rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2'
+                className={inputStyles.base}
               />
               <button
                 onClick={handleChangePassword}
@@ -841,7 +841,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                         type='checkbox'
                         checked={selectAllUsers}
                         onChange={(e) => handleSelectAllUsers(e.target.checked)}
-                        className='text-primary bg-card border-border focus:ring-primary h-4 w-4 rounded focus:ring-2'
+                        className={inputStyles.checkbox}
                       />
                     ) : (
                       <div className='h-4 w-4' />
@@ -940,7 +940,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                                   e.target.checked,
                                 )
                               }
-                              className='text-primary bg-card border-border focus:ring-primary h-4 w-4 rounded  focus:ring-2 '
+                              className={inputStyles.checkbox}
                             />
                           ) : (
                             <div className='h-4 w-4' />
@@ -1200,7 +1200,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                               );
                             }
                           }}
-                          className='border-border text-primary focus:ring-primary bg-card rounded'
+                          className={inputStyles.checkbox}
                         />
                         <div className='min-w-0 flex-1'>
                           <div className='text-foreground truncate text-sm font-medium'>
@@ -1337,7 +1337,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                           name: e.target.value,
                         }))
                       }
-                      className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2'
+                      className={inputStyles.base}
                     />
                   </div>
 
@@ -1375,7 +1375,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                                 }));
                               }
                             }}
-                            className='border-border text-primary focus:ring-primary bg-card rounded'
+                            className={inputStyles.checkbox}
                           />
                           <div className='min-w-0 flex-1'>
                             <div className='text-foreground truncate text-sm font-medium'>
@@ -1539,7 +1539,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                                 );
                               }
                             }}
-                            className='border-border text-primary focus:ring-primary bg-card rounded'
+                            className={inputStyles.checkbox}
                           />
                           <div className='min-w-0 flex-1'>
                             <div className='text-foreground truncate text-sm font-medium'>
@@ -1698,7 +1698,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                       const value = e.target.value;
                       setSelectedUserGroups(value ? [value] : []);
                     }}
-                    className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 transition-colors focus:border-transparent focus:ring-2'
+                    className={inputStyles.base}
                   >
                     <option value=''>无用户组（无限制）</option>
                     {userGroups.map((group) => (
@@ -2069,7 +2069,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                     </label>
                     <select
                       onChange={(e) => setSelectedUserGroup(e.target.value)}
-                      className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 transition-colors focus:border-transparent focus:ring-2'
+                      className={inputStyles.base}
                       value={selectedUserGroup}
                     >
                       <option value=''>无用户组（无限制）</option>

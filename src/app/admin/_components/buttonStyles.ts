@@ -1,4 +1,12 @@
 // 统一按钮样式系统
+export const inputStyles = {
+  base: 'border-border bg-card text-foreground placeholder:text-muted-foreground w-full rounded-lg border px-3 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary transition-colors',
+  select: 'border-border bg-card text-foreground w-full rounded-lg border px-3 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary transition-colors',
+  checkbox: 'text-primary bg-card border-border focus:ring-primary h-4 w-4 rounded focus:ring-2',
+  dropdownTrigger: 'border-border bg-card text-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 pr-10 text-left text-sm shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary',
+  textareaBase: 'border-border bg-card text-foreground placeholder:text-muted-foreground w-full rounded-lg border px-3 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary transition-colors resize-none',
+};
+
 export const buttonStyles = {
   primary:
     'px-3 py-1.5 text-sm font-medium bg-primary hover:opacity-90 text-primary-foreground rounded-lg transition-colors',

@@ -183,61 +183,31 @@
   --warning-foreground: #000000;
 }
 
-/* --- Red --- */
-:root[data-theme='red'] {
-  --primary: #e50914;
+/* --- Primary: Netflix Red --- */
+:root {
+  --primary-50: oklch(0.971 0.013 17.38);
+  --primary-100: oklch(0.936 0.032 17.717);
+  --primary-200: oklch(0.885 0.062 18.334);
+  --primary-300: oklch(0.808 0.114 19.571);
+  --primary-400: oklch(0.704 0.191 22.216);
+  --primary-500: oklch(0.637 0.237 25.331);
+  --primary-600: oklch(0.577 0.245 27.325);
+  --primary-700: oklch(0.505 0.213 27.518);
+  --primary-800: oklch(0.444 0.177 26.899);
+  --primary-900: oklch(0.396 0.141 25.723);
+  --primary-950: oklch(0.258 0.092 26.042);
+
+  --primary: var(--primary-600);
   --primary-foreground: #ffffff;
-  --accent: #e50914;
+  --accent: var(--primary-600);
   --accent-foreground: #ffffff;
-  --ring: #e50914;
+  --ring: var(--primary-600);
 }
 
-/* --- Slate --- */
-:root[data-theme='slate'] {
-  --primary: #475569;
-  --primary-foreground: #ffffff;
-  --accent: #64748b;
-  --accent-foreground: #ffffff;
-  --ring: #475569;
-}
-:root[data-theme='slate'][data-mode='dark'] {
-  --primary: #94a3b8;
-  --primary-foreground: #0f172a;
-  --accent: #94a3b8;
-  --accent-foreground: #0f172a;
-  --ring: #94a3b8;
-}
-
-/* --- Zinc --- */
-:root[data-theme='zinc'] {
-  --primary: #52525b;
-  --primary-foreground: #ffffff;
-  --accent: #71717a;
-  --accent-foreground: #ffffff;
-  --ring: #52525b;
-}
-:root[data-theme='zinc'][data-mode='dark'] {
-  --primary: #a1a1aa;
-  --primary-foreground: #18181b;
-  --accent: #a1a1aa;
-  --accent-foreground: #18181b;
-  --ring: #a1a1aa;
-}
-
-/* --- Gray --- */
-:root[data-theme='gray'] {
-  --primary: #4b5563;
-  --primary-foreground: #ffffff;
-  --accent: #6b7280;
-  --accent-foreground: #ffffff;
-  --ring: #4b5563;
-}
-:root[data-theme='gray'][data-mode='dark'] {
-  --primary: #9ca3af;
-  --primary-foreground: #111827;
-  --accent: #9ca3af;
-  --accent-foreground: #111827;
-  --ring: #9ca3af;
+:root[data-mode='dark'] {
+  --primary: var(--primary-500);
+  --accent: var(--primary-500);
+  --ring: var(--primary-500);
 }
 /* Base Styles */
 html {

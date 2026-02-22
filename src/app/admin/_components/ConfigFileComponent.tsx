@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { AdminConfig } from '@/lib/admin.types';
 
 import { AlertModal, showError, showSuccess, useAlertModal } from './AlertModal';
-import { buttonStyles } from './buttonStyles';
+import { buttonStyles, inputStyles } from './buttonStyles';
 import { useLoadingState } from './LoadingSystem';
 
 // 新增配置文件组件
@@ -131,7 +131,7 @@ export const ConfigFileComponent = ({
               onChange={(e) => setSubscriptionUrl(e.target.value)}
               placeholder='https://example.com/config.json'
               disabled={false}
-              className='border-border bg-card text-foreground focus:ring-primary hover:border-border/80 w-full rounded-lg border px-4 py-3 shadow-sm transition-all duration-200 focus:border-transparent focus:ring-2'
+              className={inputStyles.base + ' px-4 py-3 shadow-sm hover:border-border/80'}
             />
             <p className='text-muted-foreground mt-2 text-xs'>
               输入配置文件的订阅地址，要求 JSON 格式，且使用 Base58 编码
@@ -199,7 +199,7 @@ export const ConfigFileComponent = ({
             rows={20}
             placeholder='请输入配置文件内容（JSON 格式）...'
             disabled={false}
-            className='border-border bg-card text-foreground focus:ring-primary hover:border-border/80 w-full resize-none rounded-lg border px-4 py-3 font-mono text-sm leading-relaxed transition-all duration-200 focus:border-transparent focus:ring-2'
+            className={inputStyles.textareaBase + ' px-4 py-3 font-mono text-sm leading-relaxed shadow-sm hover:border-border/80'}
             style={{
               fontFamily:
                 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
