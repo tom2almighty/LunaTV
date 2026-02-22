@@ -442,9 +442,15 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
               id: 'favorite',
               label: currentFavorited ? '取消收藏' : '添加收藏',
               icon: currentFavorited ? (
-                <Heart size={20} className='fill-destructive stroke-destructive' />
+                <Heart
+                  size={20}
+                  className='fill-destructive stroke-destructive'
+                />
               ) : (
-                <Heart size={20} className='fill-transparent stroke-destructive' />
+                <Heart
+                  size={20}
+                  className='stroke-destructive fill-transparent'
+                />
               ),
               onClick: () => {
                 const mockEvent = {
@@ -473,9 +479,15 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             id: 'favorite',
             label: currentFavorited ? '取消收藏' : '添加收藏',
             icon: currentFavorited ? (
-              <Heart size={20} className='fill-destructive stroke-destructive' />
+              <Heart
+                size={20}
+                className='fill-destructive stroke-destructive'
+              />
             ) : (
-              <Heart size={20} className='fill-transparent stroke-destructive' />
+              <Heart
+                size={20}
+                className='stroke-destructive fill-transparent'
+              />
             ),
             onClick: () => {
               const mockEvent = {
@@ -599,7 +611,11 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
               src={processImageUrl(actualPoster)}
               alt={actualTitle}
               fill
-              className={origin === 'live' ? 'object-contain pointer-events-none' : 'object-cover pointer-events-none'}
+              className={
+                origin === 'live'
+                  ? 'pointer-events-none object-contain'
+                  : 'pointer-events-none object-cover'
+              }
               referrerPolicy='no-referrer'
               loading='lazy'
               onLoad={() => setIsLoading(true)}
@@ -629,9 +645,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             />
 
             {/* 悬浮遮罩 */}
-            <div
-              className='bg-linear-to-t absolute inset-0 from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100'
-            />
+            <div className='bg-linear-to-t absolute inset-0 from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100' />
 
             {/* 播放按钮 */}
             {config.showPlayButton && (
@@ -642,7 +656,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                 <PlayCircleIcon
                   size={50}
                   strokeWidth={0.8}
-                  className='hover:fill-primary fill-transparent text-primary-foreground transition-all duration-300 ease-out hover:scale-[1.1]'
+                  className='hover:fill-primary text-primary-foreground fill-transparent transition-all duration-300 ease-out hover:scale-[1.1]'
                 />
               </div>
             )}
@@ -657,7 +671,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                   <Trash2
                     onClick={handleDeleteRecord}
                     size={20}
-                    className='text-foreground transition-all duration-300 ease-out hover:scale-[1.1] hover:stroke-primary'
+                    className='text-foreground hover:stroke-primary transition-all duration-300 ease-out hover:scale-[1.1]'
                   />
                 )}
                 {config.showHeart && from !== 'search' && (
@@ -667,7 +681,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                     className={`transition-all duration-300 ease-out ${
                       favorited
                         ? 'fill-destructive stroke-destructive'
-                        : 'fill-transparent stroke-primary-foreground hover:stroke-destructive/70'
+                        : 'stroke-primary-foreground hover:stroke-destructive/70 fill-transparent'
                     } hover:scale-[1.1]`}
                   />
                 )}
@@ -679,26 +693,20 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
               actualYear &&
               actualYear !== 'unknown' &&
               actualYear.trim() !== '' && (
-                <div
-                  className='bg-overlay absolute left-2 top-2 rounded px-2 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-sm transition-all duration-300 ease-out group-hover:opacity-90'
-                >
+                <div className='bg-overlay absolute left-2 top-2 rounded px-2 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-sm transition-all duration-300 ease-out group-hover:opacity-90'>
                   {actualYear}
                 </div>
               )}
 
             {/* 徽章 */}
             {config.showRating && rate && (
-              <div
-                className='absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-warning text-xs font-bold text-warning-foreground shadow-md transition-all duration-300 ease-out group-hover:scale-110'
-              >
+              <div className='bg-warning text-warning-foreground absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shadow-md transition-all duration-300 ease-out group-hover:scale-110'>
                 {rate}
               </div>
             )}
 
             {actualEpisodes && actualEpisodes > 1 && (
-              <div
-                className='bg-primary absolute right-2 top-2 rounded-md px-2 py-1 text-xs font-semibold text-primary-foreground shadow-md transition-all duration-300 ease-out group-hover:scale-110'
-              >
+              <div className='bg-primary text-primary-foreground absolute right-2 top-2 rounded-md px-2 py-1 text-xs font-semibold shadow-md transition-all duration-300 ease-out group-hover:scale-110'>
                 {currentEpisode
                   ? `${currentEpisode}/${actualEpisodes}`
                   : actualEpisodes}
@@ -716,12 +724,8 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                   onClick={(e) => e.stopPropagation()}
                   className='absolute left-2 top-2 -translate-x-2 opacity-0 transition-all delay-100 duration-300 ease-in-out sm:group-hover:translate-x-0 sm:group-hover:opacity-100'
                 >
-                  <div
-                    className='flex h-7 w-7 items-center justify-center rounded-full bg-success text-xs font-bold text-success-foreground shadow-md transition-all duration-300 ease-out hover:scale-[1.1] hover:opacity-90'
-                  >
-                    <Link
-                      size={16}
-                    />
+                  <div className='bg-success text-success-foreground flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shadow-md transition-all duration-300 ease-out hover:scale-[1.1] hover:opacity-90'>
+                    <Link size={16} />
                   </div>
                 </a>
               )}
@@ -735,15 +739,9 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                 const sourceCount = uniqueSources.length;
 
                 return (
-                  <div
-                    className='absolute bottom-2 right-2 opacity-0 transition-all delay-75 duration-300 ease-in-out sm:group-hover:opacity-100'
-                  >
-                    <div
-                      className='group/sources relative'
-                    >
-                      <div
-                        className='bg-secondary text-secondary-foreground hover:bg-secondary/80 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-xs font-bold shadow-md transition-all duration-300 ease-out hover:scale-[1.1] sm:h-7 sm:w-7'
-                      >
+                  <div className='absolute bottom-2 right-2 opacity-0 transition-all delay-75 duration-300 ease-in-out sm:group-hover:opacity-100'>
+                    <div className='group/sources relative'>
+                      <div className='bg-secondary text-secondary-foreground hover:bg-secondary/80 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-xs font-bold shadow-md transition-all duration-300 ease-out hover:scale-[1.1] sm:h-7 sm:w-7'>
                         {sourceCount}
                       </div>
 
@@ -781,12 +779,8 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                           sortedSources.length - maxDisplayCount;
 
                         return (
-                          <div
-                            className='pointer-events-none invisible absolute bottom-full right-0 z-50 mb-2 translate-x-0 opacity-0 transition-all delay-100 duration-200 ease-out group-hover/sources:visible group-hover/sources:opacity-100 sm:right-0 sm:translate-x-0'
-                          >
-                            <div
-                              className='bg-popover/90 text-popover-foreground border-border/50 min-w-25 max-w-35 sm:min-w-30 sm:max-w-50 overflow-hidden rounded-lg border p-1.5 text-xs shadow-xl backdrop-blur-sm sm:p-2 sm:text-xs'
-                            >
+                          <div className='pointer-events-none invisible absolute bottom-full right-0 z-50 mb-2 translate-x-0 opacity-0 transition-all delay-100 duration-200 ease-out group-hover/sources:visible group-hover/sources:opacity-100 sm:right-0 sm:translate-x-0'>
+                            <div className='bg-popover/90 text-popover-foreground border-border/50 min-w-25 max-w-35 sm:min-w-30 sm:max-w-50 overflow-hidden rounded-lg border p-1.5 text-xs shadow-xl backdrop-blur-sm sm:p-2 sm:text-xs'>
                               {/* 单列布局 */}
                               <div className='space-y-0.5 sm:space-y-1'>
                                 {displaySources.map((sourceName, index) => (
@@ -830,44 +824,29 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
 
           {/* 进度条 */}
           {config.showProgress && progress !== undefined && (
-            <div
-              className='bg-muted mt-1 h-1 w-full overflow-hidden rounded-full'
-            >
+            <div className='bg-muted mt-1 h-1 w-full overflow-hidden rounded-full'>
               <div
-                className='bg-primary h-full transition-all duration-500 ease-out' style={{ width: `${progress}%` }}
+                className='bg-primary h-full transition-all duration-500 ease-out'
+                style={{ width: `${progress}%` }}
               />
             </div>
           )}
 
           {/* 标题与来源 */}
-          <div
-            className='mt-2 text-center'
-          >
-            <div
-              className='relative'
-            >
-              <span
-                className='text-foreground group-hover:text-primary peer block truncate text-sm font-semibold transition-colors duration-300 ease-in-out'
-              >
+          <div className='mt-2 text-center'>
+            <div className='relative'>
+              <span className='text-foreground group-hover:text-primary peer block truncate text-sm font-semibold transition-colors duration-300 ease-in-out'>
                 {actualTitle}
               </span>
               {/* 自定义 tooltip */}
-              <div
-                className='bg-popover text-popover-foreground pointer-events-none invisible absolute bottom-full left-1/2 mb-2 -translate-x-1/2 transform whitespace-nowrap rounded-md px-3 py-1 text-xs opacity-0 shadow-lg transition-all delay-100 duration-200 ease-out peer-hover:visible peer-hover:opacity-100'
-              >
+              <div className='bg-popover text-popover-foreground pointer-events-none invisible absolute bottom-full left-1/2 mb-2 -translate-x-1/2 transform whitespace-nowrap rounded-md px-3 py-1 text-xs opacity-0 shadow-lg transition-all delay-100 duration-200 ease-out peer-hover:visible peer-hover:opacity-100'>
                 {actualTitle}
-                <div
-                  className='border-t-popover absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 transform border-l-4 border-r-4 border-t-4 border-transparent'
-                ></div>
+                <div className='border-t-popover absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 transform border-l-4 border-r-4 border-t-4 border-transparent'></div>
               </div>
             </div>
             {config.showSourceName && source_name && (
-              <span
-                className='text-muted-foreground mt-1 block text-xs'
-              >
-                <span
-                  className='border-border group-hover:border-primary/60 group-hover:text-primary inline-block rounded border px-2 py-0.5 transition-all duration-300 ease-in-out'
-                >
+              <span className='text-muted-foreground mt-1 block text-xs'>
+                <span className='border-border group-hover:border-primary/60 group-hover:text-primary inline-block rounded border px-2 py-0.5 transition-all duration-300 ease-in-out'>
                   {origin === 'live' && (
                     <Radio
                       size={12}

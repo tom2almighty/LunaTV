@@ -56,12 +56,21 @@ class HybridCacheManager {
       if (JSON.stringify(cache).length > 15 * 1024 * 1024) {
         this.cleanOldCache(cache);
       }
-      localStorage.setItem(this.getUserCacheKey(username), JSON.stringify(cache));
+      localStorage.setItem(
+        this.getUserCacheKey(username),
+        JSON.stringify(cache),
+      );
     } catch (error) {
-      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+      if (
+        error instanceof DOMException &&
+        error.name === 'QuotaExceededError'
+      ) {
         this.clearAllCache();
         try {
-          localStorage.setItem(this.getUserCacheKey(username), JSON.stringify(cache));
+          localStorage.setItem(
+            this.getUserCacheKey(username),
+            JSON.stringify(cache),
+          );
         } catch (e) {
           console.error('重试保存缓存仍然失败:', e);
         }
@@ -72,8 +81,10 @@ class HybridCacheManager {
   private cleanOldCache(cache: UserCacheStore): void {
     const now = Date.now();
     const maxAge = 60 * 24 * 60 * 60 * 1000; // 两个月
-    if (cache.playRecords && now - cache.playRecords.timestamp > maxAge) delete cache.playRecords;
-    if (cache.favorites && now - cache.favorites.timestamp > maxAge) delete cache.favorites;
+    if (cache.playRecords && now - cache.playRecords.timestamp > maxAge)
+      delete cache.playRecords;
+    if (cache.favorites && now - cache.favorites.timestamp > maxAge)
+      delete cache.favorites;
   }
 
   private clearAllCache(): void {
@@ -83,7 +94,10 @@ class HybridCacheManager {
   }
 
   isCacheValid<T>(cache: CacheData<T>): boolean {
-    return cache.version === CACHE_VERSION && Date.now() - cache.timestamp < CACHE_EXPIRE_TIME;
+    return (
+      cache.version === CACHE_VERSION &&
+      Date.now() - cache.timestamp < CACHE_EXPIRE_TIME
+    );
   }
 
   private createCacheData<T>(data: T): CacheData<T> {
@@ -93,7 +107,9 @@ class HybridCacheManager {
   private get<T>(field: keyof UserCacheStore): T | null {
     const username = this.getCurrentUsername();
     if (!username) return null;
-    const entry = this.getUserCache(username)[field] as CacheData<T> | undefined;
+    const entry = this.getUserCache(username)[field] as
+      | CacheData<T>
+      | undefined;
     return entry && this.isCacheValid(entry) ? entry.data : null;
   }
 
@@ -105,8 +121,10 @@ class HybridCacheManager {
     this.saveUserCache(username, cache);
   }
 
-  getCachedPlayRecords = () => this.get<Record<string, PlayRecord>>('playRecords');
-  cachePlayRecords = (d: Record<string, PlayRecord>) => this.set('playRecords', d);
+  getCachedPlayRecords = () =>
+    this.get<Record<string, PlayRecord>>('playRecords');
+  cachePlayRecords = (d: Record<string, PlayRecord>) =>
+    this.set('playRecords', d);
 
   getCachedFavorites = () => this.get<Record<string, Favorite>>('favorites');
   cacheFavorites = (d: Record<string, Favorite>) => this.set('favorites', d);
@@ -114,13 +132,19 @@ class HybridCacheManager {
   getCachedSearchHistory = () => this.get<string[]>('searchHistory');
   cacheSearchHistory = (d: string[]) => this.set('searchHistory', d);
 
-  getCachedSkipConfigs = () => this.get<Record<string, SkipConfig>>('skipConfigs');
-  cacheSkipConfigs = (d: Record<string, SkipConfig>) => this.set('skipConfigs', d);
+  getCachedSkipConfigs = () =>
+    this.get<Record<string, SkipConfig>>('skipConfigs');
+  cacheSkipConfigs = (d: Record<string, SkipConfig>) =>
+    this.set('skipConfigs', d);
 
   clearUserCache(username?: string): void {
     const target = username || this.getCurrentUsername();
     if (!target) return;
-    try { localStorage.removeItem(this.getUserCacheKey(target)); } catch { /* noop */ }
+    try {
+      localStorage.removeItem(this.getUserCacheKey(target));
+    } catch {
+      /* noop */
+    }
   }
 
   clearExpiredCaches(): void {
@@ -137,13 +161,14 @@ class HybridCacheManager {
           );
           if (!hasValid) toRemove.push(key);
         } catch {
-          toRemove.push(key!);
+          toRemove.push(key as string);
         }
       }
       toRemove.forEach((k) => localStorage.removeItem(k));
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
   }
 }
 
 export const cacheManager = HybridCacheManager.getInstance();
-

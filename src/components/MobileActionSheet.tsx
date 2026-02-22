@@ -162,7 +162,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
 
   return (
     <div
-      className='fixed inset-0 z-[9999] flex items-end justify-center'
+      className='z-9999 fixed inset-0 flex items-end justify-center'
       onTouchMove={(e) => {
         // 阻止最外层容器的触摸移动，防止背景滚动
         e.preventDefault();
@@ -215,7 +215,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
         <div className='border-border flex items-center justify-between border-b p-4'>
           <div className='flex min-w-0 flex-1 items-center gap-3'>
             {poster && (
-              <div className='bg-muted relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg'>
+              <div className='bg-muted relative h-16 w-12 shrink-0 overflow-hidden rounded-lg'>
                 <Image
                   src={poster}
                   alt={title}
@@ -233,7 +233,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
                   {title}
                 </h3>
                 {sourceName && (
-                  <span className='border-border text-muted-foreground bg-muted bg-card flex-shrink-0 rounded border px-2 py-1 text-xs'>
+                  <span className='border-border text-muted-foreground bg-card shrink-0 rounded border px-2 py-1 text-xs'>
                     {origin === 'live' && (
                       <Radio
                         size={12}
@@ -277,11 +277,11 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
                 style={{ willChange: 'transform, background-color' }}
               >
                 {/* 图标 - 使用线条风格 */}
-                <div className='flex h-6 w-6 flex-shrink-0 items-center justify-center'>
+                <div className='flex h-6 w-6 shrink-0 items-center justify-center'>
                   <span
                     className={`transition-colors duration-150 ${
                       action.disabled
-                        ? 'text-muted-foreground text-muted-foreground'
+                        ? 'text-muted-foreground'
                         : getActionColor(action.color)
                     }`}
                   >
@@ -295,7 +295,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
                   flex-1 text-left text-base font-medium
                   ${
                     action.disabled
-                      ? 'text-muted-foreground text-muted-foreground'
+                      ? 'text-muted-foreground'
                       : 'text-foreground'
                   }
                 `}
@@ -338,9 +338,9 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
                 {sources.map((source, index) => (
                   <div
                     key={index}
-                    className='border-border bg-muted/30 bg-card/30 flex items-center gap-2 rounded-lg border px-3 py-2'
+                    className='border-border bg-card/30 flex items-center gap-2 rounded-lg border px-3 py-2'
                   >
-                    <div className='bg-muted bg-muted h-1 w-1 flex-shrink-0 rounded-full' />
+                    <div className='bg-muted h-1 w-1 shrink-0 rounded-full' />
                     <span className='text-muted-foreground truncate text-xs'>
                       {source}
                     </span>

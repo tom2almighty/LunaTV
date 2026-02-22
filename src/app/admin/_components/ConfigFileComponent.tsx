@@ -5,7 +5,12 @@ import { useEffect, useState } from 'react';
 
 import { AdminConfig } from '@/lib/admin.types';
 
-import { AlertModal, showError, showSuccess, useAlertModal } from './AlertModal';
+import {
+  AlertModal,
+  showError,
+  showSuccess,
+  useAlertModal,
+} from './AlertModal';
 import { buttonStyles, inputStyles } from './buttonStyles';
 import { useLoadingState } from './LoadingSystem';
 
@@ -131,7 +136,9 @@ export const ConfigFileComponent = ({
               onChange={(e) => setSubscriptionUrl(e.target.value)}
               placeholder='https://example.com/config.json'
               disabled={false}
-              className={inputStyles.base + ' px-4 py-3 shadow-sm hover:border-border/80'}
+              className={
+                inputStyles.base + ' hover:border-border/80 px-4 py-3 shadow-sm'
+              }
             />
             <p className='text-muted-foreground mt-2 text-xs'>
               输入配置文件的订阅地址，要求 JSON 格式，且使用 Base58 编码
@@ -143,10 +150,10 @@ export const ConfigFileComponent = ({
             <button
               onClick={handleFetchConfig}
               disabled={isLoading('fetchConfig') || !subscriptionUrl.trim()}
-              className={`w-full rounded-lg px-6 py-3 font-medium transition-all duration-200 ${
+              className={`bg-primary hover:bg-primary/80 text-primary-foreground w-full rounded-lg px-6 py-3 font-medium transition-all duration-200 ${
                 isLoading('fetchConfig') || !subscriptionUrl.trim()
                   ? buttonStyles.disabled
-                  : buttonStyles.success
+                  : ''
               }`}
             >
               {isLoading('fetchConfig') ? (
@@ -199,7 +206,10 @@ export const ConfigFileComponent = ({
             rows={20}
             placeholder='请输入配置文件内容（JSON 格式）...'
             disabled={false}
-            className={inputStyles.textareaBase + ' px-4 py-3 font-mono text-sm leading-relaxed shadow-sm hover:border-border/80'}
+            className={
+              inputStyles.textareaBase +
+              ' hover:border-border/80 px-4 py-3 font-mono text-sm leading-relaxed shadow-sm'
+            }
             style={{
               fontFamily:
                 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
@@ -219,7 +229,7 @@ export const ConfigFileComponent = ({
             className={`rounded-lg px-4 py-2 transition-colors ${
               isLoading('saveConfig')
                 ? buttonStyles.disabled
-               : buttonStyles.primary
+                : buttonStyles.primary
             }`}
           >
             {isLoading('saveConfig') ? '保存中…' : '保存'}

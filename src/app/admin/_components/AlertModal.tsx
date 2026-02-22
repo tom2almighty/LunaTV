@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use client';
 
 import { AlertCircle, AlertTriangle, CheckCircle } from 'lucide-react';
@@ -58,13 +59,13 @@ export const AlertModal = ({
   const getBgColor = () => {
     switch (type) {
       case 'success':
-        return 'bg-success/10 border-success/20';
+        return 'bg-card border-card';
       case 'error':
-        return 'bg-destructive/10 border-destructive/20';
+        return 'bg-card border-card';
       case 'warning':
-        return 'bg-warning/10 border-warning/20';
+        return 'bg-card border-card';
       default:
-        return 'bg-primary/10 border-primary/20';
+        return 'bg-card border-card';
     }
   };
 
@@ -77,10 +78,15 @@ export const AlertModal = ({
       >
         <div className='p-6 text-center'>
           <div className='mb-4 flex justify-center'>{getIcon()}</div>
-          <h3 className='text-foreground mb-2 text-lg font-semibold'>{title}</h3>
+          <h3 className='text-foreground mb-2 text-lg font-semibold'>
+            {title}
+          </h3>
           {message && <p className='text-muted-foreground mb-4'>{message}</p>}
           {showConfirm && (
-            <button onClick={onClose} className={`px-4 py-2 text-sm font-medium ${buttonStyles.primary}`}>
+            <button
+              onClick={onClose}
+              className={`px-4 py-2 text-sm font-medium ${buttonStyles.primary}`}
+            >
               确定
             </button>
           )}
@@ -119,7 +125,10 @@ export const useAlertModal = () => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const showError = (message: string, showAlert?: (config: any) => void) => {
+export const showError = (
+  message: string,
+  showAlert?: (config: any) => void,
+) => {
   if (showAlert) {
     showAlert({ type: 'error', title: '错误', message, showConfirm: true });
   } else {
@@ -128,11 +137,13 @@ export const showError = (message: string, showAlert?: (config: any) => void) =>
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const showSuccess = (message: string, showAlert?: (config: any) => void) => {
+export const showSuccess = (
+  message: string,
+  showAlert?: (config: any) => void,
+) => {
   if (showAlert) {
     showAlert({ type: 'success', title: '成功', message, timer: 2000 });
   } else {
     console.log(message);
   }
 };
-

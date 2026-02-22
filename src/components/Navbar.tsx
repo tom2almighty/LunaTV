@@ -80,7 +80,7 @@ const MobileNavDropdown = ({
         aria-label='导航菜单'
       >
         <Menu className='h-4 w-4' />
-        <span className='max-w-[5rem] truncate text-xs'>
+        <span className='max-w-20 truncate text-xs'>
           {activeItem?.label ?? '导航'}
         </span>
         <ChevronDown
@@ -220,7 +220,10 @@ const NavbarInner = () => {
         </div>
       </nav>
 
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </>
   );
 };

@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, @typescript-eslint/no-empty-function */
 'use client';
 
 /**
@@ -8,16 +8,36 @@
 
 export { generateStorageKey, triggerGlobalError } from './api-client';
 export { cacheManager } from './cache-manager';
-export { clearAllFavorites, deleteFavorite, getAllFavorites, isFavorited, saveFavorite } from './favorites';
-export { clearAllPlayRecords, deletePlayRecord, getAllPlayRecords, savePlayRecord } from './play-records';
-export { addSearchHistory, clearSearchHistory, deleteSearchHistory, getSearchHistory } from './search-history';
+export {
+  clearAllFavorites,
+  deleteFavorite,
+  getAllFavorites,
+  isFavorited,
+  saveFavorite,
+} from './favorites';
+export {
+  clearAllPlayRecords,
+  deletePlayRecord,
+  getAllPlayRecords,
+  savePlayRecord,
+} from './play-records';
+export {
+  addSearchHistory,
+  clearSearchHistory,
+  deleteSearchHistory,
+  getSearchHistory,
+} from './search-history';
+export {
+  deleteSkipConfig,
+  getAllSkipConfigs,
+  getSkipConfig,
+  saveSkipConfig,
+} from './skip-configs';
 
-export { deleteSkipConfig, getAllSkipConfigs, getSkipConfig, saveSkipConfig } from './skip-configs';
-
-import { Favorite, PlayRecord, SkipConfig } from '../types';
 import { fetchFromApi, triggerGlobalError } from './api-client';
 import { cacheManager } from './cache-manager';
 import { getAuthInfoFromBrowserCookie } from '../auth';
+import { Favorite, PlayRecord, SkipConfig } from '../types';
 
 // 页面加载时清理过期缓存
 if (typeof window !== 'undefined') {
@@ -57,28 +77,39 @@ export function getCacheStatus() {
 
 export async function refreshAllCache(): Promise<void> {
   try {
-    const [playRecords, favorites, searchHistory, skipConfigs] = await Promise.allSettled([
-      fetchFromApi<Record<string, PlayRecord>>('/api/playrecords'),
-      fetchFromApi<Record<string, Favorite>>('/api/favorites'),
-      fetchFromApi<string[]>('/api/searchhistory'),
-      fetchFromApi<Record<string, SkipConfig>>('/api/skipconfigs'),
-    ]);
+    const [playRecords, favorites, searchHistory, skipConfigs] =
+      await Promise.allSettled([
+        fetchFromApi<Record<string, PlayRecord>>('/api/playrecords'),
+        fetchFromApi<Record<string, Favorite>>('/api/favorites'),
+        fetchFromApi<string[]>('/api/searchhistory'),
+        fetchFromApi<Record<string, SkipConfig>>('/api/skipconfigs'),
+      ]);
 
     if (playRecords.status === 'fulfilled') {
       cacheManager.cachePlayRecords(playRecords.value);
-      window.dispatchEvent(new CustomEvent('playRecordsUpdated', { detail: playRecords.value }));
+      window.dispatchEvent(
+        new CustomEvent('playRecordsUpdated', { detail: playRecords.value }),
+      );
     }
     if (favorites.status === 'fulfilled') {
       cacheManager.cacheFavorites(favorites.value);
-      window.dispatchEvent(new CustomEvent('favoritesUpdated', { detail: favorites.value }));
+      window.dispatchEvent(
+        new CustomEvent('favoritesUpdated', { detail: favorites.value }),
+      );
     }
     if (searchHistory.status === 'fulfilled') {
       cacheManager.cacheSearchHistory(searchHistory.value);
-      window.dispatchEvent(new CustomEvent('searchHistoryUpdated', { detail: searchHistory.value }));
+      window.dispatchEvent(
+        new CustomEvent('searchHistoryUpdated', {
+          detail: searchHistory.value,
+        }),
+      );
     }
     if (skipConfigs.status === 'fulfilled') {
       cacheManager.cacheSkipConfigs(skipConfigs.value);
-      window.dispatchEvent(new CustomEvent('skipConfigsUpdated', { detail: skipConfigs.value }));
+      window.dispatchEvent(
+        new CustomEvent('skipConfigsUpdated', { detail: skipConfigs.value }),
+      );
     }
   } catch (err) {
     console.error('刷新缓存失败:', err);
@@ -88,10 +119,15 @@ export async function refreshAllCache(): Promise<void> {
 
 export async function preloadUserData(): Promise<void> {
   const status = getCacheStatus();
-  if (status.hasPlayRecords && status.hasFavorites && status.hasSearchHistory && status.hasSkipConfigs) return;
+  if (
+    status.hasPlayRecords &&
+    status.hasFavorites &&
+    status.hasSearchHistory &&
+    status.hasSkipConfigs
+  )
+    return;
   refreshAllCache().catch((err) => {
     console.warn('预加载用户数据失败:', err);
     triggerGlobalError('预加载用户数据失败');
   });
 }
-

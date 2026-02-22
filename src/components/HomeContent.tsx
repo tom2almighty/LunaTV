@@ -270,7 +270,7 @@ export default function HomeContent({
             </div>
             <button
               onClick={() => handleCloseAnnouncement(announcement)}
-              className='bg-primary hover:bg-primary/90 w-full rounded-lg px-4 py-3 font-medium text-primary-foreground shadow-md'
+              className='bg-primary hover:bg-primary/90 text-primary-foreground w-full rounded-lg px-4 py-3 font-medium shadow-md'
             >
               我知道了
             </button>

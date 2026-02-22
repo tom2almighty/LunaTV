@@ -166,7 +166,6 @@ function PlayPageClient() {
     null,
   );
 
-
   // 折叠状态（仅在 lg 及以上屏幕有效）
   const [isEpisodeSelectorCollapsed, setIsEpisodeSelectorCollapsed] =
     useState(false);
@@ -190,7 +189,6 @@ function PlayPageClient() {
   // -----------------------------------------------------------------------------
   // 工具函数（Utils）
   // -----------------------------------------------------------------------------
-
 
   // 更新视频地址
   const updateVideoUrl = (
@@ -1094,7 +1092,10 @@ function PlayPageClient() {
         playsInline: true,
         autoPlayback: false,
         airplay: true,
-        theme: getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#e50914',
+        theme:
+          getComputedStyle(document.documentElement)
+            .getPropertyValue('--primary')
+            .trim() || '#e50914',
         lang: 'zh-cn',
         hotkey: false,
         fastForward: true,
@@ -1546,7 +1547,7 @@ function PlayPageClient() {
 
               {/* 浮动错误粒子 */}
               <div className='pointer-events-none absolute left-0 top-0 h-full w-full'>
-                <div className='absolute left-2 top-2 h-2 w-2 animate-bounce rounded-full bg-destructive/70'></div>
+                <div className='bg-destructive/70 absolute left-2 top-2 h-2 w-2 animate-bounce rounded-full'></div>
                 <div
                   className='absolute right-4 top-4 h-1.5 w-1.5 animate-bounce rounded-full bg-orange-400'
                   style={{ animationDelay: '0.5s' }}
@@ -1563,10 +1564,8 @@ function PlayPageClient() {
               <h2 className='text-foreground text-2xl font-bold'>
                 哎呀，出现了一些问题
               </h2>
-              <div className='rounded-lg border border-destructive/30 bg-destructive/10 p-4'>
-                <p className='font-medium text-destructive'>
-                  {error}
-                </p>
+              <div className='border-destructive/30 bg-destructive/10 rounded-lg border p-4'>
+                <p className='text-destructive font-medium'>{error}</p>
               </div>
               <p className='text-muted-foreground text-sm'>
                 请检查网络连接或尝试刷新页面
@@ -1581,7 +1580,7 @@ function PlayPageClient() {
                     ? router.push(`/search?q=${encodeURIComponent(videoTitle)}`)
                     : router.back()
                 }
-                className='bg-primary hover:bg-primary/90 w-full transform rounded-xl px-6 py-3 font-medium text-primary-foreground shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl'
+                className='bg-primary hover:bg-primary/90 text-primary-foreground w-full transform rounded-xl px-6 py-3 font-medium shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl'
               >
                 {videoTitle ? '🔍 返回搜索' : '← 返回上页'}
               </button>
@@ -1735,7 +1734,6 @@ function PlayPageClient() {
                 availableSources={availableSources}
                 sourceSearchLoading={sourceSearchLoading}
                 sourceSearchError={sourceSearchError}
-
               />
             </div>
           </div>
@@ -1836,7 +1834,7 @@ function PlayPageClient() {
                         rel='noopener noreferrer'
                         className='absolute left-3 top-3'
                       >
-                        <div className='flex h-8 w-8 items-center justify-center rounded-full bg-success text-xs font-bold text-success-foreground shadow-md transition-all duration-300 ease-out hover:scale-[1.1] hover:opacity-90'>
+                        <div className='bg-success text-success-foreground flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold shadow-md transition-all duration-300 ease-out hover:scale-[1.1] hover:opacity-90'>
                           <svg
                             width='16'
                             height='16'

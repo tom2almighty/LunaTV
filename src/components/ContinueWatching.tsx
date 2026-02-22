@@ -109,11 +109,11 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
                 key={index}
                 className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
               >
-                <div className='bg-muted bg-card relative aspect-[2/3] w-full animate-pulse overflow-hidden rounded-lg'>
-                  <div className='bg-muted bg-card absolute inset-0'></div>
+                <div className='bg-card aspect-2/3 relative w-full animate-pulse overflow-hidden rounded-lg'>
+                  <div className='bg-card absolute inset-0'></div>
                 </div>
-                <div className='bg-muted bg-card mt-2 h-4 animate-pulse rounded'></div>
-                <div className='bg-muted bg-card mt-1 h-3 animate-pulse rounded'></div>
+                <div className='bg-card mt-2 h-4 animate-pulse rounded'></div>
+                <div className='bg-card mt-1 h-3 animate-pulse rounded'></div>
               </div>
             ))
           : // 显示真实数据

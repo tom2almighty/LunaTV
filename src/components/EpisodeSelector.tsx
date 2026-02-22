@@ -212,9 +212,9 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
   );
 
   return (
-    <div className='border-border bg-card/50 flex h-full flex-col overflow-hidden rounded-xl border px-4 py-0 md:ml-2 backdrop-blur-sm'>
+    <div className='border-border bg-card/50 flex h-full flex-col overflow-hidden rounded-xl border px-4 py-0 backdrop-blur-sm md:ml-2'>
       {/* 主要的 Tab 切换 */}
-      <div className='border-border -mx-4 mb-0 flex flex-shrink-0 border-b'>
+      <div className='border-border -mx-4 mb-0 flex shrink-0 border-b'>
         {totalEpisodes > 1 && (
           <div
             onClick={() => setActiveTab('episodes')}
@@ -253,7 +253,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
       {activeTab === 'episodes' && (
         <>
           {/* 分类标签 */}
-          <div className='border-border -mx-4 mb-4 flex flex-shrink-0 items-center gap-4 border-b px-4'>
+          <div className='border-border -mx-4 mb-4 flex shrink-0 items-center gap-4 border-b px-4'>
             <div
               className='flex-1 overflow-x-auto'
               ref={categoryContainerRef}
@@ -270,7 +270,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                         buttonRefs.current[idx] = el;
                       }}
                       onClick={() => handleCategoryClick(idx)}
-                      className={`relative w-20 flex-shrink-0 whitespace-nowrap py-2 text-center text-sm font-medium transition-colors
+                      className={`relative w-20 shrink-0 whitespace-nowrap py-2 text-center text-sm font-medium transition-colors
                         ${
                           isActive
                             ? 'text-primary'
@@ -289,7 +289,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
             </div>
             {/* 向上/向下按钮 */}
             <button
-              className='text-muted-foreground hover:text-primary hover:bg-muted flex h-8 w-8 flex-shrink-0 translate-y-[-4px] transform items-center justify-center rounded-md transition-colors'
+              className='text-muted-foreground hover:text-primary hover:bg-muted flex h-8 w-8 shrink-0 translate-y-[-4px] transform items-center justify-center rounded-md transition-colors'
               onClick={() => {
                 // 切换集数排序（正序/倒序）
                 setDescending((prev) => !prev);
@@ -367,9 +367,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
             <div className='flex items-center justify-center py-8'>
               <div className='text-center'>
                 <div className='mb-2 text-2xl'>⚠️</div>
-                <p className='text-destructive text-sm'>
-                  {sourceSearchError}
-                </p>
+                <p className='text-destructive text-sm'>{sourceSearchError}</p>
               </div>
             </div>
           )}
@@ -417,11 +415,11 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                       ${
                         isCurrentSource
                           ? 'bg-primary/10 border-primary/30'
-                          : 'border-transparent hover:bg-muted cursor-pointer hover:border-border hover:scale-[1.01]'
+                          : 'hover:bg-muted hover:border-border cursor-pointer border-transparent hover:scale-[1.01]'
                       }`.trim()}
                       >
                         {/* 封面 */}
-                        <div className='bg-muted h-20 w-12 flex-shrink-0 overflow-hidden rounded-md'>
+                        <div className='bg-muted h-20 w-12 shrink-0 overflow-hidden rounded-md'>
                           {source.episodes && source.episodes.length > 0 && (
                             <img
                               src={processImageUrl(source.poster)}
@@ -445,13 +443,12 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                               </h3>
                               {/* 标题级别的 tooltip - 第一个元素不显示 */}
                               {index !== 0 && (
-                                <div className='bg-popover text-popover-foreground pointer-events-none invisible absolute bottom-full left-1/2 z-[500] mb-2 -translate-x-1/2 transform whitespace-nowrap rounded-md px-3 py-1 text-xs opacity-0 shadow-lg transition-all delay-100 duration-200 ease-out group-hover/title:visible group-hover/title:opacity-100'>
+                                <div className='bg-popover text-popover-foreground z-500 pointer-events-none invisible absolute bottom-full left-1/2 mb-2 -translate-x-1/2 transform whitespace-nowrap rounded-md px-3 py-1 text-xs opacity-0 shadow-lg transition-all delay-100 duration-200 ease-out group-hover/title:visible group-hover/title:opacity-100'>
                                   {source.title}
                                   <div className='border-t-border absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 transform border-l-4 border-r-4 border-t-4 border-transparent'></div>
                                 </div>
                               )}
                             </div>
-
                           </div>
 
                           {/* 源名称和集数信息 - 垂直居中 */}
@@ -465,13 +462,11 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                               </span>
                             )}
                           </div>
-
-
                         </div>
                       </div>
                     );
                   })}
-                <div className='border-border mt-auto flex-shrink-0 border-t pt-2'>
+                <div className='border-border mt-auto shrink-0 border-t pt-2'>
                   <button
                     onClick={() => {
                       if (videoTitle) {

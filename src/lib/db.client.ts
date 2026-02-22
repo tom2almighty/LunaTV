@@ -6,7 +6,7 @@
  * 保留此文件以避免破坏现有导入路径
  */
 
-export type { Favorite, PlayRecord } from './types';
+export type { CacheUpdateEvent } from './db/index';
 export {
   addSearchHistory,
   clearAllFavorites,
@@ -33,6 +33,4 @@ export {
   subscribeToDataUpdates,
   triggerGlobalError,
 } from './db/index';
-
-export type { CacheUpdateEvent } from './db/index';
-
+export type { Favorite, PlayRecord } from './types';

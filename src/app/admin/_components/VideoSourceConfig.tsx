@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, no-console, @typescript-eslint/no-non-null-assertion,react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any, no-console, @typescript-eslint/no-non-null-assertion, react-hooks/exhaustive-deps, @typescript-eslint/no-empty-function */
 'use client';
 
 import {
@@ -18,14 +18,15 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
-import { arrayMove } from '@dnd-kit/sortable';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
+
 import { AdminConfig, DataSource } from '@/lib/admin.types';
 
-import { AlertModal, showError, showSuccess, useAlertModal } from './AlertModal';
+import { AlertModal, showError, useAlertModal } from './AlertModal';
 import { buttonStyles, inputStyles } from './buttonStyles';
 import { useLoadingState } from './LoadingSystem';
 

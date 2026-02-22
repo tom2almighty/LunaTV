@@ -1,17 +1,25 @@
 /* eslint-disable no-console */
 'use client';
 
-import { PlayRecord } from '../types';
-import { fetchFromApi, fetchWithAuth, generateStorageKey, triggerGlobalError } from './api-client';
+import {
+  fetchFromApi,
+  fetchWithAuth,
+  generateStorageKey,
+  triggerGlobalError,
+} from './api-client';
 import { cacheManager } from './cache-manager';
+import { PlayRecord } from '../types';
 
 async function handleFailure(error: unknown): Promise<void> {
   console.error('数据库操作失败 (playRecords):', error);
   triggerGlobalError('数据库操作失败');
   try {
-    const fresh = await fetchFromApi<Record<string, PlayRecord>>('/api/playrecords');
+    const fresh =
+      await fetchFromApi<Record<string, PlayRecord>>('/api/playrecords');
     cacheManager.cachePlayRecords(fresh);
-    window.dispatchEvent(new CustomEvent('playRecordsUpdated', { detail: fresh }));
+    window.dispatchEvent(
+      new CustomEvent('playRecordsUpdated', { detail: fresh }),
+    );
   } catch (e) {
     console.error('刷新播放记录缓存失败:', e);
   }
@@ -26,7 +34,9 @@ export async function getAllPlayRecords(): Promise<Record<string, PlayRecord>> {
       .then((fresh) => {
         if (JSON.stringify(cached) !== JSON.stringify(fresh)) {
           cacheManager.cachePlayRecords(fresh);
-          window.dispatchEvent(new CustomEvent('playRecordsUpdated', { detail: fresh }));
+          window.dispatchEvent(
+            new CustomEvent('playRecordsUpdated', { detail: fresh }),
+          );
         }
       })
       .catch((err) => {
@@ -37,7 +47,8 @@ export async function getAllPlayRecords(): Promise<Record<string, PlayRecord>> {
   }
 
   try {
-    const fresh = await fetchFromApi<Record<string, PlayRecord>>('/api/playrecords');
+    const fresh =
+      await fetchFromApi<Record<string, PlayRecord>>('/api/playrecords');
     cacheManager.cachePlayRecords(fresh);
     return fresh;
   } catch (err) {
@@ -47,12 +58,18 @@ export async function getAllPlayRecords(): Promise<Record<string, PlayRecord>> {
   }
 }
 
-export async function savePlayRecord(source: string, id: string, record: PlayRecord): Promise<void> {
+export async function savePlayRecord(
+  source: string,
+  id: string,
+  record: PlayRecord,
+): Promise<void> {
   const key = generateStorageKey(source, id);
   const cached = cacheManager.getCachedPlayRecords() || {};
   cached[key] = record;
   cacheManager.cachePlayRecords(cached);
-  window.dispatchEvent(new CustomEvent('playRecordsUpdated', { detail: cached }));
+  window.dispatchEvent(
+    new CustomEvent('playRecordsUpdated', { detail: cached }),
+  );
 
   try {
     await fetchWithAuth('/api/playrecords', {
@@ -67,15 +84,22 @@ export async function savePlayRecord(source: string, id: string, record: PlayRec
   }
 }
 
-export async function deletePlayRecord(source: string, id: string): Promise<void> {
+export async function deletePlayRecord(
+  source: string,
+  id: string,
+): Promise<void> {
   const key = generateStorageKey(source, id);
   const cached = cacheManager.getCachedPlayRecords() || {};
   delete cached[key];
   cacheManager.cachePlayRecords(cached);
-  window.dispatchEvent(new CustomEvent('playRecordsUpdated', { detail: cached }));
+  window.dispatchEvent(
+    new CustomEvent('playRecordsUpdated', { detail: cached }),
+  );
 
   try {
-    await fetchWithAuth(`/api/playrecords?key=${encodeURIComponent(key)}`, { method: 'DELETE' });
+    await fetchWithAuth(`/api/playrecords?key=${encodeURIComponent(key)}`, {
+      method: 'DELETE',
+    });
   } catch (err) {
     await handleFailure(err);
     triggerGlobalError('删除播放记录失败');
@@ -98,4 +122,3 @@ export async function clearAllPlayRecords(): Promise<void> {
     throw err;
   }
 }
-

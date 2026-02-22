@@ -717,7 +717,7 @@ function SearchPageClient() {
                 onFocus={handleInputFocus}
                 placeholder='搜索电影、电视剧...'
                 autoComplete='off'
-                className='bg-card text-foreground border-border placeholder:text-muted-foreground h-12 w-full rounded-lg border py-3 pl-10 pr-12 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary'
+                className='bg-card text-foreground border-border placeholder:text-muted-foreground focus:border-primary focus:ring-primary h-12 w-full rounded-lg border py-3 pl-10 pr-12 text-sm shadow-sm focus:outline-none focus:ring-2'
               />
 
               {/* 清除按钮 */}
@@ -822,14 +822,14 @@ function SearchPageClient() {
                     <div className='border-primary h-8 w-8 animate-spin rounded-full border-b-2'></div>
                   </div>
                 ) : (
-                  <div className='text-muted-foreground text-muted-foreground py-8 text-center'>
+                  <div className='text-muted-foreground py-8 text-center'>
                     未找到相关结果
                   </div>
                 )
               ) : (
                 <div
                   key={`search-results-${viewMode}`}
-                  className='grid grid-cols-3 justify-start gap-x-2 gap-y-14 px-0 sm:grid-cols-[repeat(auto-fill,_minmax(11rem,_1fr))] sm:gap-x-8 sm:gap-y-20 sm:px-2'
+                  className='grid grid-cols-3 justify-start gap-x-2 gap-y-14 px-0 sm:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] sm:gap-x-8 sm:gap-y-20 sm:px-2'
                 >
                   {viewMode === 'agg'
                     ? filteredAggResults.map(([mapKey, group]) => {
@@ -901,14 +901,14 @@ function SearchPageClient() {
           ) : searchHistory.length > 0 ? (
             // 搜索历史
             <section className='mb-12'>
-              <h2 className='text-foreground text-foreground mb-4 text-left text-xl font-bold'>
+              <h2 className='text-foreground mb-4 text-left text-xl font-bold'>
                 搜索历史
                 {searchHistory.length > 0 && (
                   <button
                     onClick={() => {
                       clearSearchHistory(); // 事件监听会自动更新界面
                     }}
-                    className='text-muted-foreground text-muted-foreground ml-3 text-sm transition-colors hover:text-red-500 hover:text-red-500'
+                    className='text-muted-foreground hover:text-primary ml-3 text-sm transition-colors'
                   >
                     清空
                   </button>
@@ -936,7 +936,7 @@ function SearchPageClient() {
                         e.preventDefault();
                         deleteSearchHistory(item); // 事件监听会自动更新界面
                       }}
-                      className='absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-muted-foreground text-[10px] text-card opacity-0 transition-colors hover:bg-destructive group-hover:opacity-100'
+                      className='bg-muted-foreground text-card hover:bg-destructive absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] opacity-0 transition-colors group-hover:opacity-100'
                     >
                       <X className='h-3 w-3' />
                     </button>
@@ -951,7 +951,7 @@ function SearchPageClient() {
       {/* 返回顶部悬浮按钮 */}
       <button
         onClick={scrollToTop}
-        className={`bg-primary/90 hover:bg-primary group fixed bottom-20 right-6 z-[500] flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg backdrop-blur-sm transition-all duration-300 ease-in-out md:bottom-6 ${
+        className={`bg-primary/90 hover:bg-primary z-500 group fixed bottom-20 right-6 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg backdrop-blur-sm transition-all duration-300 ease-in-out md:bottom-6 ${
           showBackToTop
             ? 'pointer-events-auto translate-y-0 opacity-100'
             : 'pointer-events-none translate-y-4 opacity-0'

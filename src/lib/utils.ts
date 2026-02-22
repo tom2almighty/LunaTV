@@ -45,7 +45,6 @@ export function processImageUrl(originalUrl: string): string {
   }
 }
 
-
 export function cleanHtmlTags(text: string): string {
   if (!text) return '';
 

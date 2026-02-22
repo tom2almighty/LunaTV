@@ -1,12 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, no-console, @typescript-eslint/no-non-null-assertion,react-hooks/exhaustive-deps */
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { AdminConfig } from '@/lib/admin.types';
 import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
-import { AlertModal, showError, showSuccess, useAlertModal } from './AlertModal';
+
+import {
+  AlertModal,
+  showError,
+  showSuccess,
+  useAlertModal,
+} from './AlertModal';
 import { buttonStyles, inputStyles } from './buttonStyles';
 import { useLoadingState } from './LoadingSystem';
 
@@ -17,7 +23,11 @@ interface UserConfigProps {
   refreshConfig: () => Promise<void>;
 }
 
-export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
+export const UserConfig = ({
+  config,
+  role,
+  refreshConfig,
+}: UserConfigProps) => {
   const { alertModal, showAlert, hideAlert } = useAlertModal();
   const { isLoading, withLoading } = useLoadingState();
   const [showAddUserForm, setShowAddUserForm] = useState(false);

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, no-console, @typescript-eslint/no-non-null-assertion, react-hooks/exhaustive-deps */
 'use client';
 
-import { useEffect, useState } from 'react';
 import {
   closestCenter,
   DndContext,
@@ -22,10 +21,11 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { AdminConfig, CustomCategory } from '@/lib/admin.types';
 
-import { AlertModal, showError, showSuccess, useAlertModal } from './AlertModal';
+import { AlertModal, showError, useAlertModal } from './AlertModal';
 import { buttonStyles } from './buttonStyles';
 import { useLoadingState } from './LoadingSystem';
 
@@ -258,7 +258,9 @@ export const CategoryConfig = ({
         <h4 className='text-foreground text-sm font-medium'>自定义分类列表</h4>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className={showAddForm ? buttonStyles.secondary : buttonStyles.primary}
+          className={
+            showAddForm ? buttonStyles.secondary : buttonStyles.primary
+          }
         >
           {showAddForm ? '取消' : '添加分类'}
         </button>

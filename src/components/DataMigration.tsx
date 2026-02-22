@@ -116,7 +116,7 @@ const AlertModal = ({
               <>
                 <button
                   onClick={onClose}
-                  className='text-foreground bg-muted bg-card hover:bg-muted rounded-lg px-4 py-2 text-sm font-medium transition-colors'
+                  className='text-foreground bg-card hover:bg-muted rounded-lg px-4 py-2 text-sm font-medium transition-colors'
                 >
                   取消
                 </button>
@@ -125,7 +125,7 @@ const AlertModal = ({
                     onConfirm();
                     onClose();
                   }}
-                  className='bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-primary-foreground transition-colors'
+                  className='bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium transition-colors'
                 >
                   {confirmText}
                 </button>
@@ -133,7 +133,7 @@ const AlertModal = ({
             ) : (
               <button
                 onClick={onClose}
-                className='bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-primary-foreground transition-colors'
+                className='bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium transition-colors'
               >
                 确定
               </button>
@@ -338,7 +338,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
       <div className='mx-auto max-w-6xl space-y-6'>
         {/* 简洁警告提示 */}
         <div className='flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50/30 p-4 dark:border-amber-700 dark:bg-amber-900/5'>
-          <AlertTriangle className='h-5 w-5 flex-shrink-0 text-amber-600 dark:text-amber-400' />
+          <AlertTriangle className='h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400' />
           <p className='text-sm text-amber-800 dark:text-amber-200'>
             数据迁移操作请谨慎，确保已备份重要数据
           </p>
@@ -399,7 +399,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                 disabled={isExporting || !exportPassword.trim()}
                 className={`mt-10 w-full rounded-lg px-4 py-2.5 font-medium transition-colors ${
                   isExporting || !exportPassword.trim()
-                    ? 'bg-muted bg-card text-muted-foreground cursor-not-allowed'
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed'
                     : 'bg-primary hover:bg-primary/90 text-primary-foreground'
                 }`}
               >
@@ -426,9 +426,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
               </div>
               <div>
                 <h3 className='text-foreground font-semibold'>数据导入</h3>
-                <p className='text-sm text-destructive'>
-                  ⚠️ 将清空现有数据
-                </p>
+                <p className='text-destructive text-sm'>⚠️ 将清空现有数据</p>
               </div>
             </div>
 
@@ -440,7 +438,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                     <FileCheck className='h-4 w-4' />
                     备份文件
                     {selectedFile && (
-                      <span className='ml-auto text-xs font-normal text-success'>
+                      <span className='text-success ml-auto text-xs font-normal'>
                         {selectedFile.name} (
                         {(selectedFile.size / 1024).toFixed(1)} KB)
                       </span>
@@ -451,7 +449,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                     type='file'
                     accept='.dat'
                     onChange={handleFileSelect}
-                    className='border-border bg-card text-foreground file:bg-card file:text-foreground hover:file:bg-muted w-full rounded-lg border px-3 py-2.5 transition-colors file:mr-3 file:rounded file:border-0 file:px-3 file:py-1.5 file:text-sm file:font-medium focus:border-primary focus:ring-2 focus:ring-primary'
+                    className='border-border bg-card text-foreground file:bg-card file:text-foreground hover:file:bg-muted focus:border-primary focus:ring-primary w-full rounded-lg border px-3 py-2.5 transition-colors file:mr-3 file:rounded file:border-0 file:px-3 file:py-1.5 file:text-sm file:font-medium focus:ring-2'
                     disabled={isImporting}
                   />
                 </div>
@@ -467,7 +465,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                     value={importPassword}
                     onChange={(e) => setImportPassword(e.target.value)}
                     placeholder='输入导出时的加密密码'
-                    className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2.5 transition-colors focus:border-primary focus:ring-2 focus:ring-primary'
+                    className='border-border bg-card text-foreground focus:border-primary focus:ring-primary w-full rounded-lg border px-3 py-2.5 transition-colors focus:ring-2'
                     disabled={isImporting}
                   />
                 </div>
@@ -481,7 +479,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                 }
                 className={`mt-10 w-full rounded-lg px-4 py-2.5 font-medium transition-colors ${
                   isImporting || !selectedFile || !importPassword.trim()
-                    ? 'bg-muted bg-card text-muted-foreground cursor-not-allowed'
+                    ? 'bg-card text-muted-foreground cursor-not-allowed'
                     : 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
                 }`}
               >
