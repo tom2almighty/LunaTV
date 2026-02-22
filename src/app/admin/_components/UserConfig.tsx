@@ -503,11 +503,11 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
         {/* 用户统计 */}
         <div>
           <h4 className='text-foreground mb-3 text-sm font-medium'>用户统计</h4>
-          <div className='bg-success/10 border-success/20 rounded-lg border p-4'>
-            <div className='text-success text-2xl font-bold'>
+          <div className='bg-primary/10 border-primary/20 rounded-lg border p-4'>
+            <div className='text-primary text-2xl font-bold'>
               {config.UserConfig.Users.length}
             </div>
-            <div className='text-success text-sm'>总用户数</div>
+            <div className='text-primary text-sm'>总用户数</div>
           </div>
         </div>
 
@@ -678,7 +678,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                 }
               }}
               className={
-                showAddUserForm ? buttonStyles.secondary : buttonStyles.success
+                showAddUserForm ? buttonStyles.secondary : buttonStyles.primary
               }
             >
               {showAddUserForm ? '取消' : '添加用户'}
@@ -755,7 +755,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                     !newUser.password ||
                     isLoading('addUser')
                       ? buttonStyles.disabled
-                      : buttonStyles.success
+                      : buttonStyles.primary
                   }
                 >
                   {isLoading('addUser') ? '添加中...' : '添加'}
@@ -970,7 +970,7 @@ export const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => 
                           <span
                             className={`rounded-full px-2 py-1 text-xs ${
                               !user.banned
-                                ? 'bg-success/10 text-success'
+                                ? 'bg-primary/10 text-primary'
                                 : 'bg-destructive/10 text-destructive'
                             }`}
                           >

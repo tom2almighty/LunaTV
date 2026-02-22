@@ -610,7 +610,7 @@ export const VideoSourceConfig = ({
                 <button
                   onClick={() => handleBatchOperation('batch_enable')}
                   disabled={isLoading('batchSource_batch_enable')}
-                  className={`px-3 py-1 text-sm ${isLoading('batchSource_batch_enable') ? buttonStyles.disabled : buttonStyles.success}`}
+                  className={`px-3 py-1 text-sm ${isLoading('batchSource_batch_enable') ? buttonStyles.disabled : buttonStyles.primary}`}
                 >
                   {isLoading('batchSource_batch_enable')
                     ? '启用中...'
@@ -619,7 +619,7 @@ export const VideoSourceConfig = ({
                 <button
                   onClick={() => handleBatchOperation('batch_disable')}
                   disabled={isLoading('batchSource_batch_disable')}
-                  className={`px-3 py-1 text-sm ${isLoading('batchSource_batch_disable') ? buttonStyles.disabled : buttonStyles.warning}`}
+                  className={`px-3 py-1 text-sm ${isLoading('batchSource_batch_disable') ? buttonStyles.disabled : buttonStyles.secondary}`}
                 >
                   {isLoading('batchSource_batch_disable')
                     ? '禁用中...'
@@ -658,7 +658,7 @@ export const VideoSourceConfig = ({
             <button
               onClick={() => setShowAddForm(!showAddForm)}
               className={
-                showAddForm ? buttonStyles.secondary : buttonStyles.success
+                showAddForm ? buttonStyles.secondary : buttonStyles.primary
               }
             >
               {showAddForm ? '取消' : '添加视频源'}
@@ -716,7 +716,7 @@ export const VideoSourceConfig = ({
                 !newSource.api ||
                 isLoading('addSource')
               }
-              className={`w-full px-4 py-2 sm:w-auto ${!newSource.name || !newSource.key || !newSource.api || isLoading('addSource') ? buttonStyles.disabled : buttonStyles.success}`}
+              className={`w-full px-4 py-2 sm:w-auto ${!newSource.name || !newSource.key || !newSource.api || isLoading('addSource') ? buttonStyles.disabled : buttonStyles.primary}`}
             >
               {isLoading('addSource') ? '添加中...' : '添加'}
             </button>

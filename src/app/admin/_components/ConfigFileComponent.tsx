@@ -219,7 +219,7 @@ export const ConfigFileComponent = ({
             className={`rounded-lg px-4 py-2 transition-colors ${
               isLoading('saveConfig')
                 ? buttonStyles.disabled
-                : buttonStyles.success
+               : buttonStyles.primary
             }`}
           >
             {isLoading('saveConfig') ? '保存中…' : '保存'}

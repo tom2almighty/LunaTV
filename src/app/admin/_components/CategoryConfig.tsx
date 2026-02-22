@@ -210,7 +210,7 @@ export const CategoryConfig = ({
           <span
             className={`rounded-full px-2 py-1 text-xs ${
               !category.disabled
-                ? 'bg-success/10 text-success'
+                ? 'bg-primary/10 text-primary'
                 : 'bg-destructive/10 text-destructive'
             }`}
           >
@@ -258,7 +258,7 @@ export const CategoryConfig = ({
         <h4 className='text-foreground text-sm font-medium'>自定义分类列表</h4>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className={`rounded-lg px-3 py-1 text-sm transition-colors ${showAddForm ? buttonStyles.secondary : buttonStyles.success}`}
+          className={showAddForm ? buttonStyles.secondary : buttonStyles.primary}
         >
           {showAddForm ? '取消' : '添加分类'}
         </button>
@@ -307,7 +307,7 @@ export const CategoryConfig = ({
                 !newCategory.query ||
                 isLoading('addCategory')
               }
-              className={`w-full px-4 py-2 sm:w-auto ${!newCategory.name || !newCategory.query || isLoading('addCategory') ? buttonStyles.disabled : buttonStyles.success}`}
+              className={`w-full px-4 py-2 sm:w-auto ${!newCategory.name || !newCategory.query || isLoading('addCategory') ? buttonStyles.disabled : buttonStyles.primary}`}
             >
               {isLoading('addCategory') ? '添加中...' : '添加'}
             </button>

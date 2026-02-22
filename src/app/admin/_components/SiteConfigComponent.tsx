@@ -491,7 +491,7 @@ export const SiteConfigComponent = ({
           className={`px-4 py-2 ${
             isLoading('saveSiteConfig')
               ? buttonStyles.disabled
-              : buttonStyles.success
+             : buttonStyles.primary
           } rounded-lg transition-colors`}
         >
           {isLoading('saveSiteConfig') ? '保存中…' : '保存'}
