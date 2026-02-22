@@ -1094,7 +1094,7 @@ function PlayPageClient() {
         playsInline: true,
         autoPlayback: false,
         airplay: true,
-        theme: '#22c55e',
+        theme: getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#e50914',
         lang: 'zh-cn',
         hotkey: false,
         fastForward: true,
@@ -1657,7 +1657,7 @@ function PlayPageClient() {
           </div>
 
           <div
-            className={`grid gap-4 transition-all duration-300 ease-in-out lg:h-[500px] xl:h-[650px] 2xl:h-[750px] ${
+            className={`grid gap-4 transition-all duration-300 ease-in-out lg:h-[500px] xl:h-[650px] ${
               isEpisodeSelectorCollapsed
                 ? 'grid-cols-1'
                 : 'grid-cols-1 md:grid-cols-4'
@@ -1877,8 +1877,8 @@ const FavoriteIcon = ({ filled }: { filled: boolean }) => {
       >
         <path
           d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'
-          fill='#ef4444' /* Tailwind red-500 */
-          stroke='#ef4444'
+          fill='var(--destructive)'
+          stroke='var(--destructive)'
           strokeWidth='2'
           strokeLinecap='round'
           strokeLinejoin='round'
