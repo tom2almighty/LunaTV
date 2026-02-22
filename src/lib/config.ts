@@ -173,8 +173,6 @@ async function getInitConfig(
       DisableYellowFilter:
         process.env.NEXT_PUBLIC_DISABLE_YELLOW_FILTER === 'true',
       FluidSearch: process.env.NEXT_PUBLIC_FLUID_SEARCH !== 'false',
-      EnableOptimization:
-        process.env.NEXT_PUBLIC_ENABLE_OPTIMIZATION !== 'false',
       EnableRegistration:
         process.env.NEXT_PUBLIC_ENABLE_REGISTRATION === 'true', // 默认关闭注册
     },

@@ -47,7 +47,7 @@ export default async function RootLayout({
   const doubanImageProxy = config.SiteConfig.DoubanImageProxy;
   const disableYellowFilter = config.SiteConfig.DisableYellowFilter;
   const fluidSearch = config.SiteConfig.FluidSearch;
-  const enableOptimization = config.SiteConfig.EnableOptimization;
+
   const customCategories = config.CustomCategories.filter(
     (category) => !category.disabled,
   ).map((category) => ({
@@ -65,7 +65,6 @@ export default async function RootLayout({
     DISABLE_YELLOW_FILTER: disableYellowFilter,
     CUSTOM_CATEGORIES: customCategories,
     FLUID_SEARCH: fluidSearch,
-    ENABLE_OPTIMIZATION: enableOptimization,
   };
 
   return (

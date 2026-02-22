@@ -57,7 +57,7 @@ export const UserMenu: React.FC = () => {
   // 设置相关状态
   const [defaultAggregateSearch, setDefaultAggregateSearch] = useState(true);
   const [doubanProxyUrl, setDoubanProxyUrl] = useState('');
-  const [enableOptimization, setEnableOptimization] = useState(true);
+
   const [fluidSearch, setFluidSearch] = useState(true);
   const [doubanDataSource, setDoubanDataSource] = useState('server');
   const [doubanImageProxyType, setDoubanImageProxyType] = useState('server');
@@ -147,16 +147,6 @@ export const UserMenu: React.FC = () => {
         setDoubanImageProxyUrl(savedDoubanImageProxyUrl);
       } else if (defaultDoubanImageProxyUrl) {
         setDoubanImageProxyUrl(defaultDoubanImageProxyUrl);
-      }
-
-      const savedEnableOptimization =
-        localStorage.getItem('enableOptimization');
-      const defaultEnableOptimization =
-        (window as any).RUNTIME_CONFIG?.ENABLE_OPTIMIZATION !== false;
-      if (savedEnableOptimization !== null) {
-        setEnableOptimization(JSON.parse(savedEnableOptimization));
-      } else if (defaultEnableOptimization !== undefined) {
-        setEnableOptimization(defaultEnableOptimization);
       }
 
       const savedFluidSearch = localStorage.getItem('fluidSearch');
@@ -312,13 +302,6 @@ export const UserMenu: React.FC = () => {
     }
   };
 
-  const handleOptimizationToggle = (value: boolean) => {
-    setEnableOptimization(value);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('enableOptimization', JSON.stringify(value));
-    }
-  };
-
   const handleFluidSearchToggle = (value: boolean) => {
     setFluidSearch(value);
     if (typeof window !== 'undefined') {
@@ -377,13 +360,11 @@ export const UserMenu: React.FC = () => {
       'cmliussss-cdn-tencent';
     const defaultDoubanImageProxyUrl =
       (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY || '';
-    const defaultEnableOptimization =
-      (window as any).RUNTIME_CONFIG?.ENABLE_OPTIMIZATION !== false;
     const defaultFluidSearch =
       (window as any).RUNTIME_CONFIG?.FLUID_SEARCH !== false;
 
     setDefaultAggregateSearch(true);
-    setEnableOptimization(defaultEnableOptimization);
+
     setFluidSearch(defaultFluidSearch);
     setDoubanProxyUrl(defaultDoubanProxy);
     setDoubanDataSource(defaultDoubanProxyType);
@@ -392,10 +373,6 @@ export const UserMenu: React.FC = () => {
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('defaultAggregateSearch', JSON.stringify(true));
-      localStorage.setItem(
-        'enableOptimization',
-        JSON.stringify(defaultEnableOptimization),
-      );
       localStorage.setItem('fluidSearch', JSON.stringify(defaultFluidSearch));
       localStorage.setItem('doubanProxyUrl', defaultDoubanProxy);
       localStorage.setItem('doubanDataSource', defaultDoubanProxyType);
@@ -804,30 +781,6 @@ export const UserMenu: React.FC = () => {
                     className='peer sr-only'
                     checked={defaultAggregateSearch}
                     onChange={(e) => handleAggregateToggle(e.target.checked)}
-                  />
-                  <div className='bg-muted peer-checked:bg-primary h-6 w-11 rounded-full transition-colors'></div>
-                  <div className='bg-card absolute left-0.5 top-0.5 h-5 w-5 rounded-full transition-transform peer-checked:translate-x-5'></div>
-                </div>
-              </label>
-            </div>
-
-            {/* 优选和测速 */}
-            <div className='flex items-center justify-between'>
-              <div>
-                <h4 className='text-foreground text-sm font-medium'>
-                  优选和测速
-                </h4>
-                <p className='text-muted-foreground mt-1 text-xs'>
-                  如出现播放器劫持问题可关闭
-                </p>
-              </div>
-              <label className='flex cursor-pointer items-center'>
-                <div className='relative'>
-                  <input
-                    type='checkbox'
-                    className='peer sr-only'
-                    checked={enableOptimization}
-                    onChange={(e) => handleOptimizationToggle(e.target.checked)}
                   />
                   <div className='bg-muted peer-checked:bg-primary h-6 w-11 rounded-full transition-colors'></div>
                   <div className='bg-card absolute left-0.5 top-0.5 h-5 w-5 rounded-full transition-transform peer-checked:translate-x-5'></div>
