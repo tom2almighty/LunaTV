@@ -36,10 +36,10 @@ export function ThemeToggle() {
   };
 
   const schemes = [
-    { id: 'red', name: '红色', color: '#E50914' },
-    { id: 'blue', name: '蓝色', color: '#2563eb' },
-    { id: 'cyan', name: '青色', color: '#0891b2' },
-    { id: 'green', name: '绿色', color: '#16a34a' },
+    { id: 'red', name: '红色', color: '#e50914' },
+    { id: 'slate', name: '石板', color: '#475569' },
+    { id: 'zinc', name: '锌灰', color: '#52525b' },
+    { id: 'gray', name: '灰色', color: '#4b5563' },
   ] as const;
 
   return (

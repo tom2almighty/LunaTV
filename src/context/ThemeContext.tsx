@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type ThemeMode = 'light' | 'dark' | 'system';
-type ColorScheme = 'red' | 'blue' | 'cyan' | 'green';
+type ColorScheme = 'red' | 'slate' | 'zinc' | 'gray';
 
 interface ThemeContextType {
   mode: ThemeMode;
