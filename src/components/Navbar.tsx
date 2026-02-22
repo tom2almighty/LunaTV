@@ -2,7 +2,7 @@
 
 import { Search } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Fragment, useEffect, useState } from 'react';
 
 import { useSite } from '@/context/SiteContext';
@@ -26,6 +26,7 @@ const Logo = () => {
 };
 
 export const Navbar = () => {
+  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -92,9 +93,28 @@ export const Navbar = () => {
           </div>
 
           <div className='flex items-center gap-3'>
+            {/* 桌面端搜索框 */}
+            <div className='hidden md:flex items-center relative group'>
+              <Search className='text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 group-focus-within:text-foreground transition-colors' />
+              <input
+                type='text'
+                placeholder='搜索...'
+                className='bg-muted/50 text-foreground placeholder-muted-foreground focus:bg-background border-transparent focus:border-border w-48 lg:w-64 rounded-full border py-1.5 pl-9 pr-4 text-sm outline-none transition-all focus:ring-1 focus:ring-border'
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const query = e.currentTarget.value.trim();
+                    if (query) {
+                      router.push(`/search?q=${encodeURIComponent(query)}`);
+                    }
+                  }
+                }}
+              />
+            </div>
+
+            {/* 移动端搜索按钮 */}
             <button
               onClick={() => setIsSearchOpen(true)}
-              className='text-muted-foreground hover:bg-muted hover:text-foreground flex h-10 w-10 items-center justify-center rounded-full transition-colors'
+              className='md:hidden text-muted-foreground hover:bg-muted hover:text-foreground flex h-10 w-10 items-center justify-center rounded-full transition-colors'
               aria-label='Search'
             >
               <Search className='h-5 w-5' />
