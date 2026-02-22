@@ -591,17 +591,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           {/* 海报容器 */}
           <div
             className={`aspect-2/3 relative overflow-hidden rounded-lg ${origin === 'live' ? 'ring-border/80 ring-1' : ''}`}
-            style={
-              {
-                WebkitUserSelect: 'none',
-                userSelect: 'none',
-                WebkitTouchCallout: 'none',
-              } as React.CSSProperties
-            }
-            onContextMenu={(e) => {
-              e.preventDefault();
-              return false;
-            }}
           >
             {/* 骨架屏 */}
             {!isLoading && <ImagePlaceholder aspectRatio='aspect-2/3' />}
@@ -610,7 +599,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
               src={processImageUrl(actualPoster)}
               alt={actualTitle}
               fill
-              className={origin === 'live' ? 'object-contain' : 'object-cover'}
+              className={origin === 'live' ? 'object-contain pointer-events-none' : 'object-cover pointer-events-none'}
               referrerPolicy='no-referrer'
               loading='lazy'
               onLoadingComplete={() => setIsLoading(true)}
@@ -633,10 +622,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                   pointerEvents: 'none', // 图片不响应任何指针事件
                 } as React.CSSProperties
               }
-              onContextMenu={(e) => {
-                e.preventDefault();
-                return false;
-              }}
               onDragStart={(e) => {
                 e.preventDefault();
                 return false;
@@ -646,17 +631,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             {/* 悬浮遮罩 */}
             <div
               className='bg-linear-to-t absolute inset-0 from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100'
-              style={
-                {
-                  WebkitUserSelect: 'none',
-                  userSelect: 'none',
-                  WebkitTouchCallout: 'none',
-                } as React.CSSProperties
-              }
-              onContextMenu={(e) => {
-                e.preventDefault();
-                return false;
-              }}
             />
 
             {/* 播放按钮 */}
@@ -664,33 +638,11 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
               <div
                 data-button='true'
                 className='absolute inset-0 flex items-center justify-center opacity-0 transition-all delay-75 duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100'
-                style={
-                  {
-                    WebkitUserSelect: 'none',
-                    userSelect: 'none',
-                    WebkitTouchCallout: 'none',
-                  } as React.CSSProperties
-                }
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  return false;
-                }}
               >
                 <PlayCircleIcon
                   size={50}
                   strokeWidth={0.8}
                   className='hover:fill-primary fill-transparent text-white transition-all duration-300 ease-out hover:scale-[1.1]'
-                  style={
-                    {
-                      WebkitUserSelect: 'none',
-                      userSelect: 'none',
-                      WebkitTouchCallout: 'none',
-                    } as React.CSSProperties
-                  }
-                  onContextMenu={(e) => {
-                    e.preventDefault();
-                    return false;
-                  }}
                 />
               </div>
             )}
@@ -700,34 +652,12 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
               <div
                 data-button='true'
                 className='absolute bottom-3 right-3 flex translate-y-2 gap-3 opacity-0 transition-all duration-300 ease-in-out sm:group-hover:translate-y-0 sm:group-hover:opacity-100'
-                style={
-                  {
-                    WebkitUserSelect: 'none',
-                    userSelect: 'none',
-                    WebkitTouchCallout: 'none',
-                  } as React.CSSProperties
-                }
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  return false;
-                }}
               >
                 {config.showCheckCircle && (
                   <Trash2
                     onClick={handleDeleteRecord}
                     size={20}
                     className='text-white transition-all duration-300 ease-out hover:scale-[1.1] hover:stroke-red-500'
-                    style={
-                      {
-                        WebkitUserSelect: 'none',
-                        userSelect: 'none',
-                        WebkitTouchCallout: 'none',
-                      } as React.CSSProperties
-                    }
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      return false;
-                    }}
                   />
                 )}
                 {config.showHeart && from !== 'search' && (
@@ -739,17 +669,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                         ? 'fill-red-600 stroke-red-600'
                         : 'fill-transparent stroke-white hover:stroke-red-400'
                     } hover:scale-[1.1]`}
-                    style={
-                      {
-                        WebkitUserSelect: 'none',
-                        userSelect: 'none',
-                        WebkitTouchCallout: 'none',
-                      } as React.CSSProperties
-                    }
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      return false;
-                    }}
                   />
                 )}
               </div>
@@ -762,17 +681,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
               actualYear.trim() !== '' && (
                 <div
                   className='bg-background/50 absolute left-2 top-2 rounded px-2 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-sm transition-all duration-300 ease-out group-hover:opacity-90'
-                  style={
-                    {
-                      WebkitUserSelect: 'none',
-                      userSelect: 'none',
-                      WebkitTouchCallout: 'none',
-                    } as React.CSSProperties
-                  }
-                  onContextMenu={(e) => {
-                    e.preventDefault();
-                    return false;
-                  }}
                 >
                   {actualYear}
                 </div>
@@ -782,17 +690,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             {config.showRating && rate && (
               <div
                 className='absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-pink-500 text-xs font-bold text-white shadow-md transition-all duration-300 ease-out group-hover:scale-110'
-                style={
-                  {
-                    WebkitUserSelect: 'none',
-                    userSelect: 'none',
-                    WebkitTouchCallout: 'none',
-                  } as React.CSSProperties
-                }
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  return false;
-                }}
               >
                 {rate}
               </div>
@@ -801,17 +698,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             {actualEpisodes && actualEpisodes > 1 && (
               <div
                 className='bg-primary absolute right-2 top-2 rounded-md px-2 py-1 text-xs font-semibold text-white shadow-md transition-all duration-300 ease-out group-hover:scale-110'
-                style={
-                  {
-                    WebkitUserSelect: 'none',
-                    userSelect: 'none',
-                    WebkitTouchCallout: 'none',
-                  } as React.CSSProperties
-                }
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  return false;
-                }}
               >
                 {currentEpisode
                   ? `${currentEpisode}/${actualEpisodes}`
@@ -829,42 +715,12 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                   rel='noopener noreferrer'
                   onClick={(e) => e.stopPropagation()}
                   className='absolute left-2 top-2 -translate-x-2 opacity-0 transition-all delay-100 duration-300 ease-in-out sm:group-hover:translate-x-0 sm:group-hover:opacity-100'
-                  style={
-                    {
-                      WebkitUserSelect: 'none',
-                      userSelect: 'none',
-                      WebkitTouchCallout: 'none',
-                    } as React.CSSProperties
-                  }
-                  onContextMenu={(e) => {
-                    e.preventDefault();
-                    return false;
-                  }}
                 >
                   <div
                     className='flex h-7 w-7 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white shadow-md transition-all duration-300 ease-out hover:scale-[1.1] hover:bg-green-600'
-                    style={
-                      {
-                        WebkitUserSelect: 'none',
-                        userSelect: 'none',
-                        WebkitTouchCallout: 'none',
-                      } as React.CSSProperties
-                    }
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      return false;
-                    }}
                   >
                     <Link
                       size={16}
-                      style={
-                        {
-                          WebkitUserSelect: 'none',
-                          userSelect: 'none',
-                          WebkitTouchCallout: 'none',
-                          pointerEvents: 'none',
-                        } as React.CSSProperties
-                      }
                     />
                   </div>
                 </a>
@@ -881,41 +737,12 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                 return (
                   <div
                     className='absolute bottom-2 right-2 opacity-0 transition-all delay-75 duration-300 ease-in-out sm:group-hover:opacity-100'
-                    style={
-                      {
-                        WebkitUserSelect: 'none',
-                        userSelect: 'none',
-                        WebkitTouchCallout: 'none',
-                      } as React.CSSProperties
-                    }
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      return false;
-                    }}
                   >
                     <div
                       className='group/sources relative'
-                      style={
-                        {
-                          WebkitUserSelect: 'none',
-                          userSelect: 'none',
-                          WebkitTouchCallout: 'none',
-                        } as React.CSSProperties
-                      }
                     >
                       <div
                         className='bg-secondary text-secondary-foreground hover:bg-secondary/80 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-xs font-bold shadow-md transition-all duration-300 ease-out hover:scale-[1.1] sm:h-7 sm:w-7'
-                        style={
-                          {
-                            WebkitUserSelect: 'none',
-                            userSelect: 'none',
-                            WebkitTouchCallout: 'none',
-                          } as React.CSSProperties
-                        }
-                        onContextMenu={(e) => {
-                          e.preventDefault();
-                          return false;
-                        }}
                       >
                         {sourceCount}
                       </div>
@@ -956,31 +783,9 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                         return (
                           <div
                             className='pointer-events-none invisible absolute bottom-full right-0 z-50 mb-2 translate-x-0 opacity-0 transition-all delay-100 duration-200 ease-out group-hover/sources:visible group-hover/sources:opacity-100 sm:right-0 sm:translate-x-0'
-                            style={
-                              {
-                                WebkitUserSelect: 'none',
-                                userSelect: 'none',
-                                WebkitTouchCallout: 'none',
-                              } as React.CSSProperties
-                            }
-                            onContextMenu={(e) => {
-                              e.preventDefault();
-                              return false;
-                            }}
                           >
                             <div
                               className='bg-popover/90 text-popover-foreground border-border/50 min-w-25 max-w-35 sm:min-w-30 sm:max-w-50 overflow-hidden rounded-lg border p-1.5 text-xs shadow-xl backdrop-blur-sm sm:p-2 sm:text-xs'
-                              style={
-                                {
-                                  WebkitUserSelect: 'none',
-                                  userSelect: 'none',
-                                  WebkitTouchCallout: 'none',
-                                } as React.CSSProperties
-                              }
-                              onContextMenu={(e) => {
-                                e.preventDefault();
-                                return false;
-                              }}
                             >
                               {/* 单列布局 */}
                               <div className='space-y-0.5 sm:space-y-1'>
@@ -1027,32 +832,9 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           {config.showProgress && progress !== undefined && (
             <div
               className='bg-muted mt-1 h-1 w-full overflow-hidden rounded-full'
-              style={
-                {
-                  WebkitUserSelect: 'none',
-                  userSelect: 'none',
-                  WebkitTouchCallout: 'none',
-                } as React.CSSProperties
-              }
-              onContextMenu={(e) => {
-                e.preventDefault();
-                return false;
-              }}
             >
               <div
-                className='bg-primary h-full transition-all duration-500 ease-out'
-                style={
-                  {
-                    width: `${progress}%`,
-                    WebkitUserSelect: 'none',
-                    userSelect: 'none',
-                    WebkitTouchCallout: 'none',
-                  } as React.CSSProperties
-                }
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  return false;
-                }}
+                className='bg-primary h-full transition-all duration-500 ease-out' style={{ width: `${progress}%` }}
               />
             </div>
           )}
@@ -1060,100 +842,31 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           {/* 标题与来源 */}
           <div
             className='mt-2 text-center'
-            style={
-              {
-                WebkitUserSelect: 'none',
-                userSelect: 'none',
-                WebkitTouchCallout: 'none',
-              } as React.CSSProperties
-            }
-            onContextMenu={(e) => {
-              e.preventDefault();
-              return false;
-            }}
           >
             <div
               className='relative'
-              style={
-                {
-                  WebkitUserSelect: 'none',
-                  userSelect: 'none',
-                  WebkitTouchCallout: 'none',
-                } as React.CSSProperties
-              }
             >
               <span
                 className='text-foreground group-hover:text-primary peer block truncate text-sm font-semibold transition-colors duration-300 ease-in-out'
-                style={
-                  {
-                    WebkitUserSelect: 'none',
-                    userSelect: 'none',
-                    WebkitTouchCallout: 'none',
-                  } as React.CSSProperties
-                }
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  return false;
-                }}
               >
                 {actualTitle}
               </span>
               {/* 自定义 tooltip */}
               <div
                 className='bg-popover text-popover-foreground pointer-events-none invisible absolute bottom-full left-1/2 mb-2 -translate-x-1/2 transform whitespace-nowrap rounded-md px-3 py-1 text-xs opacity-0 shadow-lg transition-all delay-100 duration-200 ease-out peer-hover:visible peer-hover:opacity-100'
-                style={
-                  {
-                    WebkitUserSelect: 'none',
-                    userSelect: 'none',
-                    WebkitTouchCallout: 'none',
-                  } as React.CSSProperties
-                }
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  return false;
-                }}
               >
                 {actualTitle}
                 <div
                   className='border-t-popover absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 transform border-l-4 border-r-4 border-t-4 border-transparent'
-                  style={
-                    {
-                      WebkitUserSelect: 'none',
-                      userSelect: 'none',
-                      WebkitTouchCallout: 'none',
-                    } as React.CSSProperties
-                  }
                 ></div>
               </div>
             </div>
             {config.showSourceName && source_name && (
               <span
                 className='text-muted-foreground mt-1 block text-xs'
-                style={
-                  {
-                    WebkitUserSelect: 'none',
-                    userSelect: 'none',
-                    WebkitTouchCallout: 'none',
-                  } as React.CSSProperties
-                }
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  return false;
-                }}
               >
                 <span
                   className='border-border group-hover:border-primary/60 group-hover:text-primary inline-block rounded border px-2 py-0.5 transition-all duration-300 ease-in-out'
-                  style={
-                    {
-                      WebkitUserSelect: 'none',
-                      userSelect: 'none',
-                      WebkitTouchCallout: 'none',
-                    } as React.CSSProperties
-                  }
-                  onContextMenu={(e) => {
-                    e.preventDefault();
-                    return false;
-                  }}
                 >
                   {origin === 'live' && (
                     <Radio
