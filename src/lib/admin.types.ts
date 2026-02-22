@@ -1,3 +1,36 @@
+export interface DataSource {
+  key: string;
+  name: string;
+  api: string;
+  detail?: string;
+  from: 'config' | 'custom';
+  disabled?: boolean;
+}
+
+export interface CustomCategory {
+  name?: string;
+  type: 'movie' | 'tv';
+  query: string;
+  from: 'config' | 'custom';
+  disabled?: boolean;
+}
+
+export interface SiteConfig {
+  SiteName: string;
+  Announcement: string;
+  SearchDownstreamMaxPage: number;
+  SiteInterfaceCacheTime: number;
+  DoubanDataCacheTime: number;
+  DoubanProxyType: string;
+  DoubanProxy: string;
+  DoubanImageProxyType: string;
+  DoubanImageProxy: string;
+  DisableYellowFilter: boolean;
+  FluidSearch: boolean;
+  EnableOptimization: boolean;
+  EnableRegistration: boolean;
+}
+
 export interface AdminConfig {
   ConfigSubscribtion: {
     URL: string;
@@ -5,20 +38,7 @@ export interface AdminConfig {
     LastCheck: string;
   };
   ConfigFile: string;
-  SiteConfig: {
-    SiteName: string;
-    Announcement: string;
-    SearchDownstreamMaxPage: number;
-    SiteInterfaceCacheTime: number;
-    DoubanDataCacheTime: number; // 豆瓣数据缓存时间（秒）
-    DoubanProxyType: string;
-    DoubanProxy: string;
-    DoubanImageProxyType: string;
-    DoubanImageProxy: string;
-    DisableYellowFilter: boolean;
-    FluidSearch: boolean;
-    EnableRegistration: boolean; // 是否开启前台注册功能
-  };
+  SiteConfig: SiteConfig;
   UserConfig: {
     Users: {
       username: string;
