@@ -261,8 +261,8 @@ export default function HomeContent({
               </h3>
             </div>
             <div className='mb-6'>
-              <div className='bg-primary/10 dark:bg-primary/20 relative mb-4 overflow-hidden rounded-lg'>
-                <div className='bg-primary dark:bg-primary/80 absolute inset-y-0 left-0 w-1.5'></div>
+              <div className='bg-primary/10 dark:bg-primary/15 relative mb-4 overflow-hidden rounded-lg'>
+                <div className='bg-primary dark:bg-primary/70 absolute inset-y-0 left-0 w-1.5'></div>
                 <p className='text-muted-foreground ml-4 leading-relaxed'>
                   {announcement}
                 </p>

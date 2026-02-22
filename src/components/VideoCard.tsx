@@ -442,9 +442,9 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
               id: 'favorite',
               label: currentFavorited ? '取消收藏' : '添加收藏',
               icon: currentFavorited ? (
-                <Heart size={20} className='fill-red-600 stroke-red-600' />
+                <Heart size={20} className='fill-destructive stroke-destructive' />
               ) : (
-                <Heart size={20} className='fill-transparent stroke-red-500' />
+                <Heart size={20} className='fill-transparent stroke-destructive' />
               ),
               onClick: () => {
                 const mockEvent = {
@@ -473,9 +473,9 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             id: 'favorite',
             label: currentFavorited ? '取消收藏' : '添加收藏',
             icon: currentFavorited ? (
-              <Heart size={20} className='fill-red-600 stroke-red-600' />
+              <Heart size={20} className='fill-destructive stroke-destructive' />
             ) : (
-              <Heart size={20} className='fill-transparent stroke-red-500' />
+              <Heart size={20} className='fill-transparent stroke-destructive' />
             ),
             onClick: () => {
               const mockEvent = {
@@ -666,8 +666,8 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                     size={20}
                     className={`transition-all duration-300 ease-out ${
                       favorited
-                        ? 'fill-red-600 stroke-red-600'
-                        : 'fill-transparent stroke-white hover:stroke-red-400'
+                        ? 'fill-destructive stroke-destructive'
+                        : 'fill-transparent stroke-primary-foreground hover:stroke-destructive/70'
                     } hover:scale-[1.1]`}
                   />
                 )}

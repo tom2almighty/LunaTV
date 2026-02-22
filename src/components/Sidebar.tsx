@@ -167,13 +167,9 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
       <div className='hidden md:flex'>
         <aside
           data-sidebar
-          className={`bg-card/40 border-border/50 fixed left-0 top-0 z-10 h-screen border-r shadow-lg backdrop-blur-xl transition-all duration-300 ${
+          className={`bg-card/40 border-border/50 fixed left-0 top-0 z-10 h-screen border-r shadow-lg backdrop-blur-xl transition-all duration-300 ease-in-out ${
             isCollapsed ? 'w-16' : 'w-64'
           }`}
-          style={{
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-          }}
         >
           <div className='flex h-full flex-col'>
             {/* 顶部 Logo 区域 */}

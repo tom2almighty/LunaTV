@@ -1,9 +1,13 @@
 @import 'tailwindcss';
 
 @theme {
+  /* ── Typography ── */
   --font-primary: Inter, sans-serif;
 
-  /* Semantic Map - Maps to generic utility classes */
+  /* ── Border radius ── */
+  --radius: 0.5rem;
+
+  /* ── Semantic color map ── */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
@@ -16,6 +20,9 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
 
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
 
@@ -25,10 +32,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-
-  /* Additional semantic colors */
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
 
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
@@ -52,8 +55,9 @@
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 
-  /* Animation definitions remain the same */
+  /* ── Animations ── */
   --animate-flicker: flicker 3s linear infinite;
   --animate-shimmer: shimmer 1.3s linear infinite;
   --animate-fade-in: fadeIn 0.3s ease-in-out;
@@ -71,8 +75,12 @@
     70%,
     100% {
       opacity: 0.99;
-      filter: drop-shadow(0 0 1px rgba(229, 9, 20, 0.5))
-        drop-shadow(0 0 15px rgba(229, 9, 20, 0.3));
+      filter: drop-shadow(
+          0 0 1px color-mix(in oklch, var(--primary) 50%, transparent)
+        )
+        drop-shadow(
+          0 0 15px color-mix(in oklch, var(--primary) 30%, transparent)
+        );
     }
     20%,
     21.999%,
@@ -148,14 +156,11 @@
 
 /*
   THEMING SYSTEM
-  All semantic color tokens defined here.
-  Light mode = :root (default), Dark mode = :root[data-mode='dark']
+  Light mode = :root (default), Dark mode = .dark on <html>
 */
 
 /* ─── Light Mode (default) ─── */
 :root {
-  --radius: 0.5rem;
-
   /* Primary scale — Netflix Red (oklch) */
   --primary-50: oklch(0.971 0.013 17.38);
   --primary-100: oklch(0.936 0.032 17.717);
@@ -217,10 +222,11 @@
   --sidebar-foreground: #171717;
   --sidebar-border: #e5e5e5;
   --sidebar-accent: var(--primary-50);
+  --sidebar-accent-foreground: var(--primary-700);
 }
 
 /* ─── Dark Mode ─── */
-:root[data-mode='dark'] {
+.dark {
   /* Primary — brighter in dark */
   --primary: var(--primary-500);
   --accent: var(--primary-500);
@@ -267,22 +273,24 @@
   --sidebar-foreground: #fafafa;
   --sidebar-border: #262626;
   --sidebar-accent: var(--primary-950);
+  --sidebar-accent-foreground: var(--primary-300);
 }
-/* Base Styles */
+
+/* ─── Base Styles ─── */
 html {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+body {
+  min-height: 100svh;
+  overflow-x: hidden;
+  overscroll-behavior: none;
   background-color: var(--background);
   color: var(--foreground);
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
-}
-
-body {
-  height: 100%;
-  overflow-x: hidden;
-  overscroll-behavior: none;
-  background-color: var(--background);
-  color: var(--foreground);
 }
 
 /* Custom Scrollbar */
@@ -303,37 +311,6 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
-}
-
-/* Video Card Hover */
-.video-card-hover {
-  transition: transform 0.3s ease;
-}
-
-.video-card-hover:hover {
-  transform: scale(1.05);
-}
-
-/* Gradient Overlay - Adaptive to theme */
-.gradient-overlay {
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    var(--background) 100%
-  );
-}
-
-/* Hide scrollbar on mobile */
-@media (max-width: 767px) {
-  html,
-  body {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  html::-webkit-scrollbar,
-  body::-webkit-scrollbar {
-    display: none;
-  }
 }
 
 /* Player overrides */
