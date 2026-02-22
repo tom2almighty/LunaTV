@@ -482,7 +482,7 @@ export const UserMenu: React.FC = () => {
           {/* 登出按钮 */}
           <button
             onClick={handleLogout}
-            className='flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20'
+            className='flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-destructive transition-colors hover:bg-destructive/10'
           >
             <LogOut className='h-4 w-4' />
             <span className='font-medium'>登出</span>
@@ -904,7 +904,7 @@ export const UserMenu: React.FC = () => {
 
             {/* 错误信息 */}
             {passwordError && (
-              <div className='rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-500 dark:border-red-800 dark:bg-red-900/20'>
+              <div className='rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive'>
                 {passwordError}
               </div>
             )}

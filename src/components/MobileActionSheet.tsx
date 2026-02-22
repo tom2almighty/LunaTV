@@ -152,7 +152,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
   const getActionHoverColor = (color: ActionItem['color']) => {
     switch (color) {
       case 'danger':
-        return 'hover:bg-red-50/50 dark:hover:bg-red-900/10';
+        return 'hover:bg-destructive/10';
       case 'primary':
         return 'hover:bg-primary/10';
       default:
@@ -212,7 +212,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
         }}
       >
         {/* 头部 */}
-        <div className='border-border flex items-center justify-between border-b border-gray-100 p-4'>
+        <div className='border-border flex items-center justify-between border-b p-4'>
           <div className='flex min-w-0 flex-1 items-center gap-3'>
             {poster && (
               <div className='bg-muted relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg'>
@@ -313,7 +313,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
 
               {/* 分割线 - 最后一项不显示 */}
               {index < actions.length - 1 && (
-                <div className='border-border ml-10 border-b border-gray-100'></div>
+                <div className='border-border ml-10 border-b'></div>
               )}
             </div>
           ))}
@@ -321,7 +321,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
 
         {/* 播放源信息展示区域 */}
         {isAggregate && sources && sources.length > 0 && (
-          <div className='border-border border-t border-gray-100 px-4 py-3'>
+          <div className='border-border border-t px-4 py-3'>
             {/* 标题区域 */}
             <div className='mb-3'>
               <h4 className='text-foreground mb-1 text-sm font-medium'>

@@ -54,7 +54,7 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
               leaveFrom='opacity-100 scale-100'
               leaveTo='opacity-0 scale-95'
             >
-              <Dialog.Panel className='bg-background w-full max-w-2xl transform overflow-hidden rounded-2xl border border-zinc-800 p-6 text-left align-middle shadow-xl transition-all'>
+              <Dialog.Panel className='bg-background border-border w-full max-w-2xl transform overflow-hidden rounded-2xl border p-6 text-left align-middle shadow-xl transition-all'>
                 <form onSubmit={handleSearch} className='relative'>
                   <Search className='text-foreground absolute left-4 top-1/2 h-6 w-6 -translate-y-1/2' />
                   <input

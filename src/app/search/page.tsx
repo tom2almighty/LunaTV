@@ -717,7 +717,7 @@ function SearchPageClient() {
                 onFocus={handleInputFocus}
                 placeholder='搜索电影、电视剧...'
                 autoComplete='off'
-                className='bg-muted/80 text-foreground focus:ring-primary focus:bg-card border-border/50 bg-card text-foreground border-border h-12 w-full rounded-lg border py-3 pl-10 pr-12 text-sm placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 dark:placeholder-gray-500 dark:focus:bg-gray-700'
+                className='bg-card text-foreground border-border placeholder:text-muted-foreground h-12 w-full rounded-lg border py-3 pl-10 pr-12 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary'
               />
 
               {/* 清除按钮 */}
@@ -729,7 +729,7 @@ function SearchPageClient() {
                     setShowSuggestions(false);
                     document.getElementById('searchInput')?.focus();
                   }}
-                  className='text-muted-foreground hover:text-muted-foreground text-muted-foreground absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 transition-colors dark:hover:text-gray-300'
+                  className='text-muted-foreground hover:text-foreground absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 transition-colors'
                   aria-label='清除搜索内容'
                 >
                   <X className='h-5 w-5' />
@@ -811,7 +811,7 @@ function SearchPageClient() {
                         setViewMode(viewMode === 'agg' ? 'all' : 'agg')
                       }
                     />
-                    <div className='peer-checked:bg-primary bg-card h-5 w-9 rounded-full bg-gray-300 transition-colors'></div>
+                    <div className='peer-checked:bg-primary bg-muted h-5 w-9 rounded-full transition-colors'></div>
                     <div className='bg-card absolute left-0.5 top-0.5 h-4 w-4 rounded-full transition-transform peer-checked:translate-x-4'></div>
                   </div>
                 </label>
@@ -924,7 +924,7 @@ function SearchPageClient() {
                           `/search?q=${encodeURIComponent(item.trim())}`,
                         );
                       }}
-                      className='bg-muted/10 text-foreground bg-card/50 hover:bg-muted text-foreground rounded-full px-4 py-2 text-sm transition-colors duration-200 hover:bg-gray-300'
+                      className='bg-card text-foreground hover:bg-muted rounded-full px-4 py-2 text-sm transition-colors duration-200'
                     >
                       {item}
                     </button>
@@ -936,7 +936,7 @@ function SearchPageClient() {
                         e.preventDefault();
                         deleteSearchHistory(item); // 事件监听会自动更新界面
                       }}
-                      className='absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gray-400 text-[10px] text-white opacity-0 transition-colors hover:bg-red-500 group-hover:opacity-100'
+                      className='absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-muted-foreground text-[10px] text-card opacity-0 transition-colors hover:bg-destructive group-hover:opacity-100'
                     >
                       <X className='h-3 w-3' />
                     </button>

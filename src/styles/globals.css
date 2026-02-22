@@ -39,6 +39,20 @@
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
 
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  --color-overlay: var(--overlay);
+  --color-overlay-heavy: var(--overlay-heavy);
+
+  --color-skeleton: var(--skeleton);
+  --color-skeleton-highlight: var(--skeleton-highlight);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent: var(--sidebar-accent);
+
   /* Animation definitions remain the same */
   --animate-flicker: flicker 3s linear infinite;
   --animate-shimmer: shimmer 1.3s linear infinite;
@@ -132,59 +146,17 @@
   }
 }
 
-/* 
+/*
   THEMING SYSTEM
-  Using CSS variables to define semantic colors.
-  Values change based on [data-theme] and [data-mode] attributes.
+  All semantic color tokens defined here.
+  Light mode = :root (default), Dark mode = :root[data-mode='dark']
 */
 
-/* --- Shared light base --- */
+/* ─── Light Mode (default) ─── */
 :root {
   --radius: 0.5rem;
-  --background: #fafafa;
-  --foreground: #1a1a1a;
-  --secondary: #f5f5f5;
-  --secondary-foreground: #1a1a1a;
-  --muted: #f5f5f5;
-  --muted-foreground: #666666;
-  --card: #ffffff;
-  --card-foreground: #1a1a1a;
-  --popover: #ffffff;
-  --popover-foreground: #1a1a1a;
-  --border: #e0e0e0;
-  --input: #f5f5f5;
-  --destructive: #d32f2f;
-  --destructive-foreground: #ffffff;
-  --success: #2e7d32;
-  --success-foreground: #ffffff;
-  --warning: #f57c00;
-  --warning-foreground: #ffffff;
-}
 
-/* --- Shared dark base --- */
-:root[data-mode='dark'] {
-  --background: #0d0d0d;
-  --foreground: #e5e5e5;
-  --secondary: #2a2a2a;
-  --secondary-foreground: #e5e5e5;
-  --muted: #1a1a1a;
-  --muted-foreground: #b3b3b3;
-  --card: #181818;
-  --card-foreground: #e5e5e5;
-  --popover: #181818;
-  --popover-foreground: #e5e5e5;
-  --border: #2a2a2a;
-  --input: #2a2a2a;
-  --destructive: #f44336;
-  --destructive-foreground: #ffffff;
-  --success: #4caf50;
-  --success-foreground: #000000;
-  --warning: #ff9800;
-  --warning-foreground: #000000;
-}
-
-/* --- Primary: Netflix Red --- */
-:root {
+  /* Primary scale — Netflix Red (oklch) */
   --primary-50: oklch(0.971 0.013 17.38);
   --primary-100: oklch(0.936 0.032 17.717);
   --primary-200: oklch(0.885 0.062 18.334);
@@ -197,17 +169,104 @@
   --primary-900: oklch(0.396 0.141 25.723);
   --primary-950: oklch(0.258 0.092 26.042);
 
+  /* Primary semantic */
   --primary: var(--primary-600);
   --primary-foreground: #ffffff;
   --accent: var(--primary-600);
   --accent-foreground: #ffffff;
   --ring: var(--primary-600);
+
+  /* Surface */
+  --background: #fafafa;
+  --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+
+  /* Secondary / Muted */
+  --secondary: #f5f5f5;
+  --secondary-foreground: #404040;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+
+  /* Border / Input */
+  --border: #e5e5e5;
+  --input: #f5f5f5;
+
+  /* Status */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --warning: #d97706;
+  --warning-foreground: #ffffff;
+  --info: #0284c7;
+  --info-foreground: #ffffff;
+
+  /* Overlay */
+  --overlay: rgba(0, 0, 0, 0.4);
+  --overlay-heavy: rgba(0, 0, 0, 0.7);
+
+  /* Skeleton shimmer */
+  --skeleton: #ebebeb;
+  --skeleton-highlight: #f5f5f5;
+
+  /* Sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #171717;
+  --sidebar-border: #e5e5e5;
+  --sidebar-accent: var(--primary-50);
 }
 
+/* ─── Dark Mode ─── */
 :root[data-mode='dark'] {
+  /* Primary — brighter in dark */
   --primary: var(--primary-500);
   --accent: var(--primary-500);
   --ring: var(--primary-500);
+
+  /* Surface */
+  --background: #121212;
+  --foreground: #fafafa;
+  --card: #141414;
+  --card-foreground: #fafafa;
+  --popover: #1c1c1c;
+  --popover-foreground: #fafafa;
+
+  /* Secondary / Muted */
+  --secondary: #262626;
+  --secondary-foreground: #d4d4d4;
+  --muted: #1c1c1c;
+  --muted-foreground: #a3a3a3;
+
+  /* Border / Input */
+  --border: #262626;
+  --input: #262626;
+
+  /* Status */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --success: #22c55e;
+  --success-foreground: #052e16;
+  --warning: #f59e0b;
+  --warning-foreground: #1c1400;
+  --info: #38bdf8;
+  --info-foreground: #082f49;
+
+  /* Overlay */
+  --overlay: rgba(0, 0, 0, 0.6);
+  --overlay-heavy: rgba(0, 0, 0, 0.85);
+
+  /* Skeleton shimmer */
+  --skeleton: #262626;
+  --skeleton-highlight: #333333;
+
+  /* Sidebar */
+  --sidebar: #111111;
+  --sidebar-foreground: #fafafa;
+  --sidebar-border: #262626;
+  --sidebar-accent: var(--primary-950);
 }
 /* Base Styles */
 html {

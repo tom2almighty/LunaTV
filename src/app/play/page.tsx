@@ -1546,7 +1546,7 @@ function PlayPageClient() {
 
               {/* 浮动错误粒子 */}
               <div className='pointer-events-none absolute left-0 top-0 h-full w-full'>
-                <div className='absolute left-2 top-2 h-2 w-2 animate-bounce rounded-full bg-red-400'></div>
+                <div className='absolute left-2 top-2 h-2 w-2 animate-bounce rounded-full bg-destructive/70'></div>
                 <div
                   className='absolute right-4 top-4 h-1.5 w-1.5 animate-bounce rounded-full bg-orange-400'
                   style={{ animationDelay: '0.5s' }}
@@ -1563,8 +1563,8 @@ function PlayPageClient() {
               <h2 className='text-foreground text-2xl font-bold'>
                 哎呀，出现了一些问题
               </h2>
-              <div className='rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20'>
-                <p className='font-medium text-red-600 dark:text-red-400'>
+              <div className='rounded-lg border border-destructive/30 bg-destructive/10 p-4'>
+                <p className='font-medium text-destructive'>
                   {error}
                 </p>
               </div>
@@ -1581,7 +1581,7 @@ function PlayPageClient() {
                     ? router.push(`/search?q=${encodeURIComponent(videoTitle)}`)
                     : router.back()
                 }
-                className='bg-primary hover:bg-primary/90 w-full transform rounded-xl px-6 py-3 font-medium text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl'
+                className='bg-primary hover:bg-primary/90 w-full transform rounded-xl px-6 py-3 font-medium text-primary-foreground shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl'
               >
                 {videoTitle ? '🔍 返回搜索' : '← 返回上页'}
               </button>
@@ -1836,7 +1836,7 @@ function PlayPageClient() {
                         rel='noopener noreferrer'
                         className='absolute left-3 top-3'
                       >
-                        <div className='flex h-8 w-8 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white shadow-md transition-all duration-300 ease-out hover:scale-[1.1] hover:bg-green-600'>
+                        <div className='flex h-8 w-8 items-center justify-center rounded-full bg-success text-xs font-bold text-success-foreground shadow-md transition-all duration-300 ease-out hover:scale-[1.1] hover:opacity-90'>
                           <svg
                             width='16'
                             height='16'

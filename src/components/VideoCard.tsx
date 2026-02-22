@@ -642,7 +642,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                 <PlayCircleIcon
                   size={50}
                   strokeWidth={0.8}
-                  className='hover:fill-primary fill-transparent text-white transition-all duration-300 ease-out hover:scale-[1.1]'
+                  className='hover:fill-primary fill-transparent text-primary-foreground transition-all duration-300 ease-out hover:scale-[1.1]'
                 />
               </div>
             )}
@@ -657,7 +657,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                   <Trash2
                     onClick={handleDeleteRecord}
                     size={20}
-                    className='text-white transition-all duration-300 ease-out hover:scale-[1.1] hover:stroke-red-500'
+                    className='text-foreground transition-all duration-300 ease-out hover:scale-[1.1] hover:stroke-primary'
                   />
                 )}
                 {config.showHeart && from !== 'search' && (
@@ -680,7 +680,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
               actualYear !== 'unknown' &&
               actualYear.trim() !== '' && (
                 <div
-                  className='bg-background/50 absolute left-2 top-2 rounded px-2 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-sm transition-all duration-300 ease-out group-hover:opacity-90'
+                  className='bg-overlay absolute left-2 top-2 rounded px-2 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-sm transition-all duration-300 ease-out group-hover:opacity-90'
                 >
                   {actualYear}
                 </div>
@@ -689,7 +689,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             {/* 徽章 */}
             {config.showRating && rate && (
               <div
-                className='absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-pink-500 text-xs font-bold text-white shadow-md transition-all duration-300 ease-out group-hover:scale-110'
+                className='absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-warning text-xs font-bold text-warning-foreground shadow-md transition-all duration-300 ease-out group-hover:scale-110'
               >
                 {rate}
               </div>
@@ -697,7 +697,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
 
             {actualEpisodes && actualEpisodes > 1 && (
               <div
-                className='bg-primary absolute right-2 top-2 rounded-md px-2 py-1 text-xs font-semibold text-white shadow-md transition-all duration-300 ease-out group-hover:scale-110'
+                className='bg-primary absolute right-2 top-2 rounded-md px-2 py-1 text-xs font-semibold text-primary-foreground shadow-md transition-all duration-300 ease-out group-hover:scale-110'
               >
                 {currentEpisode
                   ? `${currentEpisode}/${actualEpisodes}`
@@ -717,7 +717,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                   className='absolute left-2 top-2 -translate-x-2 opacity-0 transition-all delay-100 duration-300 ease-in-out sm:group-hover:translate-x-0 sm:group-hover:opacity-100'
                 >
                   <div
-                    className='flex h-7 w-7 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white shadow-md transition-all duration-300 ease-out hover:scale-[1.1] hover:bg-green-600'
+                    className='flex h-7 w-7 items-center justify-center rounded-full bg-success text-xs font-bold text-success-foreground shadow-md transition-all duration-300 ease-out hover:scale-[1.1] hover:opacity-90'
                   >
                     <Link
                       size={16}

@@ -91,7 +91,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
         <h2 className='text-foreground text-xl font-bold'>继续观看</h2>
         {!loading && playRecords.length > 0 && (
           <button
-            className='text-muted-foreground hover:text-foreground text-muted-foreground text-sm dark:hover:text-gray-200'
+            className='text-muted-foreground hover:text-foreground text-sm'
             onClick={async () => {
               await clearAllPlayRecords();
               setPlayRecords([]);

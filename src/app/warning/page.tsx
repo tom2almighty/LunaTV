@@ -7,13 +7,13 @@ export const metadata: Metadata = {
 
 export default function WarningPage() {
   return (
-    <div className='bg-linear-to-br flex min-h-screen items-center justify-center from-red-50 to-orange-50 p-4'>
-      <div className='bg-card w-full max-w-2xl rounded-2xl border border-red-200 p-4 shadow-2xl sm:p-8'>
+    <div className='flex min-h-screen items-center justify-center bg-background p-4'>
+      <div className='bg-card border-border w-full max-w-2xl rounded-2xl border p-4 shadow-2xl sm:p-8'>
         {/* 警告图标 */}
         <div className='mb-4 flex justify-center sm:mb-6'>
-          <div className='flex h-16 w-16 items-center justify-center rounded-full bg-red-100 sm:h-20 sm:w-20'>
+          <div className='flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10 sm:h-20 sm:w-20'>
             <svg
-              className='h-10 w-10 text-red-600 sm:h-12 sm:w-12'
+              className='h-10 w-10 text-destructive sm:h-12 sm:w-12'
               fill='none'
               stroke='currentColor'
               viewBox='0 0 24 24'
@@ -33,16 +33,16 @@ export default function WarningPage() {
           <h1 className='text-foreground mb-2 text-2xl font-bold sm:text-3xl'>
             安全合规配置警告
           </h1>
-          <div className='mx-auto h-1 w-12 rounded-full bg-red-500 sm:w-16'></div>
+          <div className='mx-auto h-1 w-12 rounded-full bg-primary sm:w-16'></div>
         </div>
 
         {/* 警告内容 */}
         <div className='text-foreground space-y-4 sm:space-y-6'>
-          <div className='rounded-r-lg border-l-4 border-red-500 bg-red-50 p-3 sm:p-4'>
-            <p className='mb-2 text-base font-semibold text-red-800 sm:text-lg'>
+          <div className='rounded-r-lg border-l-4 border-destructive bg-destructive/10 p-3 sm:p-4'>
+            <p className='mb-2 text-base font-semibold text-destructive sm:text-lg'>
               ⚠️ 安全风险提示
             </p>
-            <p className='text-sm text-red-700 sm:text-base'>
+            <p className='text-sm text-destructive/80 sm:text-base'>
               检测到您的站点未配置访问控制，存在潜在的安全风险和法律合规问题。
             </p>
           </div>
@@ -53,31 +53,31 @@ export default function WarningPage() {
             </h2>
             <ul className='text-muted-foreground space-y-2 text-sm sm:space-y-3 sm:text-base'>
               <li className='flex items-start'>
-                <span className='mr-2 mt-0.5 text-red-500'>•</span>
+                <span className='mr-2 mt-0.5 text-primary'>•</span>
                 <span>未经授权的访问可能导致内容被恶意传播</span>
               </li>
               <li className='flex items-start'>
-                <span className='mr-2 mt-0.5 text-red-500'>•</span>
+                <span className='mr-2 mt-0.5 text-primary'>•</span>
                 <span>服务器资源可能被滥用，影响正常服务</span>
               </li>
               <li className='flex items-start'>
-                <span className='mr-2 mt-0.5 text-red-500'>•</span>
+                <span className='mr-2 mt-0.5 text-primary'>•</span>
                 <span>可能收到相关权利方的法律通知</span>
               </li>
               <li className='flex items-start'>
-                <span className='mr-2 mt-0.5 text-red-500'>•</span>
+                <span className='mr-2 mt-0.5 text-primary'>•</span>
                 <span>服务提供商可能因合规问题终止服务</span>
               </li>
             </ul>
           </div>
 
-          <div className='rounded-lg border border-yellow-200 bg-yellow-50 p-3 sm:p-4'>
-            <h3 className='mb-2 text-base font-semibold text-yellow-800 sm:text-lg'>
+          <div className='rounded-lg border border-warning/30 bg-warning/10 p-3 sm:p-4'>
+            <h3 className='mb-2 text-base font-semibold text-warning sm:text-lg'>
               🔒 安全配置建议
             </h3>
-            <p className='text-sm text-yellow-700 sm:text-base'>
+            <p className='text-sm text-warning/80 sm:text-base'>
               请立即配置{' '}
-              <code className='rounded bg-yellow-100 px-1.5 py-0.5 font-mono text-xs sm:text-sm'>
+              <code className='rounded bg-warning/20 px-1.5 py-0.5 font-mono text-xs text-warning sm:text-sm'>
                 PASSWORD
               </code>{' '}
               环境变量以启用访问控制。

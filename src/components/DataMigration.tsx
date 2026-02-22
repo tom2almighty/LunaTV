@@ -76,13 +76,13 @@ const AlertModal = ({
   const getBgColor = () => {
     switch (type) {
       case 'success':
-        return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
+        return 'bg-success/10 border-success/30';
       case 'error':
-        return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
+        return 'bg-destructive/10 border-destructive/30';
       case 'warning':
-        return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800';
+        return 'bg-warning/10 border-warning/30';
       default:
-        return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
+        return 'bg-info/10 border-info/30';
     }
   };
 
@@ -125,7 +125,7 @@ const AlertModal = ({
                     onConfirm();
                     onClose();
                   }}
-                  className='bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors'
+                  className='bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-primary-foreground transition-colors'
                 >
                   {confirmText}
                 </button>
@@ -133,7 +133,7 @@ const AlertModal = ({
             ) : (
               <button
                 onClick={onClose}
-                className='bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors'
+                className='bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-primary-foreground transition-colors'
               >
                 确定
               </button>
@@ -400,7 +400,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                 className={`mt-10 w-full rounded-lg px-4 py-2.5 font-medium transition-colors ${
                   isExporting || !exportPassword.trim()
                     ? 'bg-muted bg-card text-muted-foreground cursor-not-allowed'
-                    : 'bg-primary hover:bg-primary/90 text-white'
+                    : 'bg-primary hover:bg-primary/90 text-primary-foreground'
                 }`}
               >
                 {isExporting ? (
@@ -426,7 +426,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
               </div>
               <div>
                 <h3 className='text-foreground font-semibold'>数据导入</h3>
-                <p className='text-sm text-red-600 dark:text-red-400'>
+                <p className='text-sm text-destructive'>
                   ⚠️ 将清空现有数据
                 </p>
               </div>
@@ -440,7 +440,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                     <FileCheck className='h-4 w-4' />
                     备份文件
                     {selectedFile && (
-                      <span className='ml-auto text-xs font-normal text-green-600 dark:text-green-400'>
+                      <span className='ml-auto text-xs font-normal text-success'>
                         {selectedFile.name} (
                         {(selectedFile.size / 1024).toFixed(1)} KB)
                       </span>
@@ -451,7 +451,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                     type='file'
                     accept='.dat'
                     onChange={handleFileSelect}
-                    className='border-border bg-card text-foreground file:bg-card file:text-foreground hover:file:bg-muted w-full rounded-lg border px-3 py-2.5 transition-colors file:mr-3 file:rounded file:border-0 file:px-3 file:py-1.5 file:text-sm file:font-medium focus:border-red-500 focus:ring-2 focus:ring-red-500'
+                    className='border-border bg-card text-foreground file:bg-card file:text-foreground hover:file:bg-muted w-full rounded-lg border px-3 py-2.5 transition-colors file:mr-3 file:rounded file:border-0 file:px-3 file:py-1.5 file:text-sm file:font-medium focus:border-primary focus:ring-2 focus:ring-primary'
                     disabled={isImporting}
                   />
                 </div>
@@ -467,7 +467,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                     value={importPassword}
                     onChange={(e) => setImportPassword(e.target.value)}
                     placeholder='输入导出时的加密密码'
-                    className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2.5 transition-colors focus:border-red-500 focus:ring-2 focus:ring-red-500'
+                    className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2.5 transition-colors focus:border-primary focus:ring-2 focus:ring-primary'
                     disabled={isImporting}
                   />
                 </div>
@@ -482,7 +482,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                 className={`mt-10 w-full rounded-lg px-4 py-2.5 font-medium transition-colors ${
                   isImporting || !selectedFile || !importPassword.trim()
                     ? 'bg-muted bg-card text-muted-foreground cursor-not-allowed'
-                    : 'bg-red-600 text-white hover:bg-red-700'
+                    : 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
                 }`}
               >
                 {isImporting ? (
