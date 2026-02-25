@@ -110,15 +110,6 @@ function PlayPageClient() {
   // 搜索所需信息
   const [searchTitle] = useState(searchParams.get('stitle') || '');
   const [searchType] = useState(searchParams.get('stype') || '');
-
-  // 是否需要优选
-  const [needPrefer, setNeedPrefer] = useState(
-    searchParams.get('prefer') === 'true',
-  );
-  const needPreferRef = useRef(needPrefer);
-  useEffect(() => {
-    needPreferRef.current = needPrefer;
-  }, [needPrefer]);
   // 集数相关
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
 
@@ -523,8 +514,8 @@ function PlayPageClient() {
       }
 
       let detailData: SearchResult = sourcesInfo[0];
-      // 指定源和id且无需优选
-      if (currentSource && currentId && !needPreferRef.current) {
+      // 指定源和 id 时优先使用目标源
+      if (currentSource && currentId) {
         const target = sourcesInfo.find(
           (source) =>
             source.source === currentSource && source.id === currentId,
@@ -538,14 +529,8 @@ function PlayPageClient() {
         }
       }
 
-      // 未指定源和 id 或需要优选
-      if (!currentSource || !currentId || needPreferRef.current) {
-        detailData = sourcesInfo[0];
-      }
-
       console.log(detailData.source, detailData.id);
 
-      setNeedPrefer(false);
       setCurrentSource(detailData.source);
       setCurrentId(detailData.id);
       setVideoYear(detailData.year);
@@ -563,7 +548,6 @@ function PlayPageClient() {
       newUrl.searchParams.set('id', detailData.id);
       newUrl.searchParams.set('year', detailData.year);
       newUrl.searchParams.set('title', detailData.title);
-      newUrl.searchParams.delete('prefer');
       window.history.replaceState({}, '', newUrl.toString());
 
       setLoadingStage('ready');
