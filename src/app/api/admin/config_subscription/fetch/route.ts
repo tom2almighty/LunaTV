@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (authInfo.username !== process.env.APP_ADMIN_USER) {
+    if (authInfo.username !== process.env.APP_ADMIN_USERNAME) {
       return NextResponse.json(
         { error: '权限不足，只有站长可以拉取配置订阅' },
         { status: 401 },

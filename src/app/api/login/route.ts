@@ -47,10 +47,10 @@ async function generateAuthCookie(
     authData.password = password;
   }
 
-  if (username && process.env.PASSWORD) {
+  if (username && process.env.APP_ADMIN_PASSWORD) {
     authData.username = username;
     // 使用密码作为密钥对用户名进行签名
-    const signature = await generateSignature(username, process.env.PASSWORD);
+    const signature = await generateSignature(username, process.env.APP_ADMIN_PASSWORD);
     authData.signature = signature;
     authData.timestamp = Date.now(); // 添加时间戳防重放攻击
   }
@@ -72,8 +72,8 @@ export async function POST(req: NextRequest) {
 
     // 可能是站长，直接读环境变量
     if (
-      username === process.env.APP_ADMIN_USER &&
-      password === process.env.PASSWORD
+      username === process.env.APP_ADMIN_USERNAME &&
+      password === process.env.APP_ADMIN_PASSWORD
     ) {
       // 验证成功，设置认证cookie
       const response = NextResponse.json({ ok: true });
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
       });
 
       return response;
-    } else if (username === process.env.APP_ADMIN_USER) {
+    } else if (username === process.env.APP_ADMIN_USERNAME) {
       return NextResponse.json({ error: '用户名或密码错误' }, { status: 401 });
     }
 

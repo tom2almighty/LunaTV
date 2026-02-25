@@ -46,8 +46,8 @@ services:
     ports:
       - '3000:3000'
     environment:
-      - APP_ADMIN_USER=admin
-      - PASSWORD=admin_password
+      - APP_ADMIN_USERNAME=admin
+      - APP_ADMIN_PASSWORD=admin_password
     volumes:
       - ./data:/app/data
 ```
@@ -103,44 +103,35 @@ MoonTV 支持标准的苹果 CMS V10 API 格式。
 
 ## 环境变量
 
-### 必需环境变量
+### 必填变量
 
-| 变量名           | 说明                               | 默认值 | 示例                            |
-| ---------------- | ---------------------------------- | ------ | ------------------------------- |
-| `APP_ADMIN_USER` | 系统管理员密码，用于身份验证       | 无     | `PASSWORD=your_secure_password` |
-| `USERNAME`       | 系统管理员用户名（多用户模式必需） | 无     | `USERNAME=admin`                |
+| 变量名               | 说明                                            | 默认值 |
+| -------------------- | ----------------------------------------------- | ------ |
+| `APP_ADMIN_USERNAME` | 站长用户名（owner），用于权限判断和配置归属。   | 无     |
+| `APP_ADMIN_PASSWORD` | 站长密码，同时作为登录签名密钥（HMAC secret）。 | 无     |
 
-### 站点配置
+未配置任一必填项时，中间件会跳转到 `/warning` 页面，不允许正常访问业务页面。
 
-| 变量名                  | 说明         | 默认值       | 示例                               |
-| ----------------------- | ------------ | ------------ | ---------------------------------- |
-| `NEXT_PUBLIC_SITE_NAME` | 网站名称     | `MoonTV`     | `NEXT_PUBLIC_SITE_NAME=我的影视站` |
-| `ANNOUNCEMENT`          | 网站公告内容 | 默认免责声明 | `ANNOUNCEMENT=欢迎使用本站!`       |
+### 可选变量（业务配置）
 
-### 搜索配置
+| 变量名                                | 说明                                           | 默认值       |
+| ------------------------------------- | ---------------------------------------------- | ------------ |
+| `NEXT_PUBLIC_SITE_NAME`               | 站点名称                                       | `MoonTV`     |
+| `ANNOUNCEMENT`                        | 站点公告文案                                   | 内置免责声明 |
+| `NEXT_PUBLIC_SEARCH_MAX_PAGE`         | 搜索下游最大页数                               | `5`          |
+| `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME`  | 豆瓣数据缓存秒数                               | `7200`       |
+| `NEXT_PUBLIC_DOUBAN_PROXY_TYPE`       | 豆瓣 API 代理类型                              | `server`     |
+| `NEXT_PUBLIC_DOUBAN_PROXY`            | 自定义豆瓣 API 代理地址                        | 空字符串     |
+| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE` | 豆瓣图片代理类型                               | `server`     |
+| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY`      | 自定义豆瓣图片代理地址                         | 空字符串     |
+| `NEXT_PUBLIC_DISABLE_YELLOW_FILTER`   | 是否禁用黄色内容过滤（仅当值为 `true` 时生效） | `false`      |
+| `NEXT_PUBLIC_FLUID_SEARCH`            | 是否启用流式搜索（仅当值为 `false` 时关闭）    | `true`       |
+| `NEXT_PUBLIC_ENABLE_REGISTRATION`     | 是否开启前台注册（仅当值为 `true` 时开启）     | `false`      |
 
-| 变量名                        | 说明             | 默认值 | 示例                             |
-| ----------------------------- | ---------------- | ------ | -------------------------------- |
-| `NEXT_PUBLIC_SEARCH_MAX_PAGE` | 搜索下游最大页数 | `5`    | `NEXT_PUBLIC_SEARCH_MAX_PAGE=10` |
-| `NEXT_PUBLIC_FLUID_SEARCH`    | 是否启用流式搜索 | `true` | `NEXT_PUBLIC_FLUID_SEARCH=false` |
+说明：
 
-### 豆瓣配置
-
-| 变量名                                | 说明                    | 默认值   | 示例                                                   |
-| ------------------------------------- | ----------------------- | -------- | ------------------------------------------------------ |
-| `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME`  | 豆瓣数据缓存时间（秒）  | `7200`   | `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME=3600`              |
-| `NEXT_PUBLIC_DOUBAN_PROXY_TYPE`       | 豆瓣 API 代理类型       | `server` | `NEXT_PUBLIC_DOUBAN_PROXY_TYPE=direct`                 |
-| `NEXT_PUBLIC_DOUBAN_PROXY`            | 自定义豆瓣 API 代理地址 | 空       | `NEXT_PUBLIC_DOUBAN_PROXY=https://proxy.com`           |
-| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE` | 豆瓣图片代理类型        | `server` | `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE=server`           |
-| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY`      | 自定义豆瓣图片代理地址  | 空       | `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY=https://img-proxy.com` |
-
-### 功能开关
-
-| 变量名                              | 说明                                     | 默认值  | 示例                                     |
-| ----------------------------------- | ---------------------------------------- | ------- | ---------------------------------------- |
-| `NEXT_PUBLIC_DISABLE_YELLOW_FILTER` | 是否禁用黄色内容过滤                     | `false` | `NEXT_PUBLIC_DISABLE_YELLOW_FILTER=true` |
-| `NEXT_PUBLIC_ENABLE_OPTIMIZATION`   | 是否启用性能优化                         | `true`  | `NEXT_PUBLIC_ENABLE_OPTIMIZATION=false`  |
-| `NEXT_PUBLIC_ENABLE_REGISTRATION`   | 是否开启前台用户注册功能（仅多用户模式） | `false` | `NEXT_PUBLIC_ENABLE_REGISTRATION=true`   |
+- 数值变量（如 `NEXT_PUBLIC_SEARCH_MAX_PAGE`）如果不是合法数字，会回退到默认值。
+- 布尔变量统一按字符串判断，只有精确值 `true`/`false` 会触发对应开关逻辑。
 
 ## 安全与隐私提醒
 

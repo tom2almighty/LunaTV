@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 检查用户权限（只有站长可以导出数据）
-    if (authInfo.username !== process.env.APP_ADMIN_USER) {
+    if (authInfo.username !== process.env.APP_ADMIN_USERNAME) {
       return NextResponse.json(
         { error: '权限不足，只有站长可以导出数据' },
         { status: 401 },
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     // 获取所有用户
     let allUsers = await getAllUsers();
     // 添加站长用户
-    allUsers.push(process.env.APP_ADMIN_USER);
+    allUsers.push(process.env.APP_ADMIN_USERNAME);
     allUsers = Array.from(new Set(allUsers));
 
     // 为每个用户收集数据
@@ -83,8 +83,8 @@ export async function POST(req: NextRequest) {
     }
 
     // 覆盖站长密码
-    exportData.data.userData[process.env.APP_ADMIN_USER].password =
-      process.env.PASSWORD;
+    exportData.data.userData[process.env.APP_ADMIN_USERNAME].password =
+      process.env.APP_ADMIN_PASSWORD;
 
     // 将数据转换为JSON字符串
     const jsonData = JSON.stringify(exportData);

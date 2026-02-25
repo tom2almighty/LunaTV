@@ -90,10 +90,10 @@ async function refreshRecordAndFavorites() {
   try {
     const users = await db.getAllUsers();
     if (
-      process.env.APP_ADMIN_USER &&
-      !users.includes(process.env.APP_ADMIN_USER)
+      process.env.APP_ADMIN_USERNAME &&
+      !users.includes(process.env.APP_ADMIN_USERNAME)
     ) {
-      users.push(process.env.APP_ADMIN_USER);
+      users.push(process.env.APP_ADMIN_USERNAME);
     }
     // 函数级缓存：key 为 `${source}+${id}`，值为 Promise<VideoDetail | null>
     const detailCache = new Map<string, Promise<SearchResult | null>>();

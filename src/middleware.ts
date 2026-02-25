@@ -6,14 +6,16 @@ import { getAuthInfoFromCookie } from '@/lib/auth';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const adminUsername = process.env.APP_ADMIN_USERNAME;
+  const adminPassword = process.env.APP_ADMIN_PASSWORD;
 
   // 跳过不需要认证的路径
   if (shouldSkipAuth(pathname)) {
     return NextResponse.next();
   }
 
-  if (!process.env.PASSWORD) {
-    // 如果没有设置密码，重定向到警告页面
+  if (!adminUsername || !adminPassword) {
+    // 如果没有设置管理员凭据，重定向到警告页面
     const warningUrl = new URL('/warning', request.url);
     return NextResponse.redirect(warningUrl);
   }
@@ -34,7 +36,7 @@ export async function middleware(request: NextRequest) {
   const isValidSignature = await verifySignature(
     authInfo.username,
     authInfo.signature,
-    process.env.PASSWORD || '',
+    adminPassword,
   );
 
   // 签名验证通过即可

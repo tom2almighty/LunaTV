@@ -40,10 +40,10 @@ async function generateAuthCookie(
 ): Promise<string> {
   const authData: any = { role };
 
-  if (username && process.env.PASSWORD) {
+  if (username && process.env.APP_ADMIN_PASSWORD) {
     authData.username = username;
     // 使用密码作为密钥对用户名进行签名
-    const signature = await generateSignature(username, process.env.PASSWORD);
+    const signature = await generateSignature(username, process.env.APP_ADMIN_PASSWORD);
     authData.signature = signature;
     authData.timestamp = Date.now(); // 添加时间戳防重放攻击
   }
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 检查用户名是否与站长用户名冲突
-    if (username === process.env.APP_ADMIN_USER) {
+    if (username === process.env.APP_ADMIN_USERNAME) {
       return NextResponse.json({ error: '该用户名已被使用' }, { status: 400 });
     }
 

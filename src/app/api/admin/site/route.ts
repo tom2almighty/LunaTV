@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     const adminConfig = await getConfig();
 
     // 权限校验
-    if (username !== process.env.APP_ADMIN_USER) {
+    if (username !== process.env.APP_ADMIN_USERNAME) {
       // 管理员
       const user = adminConfig.UserConfig.Users.find(
         (u) => u.username === username,

@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
 
     // 判定操作者角色
     let operatorRole: 'owner' | 'admin';
-    if (username === process.env.APP_ADMIN_USER) {
+    if (username === process.env.APP_ADMIN_USERNAME) {
       operatorRole = 'owner';
     } else {
       const userEntry = adminConfig.UserConfig.Users.find(

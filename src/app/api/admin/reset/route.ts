@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   }
   const username = authInfo.username;
 
-  if (username !== process.env.APP_ADMIN_USER) {
+  if (username !== process.env.APP_ADMIN_USERNAME) {
     return NextResponse.json({ error: '仅支持站长重置配置' }, { status: 401 });
   }
 

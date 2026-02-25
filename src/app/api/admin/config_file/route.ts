@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     let adminConfig = await getConfig();
 
     // 仅站长可以修改配置文件
-    if (username !== process.env.APP_ADMIN_USER) {
+    if (username !== process.env.APP_ADMIN_USERNAME) {
       return NextResponse.json(
         { error: '权限不足，只有站长可以修改配置文件' },
         { status: 401 },

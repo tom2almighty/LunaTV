@@ -78,7 +78,11 @@ export default function WarningPage() {
             <p className='text-warning/80 text-sm sm:text-base'>
               请立即配置{' '}
               <code className='bg-warning/20 text-warning rounded px-1.5 py-0.5 font-mono text-xs sm:text-sm'>
-                PASSWORD
+                APP_ADMIN_USERNAME
+              </code>{' '}
+              和{' '}
+              <code className='bg-warning/20 text-warning rounded px-1.5 py-0.5 font-mono text-xs sm:text-sm'>
+                APP_ADMIN_PASSWORD
               </code>{' '}
               环境变量以启用访问控制。
             </p>

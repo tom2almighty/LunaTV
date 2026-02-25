@@ -25,8 +25,8 @@ export async function POST(request: NextRequest) {
 
     const username = authInfo.username;
 
-    // 不允许站长修改密码（站长用户名等于 process.env.APP_ADMIN_USER）
-    if (username === process.env.APP_ADMIN_USER) {
+    // 不允许站长修改密码（站长用户名等于 process.env.APP_ADMIN_USERNAME）
+    if (username === process.env.APP_ADMIN_USERNAME) {
       return NextResponse.json(
         { error: '站长不能通过此接口修改密码' },
         { status: 403 },

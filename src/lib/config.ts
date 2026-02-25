@@ -192,14 +192,14 @@ async function getInitConfig(
     console.error('获取用户列表失败:', e);
   }
   const allUsers = userNames
-    .filter((u) => u !== process.env.APP_ADMIN_USER)
+    .filter((u) => u !== process.env.APP_ADMIN_USERNAME)
     .map((u) => ({
       username: u,
       role: 'user',
       banned: false,
     }));
   allUsers.unshift({
-    username: process.env.APP_ADMIN_USER!,
+    username: process.env.APP_ADMIN_USERNAME!,
     role: 'owner',
     banned: false,
   });
@@ -293,7 +293,7 @@ export function configSelfCheck(adminConfig: AdminConfig): AdminConfig {
   }
 
   // 站长变更自检
-  const ownerUser = process.env.APP_ADMIN_USER;
+  const ownerUser = process.env.APP_ADMIN_USERNAME;
 
   // 去重
   const seenUsernames = new Set<string>();
