@@ -45,6 +45,7 @@ export const API_CONFIG = {
 
 // 在模块加载时根据环境决定配置来源
 let cachedConfig: AdminConfig;
+let configInitPromise: Promise<AdminConfig> | null = null;
 
 // 从配置文件补充管理员配置
 export function refineConfig(adminConfig: AdminConfig): AdminConfig {
@@ -236,22 +237,38 @@ export async function getConfig(): Promise<AdminConfig> {
     return cachedConfig;
   }
 
-  // 读 db
-  let adminConfig: AdminConfig | null = null;
-  try {
-    adminConfig = await getAdminConfig();
-  } catch (e) {
-    console.error('获取管理员配置失败:', e);
+  if (configInitPromise) {
+    return configInitPromise;
   }
 
-  // db 中无配置，执行一次初始化
-  if (!adminConfig) {
-    adminConfig = await getInitConfig('');
-  }
-  adminConfig = configSelfCheck(adminConfig);
-  cachedConfig = adminConfig;
-  saveAdminConfig(cachedConfig);
-  return cachedConfig;
+  configInitPromise = (async () => {
+    // 读 db
+    let adminConfig: AdminConfig | null = null;
+    try {
+      adminConfig = await getAdminConfig();
+    } catch (e) {
+      console.error('获取管理员配置失败:', e);
+    }
+
+    // db 中无配置，执行一次初始化
+    if (!adminConfig) {
+      adminConfig = await getInitConfig('');
+    }
+    adminConfig = configSelfCheck(adminConfig);
+    cachedConfig = adminConfig;
+
+    try {
+      await saveAdminConfig(cachedConfig);
+    } catch (e) {
+      console.error('保存管理员配置失败:', e);
+    }
+
+    return cachedConfig;
+  })().finally(() => {
+    configInitPromise = null;
+  });
+
+  return configInitPromise;
 }
 
 export function configSelfCheck(adminConfig: AdminConfig): AdminConfig {

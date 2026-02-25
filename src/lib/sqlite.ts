@@ -10,6 +10,7 @@ const DB_PATH = path.join(DATA_DIR, 'sqlite.db');
 
 // 全局数据库实例
 let dbInstance: Database | null = null;
+let dbInitPromise: Promise<Database> | null = null;
 
 /**
  * 确保 data 目录存在
@@ -151,22 +152,45 @@ export async function getDb(): Promise<Database> {
     return dbInstance;
   }
 
-  await ensureDataDir();
+  if (dbInitPromise) {
+    return dbInitPromise;
+  }
 
-  dbInstance = await open({
-    filename: DB_PATH,
-    driver: sqlite3.Database,
+  dbInitPromise = (async () => {
+    await ensureDataDir();
+
+    let openingDb: Database | null = null;
+    try {
+      openingDb = await open({
+        filename: DB_PATH,
+        driver: sqlite3.Database,
+      });
+
+      // 启用 WAL 模式提升并发性能
+      await openingDb.exec('PRAGMA journal_mode = WAL');
+      await openingDb.exec('PRAGMA busy_timeout = 5000');
+
+      await initTables(openingDb);
+
+      dbInstance = openingDb;
+      console.log(`SQLite 数据库已连接: ${DB_PATH}`);
+      return dbInstance;
+    } catch (err) {
+      // 若初始化中途失败，确保关闭半初始化连接，避免连接泄露
+      if (openingDb) {
+        try {
+          await openingDb.close();
+        } catch (closeErr) {
+          console.warn('关闭异常数据库连接失败:', closeErr);
+        }
+      }
+      throw err;
+    }
+  })().finally(() => {
+    dbInitPromise = null;
   });
 
-  // 启用 WAL 模式提升并发性能
-  await dbInstance.exec('PRAGMA journal_mode = WAL');
-  await dbInstance.exec('PRAGMA busy_timeout = 5000');
-
-  await initTables(dbInstance);
-
-  console.log(`SQLite 数据库已连接: ${DB_PATH}`);
-
-  return dbInstance;
+  return dbInitPromise;
 }
 
 /**
