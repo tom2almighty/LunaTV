@@ -106,6 +106,9 @@ export type AlertModalState = {
   showConfirm?: boolean;
 };
 
+export type AlertConfig = Omit<AlertModalState, 'isOpen'>;
+export type ShowAlert = (config: AlertConfig) => void;
+
 export const useAlertModal = () => {
   const [alertModal, setAlertModal] = useState<AlertModalState>({
     isOpen: false,
@@ -113,7 +116,7 @@ export const useAlertModal = () => {
     title: '',
   });
 
-  const showAlert = (config: Omit<AlertModalState, 'isOpen'>) => {
+  const showAlert: ShowAlert = (config) => {
     setAlertModal({ ...config, isOpen: true });
   };
 
@@ -124,10 +127,9 @@ export const useAlertModal = () => {
   return { alertModal, showAlert, hideAlert };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const showError = (
   message: string,
-  showAlert?: (config: any) => void,
+  showAlert?: ShowAlert,
 ) => {
   if (showAlert) {
     showAlert({ type: 'error', title: '错误', message, showConfirm: true });
@@ -136,10 +138,9 @@ export const showError = (
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const showSuccess = (
   message: string,
-  showAlert?: (config: any) => void,
+  showAlert?: ShowAlert,
 ) => {
   if (showAlert) {
     showAlert({ type: 'success', title: '成功', message, timer: 2000 });

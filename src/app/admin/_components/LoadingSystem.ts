@@ -15,11 +15,10 @@ export const useLoadingState = () => {
 
   const isLoading = (key: string) => loadingStates[key] || false;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const withLoading = async (
+  const withLoading = async <T>(
     key: string,
-    operation: () => Promise<any>,
-  ): Promise<any> => {
+    operation: () => Promise<T>,
+  ): Promise<T> => {
     setLoading(key, true);
     try {
       return await operation();
