@@ -20,6 +20,10 @@ import {
   getSearchHistory,
   subscribeToDataUpdates,
 } from '@/lib/db.client';
+import {
+  getSearchMemoryCache,
+  setSearchMemoryCache,
+} from '@/lib/search-memory-cache';
 import { SearchResult } from '@/lib/types';
 
 import SearchResultFilter, {
@@ -29,6 +33,8 @@ import SearchSuggestions from '@/components/SearchSuggestions';
 import VideoCard, { VideoCardHandle } from '@/components/VideoCard';
 
 function SearchPageClient() {
+  const MIN_SEARCH_LOADING_MS = 280;
+
   // 搜索历史
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   // 返回顶部按钮显示状态
@@ -39,6 +45,8 @@ function SearchPageClient() {
   const currentQueryRef = useRef<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const loadingStartedAtRef = useRef<number>(0);
+  const loadingTimerRef = useRef<number | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -60,6 +68,40 @@ function SearchPageClient() {
   >(new Map());
   const virtualGridRef = useRef<HTMLDivElement | null>(null);
   const [virtualGridColumns, setVirtualGridColumns] = useState(3);
+
+  const beginSearchLoading = useCallback(() => {
+    loadingStartedAtRef.current = Date.now();
+    if (loadingTimerRef.current) {
+      clearTimeout(loadingTimerRef.current);
+      loadingTimerRef.current = null;
+    }
+    setIsLoading(true);
+  }, []);
+
+  const endSearchLoading = useCallback(() => {
+    const elapsed = Date.now() - loadingStartedAtRef.current;
+    const remaining = Math.max(0, MIN_SEARCH_LOADING_MS - elapsed);
+    if (loadingTimerRef.current) {
+      clearTimeout(loadingTimerRef.current);
+      loadingTimerRef.current = null;
+    }
+    if (remaining === 0) {
+      setIsLoading(false);
+      return;
+    }
+    loadingTimerRef.current = window.setTimeout(() => {
+      setIsLoading(false);
+      loadingTimerRef.current = null;
+    }, remaining);
+  }, []);
+
+  const endSearchLoadingImmediately = useCallback(() => {
+    if (loadingTimerRef.current) {
+      clearTimeout(loadingTimerRef.current);
+      loadingTimerRef.current = null;
+    }
+    setIsLoading(false);
+  }, []);
 
   const getGroupRef = (
     key: string,
@@ -549,10 +591,20 @@ function SearchPageClient() {
         clearTimeout(flushTimerRef.current);
         flushTimerRef.current = null;
       }
-      setIsLoading(true);
+      beginSearchLoading();
       setShowResults(true);
 
       const trimmed = query.trim();
+      const cachedEntry = getSearchMemoryCache(trimmed);
+      if (cachedEntry) {
+        setSearchResults(cachedEntry.results);
+        setTotalSources(cachedEntry.totalSources);
+        setCompletedSources(cachedEntry.completedSources);
+        setShowSuggestions(false);
+        addSearchHistory(query);
+        endSearchLoadingImmediately();
+        return;
+      }
 
       // 每次搜索时重新读取设置，确保使用最新的配置
       let currentFluidSearch = useFluidSearch;
@@ -635,7 +687,7 @@ function SearchPageClient() {
                     setSearchResults((prev) => prev.concat(toAppend));
                   });
                 }
-                setIsLoading(false);
+                endSearchLoading();
                 try {
                   es.close();
                 } catch {}
@@ -648,7 +700,7 @@ function SearchPageClient() {
         };
 
         es.onerror = () => {
-          setIsLoading(false);
+          endSearchLoading();
           // 错误时也清空缓冲
           if (pendingResultsRef.current.length > 0) {
             const toAppend = pendingResultsRef.current;
@@ -687,10 +739,10 @@ function SearchPageClient() {
               setTotalSources(1);
               setCompletedSources(1);
             }
-            setIsLoading(false);
+            endSearchLoading();
           })
           .catch(() => {
-            setIsLoading(false);
+            endSearchLoading();
           });
       }
       setShowSuggestions(false);
@@ -700,8 +752,24 @@ function SearchPageClient() {
     } else {
       setShowResults(false);
       setShowSuggestions(false);
+      endSearchLoading();
     }
-  }, [searchParams]);
+  }, [
+    searchParams,
+    beginSearchLoading,
+    endSearchLoading,
+    endSearchLoadingImmediately,
+  ]);
+
+  useEffect(() => {
+    const query = currentQueryRef.current.trim();
+    if (!query || !showResults) return;
+    setSearchMemoryCache(query, {
+      results: searchResults,
+      totalSources,
+      completedSources,
+    });
+  }, [searchResults, totalSources, completedSources, showResults]);
 
   // 组件卸载时，关闭可能存在的连接
   useEffect(() => {
@@ -715,6 +783,10 @@ function SearchPageClient() {
       if (flushTimerRef.current) {
         clearTimeout(flushTimerRef.current);
         flushTimerRef.current = null;
+      }
+      if (loadingTimerRef.current) {
+        clearTimeout(loadingTimerRef.current);
+        loadingTimerRef.current = null;
       }
       pendingResultsRef.current = [];
     };
@@ -747,7 +819,7 @@ function SearchPageClient() {
 
     // 回显搜索框
     setSearchQuery(trimmed);
-    setIsLoading(true);
+    beginSearchLoading();
     setShowResults(true);
     setShowSuggestions(false);
 
@@ -760,7 +832,7 @@ function SearchPageClient() {
     setShowSuggestions(false);
 
     // 自动执行搜索
-    setIsLoading(true);
+    beginSearchLoading();
     setShowResults(true);
 
     router.push(`/search?q=${encodeURIComponent(suggestion)}`);
@@ -837,7 +909,7 @@ function SearchPageClient() {
 
                   // 回显搜索框
                   setSearchQuery(trimmed);
-                  setIsLoading(true);
+                  beginSearchLoading();
                   setShowResults(true);
                   setShowSuggestions(false);
 
