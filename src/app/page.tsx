@@ -11,11 +11,7 @@ import PageLayout from '@/components/PageLayout';
 async function getHomeData() {
   try {
     const [moviesData, tvShowsData, varietyShowsData] = await Promise.all([
-      getDoubanCategoriesServer({
-        kind: 'movie',
-        category: '热门',
-        type: '全部',
-      }),
+      getDoubanCategoriesServer({ kind: 'movie', category: '热门', type: '全部' }),
       getDoubanCategoriesServer({ kind: 'tv', category: 'tv', type: 'tv' }),
       getDoubanCategoriesServer({ kind: 'tv', category: 'show', type: 'show' }),
     ]);

@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Clock, Target, Tv } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -25,6 +26,18 @@ export default function EpgScrollableRow({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [currentPlayingIndex, setCurrentPlayingIndex] = useState<number>(-1);
+  const programVirtualizer = useVirtualizer({
+    count: programs.length,
+    getScrollElement: () => containerRef.current,
+    horizontal: true,
+    estimateSize: () => {
+      if (typeof window !== 'undefined' && window.innerWidth >= 640) {
+        return 200;
+      }
+      return 152;
+    },
+    overscan: 8,
+  });
 
   // 处理滚轮事件，实现横向滚动
   const handleWheel = (e: WheelEvent) => {
@@ -51,30 +64,15 @@ export default function EpgScrollableRow({
 
   // 自动滚动到正在播放的节目
   const scrollToCurrentProgram = () => {
-    if (containerRef.current) {
-      const currentProgramIndex = programs.findIndex((program) =>
-        isCurrentlyPlaying(program),
-      );
-      if (currentProgramIndex !== -1) {
-        const programElement = containerRef.current.children[
-          currentProgramIndex
-        ] as HTMLElement;
-        if (programElement) {
-          const container = containerRef.current;
-          const programLeft = programElement.offsetLeft;
-          const containerWidth = container.clientWidth;
-          const programWidth = programElement.offsetWidth;
+    const currentProgramIndex = programs.findIndex((program) =>
+      isCurrentlyPlaying(program),
+    );
 
-          // 计算滚动位置，使正在播放的节目居中显示
-          const scrollLeft =
-            programLeft - containerWidth / 2 + programWidth / 2;
-
-          container.scrollTo({
-            left: Math.max(0, scrollLeft),
-            behavior: 'smooth',
-          });
-        }
-      }
+    if (currentProgramIndex !== -1) {
+      programVirtualizer.scrollToIndex(currentProgramIndex, {
+        align: 'center',
+        behavior: 'smooth',
+      });
     }
   };
 
@@ -203,7 +201,7 @@ export default function EpgScrollableRow({
         {currentPlayingIndex !== -1 && (
           <button
             onClick={scrollToCurrentProgram}
-            className='text-muted-foreground hover:text-primary bg-muted/50 bg-card hover:bg-primary/10 border-border hover:border-primary/50 flex items-center gap-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition-all duration-200 sm:gap-1.5 sm:px-2.5 sm:py-2'
+            className='text-muted-foreground hover:text-primary bg-muted/50 hover:bg-primary/10 border-border hover:border-primary/50 flex items-center gap-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition-all duration-200 sm:gap-1.5 sm:px-2.5 sm:py-2'
             title='滚动到当前播放位置'
           >
             <Target className='h-2.5 w-2.5 sm:h-3 sm:w-3' />
@@ -220,84 +218,104 @@ export default function EpgScrollableRow({
       >
         <div
           ref={containerRef}
-          className='scrollbar-hide flex min-h-[100px] overflow-x-auto px-2 py-2 pb-4 sm:min-h-[120px] sm:px-4'
+          className='scrollbar-hide relative min-h-[100px] overflow-x-auto px-2 py-2 pb-4 sm:min-h-[120px] sm:px-4'
         >
-          {programs.map((program, index) => {
-            // 使用 currentPlayingIndex 来判断播放状态，确保样式能正确更新
-            const isPlaying = index === currentPlayingIndex;
-            const isFinishedProgram = index < currentPlayingIndex;
-            const isUpcomingProgram = index > currentPlayingIndex;
+          <div
+            style={{
+              height: '100%',
+              position: 'relative',
+              width: `${programVirtualizer.getTotalSize()}px`,
+            }}
+          >
+            {programVirtualizer.getVirtualItems().map((virtualItem) => {
+              const program = programs[virtualItem.index];
+              if (!program) return null;
 
-            return (
-              <div
-                key={index}
-                className={`flex min-h-[100px] w-36 flex-shrink-0 flex-col rounded-lg border p-2 transition-all duration-200 sm:min-h-[120px] sm:w-48 sm:p-3 ${
-                  isPlaying
-                    ? 'bg-primary/10 border-primary/30'
-                    : isFinishedProgram
-                      ? 'bg-muted/50 bg-card border-border border-border'
-                      : isUpcomingProgram
-                        ? 'bg-muted border-border'
-                        : 'bg-card border-border hover:border-border hover:border-border'
-                }`}
-              >
-                {/* 时间显示在顶部 */}
-                <div className='mb-2 flex flex-shrink-0 items-center justify-between sm:mb-3'>
-                  <span
-                    className={`text-xs font-medium ${
+              // 使用 currentPlayingIndex 来判断播放状态，确保样式能正确更新
+              const isPlaying = virtualItem.index === currentPlayingIndex;
+              const isFinishedProgram = virtualItem.index < currentPlayingIndex;
+              const isUpcomingProgram = virtualItem.index > currentPlayingIndex;
+
+              return (
+                <div
+                  key={virtualItem.key}
+                  className='absolute left-0 top-0 pr-2 sm:pr-3'
+                  style={{
+                    height: '100%',
+                    transform: `translateX(${virtualItem.start}px)`,
+                    width: `${virtualItem.size}px`,
+                  }}
+                >
+                  <div
+                    className={`flex min-h-[100px] h-full w-full flex-col rounded-lg border p-2 transition-all duration-200 sm:min-h-[120px] sm:p-3 ${
                       isPlaying
-                        ? 'text-primary'
+                        ? 'bg-primary/10 border-primary/30'
                         : isFinishedProgram
-                          ? 'text-muted-foreground'
+                          ? 'bg-muted/50 border-border'
                           : isUpcomingProgram
-                            ? 'text-muted-foreground'
-                            : 'text-muted-foreground text-foreground'
+                            ? 'bg-muted border-border'
+                            : 'bg-card border-border hover:border-border'
                     }`}
                   >
-                    {formatTime(program.start)}
-                  </span>
-                  <span className='text-muted-foreground text-xs'>
-                    {formatTime(program.end)}
-                  </span>
-                </div>
+                    {/* 时间显示在顶部 */}
+                    <div className='mb-2 flex shrink-0 items-center justify-between sm:mb-3'>
+                      <span
+                        className={`text-xs font-medium ${
+                          isPlaying
+                            ? 'text-primary'
+                            : isFinishedProgram
+                              ? 'text-muted-foreground'
+                              : isUpcomingProgram
+                                ? 'text-muted-foreground'
+                                : 'text-muted-foreground'
+                        }`}
+                      >
+                        {formatTime(program.start)}
+                      </span>
+                      <span className='text-muted-foreground text-xs'>
+                        {formatTime(program.end)}
+                      </span>
+                    </div>
 
-                {/* 标题在中间，占据剩余空间 */}
-                <div
-                  className={`flex-1 text-xs font-medium sm:text-sm ${
-                    isPlaying
-                      ? 'text-primary'
-                      : isFinishedProgram
-                        ? 'text-muted-foreground'
-                        : isUpcomingProgram
-                          ? 'text-foreground'
-                          : 'text-foreground'
-                  }`}
-                  style={{
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    lineHeight: '1.4',
-                    maxHeight: '2.8em',
-                  }}
-                  title={program.title}
-                >
-                  {program.title}
-                </div>
+                    {/* 标题在中间，占据剩余空间 */}
+                    <div
+                      className={`flex-1 text-xs font-medium sm:text-sm ${
+                        isPlaying
+                          ? 'text-primary'
+                          : isFinishedProgram
+                            ? 'text-muted-foreground'
+                            : isUpcomingProgram
+                              ? 'text-foreground'
+                              : 'text-foreground'
+                      }`}
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        lineHeight: '1.4',
+                        maxHeight: '2.8em',
+                      }}
+                      title={program.title}
+                    >
+                      {program.title}
+                    </div>
 
-                {/* 正在播放状态在底部 */}
-                {isPlaying && (
-                  <div className='mt-auto flex flex-shrink-0 items-center gap-1 pt-1 sm:gap-1.5 sm:pt-2'>
-                    <div className='bg-primary h-1.5 w-1.5 animate-pulse rounded-full sm:h-2 sm:w-2'></div>
-                    <span className='text-primary text-xs font-medium'>
-                      正在播放
-                    </span>
+                    {/* 正在播放状态在底部 */}
+                    {isPlaying && (
+                      <div className='mt-auto flex shrink-0 items-center gap-1 pt-1 sm:gap-1.5 sm:pt-2'>
+                        <div className='bg-primary h-1.5 w-1.5 animate-pulse rounded-full sm:h-2 sm:w-2'></div>
+                        <span className='text-primary text-xs font-medium'>
+                          正在播放
+                        </span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

@@ -69,11 +69,19 @@ const nextConfig = {
   },
 };
 
-const withPWA = require('next-pwa')({
-  dest: 'public',
+const withSerwist = require('@serwist/next').default({
+  swSrc: 'src/sw.ts',
+  swDest: 'public/sw.js',
   disable: process.env.NODE_ENV === 'development',
   register: true,
-  skipWaiting: true,
+  cacheOnNavigation: false,
+  reloadOnOnline: true,
+  // 预缓存白名单，避免把流媒体分片纳入构建清单
+  globPublicPatterns: [
+    '**/*.{js,css,html,ico,png,svg,txt,woff,woff2,webmanifest,json}',
+  ],
+  // 明确排除流媒体文件，防止 SW 缓存 HLS / DASH 切片
+  exclude: [/\.(?:m3u8|ts|m4s|mpd)(?:\?.*)?$/i],
 });
 
-module.exports = withPWA(nextConfig);
+module.exports = withSerwist(nextConfig);
