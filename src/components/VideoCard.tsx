@@ -27,6 +27,7 @@ import {
   saveFavorite,
   subscribeToDataUpdates,
 } from '@/lib/db.client';
+import { SearchResult } from '@/lib/types';
 import { processImageUrl } from '@/lib/utils';
 import { useLongPress } from '@/hooks/useLongPress';
 
@@ -51,6 +52,7 @@ export interface VideoCardProps {
   rate?: string;
   type?: string;
   isAggregate?: boolean;
+  play_group?: SearchResult[];
 }
 
 export type VideoCardHandle = {
@@ -79,12 +81,14 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
       rate,
       type = '',
       isAggregate = false,
+      play_group,
     }: VideoCardProps,
     ref,
   ) {
     const router = useRouter();
     const [favorited, setFavorited] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isRouting, setIsRouting] = useState(false);
     const [showMobileActions, setShowMobileActions] = useState(false);
     const [searchFavorited, setSearchFavorited] = useState<boolean | null>(
       null,
@@ -231,55 +235,142 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
       [from, actualSource, actualId, onDelete],
     );
 
+    const createPlaySession = useCallback(
+      async (openInNewTab = false) => {
+        const openDirectPlayPage = () => {
+          if (!actualSource || !actualId) return;
+          const directUrl = `/play?source=${encodeURIComponent(actualSource)}&id=${encodeURIComponent(actualId)}${
+            actualTitle ? `&title=${encodeURIComponent(actualTitle)}` : ''
+          }${actualYear ? `&year=${encodeURIComponent(actualYear)}` : ''}${
+            actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''
+          }${
+            source_name ? `&sname=${encodeURIComponent(source_name)}` : ''
+          }`;
+
+          if (openInNewTab) {
+            window.open(directUrl, '_blank');
+          } else {
+            router.push(directUrl);
+          }
+        };
+
+        if ((from === 'playrecord' || from === 'favorite') && actualSource && actualId) {
+          openDirectPlayPage();
+          return;
+        }
+
+        if (isRouting) return;
+        setIsRouting(true);
+
+        try {
+          let payload: Record<string, any> | null = null;
+
+          if (from === 'search') {
+            if (play_group && play_group.length > 0) {
+              payload = {
+                mode: 'group',
+                title: actualTitle,
+                year: actualYear || 'unknown',
+                type: actualSearchType || undefined,
+                query: actualQuery || actualTitle,
+                preferredSource: actualSource || undefined,
+                preferredId: actualId || undefined,
+                candidates: play_group,
+              };
+            } else if (actualSource && actualId) {
+              payload = {
+                mode: 'direct',
+                source: actualSource,
+                id: actualId,
+                title: actualTitle,
+                year: actualYear || 'unknown',
+                type: actualSearchType || undefined,
+                query: actualQuery || actualTitle,
+              };
+            } else {
+              payload = {
+                mode: 'search',
+                keyword: actualQuery || actualTitle,
+                expectedTitle: actualTitle || undefined,
+                expectedYear: actualYear || undefined,
+                expectedType: actualSearchType || undefined,
+              };
+            }
+          } else if (from === 'douban') {
+            payload = {
+              mode: 'search',
+              keyword: actualTitle,
+              expectedTitle: actualTitle,
+              expectedYear: actualYear || undefined,
+              expectedType: actualSearchType || undefined,
+            };
+          } else if (actualSource && actualId) {
+            payload = {
+              mode: 'direct',
+              source: actualSource,
+              id: actualId,
+              title: actualTitle,
+              year: actualYear || 'unknown',
+              type: actualSearchType || undefined,
+              query: actualQuery || actualTitle,
+            };
+          } else {
+            payload = {
+              mode: 'search',
+              keyword: actualQuery || actualTitle,
+              expectedTitle: actualTitle || undefined,
+              expectedYear: actualYear || undefined,
+              expectedType: actualSearchType || undefined,
+            };
+          }
+
+          const resp = await fetch('/api/play/bootstrap', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const data = await resp.json();
+          if (!resp.ok || !data.play_session_id) {
+            throw new Error(data.error || '创建播放会话失败');
+          }
+
+          const url = `/play?ps=${encodeURIComponent(data.play_session_id)}`;
+          if (openInNewTab) {
+            window.open(url, '_blank');
+          } else {
+            router.push(url);
+          }
+        } catch (error) {
+          if ((from === 'playrecord' || from === 'favorite') && actualSource && actualId) {
+            openDirectPlayPage();
+          }
+        } finally {
+          setIsRouting(false);
+        }
+      },
+      [
+        isRouting,
+        from,
+        play_group,
+        actualTitle,
+        actualYear,
+        actualSearchType,
+        actualQuery,
+        actualSource,
+        actualId,
+        source_name,
+        router,
+      ],
+    );
+
     const handleClick = useCallback(() => {
-      if (from === 'douban' || (isAggregate && !actualSource && !actualId)) {
-        const url = `/play?title=${encodeURIComponent(actualTitle.trim())}${
-          actualYear ? `&year=${actualYear}` : ''
-        }${actualSearchType ? `&stype=${actualSearchType}` : ''}${actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''}`;
-        router.push(url);
-      } else if (actualSource && actualId) {
-        const url = `/play?source=${actualSource}&id=${actualId}&title=${encodeURIComponent(
-          actualTitle,
-        )}${actualYear ? `&year=${actualYear}` : ''}${
-          actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''
-        }${actualSearchType ? `&stype=${actualSearchType}` : ''}`;
-        router.push(url);
-      }
-    }, [
-      from,
-      actualSource,
-      actualId,
-      router,
-      actualTitle,
-      actualYear,
-      isAggregate,
-      actualQuery,
-      actualSearchType,
-    ]);
+      createPlaySession(false);
+    }, [createPlaySession]);
 
     // 新标签页播放处理函数
     const handlePlayInNewTab = useCallback(() => {
-      if (from === 'douban' || (isAggregate && !actualSource && !actualId)) {
-        const url = `/play?title=${encodeURIComponent(actualTitle.trim())}${actualYear ? `&year=${actualYear}` : ''}${actualSearchType ? `&stype=${actualSearchType}` : ''}${actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''}`;
-        window.open(url, '_blank');
-      } else if (actualSource && actualId) {
-        const url = `/play?source=${actualSource}&id=${actualId}&title=${encodeURIComponent(
-          actualTitle,
-        )}${actualYear ? `&year=${actualYear}` : ''}${
-          actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''
-        }${actualSearchType ? `&stype=${actualSearchType}` : ''}`;
-        window.open(url, '_blank');
-      }
-    }, [
-      from,
-      actualSource,
-      actualId,
-      actualTitle,
-      actualYear,
-      isAggregate,
-      actualQuery,
-      actualSearchType,
-    ]);
+      createPlaySession(true);
+    }, [createPlaySession]);
 
     // 检查搜索结果的收藏状态
     const checkSearchFavoriteStatus = useCallback(async () => {

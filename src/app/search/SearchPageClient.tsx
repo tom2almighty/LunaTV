@@ -196,6 +196,13 @@ function SearchPageClient() {
     return order === 'asc' ? aNum - bNum : bNum - aNum;
   };
 
+  const buildAggregateKey = (item: SearchResult) => {
+    const normalizedTitle = (item.title || '').replaceAll(' ', '');
+    const normalizedYear = item.year || 'unknown';
+    const normalizedType = item.episodes.length === 1 ? 'movie' : 'tv';
+    return `${normalizedTitle}-${normalizedYear}-${normalizedType}`;
+  };
+
   // 聚合后的结果（按标题和年份分组）
   const aggregatedResults = useMemo(() => {
     const map = new Map<string, SearchResult[]>();
@@ -203,9 +210,7 @@ function SearchPageClient() {
 
     searchResults.forEach((item) => {
       // 使用 title + year + type 作为键，year 必然存在，但依然兜底 'unknown'
-      const key = `${item.title.replaceAll(' ', '')}-${
-        item.year || 'unknown'
-      }-${item.episodes.length === 1 ? 'movie' : 'tv'}`;
+      const key = buildAggregateKey(item);
       const arr = map.get(key) || [];
 
       // 如果是新的键，记录其顺序
@@ -222,6 +227,11 @@ function SearchPageClient() {
       (key) => [key, map.get(key)!] as [string, SearchResult[]],
     );
   }, [searchResults]);
+
+  const aggregateGroupMap = useMemo(
+    () => new Map<string, SearchResult[]>(aggregatedResults),
+    [aggregatedResults],
+  );
 
   // 当聚合结果变化时，如果某个聚合已存在，则调用其卡片 ref 的 set 方法增量更新
   useEffect(() => {
@@ -952,6 +962,7 @@ function SearchPageClient() {
                                 ref={getGroupRef(mapKey)}
                                 from='search'
                                 isAggregate={true}
+                                play_group={group}
                                 title={title}
                                 poster={poster}
                                 year={year}
@@ -983,6 +994,11 @@ function SearchPageClient() {
                               title={item.title}
                               poster={item.poster}
                               episodes={item.episodes.length}
+                              play_group={
+                                aggregateGroupMap.get(buildAggregateKey(item)) || [
+                                  item,
+                                ]
+                              }
                               source={item.source}
                               source_name={item.source_name}
                               douban_id={item.douban_id}

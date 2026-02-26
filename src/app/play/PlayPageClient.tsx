@@ -99,19 +99,24 @@ function PlayPageClient() {
   }, [blockAdEnabled]);
 
   // 视频基本信息
-  const [videoTitle, setVideoTitle] = useState(searchParams.get('title') || '');
-  const [videoYear, setVideoYear] = useState(searchParams.get('year') || '');
+  const playSessionId = searchParams.get('ps') || '';
+  const fallbackSource = searchParams.get('source') || '';
+  const fallbackId = searchParams.get('id') || '';
+  const fallbackTitle = searchParams.get('title') || '';
+  const fallbackYear = searchParams.get('year') || '';
+  const fallbackSearchTitle = searchParams.get('stitle') || '';
+  const fallbackSourceName = searchParams.get('sname') || '';
+  const fallbackType = searchParams.get('stype') || '';
+  const [videoTitle, setVideoTitle] = useState('');
+  const [videoYear, setVideoYear] = useState('');
   const [videoCover, setVideoCover] = useState('');
   const [videoDoubanId, setVideoDoubanId] = useState(0);
   // 当前源和ID
-  const [currentSource, setCurrentSource] = useState(
-    searchParams.get('source') || '',
-  );
-  const [currentId, setCurrentId] = useState(searchParams.get('id') || '');
+  const [currentSource, setCurrentSource] = useState('');
+  const [currentId, setCurrentId] = useState('');
 
   // 搜索所需信息
-  const [searchTitle] = useState(searchParams.get('stitle') || '');
-  const [searchType] = useState(searchParams.get('stype') || '');
+  const [searchTitle, setSearchTitle] = useState('');
   // 集数相关
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
 
@@ -479,147 +484,131 @@ function PlayPageClient() {
     updateVideoUrl(detail, currentEpisodeIndex);
   }, [detail, currentEpisodeIndex]);
 
-  // 进入页面时直接获取全部源信息
+  // 进入页面时根据播放会话拉取详情与可换源列表
   useEffect(() => {
-    const fetchSourceDetail = async (
-      source: string,
-      id: string,
-    ): Promise<SearchResult[]> => {
-      try {
-        const detailResponse = await fetch(
-          `/api/detail?source=${source}&id=${id}`,
-        );
-        if (!detailResponse.ok) {
-          throw new Error('获取视频详情失败');
-        }
-        const detailData = (await detailResponse.json()) as SearchResult;
-        setAvailableSources([detailData]);
-        return [detailData];
-      } catch (err) {
-        console.error('获取视频详情失败:', err);
-        return [];
-      } finally {
-        setSourceSearchLoading(false);
+    const resolvePlaySessionId = async (): Promise<string> => {
+      if (playSessionId) {
+        return playSessionId;
       }
-    };
-    const fetchSourcesData = async (query: string): Promise<SearchResult[]> => {
-      // 根据搜索词获取全部源信息
-      try {
-        const response = await fetch(
-          `/api/search?q=${encodeURIComponent(query.trim())}`,
-        );
-        if (!response.ok) {
-          throw new Error('搜索失败');
-        }
-        const data = await response.json();
 
-        // 处理搜索结果，根据规则过滤
-        const results = data.results.filter(
-          (result: SearchResult) =>
-            result.title.replaceAll(' ', '').toLowerCase() ===
-              videoTitleRef.current.replaceAll(' ', '').toLowerCase() &&
-            (videoYearRef.current
-              ? result.year.toLowerCase() === videoYearRef.current.toLowerCase()
-              : true) &&
-            (searchType
-              ? (searchType === 'tv' && result.episodes.length > 1) ||
-                (searchType === 'movie' && result.episodes.length === 1)
-              : true),
-        );
-        setAvailableSources(results);
-        return results;
-      } catch (err) {
-        setSourceSearchError(err instanceof Error ? err.message : '搜索失败');
-        setAvailableSources([]);
-        return [];
-      } finally {
-        setSourceSearchLoading(false);
+      if (!fallbackSource || !fallbackId) {
+        throw new Error('缺少播放会话参数');
       }
+
+      setLoadingStage('fetching');
+      setLoadingMessage('🎬 正在创建播放会话...');
+
+      const bootstrapResponse = await fetch('/api/play/bootstrap', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mode: 'direct',
+          source: fallbackSource,
+          id: fallbackId,
+          title: fallbackTitle || undefined,
+          year: fallbackYear || undefined,
+          type:
+            fallbackType === 'movie' || fallbackType === 'tv'
+              ? fallbackType
+              : undefined,
+          query: fallbackSearchTitle || fallbackTitle || undefined,
+          source_name: fallbackSourceName || undefined,
+          snapshot: {
+            source: fallbackSource,
+            id: fallbackId,
+            title: fallbackTitle || '',
+            year: fallbackYear || 'unknown',
+            source_name: fallbackSourceName || '',
+          },
+        }),
+      });
+      const bootstrapData = await bootstrapResponse.json();
+      if (!bootstrapResponse.ok || !bootstrapData.play_session_id) {
+        throw new Error(bootstrapData.error || '创建播放会话失败');
+      }
+
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set('ps', bootstrapData.play_session_id);
+      newUrl.searchParams.delete('source');
+      newUrl.searchParams.delete('id');
+      newUrl.searchParams.delete('title');
+      newUrl.searchParams.delete('year');
+      newUrl.searchParams.delete('stitle');
+      newUrl.searchParams.delete('sname');
+      newUrl.searchParams.delete('stype');
+      window.history.replaceState({}, '', newUrl.toString());
+
+      return String(bootstrapData.play_session_id);
     };
 
     const initAll = async () => {
-      if (!currentSource && !currentId && !videoTitle && !searchTitle) {
-        setError('缺少必要参数');
-        setLoading(false);
-        return;
-      }
       setLoading(true);
-      setLoadingStage(currentSource && currentId ? 'fetching' : 'searching');
-      setLoadingMessage(
-        currentSource && currentId
-          ? '🎬 正在获取视频详情...'
-          : '🔍 正在搜索播放源...',
-      );
+      setSourceSearchLoading(true);
+      setSourceSearchError(null);
+      setLoadingStage('fetching');
+      setLoadingMessage('🎬 正在准备播放...');
 
-      let sourcesInfo = await fetchSourcesData(searchTitle || videoTitle);
-      if (
-        currentSource &&
-        currentId &&
-        !sourcesInfo.some(
-          (source) =>
-            source.source === currentSource && source.id === currentId,
-        )
-      ) {
-        sourcesInfo = await fetchSourceDetail(currentSource, currentId);
-      }
-      if (sourcesInfo.length === 0) {
-        setError('未找到匹配结果');
-        setLoading(false);
-        return;
-      }
-
-      let detailData: SearchResult = sourcesInfo[0];
-      // 指定源和 id 时优先使用目标源
-      if (currentSource && currentId) {
-        const target = sourcesInfo.find(
-          (source) =>
-            source.source === currentSource && source.id === currentId,
+      try {
+        const resolvedPlaySessionId = await resolvePlaySessionId();
+        const response = await fetch(
+          `/api/play/session?ps=${encodeURIComponent(resolvedPlaySessionId)}`,
         );
-        if (target) {
-          detailData = target;
-        } else {
-          setError('未找到匹配结果');
-          setLoading(false);
-          return;
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || '获取播放会话失败');
         }
-      }
 
-      console.log(detailData.source, detailData.id);
+        const detailData = data.detail as SearchResult;
+        const sources = (data.available_sources || []) as SearchResult[];
+        if (!detailData || !detailData.source || !detailData.id) {
+          throw new Error('播放会话数据无效');
+        }
 
-      setCurrentSource(detailData.source);
-      setCurrentId(detailData.id);
-      setVideoYear(detailData.year);
-      setVideoTitle(detailData.title || videoTitleRef.current);
-      setVideoCover(detailData.poster);
-      setVideoDoubanId(detailData.douban_id || 0);
-      setDetail(detailData);
-      if (currentEpisodeIndex >= detailData.episodes.length) {
-        setCurrentEpisodeIndex(0);
-      }
+        setAvailableSources(sources);
+        setSearchTitle((data.search_title || '').toString());
+        setCurrentSource(data.current_source || detailData.source);
+        setCurrentId(data.current_id || detailData.id);
+        setVideoYear((data.year || detailData.year || 'unknown').toString());
+        setVideoTitle((data.title || detailData.title || '').toString());
+        setVideoCover(detailData.poster || '');
+        setVideoDoubanId(detailData.douban_id || 0);
+        setDetail(detailData);
 
-      // 规范URL参数
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('source', detailData.source);
-      newUrl.searchParams.set('id', detailData.id);
-      newUrl.searchParams.set('year', detailData.year);
-      newUrl.searchParams.set('title', detailData.title);
-      window.history.replaceState({}, '', newUrl.toString());
+        if (currentEpisodeIndex >= detailData.episodes.length) {
+          setCurrentEpisodeIndex(0);
+        }
 
-      setLoadingStage('ready');
-      setLoadingMessage('✨ 准备就绪，即将开始播放...');
-
-      // 短暂延迟让用户看到完成状态
-      setTimeout(() => {
+        setLoadingStage('ready');
+        setLoadingMessage('✨ 准备就绪，即将开始播放...');
+        setTimeout(() => {
+          setLoading(false);
+        }, 600);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : '加载播放会话失败';
+        setSourceSearchError(message);
+        setError(message);
         setLoading(false);
-      }, 1000);
+      } finally {
+        setSourceSearchLoading(false);
+      }
     };
 
     initAll();
-  }, []);
+  }, [
+    playSessionId,
+    fallbackSource,
+    fallbackId,
+    fallbackTitle,
+    fallbackYear,
+    fallbackSearchTitle,
+    fallbackSourceName,
+    fallbackType,
+  ]);
 
   // 播放记录处理
   useEffect(() => {
-    // 仅在初次挂载时检查播放记录
     const initFromHistory = async () => {
       if (!currentSource || !currentId) return;
 
@@ -632,12 +621,10 @@ function PlayPageClient() {
           const targetIndex = record.index - 1;
           const targetTime = record.play_time;
 
-          // 更新当前选集索引
           if (targetIndex !== currentEpisodeIndex) {
             setCurrentEpisodeIndex(targetIndex);
           }
 
-          // 保存待恢复的播放进度，待播放器就绪后跳转
           resumeTimeRef.current = targetTime;
         }
       } catch (err) {
@@ -646,11 +633,10 @@ function PlayPageClient() {
     };
 
     initFromHistory();
-  }, []);
+  }, [currentSource, currentId]);
 
   // 跳过片头片尾配置处理
   useEffect(() => {
-    // 仅在初次挂载时检查跳过片头片尾配置
     const initSkipConfig = async () => {
       if (!currentSource || !currentId) return;
 
@@ -665,7 +651,7 @@ function PlayPageClient() {
     };
 
     initSkipConfig();
-  }, []);
+  }, [currentSource, currentId]);
 
   // 处理换源
   const handleSourceChange = async (
@@ -708,13 +694,30 @@ function PlayPageClient() {
         }
       }
 
-      const newDetail = availableSources.find(
-        (source) => source.source === newSource && source.id === newId,
-      );
-      if (!newDetail) {
-        setError('未找到匹配结果');
-        return;
+      if (!playSessionId) {
+        throw new Error('播放会话已失效，请返回搜索页重试');
       }
+
+      const switchResponse = await fetch('/api/play/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ps: playSessionId,
+          source: newSource,
+          id: newId,
+        }),
+      });
+      const switchData = await switchResponse.json();
+      if (!switchResponse.ok) {
+        throw new Error(switchData.error || '换源失败');
+      }
+
+      const newDetail = switchData.detail as SearchResult;
+      const sources = (switchData.available_sources || []) as SearchResult[];
+      setAvailableSources(sources);
+      setSourceSearchError(null);
 
       // 尝试跳转到当前正在播放的集数
       let targetIndex = currentEpisodeIndex;
@@ -734,13 +737,6 @@ function PlayPageClient() {
         resumeTimeRef.current = currentPlayTime;
       }
 
-      // 更新URL参数（不刷新页面）
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('source', newSource);
-      newUrl.searchParams.set('id', newId);
-      newUrl.searchParams.set('year', newDetail.year);
-      window.history.replaceState({}, '', newUrl.toString());
-
       setVideoTitle(newDetail.title || newTitle);
       setVideoYear(newDetail.year);
       setVideoCover(newDetail.poster);
@@ -750,9 +746,10 @@ function PlayPageClient() {
       setDetail(newDetail);
       setCurrentEpisodeIndex(targetIndex);
     } catch (err) {
-      // 隐藏换源加载状态
       setIsVideoLoading(false);
-      setError(err instanceof Error ? err.message : '换源失败');
+      const message = err instanceof Error ? err.message : '换源失败';
+      setSourceSearchError(message);
+      setError(message);
     }
   };
 
@@ -1174,8 +1171,8 @@ function PlayPageClient() {
             ensureVideoSource(video, url);
 
             hls.on(Hls.Events.ERROR, function (event: any, data: any) {
-              console.error('HLS Error:', event, data);
-              if (data.fatal) {
+              if (data?.fatal) {
+                console.warn('HLS Fatal Error:', event, data);
                 switch (data.type) {
                   case Hls.ErrorTypes.NETWORK_ERROR:
                     console.log('网络错误，尝试恢复...');

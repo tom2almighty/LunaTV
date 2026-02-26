@@ -6,7 +6,7 @@
 
 > ⚠️ **重要说明**: 此项目是 [MoonTechLab/LunaTV](https://github.com/MoonTechLab/LunaTV) 的个人 Fork 版本，仅用于个人学习和使用。
 
-> 🎬 **LunaTV** 是一个开箱即用的、跨平台的影视聚合播放器。它基于 **Next.js 14** + **Tailwind&nbsp;CSS** + **TypeScript** 构建，支持多资源搜索、在线播放、收藏同步、播放记录、云端存储，让你可以随时随地畅享海量免费影视内容。
+> 🎬 **LunaTV** 是一个开箱即用的、跨平台的影视聚合播放器。它基于 **Next.js** + **Tailwind&nbsp;CSS** + **TypeScript** 构建，支持多资源搜索、在线播放、收藏同步、播放记录、云端存储，让你可以随时随地畅享海量免费影视内容。
 
 <div align="center">
 
@@ -112,7 +112,9 @@ MoonTV 支持标准的苹果 CMS V10 API 格式。
 
 未配置任一必填项时，中间件会跳转到 `/warning` 页面，不允许正常访问业务页面。
 
-### 可选变量（业务配置）
+### 可选变量
+
+以下变量均为**非必须配置**；未配置时会使用默认值。
 
 | 变量名                                | 说明                                           | 默认值       |
 | ------------------------------------- | ---------------------------------------------- | ------------ |
@@ -127,6 +129,8 @@ MoonTV 支持标准的苹果 CMS V10 API 格式。
 | `NEXT_PUBLIC_DISABLE_YELLOW_FILTER`   | 是否禁用黄色内容过滤（仅当值为 `true` 时生效） | `false`      |
 | `NEXT_PUBLIC_FLUID_SEARCH`            | 是否启用流式搜索（仅当值为 `false` 时关闭）    | `true`       |
 | `NEXT_PUBLIC_ENABLE_REGISTRATION`     | 是否开启前台注册（仅当值为 `true` 时开启）     | `false`      |
+| `PLAY_SESSION_MAX_COUNT`              | 内存中最多保留的播放会话数量上限               | `300`        |
+| `PLAY_SESSION_MAX_SOURCES`            | 单个播放会话最多保留的候选播放源数量上限       | `50`         |
 
 说明：
 
