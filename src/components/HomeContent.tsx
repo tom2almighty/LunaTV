@@ -36,7 +36,6 @@ type FavoriteItem = {
   source_name: string;
   currentEpisode?: number;
   search_title?: string;
-  origin?: 'vod' | 'live';
 };
 
 export default function HomeContent({
@@ -84,7 +83,6 @@ export default function HomeContent({
           source_name: fav.source_name,
           currentEpisode,
           search_title: fav?.search_title,
-          origin: fav?.origin,
         } as FavoriteItem;
       });
     setFavoriteItems(sorted);

@@ -1116,7 +1116,6 @@ function PlayPageClient() {
         url: videoUrl,
         poster: videoCover,
         volume: 0.7,
-        isLive: false,
         muted: false,
         autoplay: true,
         pip: true,

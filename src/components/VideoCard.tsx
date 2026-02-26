@@ -5,7 +5,6 @@ import {
   Heart,
   Link,
   PlayCircleIcon,
-  Radio,
   Trash2,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -52,7 +51,6 @@ export interface VideoCardProps {
   rate?: string;
   type?: string;
   isAggregate?: boolean;
-  origin?: 'vod' | 'live';
 }
 
 export type VideoCardHandle = {
@@ -81,7 +79,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
       rate,
       type = '',
       isAggregate = false,
-      origin = 'vod',
     }: VideoCardProps,
     ref,
   ) {
@@ -235,14 +232,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
     );
 
     const handleClick = useCallback(() => {
-      if (origin === 'live' && actualSource && actualId) {
-        // 直播内容跳转到直播页面
-        const url = `/live?source=${actualSource.replace('live_', '')}&id=${actualId.replace('live_', '')}`;
-        router.push(url);
-      } else if (
-        from === 'douban' ||
-        (isAggregate && !actualSource && !actualId)
-      ) {
+      if (from === 'douban' || (isAggregate && !actualSource && !actualId)) {
         const url = `/play?title=${encodeURIComponent(actualTitle.trim())}${
           actualYear ? `&year=${actualYear}` : ''
         }${actualSearchType ? `&stype=${actualSearchType}` : ''}${actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''}`;
@@ -256,7 +246,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
         router.push(url);
       }
     }, [
-      origin,
       from,
       actualSource,
       actualId,
@@ -270,14 +259,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
 
     // 新标签页播放处理函数
     const handlePlayInNewTab = useCallback(() => {
-      if (origin === 'live' && actualSource && actualId) {
-        // 直播内容跳转到直播页面
-        const url = `/live?source=${actualSource.replace('live_', '')}&id=${actualId.replace('live_', '')}`;
-        window.open(url, '_blank');
-      } else if (
-        from === 'douban' ||
-        (isAggregate && !actualSource && !actualId)
-      ) {
+      if (from === 'douban' || (isAggregate && !actualSource && !actualId)) {
         const url = `/play?title=${encodeURIComponent(actualTitle.trim())}${actualYear ? `&year=${actualYear}` : ''}${actualSearchType ? `&stype=${actualSearchType}` : ''}${actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''}`;
         window.open(url, '_blank');
       } else if (actualSource && actualId) {
@@ -289,7 +271,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
         window.open(url, '_blank');
       }
     }, [
-      origin,
       from,
       actualSource,
       actualId,
@@ -407,7 +388,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
       if (config.showPlayButton) {
         actions.push({
           id: 'play',
-          label: origin === 'live' ? '观看直播' : '播放',
+          label: '播放',
           icon: <PlayCircleIcon size={20} />,
           onClick: handleClick,
           color: 'primary' as const,
@@ -416,7 +397,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
         // 新标签页播放
         actions.push({
           id: 'play-new-tab',
-          label: origin === 'live' ? '新标签页观看' : '新标签页播放',
+          label: '新标签页播放',
           icon: <ExternalLink size={20} />,
           onClick: handlePlayInNewTab,
           color: 'default' as const,
@@ -597,9 +578,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           }}
         >
           {/* 海报容器 */}
-          <div
-            className={`aspect-2/3 relative overflow-hidden rounded-lg ${origin === 'live' ? 'ring-border/80 ring-1' : ''}`}
-          >
+          <div className='aspect-2/3 relative overflow-hidden rounded-lg'>
             {/* 骨架屏 */}
             {!isLoading && <ImagePlaceholder aspectRatio='aspect-2/3' />}
             {/* 图片 */}
@@ -607,11 +586,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
               src={processImageUrl(actualPoster)}
               alt={actualTitle}
               fill
-              className={
-                origin === 'live'
-                  ? 'pointer-events-none object-contain'
-                  : 'pointer-events-none object-cover'
-              }
+              className='pointer-events-none object-cover'
               referrerPolicy='no-referrer'
               loading='lazy'
               onLoad={() => setIsLoading(true)}
@@ -843,12 +818,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             {config.showSourceName && source_name && (
               <span className='text-muted-foreground mt-1 block text-xs'>
                 <span className='border-border group-hover:border-primary/60 group-hover:text-primary inline-block rounded border px-2 py-0.5 transition-all duration-300 ease-in-out'>
-                  {origin === 'live' && (
-                    <Radio
-                      size={12}
-                      className='text-muted-foreground mr-1.5 inline-block'
-                    />
-                  )}
                   {source_name}
                 </span>
               </span>
@@ -872,7 +841,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           sourceName={source_name}
           currentEpisode={currentEpisode}
           totalEpisodes={actualEpisodes}
-          origin={origin}
         />
       </>
     );
