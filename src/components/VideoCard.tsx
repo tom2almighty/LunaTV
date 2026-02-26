@@ -16,6 +16,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
@@ -85,10 +86,12 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
     }: VideoCardProps,
     ref,
   ) {
+    const PLAY_ACTION_THROTTLE_MS = 800;
     const router = useRouter();
     const [favorited, setFavorited] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isRouting, setIsRouting] = useState(false);
+    const lastPlayActionAtRef = useRef(0);
     const [showMobileActions, setShowMobileActions] = useState(false);
     const [searchFavorited, setSearchFavorited] = useState<boolean | null>(
       null,
@@ -237,6 +240,12 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
 
     const createPlaySession = useCallback(
       async (openInNewTab = false) => {
+        const now = Date.now();
+        if (now - lastPlayActionAtRef.current < PLAY_ACTION_THROTTLE_MS) {
+          return;
+        }
+        lastPlayActionAtRef.current = now;
+
         const openDirectPlayPage = () => {
           if (!actualSource || !actualId) return;
           const directUrl = `/play?source=${encodeURIComponent(actualSource)}&id=${encodeURIComponent(actualId)}${
