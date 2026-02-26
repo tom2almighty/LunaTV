@@ -253,6 +253,10 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           }${actualYear ? `&year=${encodeURIComponent(actualYear)}` : ''}${
             actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''
           }${
+            actualSearchType
+              ? `&stype=${encodeURIComponent(actualSearchType)}`
+              : ''
+          }${
             source_name ? `&sname=${encodeURIComponent(source_name)}` : ''
           }`;
 
@@ -263,8 +267,29 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           }
         };
 
-        if ((from === 'playrecord' || from === 'favorite') && actualSource && actualId) {
+        const openSearchPage = () => {
+          const keyword = (actualTitle || actualQuery || '').trim();
+          if (!keyword) return;
+          const searchUrl = `/search?q=${encodeURIComponent(keyword)}`;
+
+          if (openInNewTab) {
+            window.open(searchUrl, '_blank');
+          } else {
+            router.push(searchUrl);
+          }
+        };
+
+        if (
+          (from === 'playrecord' || from === 'favorite') &&
+          actualSource &&
+          actualId
+        ) {
           openDirectPlayPage();
+          return;
+        }
+
+        if (from === 'douban') {
+          openSearchPage();
           return;
         }
 
@@ -305,14 +330,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                 expectedType: actualSearchType || undefined,
               };
             }
-          } else if (from === 'douban') {
-            payload = {
-              mode: 'search',
-              keyword: actualTitle,
-              expectedTitle: actualTitle,
-              expectedYear: actualYear || undefined,
-              expectedType: actualSearchType || undefined,
-            };
           } else if (actualSource && actualId) {
             payload = {
               mode: 'direct',

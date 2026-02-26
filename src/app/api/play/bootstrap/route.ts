@@ -12,6 +12,7 @@ import { yellowWords } from '@/lib/yellow';
 export const runtime = 'nodejs';
 
 type PlayMode = 'group' | 'direct' | 'search';
+const SEARCH_SOURCE_TIMEOUT_MS = 9000;
 
 function normalize(str?: string) {
   return (str || '').replace(/\s+/g, '').trim().toLowerCase();
@@ -79,9 +80,17 @@ function applySearchFilters(
   expectedYear?: string,
   expectedType?: 'movie' | 'tv',
 ) {
+  const normalizedExpectedTitle = normalize(expectedTitle);
+
   return results.filter((result) => {
-    if (expectedTitle && normalize(result.title) !== normalize(expectedTitle)) {
-      return false;
+    if (normalizedExpectedTitle) {
+      const normalizedResultTitle = normalize(result.title);
+      const titleMatched =
+        !!normalizedResultTitle &&
+        (normalizedResultTitle === normalizedExpectedTitle ||
+          normalizedResultTitle.includes(normalizedExpectedTitle) ||
+          normalizedExpectedTitle.includes(normalizedResultTitle));
+      if (!titleMatched) return false;
     }
 
     if (expectedYear && expectedYear !== 'unknown') {
@@ -100,6 +109,39 @@ function applySearchFilters(
   });
 }
 
+function pickBestCandidates(
+  results: SearchResult[],
+  expectedTitle?: string,
+  expectedYear?: string,
+  expectedType?: 'movie' | 'tv',
+) {
+  const strict = applySearchFilters(
+    results,
+    expectedTitle,
+    expectedYear,
+    expectedType,
+  );
+  if (strict.length > 0) return strict;
+
+  const yearAndType = applySearchFilters(
+    results,
+    undefined,
+    expectedYear,
+    expectedType,
+  );
+  if (yearAndType.length > 0) return yearAndType;
+
+  const typeOnly = applySearchFilters(
+    results,
+    undefined,
+    undefined,
+    expectedType,
+  );
+  if (typeOnly.length > 0) return typeOnly;
+
+  return results;
+}
+
 async function searchCandidatesAcrossSources(
   username: string,
   keyword: string,
@@ -114,7 +156,10 @@ async function searchCandidatesAcrossSources(
     Promise.race([
       searchFromApi(site, keyword),
       new Promise<SearchResult[]>((_, reject) =>
-        setTimeout(() => reject(new Error(`${site.name} timeout`)), 20000),
+        setTimeout(
+          () => reject(new Error(`${site.name} timeout`)),
+          SEARCH_SOURCE_TIMEOUT_MS,
+        ),
       ),
     ]).catch(() => []),
   );
@@ -124,7 +169,7 @@ async function searchCandidatesAcrossSources(
     .filter((item) => item.status === 'fulfilled')
     .flatMap((item) => (item as PromiseFulfilledResult<SearchResult[]>).value);
 
-  const filteredByTitle = applySearchFilters(
+  const matchedCandidates = pickBestCandidates(
     merged,
     expectedTitle,
     expectedYear,
@@ -132,10 +177,10 @@ async function searchCandidatesAcrossSources(
   );
 
   if (config.SiteConfig.DisableYellowFilter) {
-    return filteredByTitle;
+    return matchedCandidates;
   }
 
-  return filteredByTitle.filter((result) => {
+  return matchedCandidates.filter((result) => {
     const typeName = result.type_name || '';
     return !yellowWords.some((word: string) => typeName.includes(word));
   });
@@ -241,6 +286,10 @@ export async function POST(request: NextRequest) {
       type: expectedType,
       query: keyword,
       candidates,
+      preferredSource: body.preferredSource
+        ? String(body.preferredSource)
+        : undefined,
+      preferredId: body.preferredId ? String(body.preferredId) : undefined,
     });
 
     return NextResponse.json({ play_session_id: session.id });

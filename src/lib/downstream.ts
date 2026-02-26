@@ -229,46 +229,39 @@ export async function getDetailFromApi(
   apiSite: ApiSite,
   id: string,
 ): Promise<SearchResult> {
+  const errors: string[] = [];
+
   if (apiSite.detail) {
-    return handleSpecialSourceDetail(id, apiSite);
+    try {
+      const detailFromSpecial = await handleSpecialSourceDetail(id, apiSite);
+      if (detailFromSpecial.episodes.length > 0) {
+        return detailFromSpecial;
+      }
+      errors.push('详情页解析到的播放地址为空');
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : '详情页解析失败');
+    }
   }
 
-  const detailUrl = `${apiSite.api}${API_CONFIG.detail.path}${id}`;
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-  const response = await fetch(detailUrl, {
-    headers: API_CONFIG.detail.headers,
-    signal: controller.signal,
-  });
-
-  clearTimeout(timeoutId);
-
-  if (!response.ok) {
-    throw new Error(`详情请求失败: ${response.status}`);
+  try {
+    return await handleApiDetail(id, apiSite);
+  } catch (error) {
+    errors.push(error instanceof Error ? error.message : 'API详情解析失败');
   }
 
-  const data = await response.json();
+  throw new Error(errors.join('；') || '获取详情失败');
+}
 
-  if (
-    !data ||
-    !data.list ||
-    !Array.isArray(data.list) ||
-    data.list.length === 0
-  ) {
-    throw new Error('获取到的详情内容无效');
-  }
-
-  const videoDetail = data.list[0];
+function parseApiVideoDetail(
+  apiSite: ApiSite,
+  id: string,
+  videoDetail: any,
+): SearchResult {
   let episodes: string[] = [];
   let titles: string[] = [];
 
-  // 处理播放源拆分
   if (videoDetail.vod_play_url) {
-    // 先用 $$$ 分割
     const vod_play_url_array = videoDetail.vod_play_url.split('$$$');
-    // 分集之间#分割，标题和播放链接 $ 分割
     vod_play_url_array.forEach((url: string) => {
       const matchEpisodes: string[] = [];
       const matchTitles: string[] = [];
@@ -290,7 +283,6 @@ export async function getDetailFromApi(
     });
   }
 
-  // 如果播放源为空，则尝试从内容中解析 m3u8
   if (episodes.length === 0 && videoDetail.vod_content) {
     const matches = videoDetail.vod_content.match(M3U8_PATTERN) || [];
     episodes = matches.map((link: string) => link.replace(/^\$/, ''));
@@ -320,6 +312,42 @@ export async function getDetailFromApi(
   };
 }
 
+async function handleApiDetail(
+  id: string,
+  apiSite: ApiSite,
+): Promise<SearchResult> {
+  const detailUrl = `${apiSite.api}${API_CONFIG.detail.path}${id}`;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const response = await fetch(detailUrl, {
+      headers: API_CONFIG.detail.headers,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`详情请求失败: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (
+      !data ||
+      !data.list ||
+      !Array.isArray(data.list) ||
+      data.list.length === 0
+    ) {
+      throw new Error('获取到的详情内容无效');
+    }
+
+    return parseApiVideoDetail(apiSite, id, data.list[0]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 async function handleSpecialSourceDetail(
   id: string,
   apiSite: ApiSite,
@@ -329,18 +357,22 @@ async function handleSpecialSourceDetail(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-  const response = await fetch(detailUrl, {
-    headers: API_CONFIG.detail.headers,
-    signal: controller.signal,
-  });
+  let html = '';
 
-  clearTimeout(timeoutId);
+  try {
+    const response = await fetch(detailUrl, {
+      headers: API_CONFIG.detail.headers,
+      signal: controller.signal,
+    });
 
-  if (!response.ok) {
-    throw new Error(`详情页请求失败: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`详情页请求失败: ${response.status}`);
+    }
+
+    html = await response.text();
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  const html = await response.text();
   let matches: string[] = [];
 
   if (apiSite.key === 'ffzy') {
