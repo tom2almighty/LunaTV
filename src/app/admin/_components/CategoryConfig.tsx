@@ -319,34 +319,34 @@ export const CategoryConfig = ({
 
       {/* 分类表格 */}
       <div className='border-border max-h-112 relative overflow-x-auto overflow-y-auto rounded-lg border'>
-        <table className='divide-border min-w-full divide-y'>
-          <thead className='bg-muted sticky top-0 z-10'>
-            <tr>
-              <th className='w-8' />
-              <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
-                分类名称
-              </th>
-              <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
-                类型
-              </th>
-              <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
-                搜索关键词
-              </th>
-              <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
-                状态
-              </th>
-              <th className='text-muted-foreground px-6 py-3 text-right text-xs font-medium uppercase tracking-wider'>
-                操作
-              </th>
-            </tr>
-          </thead>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-            autoScroll={false}
-            modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-          >
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+          autoScroll={false}
+          modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+        >
+          <table className='divide-border min-w-full divide-y'>
+            <thead className='bg-muted sticky top-0 z-10'>
+              <tr>
+                <th className='w-8' />
+                <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
+                  分类名称
+                </th>
+                <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
+                  类型
+                </th>
+                <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
+                  搜索关键词
+                </th>
+                <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
+                  状态
+                </th>
+                <th className='text-muted-foreground px-6 py-3 text-right text-xs font-medium uppercase tracking-wider'>
+                  操作
+                </th>
+              </tr>
+            </thead>
             <SortableContext
               items={categories.map((c) => `${c.query}:${c.type}`)}
               strategy={verticalListSortingStrategy}
@@ -360,8 +360,8 @@ export const CategoryConfig = ({
                 ))}
               </tbody>
             </SortableContext>
-          </DndContext>
-        </table>
+          </table>
+        </DndContext>
       </div>
 
       {/* 保存排序按钮 */}

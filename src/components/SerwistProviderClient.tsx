@@ -8,7 +8,13 @@ export default function SerwistProviderClient({
   children: React.ReactNode;
 }) {
   return (
-    <SerwistProvider swUrl='/sw.js' disable={process.env.NODE_ENV === 'development'}>
+    <SerwistProvider
+      swUrl='/sw.js'
+      disable={process.env.NODE_ENV === 'development'}
+      cacheOnNavigation={false}
+      reloadOnOnline={false}
+      options={{ updateViaCache: 'none' }}
+    >
       {children}
     </SerwistProvider>
   );

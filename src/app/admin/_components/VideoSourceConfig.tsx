@@ -730,48 +730,48 @@ export const VideoSourceConfig = ({
         className='border-border max-h-112 relative overflow-x-auto overflow-y-auto rounded-lg border'
         data-table='source-list'
       >
-        <table className='divide-border min-w-full divide-y'>
-          <thead className='bg-muted sticky top-0 z-10'>
-            <tr>
-              <th className='w-8' />
-              <th className='w-12 px-2 py-3 text-center'>
-                <input
-                  type='checkbox'
-                  checked={selectAll}
-                  onChange={(e) => handleSelectAll(e.target.checked)}
-                  className={inputStyles.checkbox}
-                />
-              </th>
-              <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
-                名称
-              </th>
-              <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
-                Key
-              </th>
-              <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
-                API 地址
-              </th>
-              <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
-                Detail 地址
-              </th>
-              <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
-                状态
-              </th>
-              <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
-                有效性
-              </th>
-              <th className='text-muted-foreground px-6 py-3 text-right text-xs font-medium uppercase tracking-wider'>
-                操作
-              </th>
-            </tr>
-          </thead>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-            autoScroll={false}
-            modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-          >
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+          autoScroll={false}
+          modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+        >
+          <table className='divide-border min-w-full divide-y'>
+            <thead className='bg-muted sticky top-0 z-10'>
+              <tr>
+                <th className='w-8' />
+                <th className='w-12 px-2 py-3 text-center'>
+                  <input
+                    type='checkbox'
+                    checked={selectAll}
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                    className={inputStyles.checkbox}
+                  />
+                </th>
+                <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
+                  名称
+                </th>
+                <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
+                  Key
+                </th>
+                <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
+                  API 地址
+                </th>
+                <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
+                  Detail 地址
+                </th>
+                <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
+                  状态
+                </th>
+                <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
+                  有效性
+                </th>
+                <th className='text-muted-foreground px-6 py-3 text-right text-xs font-medium uppercase tracking-wider'>
+                  操作
+                </th>
+              </tr>
+            </thead>
             <SortableContext
               items={sources.map((s) => s.key)}
               strategy={verticalListSortingStrategy}
@@ -782,8 +782,8 @@ export const VideoSourceConfig = ({
                 ))}
               </tbody>
             </SortableContext>
-          </DndContext>
-        </table>
+          </table>
+        </DndContext>
       </div>
 
       {/* 保存排序按钮 */}

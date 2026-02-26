@@ -3,21 +3,10 @@
 const nextConfig = {
   output: process.env.DOCKER_ENV === 'true' ? 'standalone' : undefined,
 
-  reactStrictMode: false,
-
-  // Uncoment to add domain whitelist
+  reactStrictMode: true,
+  poweredByHeader: false,
   images: {
     unoptimized: true,
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-      {
-        protocol: 'http',
-        hostname: '**',
-      },
-    ],
   },
   turbopack: {
     // In Turbopack, use resolveAlias as the equivalent of webpack resolve.fallback.
