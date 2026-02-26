@@ -11,6 +11,7 @@ import { SiteProvider } from '@/context/SiteContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 
 import { GlobalErrorIndicator } from '../components/GlobalErrorIndicator';
+import SerwistProviderClient from '../components/SerwistProviderClient';
 
 const inter = Inter({ subsets: ['latin'] });
 export const dynamic = 'force-dynamic';
@@ -86,12 +87,14 @@ export default async function RootLayout({
       <body
         className={`${inter.className} bg-background text-foreground min-h-screen`}
       >
-        <ThemeProvider>
-          <SiteProvider siteName={siteName} announcement={announcement}>
-            {children}
-            <GlobalErrorIndicator />
-          </SiteProvider>
-        </ThemeProvider>
+        <SerwistProviderClient>
+          <ThemeProvider>
+            <SiteProvider siteName={siteName} announcement={announcement}>
+              {children}
+              <GlobalErrorIndicator />
+            </SiteProvider>
+          </ThemeProvider>
+        </SerwistProviderClient>
       </body>
     </html>
   );

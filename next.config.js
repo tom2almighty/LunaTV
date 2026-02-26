@@ -1,18 +1,9 @@
 /** @type {import('next').NextConfig} */
-/* eslint-disable @typescript-eslint/no-var-requires */
 
 const nextConfig = {
   output: process.env.DOCKER_ENV === 'true' ? 'standalone' : undefined,
-  eslint: {
-    dirs: ['src'],
-  },
 
   reactStrictMode: false,
-  swcMinify: true,
-
-  experimental: {
-    instrumentationHook: process.env.NODE_ENV === 'production',
-  },
 
   // Uncoment to add domain whitelist
   images: {
@@ -28,60 +19,20 @@ const nextConfig = {
       },
     ],
   },
-
-  webpack(config) {
-    // Grab the existing rule that handles SVG imports
-    const fileLoaderRule = config.module.rules.find((rule) =>
-      rule.test?.test?.('.svg'),
-    );
-
-    config.module.rules.push(
-      // Reapply the existing rule, but only for svg imports ending in ?url
-      {
-        ...fileLoaderRule,
-        test: /\.svg$/i,
-        resourceQuery: /url/, // *.svg?url
+  turbopack: {
+    // In Turbopack, use resolveAlias as the equivalent of webpack resolve.fallback.
+    resolveAlias: {
+      net: {
+        browser: './src/lib/empty-module.ts',
       },
-      // Convert all other *.svg imports to React components
-      {
-        test: /\.svg$/i,
-        issuer: { not: /\.(css|scss|sass)$/ },
-        resourceQuery: { not: /url/ }, // exclude if *.svg?url
-        loader: '@svgr/webpack',
-        options: {
-          dimensions: false,
-          titleProp: true,
-        },
+      tls: {
+        browser: './src/lib/empty-module.ts',
       },
-    );
-
-    // Modify the file loader rule to ignore *.svg, since we have it handled now.
-    fileLoaderRule.exclude = /\.svg$/i;
-
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      net: false,
-      tls: false,
-      crypto: false,
-    };
-
-    return config;
+      crypto: {
+        browser: './src/lib/empty-module.ts',
+      },
+    },
   },
 };
 
-const withSerwist = require('@serwist/next').default({
-  swSrc: 'src/sw.ts',
-  swDest: 'public/sw.js',
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  cacheOnNavigation: false,
-  reloadOnOnline: true,
-  // 预缓存白名单，避免把流媒体分片纳入构建清单
-  globPublicPatterns: [
-    '**/*.{js,css,html,ico,png,svg,txt,woff,woff2,webmanifest,json}',
-  ],
-  // 明确排除流媒体文件，防止 SW 缓存 HLS / DASH 切片
-  exclude: [/\.(?:m3u8|ts|m4s|mpd)(?:\?.*)?$/i],
-});
-
-module.exports = withSerwist(nextConfig);
+module.exports = nextConfig;

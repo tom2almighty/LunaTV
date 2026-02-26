@@ -5,17 +5,18 @@ import PageLayout from '@/components/PageLayout';
 import DoubanPageClient from './DoubanPageClient';
 
 type DoubanPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     type?: string | string[];
-  };
+  }>;
 };
 
-export default function DoubanPage({ searchParams }: DoubanPageProps) {
+export default async function DoubanPage({ searchParams }: DoubanPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const typeParam =
-    typeof searchParams?.type === 'string'
-      ? searchParams.type
-      : Array.isArray(searchParams?.type)
-        ? searchParams?.type[0]
+    typeof resolvedSearchParams?.type === 'string'
+      ? resolvedSearchParams.type
+      : Array.isArray(resolvedSearchParams?.type)
+        ? resolvedSearchParams?.type[0]
         : undefined;
 
   const activePath = typeParam
