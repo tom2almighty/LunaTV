@@ -420,7 +420,7 @@ function PlayPageClient() {
         artPlayerRef.current.setting.update({
           name: '设置片头',
           html: '设置片头',
-          icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5" cy="12" r="2" fill="#ffffff"/><path d="M9 12L17 12" stroke="#ffffff" stroke-width="2"/><path d="M17 6L17 18" stroke="#ffffff" stroke-width="2"/></svg>',
+          icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5" cy="12" r="2" fill="currentColor"/><path d="M9 12L17 12" stroke="currentColor" stroke-width="2"/><path d="M17 6L17 18" stroke="currentColor" stroke-width="2"/></svg>',
           tooltip:
             skipConfigRef.current.intro_time === 0
               ? '设置片头时间'
@@ -440,7 +440,7 @@ function PlayPageClient() {
         artPlayerRef.current.setting.update({
           name: '设置片尾',
           html: '设置片尾',
-          icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 6L7 18" stroke="#ffffff" stroke-width="2"/><path d="M7 12L15 12" stroke="#ffffff" stroke-width="2"/><circle cx="19" cy="12" r="2" fill="#ffffff"/></svg>',
+          icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 6L7 18" stroke="currentColor" stroke-width="2"/><path d="M7 12L15 12" stroke="currentColor" stroke-width="2"/><circle cx="19" cy="12" r="2" fill="currentColor"/></svg>',
           tooltip:
             skipConfigRef.current.outro_time >= 0
               ? '设置片尾时间'
@@ -1048,7 +1048,7 @@ function PlayPageClient() {
         theme:
           getComputedStyle(document.documentElement)
             .getPropertyValue('--primary')
-            .trim() || '#e50914',
+            .trim() || 'currentColor',
         lang: 'zh-cn',
         hotkey: false,
         fastForward: true,
@@ -1103,12 +1103,12 @@ function PlayPageClient() {
         },
         icons: {
           loading:
-            '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDUwIDUwIj48cGF0aCBkPSJNMjUuMjUxIDYuNDYxYy0xMC4zMTggMC0xOC42ODMgOC4zNjUtMTguNjgzIDE4LjY4M2g0LjA2OGMwLTguMDcgNi41NDUtMTQuNjE1IDE0LjYxNS0xNC42MTVWNi40NjF6IiBmaWxsPSIjMDA5Njg4Ij48YW5pbWF0ZVRyYW5zZm9ybSBhdHRyaWJ1dGVOYW1lPSJ0cmFuc2Zvcm0iIGF0dHJpYnV0ZVR5cGU9IlhNTCIgZHVyPSIxcyIgZnJvbT0iMCAyNSAyNSIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiIHRvPSIzNjAgMjUgMjUiIHR5cGU9InJvdGF0ZSIvPjwvcGF0aD48L3N2Zz4=">',
+            '<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"><path d="M25.251 6.461c-10.318 0-18.683 8.365-18.683 18.683h4.068c0-8.07 6.545-14.615 14.615-14.615V6.461z" fill="currentColor"><animateTransform attributeName="transform" attributeType="XML" dur="1s" from="0 25 25" repeatCount="indefinite" to="360 25 25" type="rotate"/></path></svg>',
         },
         settings: [
           {
             html: '去广告',
-            icon: '<text x="50%" y="50%" font-size="20" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#ffffff">AD</text>',
+            icon: '<text x="50%" y="50%" font-size="20" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="currentColor">AD</text>',
             tooltip: blockAdEnabled ? '已开启' : '已关闭',
             onClick() {
               const newVal = !blockAdEnabled;
@@ -1156,7 +1156,7 @@ function PlayPageClient() {
           {
             name: '设置片头',
             html: '设置片头',
-            icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5" cy="12" r="2" fill="#ffffff"/><path d="M9 12L17 12" stroke="#ffffff" stroke-width="2"/><path d="M17 6L17 18" stroke="#ffffff" stroke-width="2"/></svg>',
+            icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5" cy="12" r="2" fill="currentColor"/><path d="M9 12L17 12" stroke="currentColor" stroke-width="2"/><path d="M17 6L17 18" stroke="currentColor" stroke-width="2"/></svg>',
             tooltip:
               skipConfigRef.current.intro_time === 0
                 ? '设置片头时间'
@@ -1176,7 +1176,7 @@ function PlayPageClient() {
           {
             name: '设置片尾',
             html: '设置片尾',
-            icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 6L7 18" stroke="#ffffff" stroke-width="2"/><path d="M7 12L15 12" stroke="#ffffff" stroke-width="2"/><circle cx="19" cy="12" r="2" fill="#ffffff"/></svg>',
+            icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 6L7 18" stroke="currentColor" stroke-width="2"/><path d="M7 12L15 12" stroke="currentColor" stroke-width="2"/><circle cx="19" cy="12" r="2" fill="currentColor"/></svg>',
             tooltip:
               skipConfigRef.current.outro_time >= 0
                 ? '设置片尾时间'
@@ -1486,21 +1486,21 @@ function PlayPageClient() {
           <div className='mx-auto w-full max-w-md rounded-2xl border border-border/70 bg-card/60 px-6 py-8 text-center shadow-sm backdrop-blur-sm'>
             {/* 错误图标 */}
             <div className='relative mb-8'>
-              <div className='bg-linear-to-r relative mx-auto flex h-24 w-24 transform items-center justify-center rounded-2xl from-red-500 to-orange-500 shadow-xl transition-transform duration-300 hover:scale-105'>
+              <div className='bg-linear-to-r from-destructive to-warning relative mx-auto flex h-24 w-24 transform items-center justify-center rounded-2xl shadow-xl transition-transform duration-300 hover:scale-105'>
                 <div className='text-4xl text-white'>😵</div>
                 {/* 脉冲效果 */}
-                <div className='bg-linear-to-r absolute -inset-2 animate-pulse rounded-2xl from-red-500 to-orange-500 opacity-20'></div>
+                <div className='bg-linear-to-r from-destructive to-warning absolute -inset-2 animate-pulse rounded-2xl opacity-20'></div>
               </div>
 
               {/* 浮动错误粒子 */}
               <div className='pointer-events-none absolute left-0 top-0 h-full w-full'>
                 <div className='bg-destructive/70 absolute left-2 top-2 h-2 w-2 animate-bounce rounded-full'></div>
                 <div
-                  className='absolute right-4 top-4 h-1.5 w-1.5 animate-bounce rounded-full bg-orange-400'
+                  className='bg-warning absolute right-4 top-4 h-1.5 w-1.5 animate-bounce rounded-full'
                   style={{ animationDelay: '0.5s' }}
                 ></div>
                 <div
-                  className='absolute bottom-3 left-6 h-1 w-1 animate-bounce rounded-full bg-yellow-400'
+                  className='bg-info absolute bottom-3 left-6 h-1 w-1 animate-bounce rounded-full'
                   style={{ animationDelay: '1s' }}
                 ></div>
               </div>
@@ -1595,7 +1595,7 @@ function PlayPageClient() {
               <div
                 className={`absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full transition-all duration-200 ${
                   isEpisodeSelectorCollapsed
-                    ? 'animate-pulse bg-orange-400'
+                    ? 'animate-pulse bg-warning'
                     : 'bg-primary'
                 }`}
               ></div>

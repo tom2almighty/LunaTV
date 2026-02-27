@@ -139,7 +139,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
   const getActionColor = (color: ActionItem['color']) => {
     switch (color) {
       case 'danger':
-        return 'text-red-600 dark:text-red-400';
+        return 'text-destructive';
       case 'primary':
         return 'text-primary';
       default:

@@ -62,7 +62,7 @@ export function GlobalErrorIndicator() {
     <div className='z-2000 fixed right-4 top-4'>
       {/* 错误卡片 */}
       <div
-        className={`flex min-w-[300px] max-w-[400px] items-center justify-between rounded-lg bg-red-500 px-4 py-3 text-white shadow-lg transition-all duration-300 ${
+        className={`flex min-w-[300px] max-w-[400px] items-center justify-between rounded-lg px-4 py-3 text-destructive-foreground shadow-lg transition-all duration-300 ${
           isReplacing
             ? 'bg-destructive/80 scale-105'
             : 'bg-destructive scale-100'

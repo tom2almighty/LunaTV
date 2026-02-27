@@ -59,7 +59,7 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                   <Search className='text-foreground absolute left-4 top-1/2 h-6 w-6 -translate-y-1/2' />
                   <input
                     type='text'
-                    className='bg-background/50 border-background text-foreground placeholder-muted-foreground w-full rounded-xl border py-4 pl-12 pr-12 text-lg transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600'
+                    className='bg-background/50 border-background text-foreground placeholder-muted-foreground w-full rounded-xl border py-4 pl-12 pr-12 text-lg transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
                     placeholder='输入影视标题进行搜索'
                     autoFocus
                     value={query}

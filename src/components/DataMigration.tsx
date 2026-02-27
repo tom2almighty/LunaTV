@@ -63,11 +63,11 @@ const AlertModal = ({
   const getIcon = () => {
     switch (type) {
       case 'success':
-        return <CheckCircle className='h-12 w-12 text-green-500' />;
+        return <CheckCircle className='text-success h-12 w-12' />;
       case 'error':
-        return <AlertCircle className='h-12 w-12 text-red-500' />;
+        return <AlertCircle className='text-destructive h-12 w-12' />;
       case 'warning':
-        return <AlertTriangle className='h-12 w-12 text-yellow-500' />;
+        return <AlertTriangle className='text-warning h-12 w-12' />;
       default:
         return null;
     }
@@ -300,7 +300,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
             <p class="mt-2">导入的用户数量: ${result.importedUsers}</p>
             <p>备份时间: ${new Date(result.timestamp).toLocaleString('zh-CN')}</p>
             <p>服务器版本: ${result.serverVersion || '未知版本'}</p>
-            <p class="mt-3 text-orange-600">请刷新页面以查看最新数据。</p>
+            <p class="mt-3 text-warning">请刷新页面以查看最新数据。</p>
           </div>
         `,
         confirmText: '刷新页面',
@@ -337,9 +337,9 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
     <>
       <div className='mx-auto max-w-6xl space-y-6'>
         {/* 简洁警告提示 */}
-        <div className='flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50/30 p-4 dark:border-amber-700 dark:bg-amber-900/5'>
-          <AlertTriangle className='h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400' />
-          <p className='text-sm text-amber-800 dark:text-amber-200'>
+        <div className='border-warning/30 bg-warning/10 flex items-center gap-3 rounded-lg border p-4'>
+          <AlertTriangle className='text-warning h-5 w-5 shrink-0' />
+          <p className='text-warning text-sm'>
             数据迁移操作请谨慎，确保已备份重要数据
           </p>
         </div>
@@ -405,7 +405,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
               >
                 {isExporting ? (
                   <div className='flex items-center justify-center gap-2'>
-                    <div className='h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent'></div>
+                    <div className='h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent'></div>
                     导出中...
                   </div>
                 ) : (
@@ -485,7 +485,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
               >
                 {isImporting ? (
                   <div className='flex items-center justify-center gap-2'>
-                    <div className='h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent'></div>
+                    <div className='h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent'></div>
                     导入中...
                   </div>
                 ) : (
