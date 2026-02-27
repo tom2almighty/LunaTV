@@ -298,8 +298,12 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
           <div class="text-left">
             <p><strong>导入完成！</strong></p>
             <p class="mt-2">导入的用户数量: ${result.importedUsers}</p>
-            <p>备份时间: ${new Date(result.timestamp).toLocaleString('zh-CN')}</p>
-            <p>服务器版本: ${result.serverVersion || '未知版本'}</p>
+            <p>导入播放记录: ${result.importedPlayRecords ?? 0}</p>
+            <p>导入收藏: ${result.importedFavorites ?? 0}</p>
+            <p>导入搜索历史: ${result.importedSearchHistory ?? 0}</p>
+            <p>导入跳过配置: ${result.importedSkipConfigs ?? 0}</p>
+            <p>备份时间: ${new Date(result.backupCreatedAt).toLocaleString('zh-CN')}</p>
+            <p>备份格式版本: v${result.formatVersion ?? '未知'}</p>
             <p class="mt-3 text-warning">请刷新页面以查看最新数据。</p>
           </div>
         `,

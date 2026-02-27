@@ -122,26 +122,63 @@ async function initTables(db: Database): Promise<void> {
     )
   `);
 
-  // 豆瓣缓存表
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS douban_cache (
-      cache_key TEXT PRIMARY KEY,
-      data_json TEXT NOT NULL,
-      expires_at INTEGER NOT NULL,
-      created_at INTEGER DEFAULT (strftime('%s', 'now'))
-    )
-  `);
+  await ensureDoubanCacheTable(db);
 
   // 创建索引
   await db.exec(`
     CREATE INDEX IF NOT EXISTS idx_play_records_username ON play_records(username);
     CREATE INDEX IF NOT EXISTS idx_favorites_username ON favorites(username);
-    CREATE INDEX IF NOT EXISTS idx_search_history_username ON search_history(username);
+    CREATE INDEX IF NOT EXISTS idx_search_history_username_created_at ON search_history(username, created_at DESC, id DESC);
     CREATE INDEX IF NOT EXISTS idx_skip_configs_username ON skip_configs(username);
-    CREATE INDEX IF NOT EXISTS idx_douban_cache_expires ON douban_cache(expires_at);
   `);
 
   console.log('数据库表初始化完成');
+}
+
+async function ensureDoubanCacheTable(db: Database): Promise<void> {
+  const expectedColumns = [
+    'kind',
+    'category',
+    'type',
+    'page_start',
+    'page_limit',
+    'payload_json',
+    'expires_at',
+    'updated_at',
+  ];
+
+  const tableInfo = await db.all<Array<{ name: string }>>(
+    'PRAGMA table_info(douban_cache)',
+  );
+  const hasSchemaMismatch =
+    tableInfo.length > 0 &&
+    (tableInfo.length !== expectedColumns.length ||
+      expectedColumns.some(
+        (columnName) => !tableInfo.some((col) => col.name === columnName),
+      ));
+
+  // 豆瓣缓存表只存临时数据，检测到旧结构时直接重建。
+  if (hasSchemaMismatch) {
+    await db.exec('DROP TABLE IF EXISTS douban_cache');
+  }
+
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS douban_cache (
+      kind TEXT NOT NULL,
+      category TEXT NOT NULL,
+      type TEXT NOT NULL,
+      page_start INTEGER NOT NULL CHECK (page_start >= 0),
+      page_limit INTEGER NOT NULL CHECK (page_limit > 0),
+      payload_json TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      updated_at INTEGER DEFAULT (strftime('%s', 'now')),
+      PRIMARY KEY (kind, category, type, page_start, page_limit)
+    ) WITHOUT ROWID
+  `);
+
+  await db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_douban_cache_expires ON douban_cache(expires_at);
+  `);
 }
 
 /**

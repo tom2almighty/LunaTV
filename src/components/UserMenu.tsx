@@ -5,7 +5,6 @@
 import {
   Check,
   ChevronDown,
-  ExternalLink,
   KeyRound,
   LogOut,
   Settings,
@@ -110,7 +109,7 @@ export const UserMenu: React.FC = () => {
       const savedDoubanDataSource = localStorage.getItem('doubanDataSource');
       const defaultDoubanProxyType =
         (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY_TYPE ||
-        'cmliussss-cdn-tencent';
+        'server';
       if (savedDoubanDataSource !== null) {
         setDoubanDataSource(savedDoubanDataSource);
       } else if (defaultDoubanProxyType) {
@@ -131,7 +130,7 @@ export const UserMenu: React.FC = () => {
       );
       const defaultDoubanImageProxyType =
         (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY_TYPE ||
-        'cmliussss-cdn-tencent';
+        'server';
       if (savedDoubanImageProxyType !== null) {
         setDoubanImageProxyType(savedDoubanImageProxyType);
       } else if (defaultDoubanImageProxyType) {
@@ -330,34 +329,15 @@ export const UserMenu: React.FC = () => {
     }
   };
 
-  // 获取感谢信息
-  const getThanksInfo = (dataSource: string) => {
-    switch (dataSource) {
-      case 'cors-proxy-zwei':
-        return {
-          text: 'Thanks to @Zwei',
-          url: 'https://github.com/bestzwei',
-        };
-      case 'cmliussss-cdn-tencent':
-      case 'cmliussss-cdn-ali':
-        return {
-          text: 'Thanks to @CMLiussss',
-          url: 'https://github.com/cmliu',
-        };
-      default:
-        return null;
-    }
-  };
-
   const handleResetSettings = () => {
     const defaultDoubanProxyType =
       (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY_TYPE ||
-      'cmliussss-cdn-tencent';
+      'server';
     const defaultDoubanProxy =
       (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY || '';
     const defaultDoubanImageProxyType =
       (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY_TYPE ||
-      'cmliussss-cdn-tencent';
+      'server';
     const defaultDoubanImageProxyUrl =
       (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY || '';
     const defaultFluidSearch =
@@ -574,7 +554,7 @@ export const UserMenu: React.FC = () => {
                 <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3'>
                   <ChevronDown
                     className={`text-muted-foreground h-4 w-4 transition-transform duration-200 ${
-                      isDoubanDropdownOpen ? 'rotate-180' : ''
+                      isDoubanImageProxyDropdownOpen ? 'rotate-180' : ''
                     }`}
                   />
                 </div>
@@ -606,26 +586,6 @@ export const UserMenu: React.FC = () => {
                 )}
               </div>
 
-              {/* 感谢信息 */}
-              {getThanksInfo(doubanDataSource) && (
-                <div className='mt-3'>
-                  <button
-                    type='button'
-                    onClick={() =>
-                      window.open(
-                        getThanksInfo(doubanDataSource)!.url,
-                        '_blank',
-                      )
-                    }
-                    className='text-muted-foreground flex w-full cursor-pointer items-center justify-center gap-1.5 px-3 text-xs'
-                  >
-                    <span className='font-medium'>
-                      {getThanksInfo(doubanDataSource)!.text}
-                    </span>
-                    <ExternalLink className='w-3.5 opacity-70' />
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* 豆瓣代理地址设置 - 仅在选择自定义代理时显示 */}
@@ -716,26 +676,6 @@ export const UserMenu: React.FC = () => {
                 )}
               </div>
 
-              {/* 感谢信息 */}
-              {getThanksInfo(doubanImageProxyType) && (
-                <div className='mt-3'>
-                  <button
-                    type='button'
-                    onClick={() =>
-                      window.open(
-                        getThanksInfo(doubanImageProxyType)!.url,
-                        '_blank',
-                      )
-                    }
-                    className='text-muted-foreground flex w-full cursor-pointer items-center justify-center gap-1.5 px-3 text-xs'
-                  >
-                    <span className='font-medium'>
-                      {getThanksInfo(doubanImageProxyType)!.text}
-                    </span>
-                    <ExternalLink className='w-3.5 opacity-70' />
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* 豆瓣图片代理地址设置 - 仅在选择自定义代理时显示 */}

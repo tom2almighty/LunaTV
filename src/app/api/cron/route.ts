@@ -8,6 +8,7 @@ import { fetchVideoDetail } from '@/lib/fetchVideoDetail';
 import { SearchResult } from '@/lib/types';
 
 export const runtime = 'nodejs';
+let cronRunningPromise: Promise<void> | null = null;
 
 export async function GET(request: NextRequest) {
   console.log(request.url);
@@ -37,8 +38,22 @@ export async function GET(request: NextRequest) {
 }
 
 async function cronJob() {
-  await refreshConfig();
-  await refreshRecordAndFavorites();
+  if (cronRunningPromise) {
+    console.log('Cron job is already running, wait for existing execution');
+    await cronRunningPromise;
+    return;
+  }
+
+  cronRunningPromise = (async () => {
+    await Promise.all([refreshConfig(), refreshRecordAndFavorites()]);
+    await cleanDoubanCache();
+  })();
+
+  try {
+    await cronRunningPromise;
+  } finally {
+    cronRunningPromise = null;
+  }
 }
 
 async function refreshConfig() {
@@ -112,16 +127,11 @@ async function refreshRecordAndFavorites() {
           id,
           fallbackTitle: fallbackTitle.trim(),
         })
-          .then((detail) => {
-            // 成功时才缓存结果
-            const successPromise = Promise.resolve(detail);
-            detailCache.set(key, successPromise);
-            return detail;
-          })
           .catch((err) => {
             console.error(`获取视频详情失败 (${source}+${id}):`, err);
             return null;
           });
+        detailCache.set(key, promise);
       }
       return promise;
     };
@@ -232,5 +242,14 @@ async function refreshRecordAndFavorites() {
     console.log('刷新播放记录/收藏任务完成');
   } catch (err) {
     console.error('刷新播放记录/收藏任务启动失败', err);
+  }
+}
+
+async function cleanDoubanCache() {
+  try {
+    const cleaned = await db.cleanExpiredDoubanCache();
+    console.log(`清理过期豆瓣缓存完成: ${cleaned} 条`);
+  } catch (err) {
+    console.error('清理豆瓣缓存失败:', err);
   }
 }

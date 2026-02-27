@@ -69,14 +69,21 @@ export async function getDoubanCategoriesServer(params: {
 }): Promise<DoubanResult> {
   const { kind, category, type, pageLimit = 20, pageStart = 0 } = params;
 
-  // 生成缓存 key
-  const cacheKey = `home_${kind}_${category}_${type}_${pageStart}_${pageLimit}`;
+  const cacheKey = {
+    kind,
+    category,
+    type,
+    pageStart,
+    pageLimit,
+  };
 
   // 尝试从缓存获取
   try {
     const cached = await getDoubanCache<DoubanResult>(cacheKey);
     if (cached) {
-      console.log(`豆瓣缓存命中: ${cacheKey}`);
+      console.log(
+        `豆瓣缓存命中: ${kind}/${category}/${type} start=${pageStart} limit=${pageLimit}`,
+      );
       return cached;
     }
   } catch (err) {
@@ -108,7 +115,9 @@ export async function getDoubanCategoriesServer(params: {
     try {
       const cacheTime = await getDoubanCacheTime();
       await setDoubanCache(cacheKey, result, cacheTime);
-      console.log(`豆瓣数据已缓存: ${cacheKey}, 过期时间: ${cacheTime}秒`);
+      console.log(
+        `豆瓣数据已缓存: ${kind}/${category}/${type} start=${pageStart} limit=${pageLimit}, 过期时间: ${cacheTime}秒`,
+      );
     } catch (err) {
       console.error('写入豆瓣缓存失败:', err);
     }

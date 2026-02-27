@@ -16,11 +16,6 @@ interface ConfigFileStruct {
   api_site?: {
     [key: string]: ApiSite;
   };
-  custom_category?: {
-    name?: string;
-    type: 'movie' | 'tv';
-    query: string;
-  }[];
 }
 
 export const API_CONFIG = {
@@ -94,44 +89,6 @@ export function refineConfig(adminConfig: AdminConfig): AdminConfig {
   // 将 Map 转换回数组
   adminConfig.SourceConfig = Array.from(currentApiSites.values());
 
-  // 覆盖 CustomCategories
-  const customCategoriesFromFile = fileConfig.custom_category || [];
-  const currentCustomCategories = new Map(
-    (adminConfig.CustomCategories || []).map((c) => [c.query + c.type, c]),
-  );
-
-  customCategoriesFromFile.forEach((category) => {
-    const key = category.query + category.type;
-    const existedCategory = currentCustomCategories.get(key);
-    if (existedCategory) {
-      existedCategory.name = category.name;
-      existedCategory.query = category.query;
-      existedCategory.type = category.type;
-      existedCategory.from = 'config';
-    } else {
-      currentCustomCategories.set(key, {
-        name: category.name,
-        type: category.type,
-        query: category.query,
-        from: 'config',
-        disabled: false,
-      });
-    }
-  });
-
-  // 检查现有 CustomCategories 是否在 fileConfig.custom_category 中，如果不在则标记为 custom
-  const customCategoriesFromFileKeys = new Set(
-    customCategoriesFromFile.map((c) => c.query + c.type),
-  );
-  currentCustomCategories.forEach((category) => {
-    if (!customCategoriesFromFileKeys.has(category.query + category.type)) {
-      category.from = 'custom';
-    }
-  });
-
-  // 将 Map 转换回数组
-  adminConfig.CustomCategories = Array.from(currentCustomCategories.values());
-
   return adminConfig;
 }
 
@@ -181,7 +138,6 @@ async function getInitConfig(
       Users: [],
     },
     SourceConfig: [],
-    CustomCategories: [],
   };
 
   // 补充用户信息
@@ -212,17 +168,6 @@ async function getInitConfig(
       name: site.name,
       api: site.api,
       detail: site.detail,
-      from: 'config',
-      disabled: false,
-    });
-  });
-
-  // 从配置文件中补充自定义分类信息
-  cfgFile.custom_category?.forEach((category) => {
-    adminConfig.CustomCategories.push({
-      name: category.name || category.query,
-      type: category.type,
-      query: category.query,
       from: 'config',
       disabled: false,
     });
@@ -285,13 +230,6 @@ export function configSelfCheck(adminConfig: AdminConfig): AdminConfig {
   if (!adminConfig.SourceConfig || !Array.isArray(adminConfig.SourceConfig)) {
     adminConfig.SourceConfig = [];
   }
-  if (
-    !adminConfig.CustomCategories ||
-    !Array.isArray(adminConfig.CustomCategories)
-  ) {
-    adminConfig.CustomCategories = [];
-  }
-
   // 站长变更自检
   const ownerUser = process.env.APP_ADMIN_USERNAME;
 
@@ -335,18 +273,6 @@ export function configSelfCheck(adminConfig: AdminConfig): AdminConfig {
     seenSourceKeys.add(source.key);
     return true;
   });
-
-  // 自定义分类去重
-  const seenCustomCategoryKeys = new Set<string>();
-  adminConfig.CustomCategories = adminConfig.CustomCategories.filter(
-    (category) => {
-      if (seenCustomCategoryKeys.has(category.query + category.type)) {
-        return false;
-      }
-      seenCustomCategoryKeys.add(category.query + category.type);
-      return true;
-    },
-  );
 
   return adminConfig;
 }

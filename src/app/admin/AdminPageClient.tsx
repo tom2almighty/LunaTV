@@ -1,14 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, no-console, react-hooks/exhaustive-deps */
 'use client';
 
-import {
-  Database,
-  FileText,
-  FolderOpen,
-  Settings,
-  Users,
-  Video,
-} from 'lucide-react';
+import { Database, FileText, Settings, Users, Video } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -42,14 +35,6 @@ const VideoSourceConfig = dynamic<{
     default: m.VideoSourceConfig,
   })),
 );
-const CategoryConfig = dynamic<{
-  config: AdminConfig | null;
-  refreshConfig: (showLoading?: boolean) => Promise<void>;
-}>(() =>
-  import('./_components/CategoryConfig').then((m) => ({
-    default: m.CategoryConfig,
-  })),
-);
 const ConfigFileComponent = dynamic<{
   config: AdminConfig | null;
   refreshConfig: (showLoading?: boolean) => Promise<void>;
@@ -79,7 +64,6 @@ function AdminPageClient() {
     userConfig: false,
     videoSource: false,
     siteConfig: false,
-    categoryConfig: false,
     configFile: false,
     dataMigration: false,
   });
@@ -214,15 +198,6 @@ function AdminPageClient() {
               onToggle={() => toggleTab('videoSource')}
             >
               <VideoSourceConfig config={config} refreshConfig={fetchConfig} />
-            </CollapsibleTab>
-
-            <CollapsibleTab
-              title='分类配置'
-              icon={<FolderOpen size={20} className='text-muted-foreground' />}
-              isExpanded={expandedTabs.categoryConfig}
-              onToggle={() => toggleTab('categoryConfig')}
-            >
-              <CategoryConfig config={config} refreshConfig={fetchConfig} />
             </CollapsibleTab>
 
             {role === 'owner' && (

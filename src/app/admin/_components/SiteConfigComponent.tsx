@@ -66,9 +66,9 @@ export const SiteConfigComponent = ({
         DoubanImageProxyType:
           config.SiteConfig.DoubanImageProxyType || 'server',
         DoubanImageProxy: config.SiteConfig.DoubanImageProxy || '',
-        DisableYellowFilter: config.SiteConfig.DisableYellowFilter || false,
-        FluidSearch: config.SiteConfig.FluidSearch || true,
-        EnableRegistration: config.SiteConfig.EnableRegistration || false,
+        DisableYellowFilter: Boolean(config.SiteConfig.DisableYellowFilter),
+        FluidSearch: config.SiteConfig.FluidSearch !== false,
+        EnableRegistration: Boolean(config.SiteConfig.EnableRegistration),
       });
     }
   }, [config]);

@@ -7,14 +7,6 @@ export interface DataSource {
   disabled?: boolean;
 }
 
-export interface CustomCategory {
-  name?: string;
-  type: 'movie' | 'tv';
-  query: string;
-  from: 'config' | 'custom';
-  disabled?: boolean;
-}
-
 export interface SiteConfig {
   SiteName: string;
   Announcement: string;
@@ -56,13 +48,6 @@ export interface AdminConfig {
     name: string;
     api: string;
     detail?: string;
-    from: 'config' | 'custom';
-    disabled?: boolean;
-  }[];
-  CustomCategories: {
-    name?: string;
-    type: 'movie' | 'tv';
-    query: string;
     from: 'config' | 'custom';
     disabled?: boolean;
   }[];

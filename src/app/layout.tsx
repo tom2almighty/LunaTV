@@ -49,14 +49,6 @@ export default async function RootLayout({
   const disableYellowFilter = config.SiteConfig.DisableYellowFilter;
   const fluidSearch = config.SiteConfig.FluidSearch;
 
-  const customCategories = config.CustomCategories.filter(
-    (category) => !category.disabled,
-  ).map((category) => ({
-    name: category.name || '',
-    type: category.type,
-    query: category.query,
-  }));
-
   // 将运行时配置注入到全局 window 对象，供客户端在运行时读取
   const runtimeConfig = {
     DOUBAN_PROXY_TYPE: doubanProxyType,
@@ -64,7 +56,6 @@ export default async function RootLayout({
     DOUBAN_IMAGE_PROXY_TYPE: doubanImageProxyType,
     DOUBAN_IMAGE_PROXY: doubanImageProxy,
     DISABLE_YELLOW_FILTER: disableYellowFilter,
-    CUSTOM_CATEGORIES: customCategories,
     FLUID_SEARCH: fluidSearch,
   };
 

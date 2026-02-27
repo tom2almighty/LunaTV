@@ -221,7 +221,7 @@ export const ConfigFileComponent = ({
 
         <div className='flex items-center justify-between'>
           <div className='text-muted-foreground text-xs'>
-            支持 JSON 格式，用于配置视频源和自定义分类
+            支持 JSON 格式，用于配置视频源
           </div>
           <button
             onClick={handleSave}

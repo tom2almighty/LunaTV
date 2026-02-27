@@ -18,6 +18,12 @@ export function parseStorageKey(key: string): {
   videoId: string;
 } {
   const plusIndex = key.indexOf('+');
+  if (plusIndex <= 0 || plusIndex >= key.length - 1) {
+    return {
+      source: '',
+      videoId: '',
+    };
+  }
   return {
     source: key.slice(0, plusIndex),
     videoId: key.slice(plusIndex + 1),
@@ -349,28 +355,75 @@ export async function saveAdminConfig(config: AdminConfig): Promise<void> {
 
 // ==================== 豆瓣缓存 ====================
 
-export async function getDoubanCache<T>(cacheKey: string): Promise<T | null> {
+export async function getDoubanCache<T>(cacheKey: {
+  kind: string;
+  category: string;
+  type: string;
+  pageStart: number;
+  pageLimit: number;
+}): Promise<T | null> {
   const db = await getDb();
   const now = Math.floor(Date.now() / 1000);
-  const row = await db.get<{ data_json: string }>(
-    'SELECT data_json FROM douban_cache WHERE cache_key = ? AND expires_at > ?',
-    [cacheKey, now],
+  const row = await db.get<{ payload_json: string }>(
+    `SELECT payload_json
+     FROM douban_cache
+     WHERE kind = ?
+       AND category = ?
+       AND type = ?
+       AND page_start = ?
+       AND page_limit = ?
+       AND expires_at > ?`,
+    [
+      cacheKey.kind,
+      cacheKey.category,
+      cacheKey.type,
+      cacheKey.pageStart,
+      cacheKey.pageLimit,
+      now,
+    ],
   );
-  return row ? JSON.parse(row.data_json) : null;
+  return row ? JSON.parse(row.payload_json) : null;
 }
 
 export async function setDoubanCache(
-  cacheKey: string,
+  cacheKey: {
+    kind: string;
+    category: string;
+    type: string;
+    pageStart: number;
+    pageLimit: number;
+  },
   data: unknown,
   expireSeconds: number,
 ): Promise<void> {
   const db = await getDb();
   const expiresAt = Math.floor(Date.now() / 1000) + expireSeconds;
   await db.run(
-    `INSERT INTO douban_cache (cache_key, data_json, expires_at)
-     VALUES (?, ?, ?)
-     ON CONFLICT(cache_key) DO UPDATE SET data_json = excluded.data_json, expires_at = excluded.expires_at`,
-    [cacheKey, JSON.stringify(data), expiresAt],
+    `INSERT INTO douban_cache (
+      kind,
+      category,
+      type,
+      page_start,
+      page_limit,
+      payload_json,
+      expires_at,
+      updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%s', 'now'))
+    ON CONFLICT(kind, category, type, page_start, page_limit)
+    DO UPDATE SET
+      payload_json = excluded.payload_json,
+      expires_at = excluded.expires_at,
+      updated_at = excluded.updated_at`,
+    [
+      cacheKey.kind,
+      cacheKey.category,
+      cacheKey.type,
+      cacheKey.pageStart,
+      cacheKey.pageLimit,
+      JSON.stringify(data),
+      expiresAt,
+    ],
   );
 }
 

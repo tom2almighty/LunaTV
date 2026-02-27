@@ -7,29 +7,72 @@ import { gunzip } from 'zlib';
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { configSelfCheck, setCachedConfig } from '@/lib/config';
 import { SimpleCrypto } from '@/lib/crypto';
-import {
-  addSearchHistory,
-  clearAllData,
-  registerUser,
-  saveAdminConfig,
-  saveFavorite,
-  savePlayRecord,
-  setSkipConfig,
-} from '@/lib/db';
+import { getDb } from '@/lib/sqlite';
 
 export const runtime = 'nodejs';
 
 const gunzipAsync = promisify(gunzip);
 
+type BackupUserV2 = {
+  username: string;
+  password: string;
+  playRecords: Array<{
+    source: string;
+    videoId: string;
+    record: Record<string, unknown>;
+    updatedAt?: number;
+  }>;
+  favorites: Array<{
+    source: string;
+    videoId: string;
+    favorite: Record<string, unknown>;
+    createdAt?: number;
+  }>;
+  skipConfigs: Array<{
+    source: string;
+    videoId: string;
+    config: Record<string, unknown>;
+  }>;
+  searchHistory: Array<{
+    keyword: string;
+    createdAt?: number;
+  }>;
+};
+
+type BackupDataV2 = {
+  formatVersion: 2;
+  createdAt: string;
+  app: {
+    name: 'LunaTV';
+  };
+  payload: {
+    adminConfig: Record<string, unknown>;
+    users: BackupUserV2[];
+  };
+};
+
+function isValidBackupData(data: unknown): data is BackupDataV2 {
+  if (!data || typeof data !== 'object') {
+    return false;
+  }
+
+  const d = data as BackupDataV2;
+  return (
+    d.formatVersion === 2 &&
+    typeof d.createdAt === 'string' &&
+    !!d.payload &&
+    Array.isArray(d.payload.users) &&
+    !!d.payload.adminConfig
+  );
+}
+
 export async function POST(req: NextRequest) {
   try {
-    // 验证身份和权限
     const authInfo = getAuthInfoFromCookie(req);
     if (!authInfo || !authInfo.username) {
       return NextResponse.json({ error: '未登录' }, { status: 401 });
     }
 
-    // 检查用户权限（只有站长可以导入数据）
     if (authInfo.username !== process.env.APP_ADMIN_USERNAME) {
       return NextResponse.json(
         { error: '权限不足，只有站长可以导入数据' },
@@ -37,7 +80,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 解析表单数据
     const formData = await req.formData();
     const file = formData.get('file') as File;
     const password = formData.get('password') as string;
@@ -50,107 +92,205 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '请提供解密密码' }, { status: 400 });
     }
 
-    // 读取文件内容
+    if (file.size > 50 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: '备份文件过大（限制 50MB）' },
+        { status: 400 },
+      );
+    }
+
     const encryptedData = await file.text();
 
-    // 解密数据
     let decryptedData: string;
     try {
       decryptedData = SimpleCrypto.decrypt(encryptedData, password);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: '解密失败，请检查密码是否正确' },
         { status: 400 },
       );
     }
 
-    // 解压缩数据
     const compressedBuffer = Buffer.from(decryptedData, 'base64');
     const decompressedBuffer = await gunzipAsync(compressedBuffer);
-    const decompressedData = decompressedBuffer.toString();
 
-    // 解析JSON数据
-    let importData: any;
+    let importData: unknown;
     try {
-      importData = JSON.parse(decompressedData);
-    } catch (error) {
+      importData = JSON.parse(decompressedBuffer.toString());
+    } catch {
       return NextResponse.json({ error: '备份文件格式错误' }, { status: 400 });
     }
 
-    // 验证数据格式
-    if (
-      !importData.data ||
-      !importData.data.adminConfig ||
-      !importData.data.userData
-    ) {
-      return NextResponse.json({ error: '备份文件格式无效' }, { status: 400 });
+    if (!isValidBackupData(importData)) {
+      return NextResponse.json(
+        { error: '备份文件格式无效，或版本不匹配（仅支持 v2）' },
+        { status: 400 },
+      );
     }
 
-    // 开始导入数据 - 先清空现有数据
-    await clearAllData();
+    const db = await getDb();
+    const checkedAdminConfig = configSelfCheck(importData.payload.adminConfig as any);
 
-    // 导入管理员配置
-    importData.data.adminConfig = configSelfCheck(importData.data.adminConfig);
-    await saveAdminConfig(importData.data.adminConfig);
-    await setCachedConfig(importData.data.adminConfig);
+    const owner = process.env.APP_ADMIN_USERNAME || '';
+    const ownerPassword = process.env.APP_ADMIN_PASSWORD || '';
 
-    // 导入用户数据
-    const userData = importData.data.userData;
-    for (const username in userData) {
-      const user = userData[username];
-
-      // 重新注册用户（包含密码）
-      if (user.password) {
-        await registerUser(username, user.password);
+    const userMap = new Map<string, BackupUserV2>();
+    for (const user of importData.payload.users) {
+      if (!user?.username || !user?.password) {
+        continue;
       }
+      userMap.set(user.username, user);
+    }
 
-      // 导入播放记录
-      if (user.playRecords) {
-        for (const [key, record] of Object.entries(user.playRecords)) {
-          const [source, videoId] = key.split('+');
-          if (source && videoId) {
-            await savePlayRecord(username, source, videoId, record as any);
-          }
-        }
-      }
-
-      // 导入收藏夹
-      if (user.favorites) {
-        for (const [key, favorite] of Object.entries(user.favorites)) {
-          const [source, videoId] = key.split('+');
-          if (source && videoId) {
-            await saveFavorite(username, source, videoId, favorite as any);
-          }
-        }
-      }
-
-      // 导入搜索历史
-      if (user.searchHistory && Array.isArray(user.searchHistory)) {
-        for (const keyword of user.searchHistory.reverse()) {
-          // 反转以保持顺序
-          await addSearchHistory(username, keyword);
-        }
-      }
-
-      // 导入跳过片头片尾配置
-      if (user.skipConfigs) {
-        for (const [key, skipConfig] of Object.entries(user.skipConfigs)) {
-          const [source, id] = key.split('+');
-          if (source && id) {
-            await setSkipConfig(username, source, id, skipConfig as any);
-          }
-        }
+    if (owner) {
+      const existingOwner = userMap.get(owner);
+      if (existingOwner) {
+        existingOwner.password = ownerPassword || existingOwner.password;
+      } else {
+        userMap.set(owner, {
+          username: owner,
+          password: ownerPassword,
+          playRecords: [],
+          favorites: [],
+          skipConfigs: [],
+          searchHistory: [],
+        });
       }
     }
+
+    const users = Array.from(userMap.values());
+
+    let playRecordCount = 0;
+    let favoriteCount = 0;
+    let skipConfigCount = 0;
+    let searchHistoryCount = 0;
+
+    await db.exec('BEGIN IMMEDIATE TRANSACTION');
+    try {
+      await db.exec(`
+        DELETE FROM users;
+        DELETE FROM play_records;
+        DELETE FROM favorites;
+        DELETE FROM search_history;
+        DELETE FROM skip_configs;
+        DELETE FROM admin_config;
+        DELETE FROM douban_cache;
+      `);
+
+      await db.run(
+        `INSERT INTO admin_config (key, value_json) VALUES ('main', ?)
+         ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
+        [JSON.stringify(checkedAdminConfig)],
+      );
+
+      const insertUser = await db.prepare(
+        'INSERT INTO users (username, password) VALUES (?, ?)',
+      );
+      const insertPlayRecord = await db.prepare(
+        `INSERT INTO play_records (username, source, video_id, record_json, updated_at)
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(username, source, video_id)
+         DO UPDATE SET record_json = excluded.record_json, updated_at = excluded.updated_at`,
+      );
+      const insertFavorite = await db.prepare(
+        `INSERT INTO favorites (username, source, video_id, favorite_json, created_at)
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(username, source, video_id)
+         DO UPDATE SET favorite_json = excluded.favorite_json, created_at = excluded.created_at`,
+      );
+      const insertSkipConfig = await db.prepare(
+        `INSERT INTO skip_configs (username, source, video_id, config_json)
+         VALUES (?, ?, ?, ?)
+         ON CONFLICT(username, source, video_id)
+         DO UPDATE SET config_json = excluded.config_json`,
+      );
+      const insertSearchHistory = await db.prepare(
+        `INSERT INTO search_history (username, keyword, created_at)
+         VALUES (?, ?, ?)`,
+      );
+
+      try {
+        for (const user of users) {
+          await insertUser.run(user.username, user.password);
+
+          for (const row of user.playRecords || []) {
+            if (!row.source || !row.videoId) {
+              continue;
+            }
+            await insertPlayRecord.run(
+              user.username,
+              row.source,
+              row.videoId,
+              JSON.stringify(row.record || {}),
+              Number(row.updatedAt || Math.floor(Date.now() / 1000)),
+            );
+            playRecordCount++;
+          }
+
+          for (const row of user.favorites || []) {
+            if (!row.source || !row.videoId) {
+              continue;
+            }
+            await insertFavorite.run(
+              user.username,
+              row.source,
+              row.videoId,
+              JSON.stringify(row.favorite || {}),
+              Number(row.createdAt || Math.floor(Date.now() / 1000)),
+            );
+            favoriteCount++;
+          }
+
+          for (const row of user.skipConfigs || []) {
+            if (!row.source || !row.videoId) {
+              continue;
+            }
+            await insertSkipConfig.run(
+              user.username,
+              row.source,
+              row.videoId,
+              JSON.stringify(row.config || {}),
+            );
+            skipConfigCount++;
+          }
+
+          for (const row of user.searchHistory || []) {
+            if (!row.keyword) {
+              continue;
+            }
+            await insertSearchHistory.run(
+              user.username,
+              row.keyword,
+              Number(row.createdAt || Math.floor(Date.now() / 1000)),
+            );
+            searchHistoryCount++;
+          }
+        }
+      } finally {
+        await insertUser.finalize();
+        await insertPlayRecord.finalize();
+        await insertFavorite.finalize();
+        await insertSkipConfig.finalize();
+        await insertSearchHistory.finalize();
+      }
+
+      await db.exec('COMMIT');
+    } catch (error) {
+      await db.exec('ROLLBACK');
+      throw error;
+    }
+
+    await setCachedConfig(checkedAdminConfig as any);
 
     return NextResponse.json({
       message: '数据导入成功',
-      importedUsers: Object.keys(userData).length,
-      timestamp: importData.timestamp,
-      serverVersion:
-        typeof importData.serverVersion === 'string'
-          ? importData.serverVersion
-          : '未知版本',
+      formatVersion: 2,
+      importedUsers: users.length,
+      importedPlayRecords: playRecordCount,
+      importedFavorites: favoriteCount,
+      importedSkipConfigs: skipConfigCount,
+      importedSearchHistory: searchHistoryCount,
+      backupCreatedAt: importData.createdAt,
     });
   } catch (error) {
     console.error('数据导入失败:', error);

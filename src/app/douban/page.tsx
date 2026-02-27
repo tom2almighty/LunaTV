@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
 
+import { normalizeDoubanPageType } from '@/lib/douban-categories';
+
 import PageLayout from '@/components/PageLayout';
 
 import DoubanPageClient from './DoubanPageClient';
@@ -18,10 +20,9 @@ export default async function DoubanPage({ searchParams }: DoubanPageProps) {
       : Array.isArray(resolvedSearchParams?.type)
         ? resolvedSearchParams?.type[0]
         : undefined;
+  const normalizedType = normalizeDoubanPageType(typeParam);
 
-  const activePath = typeParam
-    ? `/douban?type=${encodeURIComponent(typeParam)}`
-    : '/douban';
+  const activePath = `/douban?type=${encodeURIComponent(normalizedType)}`;
 
   return (
     <PageLayout activePath={activePath}>

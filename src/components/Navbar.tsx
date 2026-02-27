@@ -154,23 +154,12 @@ const NavbarInner = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [menuItems, setMenuItems] = useState([
+  const menuItems = [
     { label: '首页', href: '/' },
     { label: '电影', href: '/douban?type=movie' },
     { label: '剧集', href: '/douban?type=tv' },
     { label: '综艺', href: '/douban?type=show' },
-  ]);
-
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rc = (window as any).RUNTIME_CONFIG;
-    if (rc?.CUSTOM_CATEGORIES?.length > 0) {
-      setMenuItems((prev) => {
-        if (prev.some((i) => i.label === '自定义')) return prev;
-        return [...prev, { label: '自定义', href: '/douban?type=custom' }];
-      });
-    }
-  }, []);
+  ];
 
   const isActive = (href: string) => {
     if (href === '/' && pathname === '/') return true;
