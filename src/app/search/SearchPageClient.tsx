@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import React, {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -23,11 +22,10 @@ import { SearchResult } from '@/lib/types';
 import { useBackToTopVisibility } from '@/hooks/useBackToTopVisibility';
 import { useSearchExecution } from '@/hooks/useSearchExecution';
 import { useSearchPageInit } from '@/hooks/useSearchPageInit';
+import { SearchFilterState, useSearchResultFilters } from '@/hooks/useSearchResultFilters';
 import { useSearchVirtualGrid } from '@/hooks/useSearchVirtualGrid';
 
-import SearchResultFilter, {
-  SearchFilterCategory,
-} from '@/components/SearchResultFilter';
+import SearchResultFilter from '@/components/SearchResultFilter';
 import VideoCard, { VideoCardHandle } from '@/components/VideoCard';
 
 function SearchPageClient() {
@@ -104,65 +102,14 @@ function SearchPageClient() {
     return ref;
   };
 
-  const computeGroupStats = (group: SearchResult[]) => {
-    const episodes = (() => {
-      const countMap = new Map<number, number>();
-      group.forEach((g) => {
-        const len = g.episodes?.length || 0;
-        if (len > 0) countMap.set(len, (countMap.get(len) || 0) + 1);
-      });
-      let max = 0;
-      let res = 0;
-      countMap.forEach((v, k) => {
-        if (v > max) {
-          max = v;
-          res = k;
-        }
-      });
-      return res;
-    })();
-    const source_names = Array.from(
-      new Set(group.map((g) => g.source_name).filter(Boolean)),
-    ) as string[];
-
-    const douban_id = (() => {
-      const countMap = new Map<number, number>();
-      group.forEach((g) => {
-        if (g.douban_id && g.douban_id > 0) {
-          countMap.set(g.douban_id, (countMap.get(g.douban_id) || 0) + 1);
-        }
-      });
-      let max = 0;
-      let res: number | undefined;
-      countMap.forEach((v, k) => {
-        if (v > max) {
-          max = v;
-          res = k;
-        }
-      });
-      return res;
-    })();
-
-    return { episodes, source_names, douban_id };
-  };
   // 过滤器：非聚合与聚合
-  const [filterAll, setFilterAll] = useState<{
-    source: string;
-    title: string;
-    year: string;
-    yearOrder: 'none' | 'asc' | 'desc';
-  }>({
+  const [filterAll, setFilterAll] = useState<SearchFilterState>({
     source: 'all',
     title: 'all',
     year: 'all',
     yearOrder: 'none',
   });
-  const [filterAgg, setFilterAgg] = useState<{
-    source: string;
-    title: string;
-    year: string;
-    yearOrder: 'none' | 'asc' | 'desc';
-  }>({
+  const [filterAgg, setFilterAgg] = useState<SearchFilterState>({
     source: 'all',
     title: 'all',
     year: 'all',
@@ -204,66 +151,22 @@ function SearchPageClient() {
     });
   };
 
-  // 简化的年份排序：unknown/空值始终在最后
-  const compareYear = (
-    aYear: string,
-    bYear: string,
-    order: 'none' | 'asc' | 'desc',
-  ) => {
-    // 如果是无排序状态，返回0（保持原顺序）
-    if (order === 'none') return 0;
-
-    // 处理空值和unknown
-    const aIsEmpty = !aYear || aYear === 'unknown';
-    const bIsEmpty = !bYear || bYear === 'unknown';
-
-    if (aIsEmpty && bIsEmpty) return 0;
-    if (aIsEmpty) return 1; // a 在后
-    if (bIsEmpty) return -1; // b 在后
-
-    // 都是有效年份，按数字比较
-    const aNum = parseInt(aYear, 10);
-    const bNum = parseInt(bYear, 10);
-
-    return order === 'asc' ? aNum - bNum : bNum - aNum;
-  };
-
-  const buildAggregateKey = (item: SearchResult) => {
-    const normalizedTitle = (item.title || '').replaceAll(' ', '');
-    const normalizedYear = item.year || 'unknown';
-    const normalizedType = item.episodes.length === 1 ? 'movie' : 'tv';
-    return `${normalizedTitle}-${normalizedYear}-${normalizedType}`;
-  };
-
-  // 聚合后的结果（按标题和年份分组）
-  const aggregatedResults = useMemo(() => {
-    const map = new Map<string, SearchResult[]>();
-    const keyOrder: string[] = []; // 记录键出现的顺序
-
-    searchResults.forEach((item) => {
-      // 使用 title + year + type 作为键，year 必然存在，但依然兜底 'unknown'
-      const key = buildAggregateKey(item);
-      const arr = map.get(key) || [];
-
-      // 如果是新的键，记录其顺序
-      if (arr.length === 0) {
-        keyOrder.push(key);
-      }
-
-      arr.push(item);
-      map.set(key, arr);
-    });
-
-    // 按出现顺序返回聚合结果
-    return keyOrder.map(
-      (key) => [key, map.get(key)!] as [string, SearchResult[]],
-    );
-  }, [searchResults]);
-
-  const aggregateGroupMap = useMemo(
-    () => new Map<string, SearchResult[]>(aggregatedResults),
-    [aggregatedResults],
-  );
+  const {
+    buildAggregateKey,
+    computeGroupStats,
+    aggregatedResults,
+    aggregateGroupMap,
+    filterOptions,
+    filteredAllResults,
+    filteredAggResults,
+    currentResultCount,
+  } = useSearchResultFilters({
+    searchResults,
+    searchQuery,
+    filterAll,
+    filterAgg,
+    viewMode,
+  });
 
   // 当聚合结果变化时，如果某个聚合已存在，则调用其卡片 ref 的 set 方法增量更新
   useEffect(() => {
@@ -294,139 +197,6 @@ function SearchPageClient() {
     });
   }, [aggregatedResults]);
 
-  // 构建筛选选项
-  const filterOptions = useMemo(() => {
-    const sourcesSet = new Map<string, string>();
-    const titlesSet = new Set<string>();
-    const yearsSet = new Set<string>();
-
-    searchResults.forEach((item) => {
-      if (item.source && item.source_name) {
-        sourcesSet.set(item.source, item.source_name);
-      }
-      if (item.title) titlesSet.add(item.title);
-      if (item.year) yearsSet.add(item.year);
-    });
-
-    const sourceOptions: { label: string; value: string }[] = [
-      { label: '全部来源', value: 'all' },
-      ...Array.from(sourcesSet.entries())
-        .sort((a, b) => a[1].localeCompare(b[1]))
-        .map(([value, label]) => ({ label, value })),
-    ];
-
-    const titleOptions: { label: string; value: string }[] = [
-      { label: '全部标题', value: 'all' },
-      ...Array.from(titlesSet.values())
-        .sort((a, b) => a.localeCompare(b))
-        .map((t) => ({ label: t, value: t })),
-    ];
-
-    // 年份: 将 unknown 放末尾
-    const years = Array.from(yearsSet.values());
-    const knownYears = years
-      .filter((y) => y !== 'unknown')
-      .sort((a, b) => parseInt(b) - parseInt(a));
-    const hasUnknown = years.includes('unknown');
-    const yearOptions: { label: string; value: string }[] = [
-      { label: '全部年份', value: 'all' },
-      ...knownYears.map((y) => ({ label: y, value: y })),
-      ...(hasUnknown ? [{ label: '未知', value: 'unknown' }] : []),
-    ];
-
-    const categoriesAll: SearchFilterCategory[] = [
-      { key: 'source', label: '来源', options: sourceOptions },
-      { key: 'title', label: '标题', options: titleOptions },
-      { key: 'year', label: '年份', options: yearOptions },
-    ];
-
-    const categoriesAgg: SearchFilterCategory[] = [
-      { key: 'source', label: '来源', options: sourceOptions },
-      { key: 'title', label: '标题', options: titleOptions },
-      { key: 'year', label: '年份', options: yearOptions },
-    ];
-
-    return { categoriesAll, categoriesAgg };
-  }, [searchResults]);
-
-  // 非聚合：应用筛选与排序
-  const filteredAllResults = useMemo(() => {
-    const { source, title, year, yearOrder } = filterAll;
-    const filtered = searchResults.filter((item) => {
-      if (source !== 'all' && item.source !== source) return false;
-      if (title !== 'all' && item.title !== title) return false;
-      if (year !== 'all' && item.year !== year) return false;
-      return true;
-    });
-
-    // 如果是无排序状态，直接返回过滤后的原始顺序
-    if (yearOrder === 'none') {
-      return filtered;
-    }
-
-    // 简化排序：1. 年份排序，2. 年份相同时精确匹配在前，3. 标题排序
-    return filtered.sort((a, b) => {
-      // 首先按年份排序
-      const yearComp = compareYear(a.year, b.year, yearOrder);
-      if (yearComp !== 0) return yearComp;
-
-      // 年份相同时，精确匹配在前
-      const aExactMatch = a.title === searchQuery.trim();
-      const bExactMatch = b.title === searchQuery.trim();
-      if (aExactMatch && !bExactMatch) return -1;
-      if (!aExactMatch && bExactMatch) return 1;
-
-      // 最后按标题排序，正序时字母序，倒序时反字母序
-      return yearOrder === 'asc'
-        ? a.title.localeCompare(b.title)
-        : b.title.localeCompare(a.title);
-    });
-  }, [searchResults, filterAll, searchQuery]);
-
-  // 聚合：应用筛选与排序
-  const filteredAggResults = useMemo(() => {
-    const { source, title, year, yearOrder } = filterAgg as any;
-    const filtered = aggregatedResults.filter(([_, group]) => {
-      const gTitle = group[0]?.title ?? '';
-      const gYear = group[0]?.year ?? 'unknown';
-      const hasSource =
-        source === 'all' ? true : group.some((item) => item.source === source);
-      if (!hasSource) return false;
-      if (title !== 'all' && gTitle !== title) return false;
-      if (year !== 'all' && gYear !== year) return false;
-      return true;
-    });
-
-    // 如果是无排序状态，保持按关键字+年份+类型出现的原始顺序
-    if (yearOrder === 'none') {
-      return filtered;
-    }
-
-    // 简化排序：1. 年份排序，2. 年份相同时精确匹配在前，3. 标题排序
-    return filtered.sort((a, b) => {
-      // 首先按年份排序
-      const aYear = a[1][0].year;
-      const bYear = b[1][0].year;
-      const yearComp = compareYear(aYear, bYear, yearOrder);
-      if (yearComp !== 0) return yearComp;
-
-      // 年份相同时，精确匹配在前
-      const aExactMatch = a[1][0].title === searchQuery.trim();
-      const bExactMatch = b[1][0].title === searchQuery.trim();
-      if (aExactMatch && !bExactMatch) return -1;
-      if (!aExactMatch && bExactMatch) return 1;
-
-      // 最后按标题排序，正序时字母序，倒序时反字母序
-      const aTitle = a[1][0].title;
-      const bTitle = b[1][0].title;
-      return yearOrder === 'asc'
-        ? aTitle.localeCompare(bTitle)
-        : bTitle.localeCompare(aTitle);
-    });
-  }, [aggregatedResults, filterAgg, searchQuery]);
-
-  const currentResultCount =
-    viewMode === 'agg' ? filteredAggResults.length : filteredAllResults.length;
   const { virtualGridRef, virtualGridColumns, resultsVirtualizer } =
     useSearchVirtualGrid({
       showResults,
@@ -740,7 +510,7 @@ function SearchPageClient() {
                 </div>
               )}
             </section>
-          ) : searchHistory.length > 0 ? (
+          ) : (
             // 搜索历史
             <section className='mb-12'>
               <h2 className='text-foreground mb-4 text-left text-xl font-bold'>
@@ -756,37 +526,43 @@ function SearchPageClient() {
                   </button>
                 )}
               </h2>
-              <div className='flex flex-wrap gap-2'>
-                {searchHistory.map((item) => (
-                  <div key={item} className='group relative'>
-                    <button
-                      onClick={() => {
-                        setSearchQuery(item);
-                        router.push(
-                          `/search?q=${encodeURIComponent(item.trim())}`,
-                        );
-                      }}
-                      className='bg-card text-foreground hover:bg-muted rounded-full px-4 py-2 text-sm transition-colors duration-200'
-                    >
-                      {item}
-                    </button>
-                    {/* 删除按钮 */}
-                    <button
-                      aria-label='删除搜索历史'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        deleteSearchHistory(item); // 事件监听会自动更新界面
-                      }}
-                      className='bg-muted-foreground text-card hover:bg-destructive absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] opacity-0 transition-colors group-hover:opacity-100'
-                    >
-                      <X className='h-3 w-3' />
-                    </button>
-                  </div>
-                ))}
-              </div>
+              {searchHistory.length > 0 ? (
+                <div className='flex flex-wrap gap-2'>
+                  {searchHistory.map((item) => (
+                    <div key={item} className='group relative'>
+                      <button
+                        onClick={() => {
+                          setSearchQuery(item);
+                          router.push(
+                            `/search?q=${encodeURIComponent(item.trim())}`,
+                          );
+                        }}
+                        className='bg-card text-foreground hover:bg-muted rounded-full px-4 py-2 text-sm transition-colors duration-200'
+                      >
+                        {item}
+                      </button>
+                      {/* 删除按钮 */}
+                      <button
+                        aria-label='删除搜索历史'
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          deleteSearchHistory(item); // 事件监听会自动更新界面
+                        }}
+                        className='bg-muted-foreground text-card hover:bg-destructive absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] opacity-0 transition-colors group-hover:opacity-100'
+                      >
+                        <X className='h-3 w-3' />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className='text-muted-foreground py-4 text-sm'>
+                  暂无搜索历史
+                </div>
+              )}
             </section>
-          ) : null}
+          )}
         </div>
       </div>
 
