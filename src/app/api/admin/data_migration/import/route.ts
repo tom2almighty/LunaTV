@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const db = await getDb();
+    const db = getDb();
     const checkedAdminConfig = configSelfCheck(importData.payload.adminConfig as any);
 
     const owner = process.env.APP_ADMIN_USERNAME || '';
@@ -165,59 +165,60 @@ export async function POST(req: NextRequest) {
     let skipConfigCount = 0;
     let searchHistoryCount = 0;
 
-    await db.exec('BEGIN IMMEDIATE TRANSACTION');
-    try {
-      await db.exec(`
-        DELETE FROM users;
-        DELETE FROM play_records;
-        DELETE FROM favorites;
-        DELETE FROM search_history;
-        DELETE FROM skip_configs;
-        DELETE FROM admin_config;
-        DELETE FROM douban_cache;
-      `);
+    const insertTransaction = db.transaction(
+      (
+        txUsers: BackupUserV2[],
+        adminConfig: Record<string, unknown>,
+      ): void => {
+        db.exec(`
+          DELETE FROM users;
+          DELETE FROM play_records;
+          DELETE FROM favorites;
+          DELETE FROM search_history;
+          DELETE FROM skip_configs;
+          DELETE FROM admin_config;
+          DELETE FROM douban_cache;
+        `);
 
-      await db.run(
-        `INSERT INTO admin_config (key, value_json) VALUES ('main', ?)
-         ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
-        [JSON.stringify(checkedAdminConfig)],
-      );
+        db.prepare(
+          `INSERT INTO admin_config (key, value_json) VALUES ('main', ?)
+           ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
+        ).run(JSON.stringify(adminConfig));
 
-      const insertUser = await db.prepare(
-        'INSERT INTO users (username, password) VALUES (?, ?)',
-      );
-      const insertPlayRecord = await db.prepare(
-        `INSERT INTO play_records (username, source, video_id, record_json, updated_at)
-         VALUES (?, ?, ?, ?, ?)
-         ON CONFLICT(username, source, video_id)
-         DO UPDATE SET record_json = excluded.record_json, updated_at = excluded.updated_at`,
-      );
-      const insertFavorite = await db.prepare(
-        `INSERT INTO favorites (username, source, video_id, favorite_json, created_at)
-         VALUES (?, ?, ?, ?, ?)
-         ON CONFLICT(username, source, video_id)
-         DO UPDATE SET favorite_json = excluded.favorite_json, created_at = excluded.created_at`,
-      );
-      const insertSkipConfig = await db.prepare(
-        `INSERT INTO skip_configs (username, source, video_id, config_json)
-         VALUES (?, ?, ?, ?)
-         ON CONFLICT(username, source, video_id)
-         DO UPDATE SET config_json = excluded.config_json`,
-      );
-      const insertSearchHistory = await db.prepare(
-        `INSERT INTO search_history (username, keyword, created_at)
-         VALUES (?, ?, ?)`,
-      );
+        const insertUser = db.prepare(
+          'INSERT INTO users (username, password) VALUES (?, ?)',
+        );
+        const insertPlayRecord = db.prepare(
+          `INSERT INTO play_records (username, source, video_id, record_json, updated_at)
+           VALUES (?, ?, ?, ?, ?)
+           ON CONFLICT(username, source, video_id)
+           DO UPDATE SET record_json = excluded.record_json, updated_at = excluded.updated_at`,
+        );
+        const insertFavorite = db.prepare(
+          `INSERT INTO favorites (username, source, video_id, favorite_json, created_at)
+           VALUES (?, ?, ?, ?, ?)
+           ON CONFLICT(username, source, video_id)
+           DO UPDATE SET favorite_json = excluded.favorite_json, created_at = excluded.created_at`,
+        );
+        const insertSkipConfig = db.prepare(
+          `INSERT INTO skip_configs (username, source, video_id, config_json)
+           VALUES (?, ?, ?, ?)
+           ON CONFLICT(username, source, video_id)
+           DO UPDATE SET config_json = excluded.config_json`,
+        );
+        const insertSearchHistory = db.prepare(
+          `INSERT INTO search_history (username, keyword, created_at)
+           VALUES (?, ?, ?)`,
+        );
 
-      try {
-        for (const user of users) {
-          await insertUser.run(user.username, user.password);
+        for (const user of txUsers) {
+          insertUser.run(user.username, user.password);
 
           for (const row of user.playRecords || []) {
             if (!row.source || !row.videoId) {
               continue;
             }
-            await insertPlayRecord.run(
+            insertPlayRecord.run(
               user.username,
               row.source,
               row.videoId,
@@ -231,7 +232,7 @@ export async function POST(req: NextRequest) {
             if (!row.source || !row.videoId) {
               continue;
             }
-            await insertFavorite.run(
+            insertFavorite.run(
               user.username,
               row.source,
               row.videoId,
@@ -245,7 +246,7 @@ export async function POST(req: NextRequest) {
             if (!row.source || !row.videoId) {
               continue;
             }
-            await insertSkipConfig.run(
+            insertSkipConfig.run(
               user.username,
               row.source,
               row.videoId,
@@ -258,7 +259,7 @@ export async function POST(req: NextRequest) {
             if (!row.keyword) {
               continue;
             }
-            await insertSearchHistory.run(
+            insertSearchHistory.run(
               user.username,
               row.keyword,
               Number(row.createdAt || Math.floor(Date.now() / 1000)),
@@ -266,19 +267,13 @@ export async function POST(req: NextRequest) {
             searchHistoryCount++;
           }
         }
-      } finally {
-        await insertUser.finalize();
-        await insertPlayRecord.finalize();
-        await insertFavorite.finalize();
-        await insertSkipConfig.finalize();
-        await insertSearchHistory.finalize();
-      }
+      },
+    );
 
-      await db.exec('COMMIT');
-    } catch (error) {
-      await db.exec('ROLLBACK');
-      throw error;
-    }
+    insertTransaction.immediate(
+      users,
+      checkedAdminConfig as unknown as Record<string, unknown>,
+    );
 
     await setCachedConfig(checkedAdminConfig as any);
 

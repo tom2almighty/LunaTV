@@ -1,24 +1,24 @@
 /* eslint-disable no-console */
 
+import Database from 'better-sqlite3';
+import fs from 'fs';
 import path from 'path';
-import { Database, open } from 'sqlite';
-import sqlite3 from 'sqlite3';
 
 // 数据库文件路径
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DB_PATH = path.join(DATA_DIR, 'sqlite.db');
 
+export type SQLiteDatabase = Database.Database;
+
 // 全局数据库实例
-let dbInstance: Database | null = null;
-let dbInitPromise: Promise<Database> | null = null;
+let dbInstance: SQLiteDatabase | null = null;
 
 /**
  * 确保 data 目录存在
  */
-async function ensureDataDir(): Promise<void> {
-  const fs = await import('fs/promises');
+function ensureDataDir(): void {
   try {
-    const stat = await fs.stat(DATA_DIR);
+    const stat = fs.statSync(DATA_DIR);
     if (!stat.isDirectory()) {
       throw new Error(`${DATA_DIR} 存在但不是目录`);
     }
@@ -27,7 +27,7 @@ async function ensureDataDir(): Promise<void> {
       err instanceof Error &&
       (err as NodeJS.ErrnoException).code === 'ENOENT'
     ) {
-      await fs.mkdir(DATA_DIR, { recursive: true });
+      fs.mkdirSync(DATA_DIR, { recursive: true });
       console.log(`创建数据目录: ${DATA_DIR}`);
     } else {
       throw err;
@@ -36,7 +36,7 @@ async function ensureDataDir(): Promise<void> {
 
   // 检查数据库文件是否被误创建为目录
   try {
-    const dbStat = await fs.stat(DB_PATH);
+    const dbStat = fs.statSync(DB_PATH);
     if (dbStat.isDirectory()) {
       console.error(`错误: ${DB_PATH} 是一个目录，请删除后重试`);
       throw new Error(`${DB_PATH} 是一个目录而非文件`);
@@ -55,9 +55,9 @@ async function ensureDataDir(): Promise<void> {
 /**
  * 初始化数据库表结构
  */
-async function initTables(db: Database): Promise<void> {
+function initTables(db: SQLiteDatabase): void {
   // 用户表
-  await db.exec(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
@@ -67,7 +67,7 @@ async function initTables(db: Database): Promise<void> {
   `);
 
   // 播放记录表
-  await db.exec(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS play_records (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT NOT NULL,
@@ -80,7 +80,7 @@ async function initTables(db: Database): Promise<void> {
   `);
 
   // 收藏表
-  await db.exec(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS favorites (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT NOT NULL,
@@ -93,7 +93,7 @@ async function initTables(db: Database): Promise<void> {
   `);
 
   // 搜索历史表
-  await db.exec(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS search_history (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT NOT NULL,
@@ -103,7 +103,7 @@ async function initTables(db: Database): Promise<void> {
   `);
 
   // 跳过片头片尾配置表
-  await db.exec(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS skip_configs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT NOT NULL,
@@ -115,17 +115,17 @@ async function initTables(db: Database): Promise<void> {
   `);
 
   // 管理员配置表
-  await db.exec(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS admin_config (
       key TEXT PRIMARY KEY,
       value_json TEXT NOT NULL
     )
   `);
 
-  await ensureDoubanCacheTable(db);
+  ensureDoubanCacheTable(db);
 
   // 创建索引
-  await db.exec(`
+  db.exec(`
     CREATE INDEX IF NOT EXISTS idx_play_records_username ON play_records(username);
     CREATE INDEX IF NOT EXISTS idx_favorites_username ON favorites(username);
     CREATE INDEX IF NOT EXISTS idx_search_history_username_created_at ON search_history(username, created_at DESC, id DESC);
@@ -135,7 +135,7 @@ async function initTables(db: Database): Promise<void> {
   console.log('数据库表初始化完成');
 }
 
-async function ensureDoubanCacheTable(db: Database): Promise<void> {
+function ensureDoubanCacheTable(db: SQLiteDatabase): void {
   const expectedColumns = [
     'kind',
     'category',
@@ -147,9 +147,10 @@ async function ensureDoubanCacheTable(db: Database): Promise<void> {
     'updated_at',
   ];
 
-  const tableInfo = await db.all<Array<{ name: string }>>(
-    'PRAGMA table_info(douban_cache)',
-  );
+  const tableInfo = db
+    .prepare('PRAGMA table_info(douban_cache)')
+    .all() as Array<{ name: string }>;
+
   const hasSchemaMismatch =
     tableInfo.length > 0 &&
     (tableInfo.length !== expectedColumns.length ||
@@ -159,10 +160,10 @@ async function ensureDoubanCacheTable(db: Database): Promise<void> {
 
   // 豆瓣缓存表只存临时数据，检测到旧结构时直接重建。
   if (hasSchemaMismatch) {
-    await db.exec('DROP TABLE IF EXISTS douban_cache');
+    db.exec('DROP TABLE IF EXISTS douban_cache');
   }
 
-  await db.exec(`
+  db.exec(`
     CREATE TABLE IF NOT EXISTS douban_cache (
       kind TEXT NOT NULL,
       category TEXT NOT NULL,
@@ -176,7 +177,7 @@ async function ensureDoubanCacheTable(db: Database): Promise<void> {
     ) WITHOUT ROWID
   `);
 
-  await db.exec(`
+  db.exec(`
     CREATE INDEX IF NOT EXISTS idx_douban_cache_expires ON douban_cache(expires_at);
   `);
 }
@@ -184,58 +185,45 @@ async function ensureDoubanCacheTable(db: Database): Promise<void> {
 /**
  * 获取数据库实例（单例模式）
  */
-export async function getDb(): Promise<Database> {
+export function getDb(): SQLiteDatabase {
   if (dbInstance) {
     return dbInstance;
   }
 
-  if (dbInitPromise) {
-    return dbInitPromise;
-  }
+  ensureDataDir();
 
-  dbInitPromise = (async () => {
-    await ensureDataDir();
+  let openingDb: SQLiteDatabase | null = null;
+  try {
+    openingDb = new Database(DB_PATH);
 
-    let openingDb: Database | null = null;
-    try {
-      openingDb = await open({
-        filename: DB_PATH,
-        driver: sqlite3.Database,
-      });
+    // 启用 WAL 模式提升并发性能
+    openingDb.exec('PRAGMA journal_mode = WAL');
+    openingDb.exec('PRAGMA busy_timeout = 5000');
 
-      // 启用 WAL 模式提升并发性能
-      await openingDb.exec('PRAGMA journal_mode = WAL');
-      await openingDb.exec('PRAGMA busy_timeout = 5000');
+    initTables(openingDb);
 
-      await initTables(openingDb);
-
-      dbInstance = openingDb;
-      console.log(`SQLite 数据库已连接: ${DB_PATH}`);
-      return dbInstance;
-    } catch (err) {
-      // 若初始化中途失败，确保关闭半初始化连接，避免连接泄露
-      if (openingDb) {
-        try {
-          await openingDb.close();
-        } catch (closeErr) {
-          console.warn('关闭异常数据库连接失败:', closeErr);
-        }
+    dbInstance = openingDb;
+    console.log(`SQLite 数据库已连接: ${DB_PATH}`);
+    return dbInstance;
+  } catch (err) {
+    // 若初始化中途失败，确保关闭半初始化连接，避免连接泄露
+    if (openingDb) {
+      try {
+        openingDb.close();
+      } catch (closeErr) {
+        console.warn('关闭异常数据库连接失败:', closeErr);
       }
-      throw err;
     }
-  })().finally(() => {
-    dbInitPromise = null;
-  });
-
-  return dbInitPromise;
+    throw err;
+  }
 }
 
 /**
  * 关闭数据库连接
  */
-export async function closeDb(): Promise<void> {
+export function closeDb(): void {
   if (dbInstance) {
-    await dbInstance.close();
+    dbInstance.close();
     dbInstance = null;
     console.log('SQLite 数据库连接已关闭');
   }

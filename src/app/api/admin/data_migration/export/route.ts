@@ -83,10 +83,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '无法获取配置' }, { status: 500 });
     }
 
-    const db = await getDb();
-    const userRows = await db.all<Array<{ username: string; password: string }>>(
-      'SELECT username, password FROM users',
-    );
+    const db = getDb();
+    const userRows = db
+      .prepare('SELECT username, password FROM users')
+      .all() as Array<{ username: string; password: string }>;
 
     const owner = process.env.APP_ADMIN_USERNAME || '';
     const ownerPassword = process.env.APP_ADMIN_PASSWORD || '';
@@ -94,69 +94,72 @@ export async function POST(req: NextRequest) {
       userRows.push({ username: owner, password: ownerPassword });
     }
 
-    const users: BackupUserV2[] = await Promise.all(
-      userRows.map(async (user) => {
-        const [playRows, favRows, skipRows, historyRows] = await Promise.all([
-          db.all<
-            Array<{
-              source: string;
-              video_id: string;
-              record_json: string;
-              updated_at: number;
-            }>
-          >(
-            'SELECT source, video_id, record_json, updated_at FROM play_records WHERE username = ?',
-            [user.username],
-          ),
-          db.all<
-            Array<{
-              source: string;
-              video_id: string;
-              favorite_json: string;
-              created_at: number;
-            }>
-          >(
-            'SELECT source, video_id, favorite_json, created_at FROM favorites WHERE username = ?',
-            [user.username],
-          ),
-          db.all<Array<{ source: string; video_id: string; config_json: string }>>(
-            'SELECT source, video_id, config_json FROM skip_configs WHERE username = ?',
-            [user.username],
-          ),
-          db.all<Array<{ keyword: string; created_at: number }>>(
-            'SELECT keyword, created_at FROM search_history WHERE username = ? ORDER BY created_at ASC, id ASC',
-            [user.username],
-          ),
-        ]);
-
-        return {
-          username: user.username,
-          password:
-            user.username === owner && ownerPassword ? ownerPassword : user.password,
-          playRecords: playRows.map((row) => ({
-            source: row.source,
-            videoId: row.video_id,
-            record: parseJsonSafe<Record<string, unknown>>(row.record_json, {}),
-            updatedAt: Number(row.updated_at || 0),
-          })),
-          favorites: favRows.map((row) => ({
-            source: row.source,
-            videoId: row.video_id,
-            favorite: parseJsonSafe<Record<string, unknown>>(row.favorite_json, {}),
-            createdAt: Number(row.created_at || 0),
-          })),
-          skipConfigs: skipRows.map((row) => ({
-            source: row.source,
-            videoId: row.video_id,
-            config: parseJsonSafe<Record<string, unknown>>(row.config_json, {}),
-          })),
-          searchHistory: historyRows.map((row) => ({
-            keyword: row.keyword,
-            createdAt: Number(row.created_at || 0),
-          })),
-        };
-      }),
+    const selectPlayRows = db.prepare(
+      'SELECT source, video_id, record_json, updated_at FROM play_records WHERE username = ?',
     );
+    const selectFavoriteRows = db.prepare(
+      'SELECT source, video_id, favorite_json, created_at FROM favorites WHERE username = ?',
+    );
+    const selectSkipRows = db.prepare(
+      'SELECT source, video_id, config_json FROM skip_configs WHERE username = ?',
+    );
+    const selectHistoryRows = db.prepare(
+      'SELECT keyword, created_at FROM search_history WHERE username = ? ORDER BY created_at ASC, id ASC',
+    );
+
+    const users: BackupUserV2[] = userRows.map((user) => {
+      const playRows = selectPlayRows.all(user.username) as Array<{
+        source: string;
+        video_id: string;
+        record_json: string;
+        updated_at: number;
+      }>;
+
+      const favRows = selectFavoriteRows.all(user.username) as Array<{
+        source: string;
+        video_id: string;
+        favorite_json: string;
+        created_at: number;
+      }>;
+
+      const skipRows = selectSkipRows.all(user.username) as Array<{
+        source: string;
+        video_id: string;
+        config_json: string;
+      }>;
+
+      const historyRows = selectHistoryRows.all(user.username) as Array<{
+        keyword: string;
+        created_at: number;
+      }>;
+
+      return {
+        username: user.username,
+        password:
+          user.username === owner && ownerPassword ? ownerPassword : user.password,
+        playRecords: playRows.map((row) => ({
+          source: row.source,
+          videoId: row.video_id,
+          record: parseJsonSafe<Record<string, unknown>>(row.record_json, {}),
+          updatedAt: Number(row.updated_at || 0),
+        })),
+        favorites: favRows.map((row) => ({
+          source: row.source,
+          videoId: row.video_id,
+          favorite: parseJsonSafe<Record<string, unknown>>(row.favorite_json, {}),
+          createdAt: Number(row.created_at || 0),
+        })),
+        skipConfigs: skipRows.map((row) => ({
+          source: row.source,
+          videoId: row.video_id,
+          config: parseJsonSafe<Record<string, unknown>>(row.config_json, {}),
+        })),
+        searchHistory: historyRows.map((row) => ({
+          keyword: row.keyword,
+          createdAt: Number(row.created_at || 0),
+        })),
+      };
+    });
 
     const exportData: BackupDataV2 = {
       formatVersion: 2,
