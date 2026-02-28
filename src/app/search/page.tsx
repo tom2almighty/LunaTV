@@ -6,7 +6,7 @@ import SearchPageClient from './SearchPageClient';
 
 export default function SearchPage() {
   return (
-    <PageLayout activePath='/search'>
+    <PageLayout>
       <Suspense>
         <SearchPageClient />
       </Suspense>

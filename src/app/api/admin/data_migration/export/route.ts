@@ -6,7 +6,7 @@ import { gzip } from 'zlib';
 
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { SimpleCrypto } from '@/lib/crypto';
-import { getAdminConfig } from '@/lib/db';
+import { getAdminConfig } from '@/lib/db.server';
 import { getDb } from '@/lib/sqlite';
 
 export const runtime = 'nodejs';
@@ -199,3 +199,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+

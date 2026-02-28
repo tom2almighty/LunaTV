@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, no-console, @typescript-eslint/no-non-null-assertion */
 
-import { getAdminConfig, getAllUsers, saveAdminConfig } from '@/lib/db';
+import { getAdminConfig, getAllUsers, saveAdminConfig } from '@/lib/db.server';
 
 import { AdminConfig } from './admin.types';
 
@@ -366,3 +366,4 @@ export async function getAvailableApiSites(user?: string): Promise<ApiSite[]> {
 export async function setCachedConfig(config: AdminConfig) {
   cachedConfig = config;
 }
+

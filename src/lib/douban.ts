@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 import { getDoubanCacheTime } from './config';
-import { getDoubanCache, setDoubanCache } from './db';
+import { getDoubanCache, setDoubanCache } from './db.server';
 import { DoubanItem, DoubanResult } from './types';
 
 interface DoubanCategoryApiResponse {
@@ -132,3 +132,4 @@ export async function getDoubanCategoriesServer(params: {
     };
   }
 }
+

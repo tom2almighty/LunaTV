@@ -3,12 +3,12 @@
 
 import { useEffect, useState } from 'react';
 
-import type { PlayRecord } from '@/lib/db.client';
+import type { PlayRecord } from '@/lib/db/index';
 import {
   clearAllPlayRecords,
   getAllPlayRecords,
   subscribeToDataUpdates,
-} from '@/lib/db.client';
+} from '@/lib/db/index';
 
 import ScrollableRow from '@/components/ScrollableRow';
 import VideoCard from '@/components/VideoCard';
@@ -155,3 +155,4 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
     </section>
   );
 }
+

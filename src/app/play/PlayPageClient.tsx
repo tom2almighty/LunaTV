@@ -18,7 +18,7 @@ import {
   savePlayRecord,
   saveSkipConfig,
   subscribeToDataUpdates,
-} from '@/lib/db.client';
+} from '@/lib/db/index';
 import { SearchResult } from '@/lib/types';
 import { usePlaySessionBootstrap } from '@/hooks/usePlaySessionBootstrap';
 
@@ -1813,3 +1813,4 @@ const FavoriteIcon = ({ filled }: { filled: boolean }) => {
 };
 
 export default PlayPageClient;
+

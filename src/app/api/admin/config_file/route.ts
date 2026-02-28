@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig, refineConfig } from '@/lib/config';
-import { saveAdminConfig } from '@/lib/db';
+import { saveAdminConfig } from '@/lib/db.server';
 
 export const runtime = 'nodejs';
 
@@ -84,3 +84,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

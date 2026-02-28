@@ -19,7 +19,7 @@ import {
   deleteSearchHistory,
   getSearchHistory,
   subscribeToDataUpdates,
-} from '@/lib/db.client';
+} from '@/lib/db/index';
 import {
   getSearchMemoryCache,
   setSearchMemoryCache,
@@ -29,7 +29,6 @@ import { SearchResult } from '@/lib/types';
 import SearchResultFilter, {
   SearchFilterCategory,
 } from '@/components/SearchResultFilter';
-import SearchSuggestions from '@/components/SearchSuggestions';
 import VideoCard, { VideoCardHandle } from '@/components/VideoCard';
 
 function SearchPageClient() {
@@ -49,7 +48,6 @@ function SearchPageClient() {
   const loadingTimerRef = useRef<number | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const eventSourceRef = useRef<EventSource | null>(null);
   const [totalSources, setTotalSources] = useState(0);
   const [completedSources, setCompletedSources] = useState(0);
@@ -600,7 +598,6 @@ function SearchPageClient() {
         setSearchResults(cachedEntry.results);
         setTotalSources(cachedEntry.totalSources);
         setCompletedSources(cachedEntry.completedSources);
-        setShowSuggestions(false);
         addSearchHistory(query);
         endSearchLoadingImmediately();
         return;
@@ -745,13 +742,10 @@ function SearchPageClient() {
             endSearchLoading();
           });
       }
-      setShowSuggestions(false);
-
       // 保存到搜索历史 (事件监听会自动更新界面)
       addSearchHistory(query);
     } else {
       setShowResults(false);
-      setShowSuggestions(false);
       endSearchLoading();
     }
   }, [
@@ -792,23 +786,10 @@ function SearchPageClient() {
     };
   }, []);
 
-  // 输入框内容变化时触发，显示搜索建议
+  // 输入框内容变化时触发
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-
-    if (value.trim()) {
-      setShowSuggestions(true);
-    } else {
-      setShowSuggestions(false);
-    }
-  };
-
-  // 搜索框聚焦时触发，显示搜索建议
-  const handleInputFocus = () => {
-    if (searchQuery.trim()) {
-      setShowSuggestions(true);
-    }
   };
 
   // 搜索表单提交时触发，处理搜索逻辑
@@ -821,21 +802,8 @@ function SearchPageClient() {
     setSearchQuery(trimmed);
     beginSearchLoading();
     setShowResults(true);
-    setShowSuggestions(false);
 
     router.push(`/search?q=${encodeURIComponent(trimmed)}`);
-    // 其余由 searchParams 变化的 effect 处理
-  };
-
-  const handleSuggestionSelect = (suggestion: string) => {
-    setSearchQuery(suggestion);
-    setShowSuggestions(false);
-
-    // 自动执行搜索
-    beginSearchLoading();
-    setShowResults(true);
-
-    router.push(`/search?q=${encodeURIComponent(suggestion)}`);
     // 其余由 searchParams 变化的 effect 处理
   };
 
@@ -874,7 +842,6 @@ function SearchPageClient() {
                 type='text'
                 value={searchQuery}
                 onChange={handleInputChange}
-                onFocus={handleInputFocus}
                 placeholder='搜索电影、电视剧...'
                 autoComplete='off'
                 className='bg-card text-foreground border-border placeholder:text-muted-foreground focus:border-primary focus:ring-primary h-12 w-full rounded-lg border py-3 pl-10 pr-12 text-sm shadow-sm focus:outline-none focus:ring-2'
@@ -886,7 +853,6 @@ function SearchPageClient() {
                   type='button'
                   onClick={() => {
                     setSearchQuery('');
-                    setShowSuggestions(false);
                     document.getElementById('searchInput')?.focus();
                   }}
                   className='text-muted-foreground hover:text-foreground absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 transition-colors'
@@ -895,27 +861,6 @@ function SearchPageClient() {
                   <X className='h-5 w-5' />
                 </button>
               )}
-
-              {/* 搜索建议 */}
-              <SearchSuggestions
-                query={searchQuery}
-                isVisible={showSuggestions}
-                onSelect={handleSuggestionSelect}
-                onClose={() => setShowSuggestions(false)}
-                onEnterKey={() => {
-                  // 当用户按回车键时，使用搜索框的实际内容进行搜索
-                  const trimmed = searchQuery.trim().replace(/\s+/g, ' ');
-                  if (!trimmed) return;
-
-                  // 回显搜索框
-                  setSearchQuery(trimmed);
-                  beginSearchLoading();
-                  setShowResults(true);
-                  setShowSuggestions(false);
-
-                  router.push(`/search?q=${encodeURIComponent(trimmed)}`);
-                }}
-              />
             </div>
           </form>
         </div>
@@ -1174,3 +1119,4 @@ function SearchPageClient() {
 }
 
 export default SearchPageClient;
+

@@ -9,7 +9,7 @@ import {
   deleteUser,
   registerUser,
   saveAdminConfig,
-} from '@/lib/db';
+} from '@/lib/db.server';
 
 export const runtime = 'nodejs';
 
@@ -519,3 +519,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

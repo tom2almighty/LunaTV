@@ -2,8 +2,7 @@
 'use client';
 
 /**
- * db/ 统一入口 — 重导出所有公共 API
- * 外部代码可直接从 '@/lib/db' 或继续从 '@/lib/db.client' 导入
+ * 客户端数据层统一入口（仅供前端组件/Hook 使用）
  */
 
 export { generateStorageKey, triggerGlobalError } from './api-client';
@@ -38,6 +37,8 @@ import { fetchFromApi, triggerGlobalError } from './api-client';
 import { cacheManager } from './cache-manager';
 import { getAuthInfoFromBrowserCookie } from '../auth';
 import { Favorite, PlayRecord, SkipConfig } from '../types';
+
+export type { Favorite, PlayRecord, SkipConfig };
 
 // 页面加载时清理过期缓存
 if (typeof window !== 'undefined') {

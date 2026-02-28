@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getConfig, refineConfig } from '@/lib/config';
-import * as db from '@/lib/db';
+import * as db from '@/lib/db.server';
 import { fetchVideoDetail } from '@/lib/fetchVideoDetail';
 import { SearchResult } from '@/lib/types';
 
@@ -253,3 +253,4 @@ async function cleanDoubanCache() {
     console.error('清理豆瓣缓存失败:', err);
   }
 }
+

@@ -9,7 +9,7 @@ import {
   getAllSkipConfigs,
   getSkipConfig,
   setSkipConfig,
-} from '@/lib/db';
+} from '@/lib/db.server';
 import { SkipConfig } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -155,3 +155,4 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+

@@ -27,7 +27,7 @@ import {
   isFavorited,
   saveFavorite,
   subscribeToDataUpdates,
-} from '@/lib/db.client';
+} from '@/lib/db/index';
 import { SearchResult } from '@/lib/types';
 import { processImageUrl } from '@/lib/utils';
 import { useLongPress } from '@/hooks/useLongPress';
@@ -965,3 +965,4 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
 );
 
 export default memo(VideoCard);
+

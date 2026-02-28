@@ -6,7 +6,7 @@ import AdminPageClient from './AdminPageClient';
 
 export default function AdminPage() {
   return (
-    <PageLayout activePath='/admin'>
+    <PageLayout>
       <Suspense>
         <AdminPageClient />
       </Suspense>

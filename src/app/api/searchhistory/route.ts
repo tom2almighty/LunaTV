@@ -8,7 +8,7 @@ import {
   addSearchHistory,
   deleteSearchHistory,
   getSearchHistory,
-} from '@/lib/db';
+} from '@/lib/db.server';
 
 export const runtime = 'nodejs';
 
@@ -144,3 +144,4 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+

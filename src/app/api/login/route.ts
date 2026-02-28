@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getConfig } from '@/lib/config';
-import { verifyUser } from '@/lib/db';
+import { verifyUser } from '@/lib/db.server';
 
 export const runtime = 'nodejs';
 
@@ -144,3 +144,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '服务器错误' }, { status: 500 });
   }
 }
+

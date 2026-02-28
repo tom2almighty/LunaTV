@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getAuthInfoFromCookie } from '@/lib/auth';
-import { changePassword } from '@/lib/db';
+import { changePassword } from '@/lib/db.server';
 
 export const runtime = 'nodejs';
 
@@ -48,3 +48,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

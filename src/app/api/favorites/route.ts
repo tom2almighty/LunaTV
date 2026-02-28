@@ -10,7 +10,7 @@ import {
   getAllFavorites,
   getFavorite,
   saveFavorite,
-} from '@/lib/db';
+} from '@/lib/db.server';
 import { Favorite } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -197,3 +197,4 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+

@@ -2,7 +2,6 @@ import { Navbar } from './Navbar';
 
 interface PageLayoutProps {
   children: React.ReactNode;
-  activePath?: string;
 }
 
 const PageLayout = ({ children }: PageLayoutProps) => (

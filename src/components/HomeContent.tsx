@@ -11,7 +11,7 @@ import {
   getAllFavorites,
   getAllPlayRecords,
   subscribeToDataUpdates,
-} from '@/lib/db.client';
+} from '@/lib/db/index';
 import { DoubanItem } from '@/lib/types';
 
 import CapsuleSwitch from '@/components/CapsuleSwitch';
@@ -278,3 +278,4 @@ export default function HomeContent({
     </>
   );
 }
+

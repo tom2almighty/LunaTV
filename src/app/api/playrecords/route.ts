@@ -9,7 +9,7 @@ import {
   deletePlayRecord,
   getAllPlayRecords,
   savePlayRecord,
-} from '@/lib/db';
+} from '@/lib/db.server';
 import { PlayRecord } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -164,3 +164,4 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
