@@ -18,7 +18,7 @@ import {
   savePlayRecord,
   saveSkipConfig,
   subscribeToDataUpdates,
-} from '@/lib/db/index';
+} from '@/lib/db';
 import { SearchResult } from '@/lib/types';
 import { usePlaySessionBootstrap } from '@/hooks/usePlaySessionBootstrap';
 

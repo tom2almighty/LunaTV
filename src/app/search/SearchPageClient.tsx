@@ -19,7 +19,7 @@ import {
   deleteSearchHistory,
   getSearchHistory,
   subscribeToDataUpdates,
-} from '@/lib/db/index';
+} from '@/lib/db';
 import {
   getSearchMemoryCache,
   setSearchMemoryCache,

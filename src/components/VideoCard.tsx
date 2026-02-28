@@ -27,7 +27,7 @@ import {
   isFavorited,
   saveFavorite,
   subscribeToDataUpdates,
-} from '@/lib/db/index';
+} from '@/lib/db';
 import { SearchResult } from '@/lib/types';
 import { processImageUrl } from '@/lib/utils';
 import { useLongPress } from '@/hooks/useLongPress';

@@ -3,12 +3,12 @@
 
 import { useEffect, useState } from 'react';
 
-import type { PlayRecord } from '@/lib/db/index';
+import type { PlayRecord } from '@/lib/db';
 import {
   clearAllPlayRecords,
   getAllPlayRecords,
   subscribeToDataUpdates,
-} from '@/lib/db/index';
+} from '@/lib/db';
 
 import ScrollableRow from '@/components/ScrollableRow';
 import VideoCard from '@/components/VideoCard';

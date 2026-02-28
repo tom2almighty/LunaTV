@@ -11,7 +11,7 @@ import {
   getAllFavorites,
   getAllPlayRecords,
   subscribeToDataUpdates,
-} from '@/lib/db/index';
+} from '@/lib/db';
 import { DoubanItem } from '@/lib/types';
 
 import CapsuleSwitch from '@/components/CapsuleSwitch';
