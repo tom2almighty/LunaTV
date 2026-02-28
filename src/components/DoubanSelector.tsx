@@ -44,7 +44,7 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
   const updateIndicatorPosition = (
     activeIndex: number,
     containerRef: React.RefObject<HTMLDivElement | null>,
-    buttonRefs: React.MutableRefObject<(HTMLButtonElement | null)[]>,
+    buttonRefs: { current: (HTMLButtonElement | null)[] },
     setIndicatorStyle: React.Dispatch<
       React.SetStateAction<{ left: number; width: number }>
     >,

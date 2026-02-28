@@ -1,11 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps, @typescript-eslint/no-explicit-any,@typescript-eslint/no-non-null-assertion,no-empty */
 'use client';
 
-import { useVirtualizer } from '@tanstack/react-virtual';
 import { ChevronUp, Search, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, {
-  startTransition,
   useCallback,
   useEffect,
   useMemo,
@@ -21,10 +19,12 @@ import {
   subscribeToDataUpdates,
 } from '@/lib/db';
 import {
-  getSearchMemoryCache,
   setSearchMemoryCache,
 } from '@/lib/search-memory-cache';
 import { SearchResult } from '@/lib/types';
+import { useBackToTopVisibility } from '@/hooks/useBackToTopVisibility';
+import { useSearchExecution } from '@/hooks/useSearchExecution';
+import { useSearchVirtualGrid } from '@/hooks/useSearchVirtualGrid';
 
 import SearchResultFilter, {
   SearchFilterCategory,
@@ -36,8 +36,6 @@ function SearchPageClient() {
 
   // 搜索历史
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  // 返回顶部按钮显示状态
-  const [showBackToTop, setShowBackToTop] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -64,8 +62,6 @@ function SearchPageClient() {
       { douban_id?: number; episodes?: number; source_names: string[] }
     >
   >(new Map());
-  const virtualGridRef = useRef<HTMLDivElement | null>(null);
-  const [virtualGridColumns, setVirtualGridColumns] = useState(3);
 
   const beginSearchLoading = useCallback(() => {
     loadingStartedAtRef.current = Date.now();
@@ -435,64 +431,13 @@ function SearchPageClient() {
 
   const currentResultCount =
     viewMode === 'agg' ? filteredAggResults.length : filteredAllResults.length;
-  const virtualRowCount = Math.ceil(currentResultCount / virtualGridColumns);
-  const estimateRowHeight = useCallback(() => {
-    const container = virtualGridRef.current;
-    if (!container) return 320;
-
-    const width = container.clientWidth;
-    const isMobile = width < 640;
-    const gapX = isMobile ? 8 : 32;
-    const paddingX = isMobile ? 0 : 16;
-    const rowGap = isMobile ? 56 : 80;
-    const columns = Math.max(1, virtualGridColumns);
-    const cardWidth = Math.max(
-      96,
-      (width - paddingX - gapX * (columns - 1)) / columns,
-    );
-
-    // 海报(2:3) + 标题/来源文案 + 行间距
-    return Math.ceil(cardWidth * 1.5 + 56 + rowGap);
-  }, [virtualGridColumns]);
-
-  const resultsVirtualizer = useVirtualizer({
-    count: showResults ? virtualRowCount : 0,
-    getScrollElement: () => virtualGridRef.current,
-    estimateSize: estimateRowHeight,
-    overscan: 4,
-  });
-
-  useEffect(() => {
-    if (!showResults || !virtualGridRef.current) return;
-
-    const container = virtualGridRef.current;
-    const updateColumns = () => {
-      const width = container.clientWidth;
-      if (width < 640) {
-        setVirtualGridColumns(3);
-        return;
-      }
-      const minCardWidth = 176;
-      const gap = 32;
-      const columns = Math.max(1, Math.floor((width + gap) / (minCardWidth + gap)));
-      setVirtualGridColumns(columns);
-    };
-
-    updateColumns();
-    const rafId = window.requestAnimationFrame(updateColumns);
-    const observer = new ResizeObserver(updateColumns);
-    observer.observe(container);
-
-    return () => {
-      window.cancelAnimationFrame(rafId);
-      observer.disconnect();
-    };
-  }, [showResults, viewMode, currentResultCount]);
-
-  useEffect(() => {
-    if (!showResults || currentResultCount === 0) return;
-    resultsVirtualizer.measure();
-  }, [showResults, currentResultCount, virtualGridColumns, resultsVirtualizer]);
+  const { virtualGridRef, virtualGridColumns, resultsVirtualizer } =
+    useSearchVirtualGrid({
+      showResults,
+      currentResultCount,
+      viewMode,
+    });
+  const showBackToTop = useBackToTopVisibility(virtualGridRef);
 
   useEffect(() => {
     // 无搜索参数时聚焦搜索框
@@ -523,237 +468,35 @@ function SearchPageClient() {
       },
     );
 
-    // 获取滚动位置的函数 - 专门针对 body 滚动
-    const getScrollTop = () => {
-      return document.body.scrollTop || 0;
-    };
-    const getVirtualGridScrollTop = () => {
-      return virtualGridRef.current?.scrollTop || 0;
-    };
-
-    // 使用 requestAnimationFrame 持续检测滚动位置
-    let isRunning = false;
-    const checkScrollPosition = () => {
-      if (!isRunning) return;
-
-      const scrollTop = getScrollTop();
-      const shouldShow = scrollTop > 300 || getVirtualGridScrollTop() > 300;
-      setShowBackToTop(shouldShow);
-
-      requestAnimationFrame(checkScrollPosition);
-    };
-
-    // 启动持续检测
-    isRunning = true;
-    checkScrollPosition();
-
-    // 监听 body 元素的滚动事件
-    const handleScroll = () => {
-      const scrollTop = getScrollTop();
-      setShowBackToTop(
-        scrollTop > 300 || (virtualGridRef.current?.scrollTop || 0) > 300,
-      );
-    };
-
-    document.body.addEventListener('scroll', handleScroll, { passive: true });
-
     return () => {
       unsubscribe();
-      isRunning = false; // 停止 requestAnimationFrame 循环
-
-      // 移除 body 滚动事件监听器
-      document.body.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
-  useEffect(() => {
-    // 当搜索参数变化时更新搜索状态
-    const query = searchParams.get('q') || '';
-    currentQueryRef.current = query.trim();
-
-    if (query) {
-      setSearchQuery(query);
-      // 新搜索：关闭旧连接并清空结果
-      if (eventSourceRef.current) {
-        try {
-          eventSourceRef.current.close();
-        } catch {}
-        eventSourceRef.current = null;
-      }
-      setSearchResults([]);
-      setTotalSources(0);
-      setCompletedSources(0);
-      // 清理缓冲
-      pendingResultsRef.current = [];
-      if (flushTimerRef.current) {
-        clearTimeout(flushTimerRef.current);
-        flushTimerRef.current = null;
-      }
-      beginSearchLoading();
-      setShowResults(true);
-
-      const trimmed = query.trim();
-      const cachedEntry = getSearchMemoryCache(trimmed);
-      if (cachedEntry) {
-        setSearchResults(cachedEntry.results);
-        setTotalSources(cachedEntry.totalSources);
-        setCompletedSources(cachedEntry.completedSources);
-        addSearchHistory(query);
-        endSearchLoadingImmediately();
-        return;
-      }
-
-      // 每次搜索时重新读取设置，确保使用最新的配置
-      let currentFluidSearch = useFluidSearch;
-      if (typeof window !== 'undefined') {
-        const savedFluidSearch = localStorage.getItem('fluidSearch');
-        if (savedFluidSearch !== null) {
-          currentFluidSearch = JSON.parse(savedFluidSearch);
-        } else {
-          const defaultFluidSearch =
-            (window as any).RUNTIME_CONFIG?.FLUID_SEARCH !== false;
-          currentFluidSearch = defaultFluidSearch;
-        }
-      }
-
-      // 如果读取的配置与当前状态不同，更新状态
-      if (currentFluidSearch !== useFluidSearch) {
-        setUseFluidSearch(currentFluidSearch);
-      }
-
-      if (currentFluidSearch) {
-        // 流式搜索：打开新的流式连接
-        const es = new EventSource(
-          `/api/search/ws?q=${encodeURIComponent(trimmed)}`,
-        );
-        eventSourceRef.current = es;
-
-        es.onmessage = (event) => {
-          if (!event.data) return;
-          try {
-            const payload = JSON.parse(event.data);
-            if (currentQueryRef.current !== trimmed) return;
-            switch (payload.type) {
-              case 'start':
-                setTotalSources(payload.totalSources || 0);
-                setCompletedSources(0);
-                break;
-              case 'source_result': {
-                setCompletedSources((prev) => prev + 1);
-                if (
-                  Array.isArray(payload.results) &&
-                  payload.results.length > 0
-                ) {
-                  // 缓冲新增结果，节流刷入，避免频繁重渲染导致闪烁
-                  const activeYearOrder =
-                    viewMode === 'agg'
-                      ? filterAgg.yearOrder
-                      : filterAll.yearOrder;
-                  const incoming: SearchResult[] =
-                    activeYearOrder === 'none'
-                      ? sortBatchForNoOrder(payload.results as SearchResult[])
-                      : (payload.results as SearchResult[]);
-                  pendingResultsRef.current.push(...incoming);
-                  if (!flushTimerRef.current) {
-                    flushTimerRef.current = window.setTimeout(() => {
-                      const toAppend = pendingResultsRef.current;
-                      pendingResultsRef.current = [];
-                      startTransition(() => {
-                        setSearchResults((prev) => prev.concat(toAppend));
-                      });
-                      flushTimerRef.current = null;
-                    }, 80);
-                  }
-                }
-                break;
-              }
-              case 'source_error':
-                setCompletedSources((prev) => prev + 1);
-                break;
-              case 'complete':
-                setCompletedSources(payload.completedSources || totalSources);
-                // 完成前确保将缓冲写入
-                if (pendingResultsRef.current.length > 0) {
-                  const toAppend = pendingResultsRef.current;
-                  pendingResultsRef.current = [];
-                  if (flushTimerRef.current) {
-                    clearTimeout(flushTimerRef.current);
-                    flushTimerRef.current = null;
-                  }
-                  startTransition(() => {
-                    setSearchResults((prev) => prev.concat(toAppend));
-                  });
-                }
-                endSearchLoading();
-                try {
-                  es.close();
-                } catch {}
-                if (eventSourceRef.current === es) {
-                  eventSourceRef.current = null;
-                }
-                break;
-            }
-          } catch {}
-        };
-
-        es.onerror = () => {
-          endSearchLoading();
-          // 错误时也清空缓冲
-          if (pendingResultsRef.current.length > 0) {
-            const toAppend = pendingResultsRef.current;
-            pendingResultsRef.current = [];
-            if (flushTimerRef.current) {
-              clearTimeout(flushTimerRef.current);
-              flushTimerRef.current = null;
-            }
-            startTransition(() => {
-              setSearchResults((prev) => prev.concat(toAppend));
-            });
-          }
-          try {
-            es.close();
-          } catch {}
-          if (eventSourceRef.current === es) {
-            eventSourceRef.current = null;
-          }
-        };
-      } else {
-        // 传统搜索：使用普通接口
-        fetch(`/api/search?q=${encodeURIComponent(trimmed)}`)
-          .then((response) => response.json())
-          .then((data) => {
-            if (currentQueryRef.current !== trimmed) return;
-
-            if (data.results && Array.isArray(data.results)) {
-              const activeYearOrder =
-                viewMode === 'agg' ? filterAgg.yearOrder : filterAll.yearOrder;
-              const results: SearchResult[] =
-                activeYearOrder === 'none'
-                  ? sortBatchForNoOrder(data.results as SearchResult[])
-                  : (data.results as SearchResult[]);
-
-              setSearchResults(results);
-              setTotalSources(1);
-              setCompletedSources(1);
-            }
-            endSearchLoading();
-          })
-          .catch(() => {
-            endSearchLoading();
-          });
-      }
-      // 保存到搜索历史 (事件监听会自动更新界面)
-      addSearchHistory(query);
-    } else {
-      setShowResults(false);
-      endSearchLoading();
-    }
-  }, [
+  useSearchExecution({
     searchParams,
+    useFluidSearch,
+    setUseFluidSearch,
     beginSearchLoading,
     endSearchLoading,
     endSearchLoadingImmediately,
-  ]);
+    setSearchQuery,
+    setShowResults,
+    setSearchResults,
+    setTotalSources,
+    setCompletedSources,
+    viewMode,
+    filterAggYearOrder: filterAgg.yearOrder,
+    filterAllYearOrder: filterAll.yearOrder,
+    sortBatchForNoOrder,
+    addSearchHistory,
+    currentQueryRef,
+    eventSourceRef,
+    pendingResultsRef,
+    flushTimerRef,
+    loadingTimerRef,
+    totalSources,
+  });
 
   useEffect(() => {
     const query = currentQueryRef.current.trim();
@@ -764,27 +507,6 @@ function SearchPageClient() {
       completedSources,
     });
   }, [searchResults, totalSources, completedSources, showResults]);
-
-  // 组件卸载时，关闭可能存在的连接
-  useEffect(() => {
-    return () => {
-      if (eventSourceRef.current) {
-        try {
-          eventSourceRef.current.close();
-        } catch {}
-        eventSourceRef.current = null;
-      }
-      if (flushTimerRef.current) {
-        clearTimeout(flushTimerRef.current);
-        flushTimerRef.current = null;
-      }
-      if (loadingTimerRef.current) {
-        clearTimeout(loadingTimerRef.current);
-        loadingTimerRef.current = null;
-      }
-      pendingResultsRef.current = [];
-    };
-  }, []);
 
   // 输入框内容变化时触发
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
