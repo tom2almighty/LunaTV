@@ -15,8 +15,6 @@ import {
   addSearchHistory,
   clearSearchHistory,
   deleteSearchHistory,
-  getSearchHistory,
-  subscribeToDataUpdates,
 } from '@/lib/db';
 import {
   setSearchMemoryCache,
@@ -24,6 +22,7 @@ import {
 import { SearchResult } from '@/lib/types';
 import { useBackToTopVisibility } from '@/hooks/useBackToTopVisibility';
 import { useSearchExecution } from '@/hooks/useSearchExecution';
+import { useSearchPageInit } from '@/hooks/useSearchPageInit';
 import { useSearchVirtualGrid } from '@/hooks/useSearchVirtualGrid';
 
 import SearchResultFilter, {
@@ -33,9 +32,6 @@ import VideoCard, { VideoCardHandle } from '@/components/VideoCard';
 
 function SearchPageClient() {
   const MIN_SEARCH_LOADING_MS = 280;
-
-  // 搜索历史
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -438,40 +434,10 @@ function SearchPageClient() {
       viewMode,
     });
   const showBackToTop = useBackToTopVisibility(virtualGridRef);
-
-  useEffect(() => {
-    // 无搜索参数时聚焦搜索框
-    if (!searchParams.get('q')) {
-      document.getElementById('searchInput')?.focus();
-    }
-
-    // 初始加载搜索历史
-    getSearchHistory().then(setSearchHistory);
-
-    // 读取流式搜索设置
-    if (typeof window !== 'undefined') {
-      const savedFluidSearch = localStorage.getItem('fluidSearch');
-      const defaultFluidSearch =
-        (window as any).RUNTIME_CONFIG?.FLUID_SEARCH !== false;
-      if (savedFluidSearch !== null) {
-        setUseFluidSearch(JSON.parse(savedFluidSearch));
-      } else if (defaultFluidSearch !== undefined) {
-        setUseFluidSearch(defaultFluidSearch);
-      }
-    }
-
-    // 监听搜索历史更新事件
-    const unsubscribe = subscribeToDataUpdates(
-      'searchHistoryUpdated',
-      (newHistory: string[]) => {
-        setSearchHistory(newHistory);
-      },
-    );
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  const { searchHistory } = useSearchPageInit({
+    hasQuery: !!searchParams.get('q'),
+    setUseFluidSearch,
+  });
 
   useSearchExecution({
     searchParams,
