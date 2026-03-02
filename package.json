@@ -44,6 +44,8 @@
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/postcss": "^4.1.18",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/better-sqlite3": "^7.6.13",
     "@types/bs58": "^5.0.0",
     "@types/he": "^1.2.3",
@@ -59,12 +61,14 @@
     "eslint-config-prettier": "^8.10.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-unused-imports": "^4.4.1",
+    "jsdom": "^28.1.0",
     "lint-staged": "^12.5.0",
     "postcss": "^8.5.1",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.5.0",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
+    "vitest": "^4.0.18",
     "webpack-obfuscator": "^3.5.1"
   },
   "lint-staged": {
