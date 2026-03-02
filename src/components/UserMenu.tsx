@@ -17,6 +17,8 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
+import { SettingsModal } from '@/components/user-menu/settings-modal';
+import { useUserSettings } from '@/components/user-menu/use-user-settings';
 
 interface AuthInfo {
   username?: string;
@@ -26,8 +28,12 @@ interface AuthInfo {
 export const UserMenu: React.FC = () => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const {
+    isSettingsOpen,
+    setIsSettingsOpen,
+    isChangePasswordOpen,
+    setIsChangePasswordOpen,
+  } = useUserSettings();
   const [authInfo, setAuthInfo] = useState<AuthInfo | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -895,7 +901,9 @@ export const UserMenu: React.FC = () => {
       {isOpen && mounted && createPortal(menuPanel, document.body)}
 
       {/* 使用 Portal 将设置面板渲染到 document.body */}
-      {isSettingsOpen && mounted && createPortal(settingsPanel, document.body)}
+      <SettingsModal isOpen={isSettingsOpen} mounted={mounted}>
+        {settingsPanel}
+      </SettingsModal>
 
       {/* 使用 Portal 将修改密码面板渲染到 document.body */}
       {isChangePasswordOpen &&

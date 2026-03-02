@@ -34,6 +34,7 @@ import { useLongPress } from '@/hooks/useLongPress';
 
 import { ImagePlaceholder } from '@/components/ImagePlaceholder';
 import MobileActionSheet from '@/components/MobileActionSheet';
+import { useVideoCardActions } from '@/components/video-card/use-video-card-actions';
 
 export interface VideoCardProps {
   id?: string;
@@ -86,12 +87,11 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
     }: VideoCardProps,
     ref,
   ) {
-    const PLAY_ACTION_THROTTLE_MS = 800;
     const router = useRouter();
+    const { executePlayAction } = useVideoCardActions(800);
     const [favorited, setFavorited] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isRouting, setIsRouting] = useState(false);
-    const lastPlayActionAtRef = useRef(0);
     const [showMobileActions, setShowMobileActions] = useState(false);
     const [searchFavorited, setSearchFavorited] = useState<boolean | null>(
       null,
@@ -240,12 +240,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
 
     const createPlaySession = useCallback(
       async (openInNewTab = false) => {
-        const now = Date.now();
-        if (now - lastPlayActionAtRef.current < PLAY_ACTION_THROTTLE_MS) {
-          return;
-        }
-        lastPlayActionAtRef.current = now;
-
         const openDirectPlayPage = () => {
           if (!actualSource || !actualId) return;
           const directUrl = `/play?source=${encodeURIComponent(actualSource)}&id=${encodeURIComponent(actualId)}${
@@ -390,13 +384,13 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
     );
 
     const handleClick = useCallback(() => {
-      createPlaySession(false);
-    }, [createPlaySession]);
+      void executePlayAction(() => createPlaySession(false));
+    }, [createPlaySession, executePlayAction]);
 
     // 新标签页播放处理函数
     const handlePlayInNewTab = useCallback(() => {
-      createPlaySession(true);
-    }, [createPlaySession]);
+      void executePlayAction(() => createPlaySession(true));
+    }, [createPlaySession, executePlayAction]);
 
     // 检查搜索结果的收藏状态
     const checkSearchFavoriteStatus = useCallback(async () => {
@@ -965,4 +959,3 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
 );
 
 export default memo(VideoCard);
-
