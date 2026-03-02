@@ -37,6 +37,7 @@ type UseSearchExecutionParams = {
   sortBatchForNoOrder: (items: SearchResult[]) => SearchResult[];
   addSearchHistory: (keyword: string) => void | Promise<void>;
   currentQueryRef: RefValue<string>;
+  searchRunTokenRef: RefValue<number>;
   eventSourceRef: RefValue<EventSource | null>;
   pendingResultsRef: RefValue<SearchResult[]>;
   flushTimerRef: RefValue<number | null>;
@@ -62,26 +63,32 @@ export function useSearchExecution({
   sortBatchForNoOrder,
   addSearchHistory,
   currentQueryRef,
+  searchRunTokenRef,
   eventSourceRef,
   pendingResultsRef,
   flushTimerRef,
   loadingTimerRef,
   totalSources,
 }: UseSearchExecutionParams) {
+  const isStalePayload = (expectedQuery: string, payloadRunToken: number) =>
+    isStaleSearchPayload({
+      currentQuery: currentQueryRef.current,
+      expectedQuery,
+      currentRunToken: searchRunTokenRef.current,
+      payloadRunToken,
+    });
+
   useEffect(() => {
     // 当搜索参数变化时更新搜索状态
     const query = searchParams.get('q') || '';
     currentQueryRef.current = query.trim();
 
     if (query) {
+      const runToken = searchRunTokenRef.current + 1;
+      searchRunTokenRef.current = runToken;
       setSearchQuery(query);
       // 新搜索：关闭旧连接并清空结果
-      if (eventSourceRef.current) {
-        try {
-          eventSourceRef.current.close();
-        } catch {}
-        eventSourceRef.current = null;
-      }
+      eventSourceRef.current = closeEventSourceSafely(eventSourceRef.current);
       setSearchResults([]);
       setTotalSources(0);
       setCompletedSources(0);
@@ -133,7 +140,7 @@ export function useSearchExecution({
           if (!event.data) return;
           try {
             const payload = JSON.parse(event.data);
-            if (currentQueryRef.current !== trimmed) return;
+            if (isStalePayload(trimmed, runToken)) return;
             switch (payload.type) {
               case 'start':
                 setTotalSources(payload.totalSources || 0);
@@ -196,6 +203,7 @@ export function useSearchExecution({
         };
 
         es.onerror = () => {
+          if (isStalePayload(trimmed, runToken)) return;
           endSearchLoading();
           // 错误时也清空缓冲
           if (pendingResultsRef.current.length > 0) {
@@ -221,7 +229,7 @@ export function useSearchExecution({
         fetch(`/api/search?q=${encodeURIComponent(trimmed)}`)
           .then((response) => response.json())
           .then((data) => {
-            if (currentQueryRef.current !== trimmed) return;
+            if (isStalePayload(trimmed, runToken)) return;
 
             if (data.results && Array.isArray(data.results)) {
               const activeYearOrder =
@@ -244,6 +252,8 @@ export function useSearchExecution({
       // 保存到搜索历史 (事件监听会自动更新界面)
       addSearchHistory(query);
     } else {
+      searchRunTokenRef.current += 1;
+      eventSourceRef.current = closeEventSourceSafely(eventSourceRef.current);
       setShowResults(false);
       endSearchLoading();
     }
@@ -251,12 +261,7 @@ export function useSearchExecution({
 
   useEffect(() => {
     return () => {
-      if (eventSourceRef.current) {
-        try {
-          eventSourceRef.current.close();
-        } catch {}
-        eventSourceRef.current = null;
-      }
+      eventSourceRef.current = closeEventSourceSafely(eventSourceRef.current);
       if (flushTimerRef.current) {
         clearTimeout(flushTimerRef.current);
         flushTimerRef.current = null;
@@ -268,4 +273,35 @@ export function useSearchExecution({
       pendingResultsRef.current = [];
     };
   }, []);
+}
+
+export function closeEventSourceSafely(
+  eventSource: EventSource | null,
+): EventSource | null {
+  if (!eventSource) {
+    return null;
+  }
+
+  try {
+    eventSource.close();
+  } catch {}
+
+  return null;
+}
+
+export function isStaleSearchPayload({
+  currentQuery,
+  expectedQuery,
+  currentRunToken,
+  payloadRunToken,
+}: {
+  currentQuery: string;
+  expectedQuery: string;
+  currentRunToken: number;
+  payloadRunToken: number;
+}) {
+  return (
+    currentQuery.trim() !== expectedQuery.trim() ||
+    currentRunToken !== payloadRunToken
+  );
 }

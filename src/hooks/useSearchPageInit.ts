@@ -9,6 +9,18 @@ type UseSearchPageInitParams = {
   setUseFluidSearch: Dispatch<SetStateAction<boolean>>;
 };
 
+function parseBooleanSetting(value: string | null): boolean | null {
+  if (value === null) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value) as boolean;
+  } catch {
+    return null;
+  }
+}
+
 export function useSearchPageInit({
   hasQuery,
   setUseFluidSearch,
@@ -23,12 +35,14 @@ export function useSearchPageInit({
     getSearchHistory().then(setSearchHistory);
 
     if (typeof window !== 'undefined') {
-      const savedFluidSearch = localStorage.getItem('fluidSearch');
+      const savedFluidSearch = parseBooleanSetting(
+        localStorage.getItem('fluidSearch'),
+      );
       const defaultFluidSearch = (
         window as Window & { RUNTIME_CONFIG?: { FLUID_SEARCH?: boolean } }
       ).RUNTIME_CONFIG?.FLUID_SEARCH;
       if (savedFluidSearch !== null) {
-        setUseFluidSearch(JSON.parse(savedFluidSearch));
+        setUseFluidSearch(savedFluidSearch);
       } else if (defaultFluidSearch !== undefined) {
         setUseFluidSearch(defaultFluidSearch !== false);
       }

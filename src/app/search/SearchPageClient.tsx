@@ -34,6 +34,7 @@ function SearchPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentQueryRef = useRef<string>('');
+  const searchRunTokenRef = useRef(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const loadingStartedAtRef = useRef<number>(0);
@@ -227,6 +228,7 @@ function SearchPageClient() {
     sortBatchForNoOrder,
     addSearchHistory,
     currentQueryRef,
+    searchRunTokenRef,
     eventSourceRef,
     pendingResultsRef,
     flushTimerRef,
@@ -583,4 +585,3 @@ function SearchPageClient() {
 }
 
 export default SearchPageClient;
-
