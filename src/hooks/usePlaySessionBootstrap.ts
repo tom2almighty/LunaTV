@@ -137,7 +137,11 @@ export function usePlaySessionBootstrap(
     };
 
     const createSearchSession = async (): Promise<string> => {
-      const keyword = (params.fallbackSearchTitle || params.fallbackTitle || '').trim();
+      const keyword = (
+        params.fallbackSearchTitle ||
+        params.fallbackTitle ||
+        ''
+      ).trim();
       if (!keyword) {
         throw new Error('缺少搜索关键词');
       }
@@ -147,7 +151,7 @@ export function usePlaySessionBootstrap(
         setLoadingMessage('正在搜索可用播放源...');
       });
 
-      const response = await fetch('/api/play/bootstrap', {
+      const response = await fetch('/api/play/sessions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -204,7 +208,7 @@ export function usePlaySessionBootstrap(
         setLoadingMessage('正在创建播放会话...');
       });
 
-      const response = await fetch('/api/play/bootstrap', {
+      const response = await fetch('/api/play/sessions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -261,7 +265,7 @@ export function usePlaySessionBootstrap(
       resolvedPlaySessionId: string,
     ): Promise<SessionPayload> => {
       const response = await fetch(
-        `/api/play/session?ps=${encodeURIComponent(resolvedPlaySessionId)}`,
+        `/api/play/sessions/${encodeURIComponent(resolvedPlaySessionId)}`,
       );
       const data = await response.json();
       if (!response.ok) {

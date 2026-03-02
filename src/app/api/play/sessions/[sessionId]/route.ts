@@ -11,21 +11,28 @@ import {
 
 export const runtime = 'nodejs';
 
-export async function GET(request: NextRequest) {
+type RouteContext = {
+  params: Promise<{ sessionId: string }>;
+};
+
+export async function GET(request: NextRequest, context: RouteContext) {
   const authInfo = getAuthInfoFromCookie(request);
   if (!authInfo || !authInfo.username) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { searchParams } = new URL(request.url);
-  const playSessionId = searchParams.get('ps') || '';
+  const { sessionId } = await context.params;
+  const playSessionId = String(sessionId || '');
   if (!playSessionId) {
     return NextResponse.json({ error: '缺少播放会话ID' }, { status: 400 });
   }
 
   const session = getPlaySession(authInfo.username, playSessionId);
   if (!session) {
-    return NextResponse.json({ error: '播放会话不存在或已过期' }, { status: 404 });
+    return NextResponse.json(
+      { error: '播放会话不存在或已过期' },
+      { status: 404 },
+    );
   }
 
   try {
@@ -40,20 +47,21 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function PATCH(request: NextRequest, context: RouteContext) {
   const authInfo = getAuthInfoFromCookie(request);
   if (!authInfo || !authInfo.username) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  let body: { ps?: string; source?: string; id?: string };
+  let body: { source?: string; id?: string };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: '请求体格式错误' }, { status: 400 });
   }
 
-  const playSessionId = String(body.ps || '');
+  const { sessionId } = await context.params;
+  const playSessionId = String(sessionId || '');
   const source = String(body.source || '');
   const id = String(body.id || '');
   if (!playSessionId || !source || !id) {
@@ -62,7 +70,10 @@ export async function POST(request: NextRequest) {
 
   const session = getPlaySession(authInfo.username, playSessionId);
   if (!session) {
-    return NextResponse.json({ error: '播放会话不存在或已过期' }, { status: 404 });
+    return NextResponse.json(
+      { error: '播放会话不存在或已过期' },
+      { status: 404 },
+    );
   }
 
   try {
@@ -77,4 +88,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

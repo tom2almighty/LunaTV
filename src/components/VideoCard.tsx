@@ -26,6 +26,7 @@ import {
   isFavorited,
   saveFavorite,
   subscribeToDataUpdates,
+  triggerGlobalError,
 } from '@/lib/db';
 import { SearchResult } from '@/lib/types';
 import { processImageUrl } from '@/lib/utils';
@@ -239,27 +240,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
 
     const createPlaySession = useCallback(
       async (openInNewTab = false) => {
-        const openDirectPlayPage = () => {
-          if (!actualSource || !actualId) return;
-          const directUrl = `/play?source=${encodeURIComponent(actualSource)}&id=${encodeURIComponent(actualId)}${
-            actualTitle ? `&title=${encodeURIComponent(actualTitle)}` : ''
-          }${actualYear ? `&year=${encodeURIComponent(actualYear)}` : ''}${
-            actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''
-          }${
-            actualSearchType
-              ? `&stype=${encodeURIComponent(actualSearchType)}`
-              : ''
-          }${
-            source_name ? `&sname=${encodeURIComponent(source_name)}` : ''
-          }`;
-
-          if (openInNewTab) {
-            window.open(directUrl, '_blank');
-          } else {
-            router.push(directUrl);
-          }
-        };
-
         const openSearchPage = () => {
           const keyword = (actualTitle || actualQuery || '').trim();
           if (!keyword) return;
@@ -271,15 +251,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             router.push(searchUrl);
           }
         };
-
-        if (
-          (from === 'playrecord' || from === 'favorite') &&
-          actualSource &&
-          actualId
-        ) {
-          openDirectPlayPage();
-          return;
-        }
 
         if (from === 'douban') {
           openSearchPage();
@@ -343,7 +314,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             };
           }
 
-          const resp = await fetch('/api/play/bootstrap', {
+          const resp = await fetch('/api/play/sessions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
@@ -360,9 +331,10 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             router.push(url);
           }
         } catch (error) {
-          if ((from === 'playrecord' || from === 'favorite') && actualSource && actualId) {
-            openDirectPlayPage();
-          }
+          const errorMessage =
+            error instanceof Error ? error.message : '创建播放会话失败';
+          triggerGlobalError(errorMessage);
+          throw error;
         } finally {
           setIsRouting(false);
         }
@@ -377,7 +349,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
         actualQuery,
         actualSource,
         actualId,
-        source_name,
         router,
       ],
     );

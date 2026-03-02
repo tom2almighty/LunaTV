@@ -37,7 +37,6 @@ declare global {
   }
 }
 
-
 type PlayerLibraries = {
   Artplayer: any;
   Hls: any;
@@ -208,9 +207,8 @@ function PlayPageClient() {
     cleanupPlayer,
   } = useArtPlayerInstance();
   const { requestWakeLock, releaseWakeLock } = useWakeLock();
-  const [playerLibraries, setPlayerLibraries] = useState<PlayerLibraries | null>(
-    null,
-  );
+  const [playerLibraries, setPlayerLibraries] =
+    useState<PlayerLibraries | null>(null);
 
   usePlaySessionBootstrap(
     {
@@ -307,7 +305,6 @@ function PlayPageClient() {
       video.removeAttribute('disableRemotePlayback');
     }
   };
-
 
   // 去广告相关函数
   function filterAdsFromM3U8(m3u8Content: string): string {
@@ -555,17 +552,19 @@ function PlayPageClient() {
         throw new Error('播放会话已失效，请返回搜索页重试');
       }
 
-      const switchResponse = await fetch('/api/play/session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const switchResponse = await fetch(
+        `/api/play/sessions/${encodeURIComponent(playSessionId)}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            source: newSource,
+            id: newId,
+          }),
         },
-        body: JSON.stringify({
-          ps: playSessionId,
-          source: newSource,
-          id: newId,
-        }),
-      });
+      );
       const switchData = await switchResponse.json();
       if (!switchResponse.ok) {
         throw new Error(switchData.error || '换源失败');
@@ -780,7 +779,6 @@ function PlayPageClient() {
         save_time: Date.now(),
         search_title: searchTitle,
       });
-
     } catch (err) {
       console.error('保存播放进度失败:', err);
     }
@@ -820,7 +818,6 @@ function PlayPageClient() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
-
 
   // ---------------------------------------------------------------------------
   // 收藏相关
@@ -1051,7 +1048,8 @@ function PlayPageClient() {
                     artPlayerRef.current.video as HTMLVideoElement,
                   );
                   artPlayerRef.current.destroy();
-                  artPlayerRef.current = null as unknown as typeof artPlayerRef.current;
+                  artPlayerRef.current =
+                    null as unknown as typeof artPlayerRef.current;
                 }
                 setBlockAdEnabled(newVal);
               } catch (_) {
@@ -1306,7 +1304,6 @@ function PlayPageClient() {
   // 当组件卸载时清理定时器、Wake Lock 和播放器资源
   useEffect(() => {
     return () => {
-
       // 释放 Wake Lock
       releaseWakeLock();
 
@@ -1389,7 +1386,7 @@ function PlayPageClient() {
               <div
                 className={`absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full transition-all duration-200 ${
                   isEpisodeSelectorCollapsed
-                    ? 'animate-pulse bg-warning'
+                    ? 'bg-warning animate-pulse'
                     : 'bg-primary'
                 }`}
               ></div>
@@ -1397,7 +1394,7 @@ function PlayPageClient() {
           </div>
 
           <div
-            className={`grid gap-4 transition-all duration-300 ease-in-out lg:h-125 xl:h-162.5 ${
+            className={`lg:h-125 xl:h-162.5 grid gap-4 transition-all duration-300 ease-in-out ${
               isEpisodeSelectorCollapsed
                 ? 'grid-cols-1'
                 : 'grid-cols-1 md:grid-cols-[minmax(0,1fr)_320px]'
@@ -1409,7 +1406,7 @@ function PlayPageClient() {
                 isEpisodeSelectorCollapsed ? 'col-span-1' : 'md:col-span-1'
               }`}
             >
-              <div className='relative h-75 w-full lg:h-full'>
+              <div className='h-75 relative w-full lg:h-full'>
                 <div
                   ref={artRef}
                   className='bg-card h-full w-full overflow-hidden rounded-xl shadow-sm'
@@ -1497,7 +1494,7 @@ function PlayPageClient() {
           </h1>
 
           {/* 关键信息行 */}
-          <div className='mb-4 flex shrink-0 flex-wrap items-center gap-2 text-sm text-foreground'>
+          <div className='text-foreground mb-4 flex shrink-0 flex-wrap items-center gap-2 text-sm'>
             {detail?.score &&
               detail.score !== '0.0' &&
               detail.score !== '0' && (

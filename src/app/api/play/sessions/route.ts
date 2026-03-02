@@ -48,9 +48,10 @@ function buildDirectSnapshot(
   id: string,
   sourceName: string,
 ): SearchResult {
-  const snapshot = body?.snapshot && typeof body.snapshot === 'object'
-    ? (body.snapshot as Partial<SearchResult>)
-    : {};
+  const snapshot =
+    body?.snapshot && typeof body.snapshot === 'object'
+      ? (body.snapshot as Partial<SearchResult>)
+      : {};
 
   return {
     id,
@@ -94,7 +95,9 @@ function applySearchFilters(
     }
 
     if (expectedYear && expectedYear !== 'unknown') {
-      if ((result.year || 'unknown').toLowerCase() !== expectedYear.toLowerCase()) {
+      if (
+        (result.year || 'unknown').toLowerCase() !== expectedYear.toLowerCase()
+      ) {
         return false;
       }
     }
@@ -231,7 +234,10 @@ export async function POST(request: NextRequest) {
       const source = String(body.source || '');
       const id = String(body.id || '');
       if (!source || !id) {
-        return NextResponse.json({ error: '缺少 source 或 id' }, { status: 400 });
+        return NextResponse.json(
+          { error: '缺少 source 或 id' },
+          { status: 400 },
+        );
       }
 
       const apiSites = await getAvailableApiSites(authInfo.username);
