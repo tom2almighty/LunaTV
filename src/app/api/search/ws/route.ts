@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getAvailableApiSites, getConfig } from '@/lib/config';
 import { searchFromApi } from '@/lib/downstream';
+import { createAbortableSearchController } from '@/lib/search/abortable-search';
 import { yellowWords } from '@/lib/yellow';
 
 export const runtime = 'nodejs';
@@ -32,6 +33,7 @@ export async function GET(request: NextRequest) {
 
   // 共享状态
   let streamClosed = false;
+  const abortableSearch = createAbortableSearchController();
 
   // 创建可读流
   const stream = new ReadableStream({
@@ -79,7 +81,7 @@ export async function GET(request: NextRequest) {
         try {
           // 添加超时控制
           const searchPromise = Promise.race([
-            searchFromApi(site, query),
+            searchFromApi(site, query, abortableSearch.signal),
             new Promise((_, reject) =>
               setTimeout(
                 () => reject(new Error(`${site.name} timeout`)),
@@ -174,6 +176,7 @@ export async function GET(request: NextRequest) {
     cancel() {
       // 客户端断开连接时，标记流已关闭
       streamClosed = true;
+      abortableSearch.abort('sse stream cancelled');
       console.log('Client disconnected, cancelling search stream');
     },
   });

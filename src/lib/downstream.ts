@@ -2,6 +2,7 @@
 
 import { API_CONFIG, ApiSite, getConfig } from '@/lib/config';
 import { getCachedSearchPage, setCachedSearchPage } from '@/lib/search-cache';
+import { composeAbortSignal, isAbortError } from '@/lib/search/abortable-search';
 import { SearchResult } from '@/lib/types';
 import { cleanHtmlTags } from '@/lib/utils';
 
@@ -31,6 +32,7 @@ async function searchWithCache(
   query: string,
   page: number,
   url: string,
+  signal?: AbortSignal,
   timeoutMs = 8000,
 ): Promise<{ results: SearchResult[]; pageCount?: number }> {
   // 先查缓存
@@ -44,16 +46,21 @@ async function searchWithCache(
   }
 
   // 缓存未命中，发起网络请求
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  const timeoutController = new AbortController();
+  const timeoutId = setTimeout(() => timeoutController.abort(), timeoutMs);
+  const { signal: requestSignal, cleanup } = composeAbortSignal(
+    timeoutController.signal,
+    signal,
+  );
 
   try {
     const response = await fetch(url, {
       headers: API_CONFIG.search.headers,
-      signal: controller.signal,
+      signal: requestSignal,
     });
 
     clearTimeout(timeoutId);
+    cleanup();
 
     if (!response.ok) {
       if (response.status === 403) {
@@ -139,11 +146,8 @@ async function searchWithCache(
     return { results, pageCount };
   } catch (error: any) {
     clearTimeout(timeoutId);
-    // 识别被 AbortController 中止（超时）
-    const aborted =
-      error?.name === 'AbortError' ||
-      error?.code === 20 ||
-      error?.message?.includes('aborted');
+    cleanup();
+    const aborted = isAbortError(error);
     if (aborted) {
       setCachedSearchPage(apiSite.key, query, page, 'timeout', []);
     }
@@ -154,6 +158,7 @@ async function searchWithCache(
 export async function searchFromApi(
   apiSite: ApiSite,
   query: string,
+  signal?: AbortSignal,
 ): Promise<SearchResult[]> {
   try {
     const apiBaseUrl = apiSite.api;
@@ -166,6 +171,7 @@ export async function searchFromApi(
       query,
       1,
       apiUrl,
+      signal,
       8000,
     );
     const results = firstPageResult.results;
@@ -197,6 +203,7 @@ export async function searchFromApi(
             query,
             page,
             pageUrl,
+            signal,
             8000,
           );
           return pageResult.results;
