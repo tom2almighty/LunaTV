@@ -99,9 +99,6 @@ importers:
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
-      '@types/bs58':
-        specifier: ^5.0.0
-        version: 5.0.0
       '@types/he':
         specifier: ^1.2.3
         version: 1.2.3
@@ -141,6 +138,9 @@ importers:
       eslint-plugin-unused-imports:
         specifier: ^4.4.1
         version: 4.4.1(@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.3(jiti@2.6.1))
+      husky:
+        specifier: ^9.1.7
+        version: 9.1.7
       jsdom:
         specifier: ^28.1.0
         version: 28.1.0
@@ -2006,10 +2006,6 @@ packages:
   '@types/better-sqlite3@7.6.13':
     resolution: {integrity: sha512-NMv9ASNARoKksWtsq/SHakpYAYnhBrQgGD8zkLYk/jaK8jUGn08CfEdTRgYhMypUQAfzSP8W6gNLe0q19/t4VA==}
 
-  '@types/bs58@5.0.0':
-    resolution: {integrity: sha512-cAw/jKBzo98m6Xz1X5ETqymWfIMbXbu6nK15W4LQYjeHJkVqSmM5PO8Bd9KVHQJ/F4rHcSso9LcjtgCW6TGu2w==}
-    deprecated: This is a stub types definition. bs58 provides its own type definitions, so you do not need this installed.
-
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
@@ -3501,6 +3497,11 @@ packages:
   human-signals@2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
+
+  husky@9.1.7:
+    resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   iconv-lite@0.7.2:
     resolution: {integrity: sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==}
@@ -7333,10 +7334,6 @@ snapshots:
     dependencies:
       '@types/node': 24.0.3
 
-  '@types/bs58@5.0.0':
-    dependencies:
-      bs58: 6.0.0
-
   '@types/chai@5.2.3':
     dependencies:
       '@types/deep-eql': 4.0.2
@@ -9024,6 +9021,8 @@ snapshots:
       - supports-color
 
   human-signals@2.1.0: {}
+
+  husky@9.1.7: {}
 
   iconv-lite@0.7.2:
     dependencies:
