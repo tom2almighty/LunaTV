@@ -15,6 +15,8 @@ import {
 } from './AlertModal';
 import { buttonStyles, inputStyles } from './buttonStyles';
 import { useLoadingState } from './LoadingSystem';
+import { UserListPanel } from './user-config/user-list-panel';
+import { useUserConfigActions } from './user-config/use-user-config-actions';
 
 // 用户配置组件
 interface UserConfigProps {
@@ -30,6 +32,7 @@ export const UserConfig = ({
 }: UserConfigProps) => {
   const { alertModal, showAlert, hideAlert } = useAlertModal();
   const { isLoading, withLoading } = useLoadingState();
+  const { addUser } = useUserConfigActions(refreshConfig, showAlert);
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [showChangePasswordForm, setShowChangePasswordForm] = useState(false);
   const [showAddUserGroupForm, setShowAddUserGroupForm] = useState(false);
@@ -257,12 +260,11 @@ export const UserConfig = ({
   const handleAddUser = async () => {
     if (!newUser.username || !newUser.password) return;
     await withLoading('addUser', async () => {
-      await handleUserAction(
-        'add',
-        newUser.username,
-        newUser.password,
-        newUser.userGroup,
-      );
+      await addUser({
+        username: newUser.username,
+        password: newUser.password,
+        userGroup: newUser.userGroup,
+      });
       setNewUser({ username: '', password: '', userGroup: '' });
       setShowAddUserForm(false);
     });
@@ -507,7 +509,8 @@ export const UserConfig = ({
   }
 
   return (
-    <div className='space-y-6'>
+    <UserListPanel title='用户配置'>
+      <div className='space-y-6'>
       {/* 用户统计和注册设置 */}
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
         {/* 用户统计 */}
@@ -2133,6 +2136,7 @@ export const UserConfig = ({
         timer={alertModal.timer}
         showConfirm={alertModal.showConfirm}
       />
-    </div>
+      </div>
+    </UserListPanel>
   );
 };
