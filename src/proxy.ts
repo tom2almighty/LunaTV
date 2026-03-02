@@ -125,6 +125,6 @@ function shouldSkipAuth(pathname: string): boolean {
 // 配置proxy匹配规则
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|login|warning|api/login|api/register|api/logout|api/cron|api/server-config).*)',
+    '/((?!_next/static|_next/image|favicon.ico|login|warning|api/auth/sessions|api/users|api/cron|api/public/site).*)',
   ],
 };
