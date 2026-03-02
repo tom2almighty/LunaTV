@@ -23,6 +23,11 @@ import { SearchResult } from '@/lib/types';
 import { usePlaySessionBootstrap } from '@/hooks/usePlaySessionBootstrap';
 
 import EpisodeSelector from '@/components/EpisodeSelector';
+import { PlayErrorView } from '@/app/play/components/play-error-view';
+import { PlayLoadingView } from '@/app/play/components/play-loading-view';
+import { useArtPlayerInstance } from '@/app/play/hooks/use-art-player-instance';
+import { usePlayProgress } from '@/app/play/hooks/use-play-progress';
+import { useWakeLock } from '@/app/play/hooks/use-wake-lock';
 
 // 扩展 HTMLVideoElement 类型以支持 hls 属性
 declare global {
@@ -31,13 +36,6 @@ declare global {
   }
 }
 
-// Wake Lock API 类型声明
-interface WakeLockSentinel {
-  released: boolean;
-  release(): Promise<void>;
-  addEventListener(type: 'release', listener: () => void): void;
-  removeEventListener(type: 'release', listener: () => void): void;
-}
 
 type PlayerLibraries = {
   Artplayer: any;
@@ -202,18 +200,16 @@ function PlayPageClient() {
     'initing' | 'sourceChanging'
   >('initing');
 
-  // 播放进度保存相关
-  const saveIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const lastSaveTimeRef = useRef<number>(0);
-
-  const artPlayerRef = useRef<any>(null);
-  const artRef = useRef<HTMLDivElement | null>(null);
+  const {
+    artPlayerRef,
+    artContainerRef: artRef,
+    destroyHlsInstance,
+    cleanupPlayer,
+  } = useArtPlayerInstance();
+  const { requestWakeLock, releaseWakeLock } = useWakeLock();
   const [playerLibraries, setPlayerLibraries] = useState<PlayerLibraries | null>(
     null,
   );
-
-  // Wake Lock 相关
-  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   usePlaySessionBootstrap(
     {
@@ -311,66 +307,6 @@ function PlayPageClient() {
     }
   };
 
-  // Wake Lock 相关函数
-  const requestWakeLock = async () => {
-    try {
-      if ('wakeLock' in navigator) {
-        wakeLockRef.current = await (navigator as any).wakeLock.request(
-          'screen',
-        );
-      }
-    } catch (err) {
-      console.warn('Wake Lock 请求失败:', err);
-    }
-  };
-
-  const releaseWakeLock = async () => {
-    try {
-      if (wakeLockRef.current) {
-        await wakeLockRef.current.release();
-        wakeLockRef.current = null;
-      }
-    } catch (err) {
-      console.warn('Wake Lock 释放失败:', err);
-    }
-  };
-
-  const destroyHlsInstance = (video: HTMLVideoElement | null | undefined) => {
-    if (!video?.hls) return;
-
-    try {
-      if (typeof video.hls.stopLoad === 'function') {
-        video.hls.stopLoad();
-      }
-      if (typeof video.hls.detachMedia === 'function') {
-        video.hls.detachMedia();
-      }
-      if (typeof video.hls.destroy === 'function') {
-        video.hls.destroy();
-      }
-    } catch (err) {
-      console.warn('销毁 HLS 实例失败:', err);
-    } finally {
-      video.hls = undefined;
-    }
-  };
-
-  // 清理播放器资源的统一函数
-  const cleanupPlayer = () => {
-    if (artPlayerRef.current) {
-      try {
-        // 销毁 HLS 实例
-        destroyHlsInstance(artPlayerRef.current.video as HTMLVideoElement);
-
-        // 销毁 ArtPlayer 实例
-        artPlayerRef.current.destroy();
-        artPlayerRef.current = null;
-      } catch (err) {
-        console.warn('清理播放器资源时出错:', err);
-        artPlayerRef.current = null;
-      }
-    }
-  };
 
   // 去广告相关函数
   function filterAdsFromM3U8(m3u8Content: string): string {
@@ -844,11 +780,13 @@ function PlayPageClient() {
         search_title: searchTitle,
       });
 
-      lastSaveTimeRef.current = Date.now();
     } catch (err) {
       console.error('保存播放进度失败:', err);
     }
   };
+  const { bindPlayer: bindProgressEvents } = usePlayProgress(
+    saveCurrentPlayProgress,
+  );
 
   useEffect(() => {
     // 页面即将卸载时保存播放进度和清理资源
@@ -882,14 +820,6 @@ function PlayPageClient() {
     };
   }, []);
 
-  // 清理定时器
-  useEffect(() => {
-    return () => {
-      if (saveIntervalRef.current) {
-        clearInterval(saveIntervalRef.current);
-      }
-    };
-  }, []);
 
   // ---------------------------------------------------------------------------
   // 收藏相关
@@ -1348,18 +1278,7 @@ function PlayPageClient() {
         }
       });
 
-      artPlayerRef.current.on('video:timeupdate', () => {
-        const now = Date.now();
-        const interval = 5000;
-        if (now - lastSaveTimeRef.current > interval) {
-          saveCurrentPlayProgress();
-          lastSaveTimeRef.current = now;
-        }
-      });
-
-      artPlayerRef.current.on('pause', () => {
-        saveCurrentPlayProgress();
-      });
+      bindProgressEvents(artPlayerRef.current);
 
       if (artPlayerRef.current?.video) {
         ensureVideoSource(
@@ -1386,10 +1305,6 @@ function PlayPageClient() {
   // 当组件卸载时清理定时器、Wake Lock 和播放器资源
   useEffect(() => {
     return () => {
-      // 清理定时器
-      if (saveIntervalRef.current) {
-        clearInterval(saveIntervalRef.current);
-      }
 
       // 释放 Wake Lock
       releaseWakeLock();
@@ -1401,147 +1316,25 @@ function PlayPageClient() {
 
   if (loading) {
     return (
-      <>
-        <div className='bg-background flex min-h-screen items-center justify-center px-4'>
-          <div className='mx-auto w-full max-w-md rounded-2xl border border-border/60 bg-card/60 px-6 py-8 text-center shadow-sm backdrop-blur-sm'>
-            {/* 动画影院图标 */}
-            <div className='relative mb-8'>
-              <div className='bg-primary relative mx-auto flex h-24 w-24 transform items-center justify-center rounded-2xl border border-primary/40 shadow-xl transition-transform duration-300 hover:scale-105'>
-                <div className='text-4xl text-white'>
-                  {loadingStage === 'searching' && '🔍'}
-                  {loadingStage === 'fetching' && '🎬'}
-                  {loadingStage === 'ready' && '✨'}
-                </div>
-                {/* 旋转光环 */}
-                <div className='bg-primary absolute -inset-2 animate-spin rounded-2xl opacity-20'></div>
-              </div>
-
-              {/* 浮动粒子效果 */}
-              <div className='pointer-events-none absolute left-0 top-0 h-full w-full'>
-                <div className='bg-primary absolute left-2 top-2 h-2 w-2 animate-bounce rounded-full'></div>
-                <div
-                  className='bg-primary/80 absolute right-4 top-4 h-1.5 w-1.5 animate-bounce rounded-full'
-                  style={{ animationDelay: '0.5s' }}
-                ></div>
-                <div
-                  className='bg-primary/60 absolute bottom-3 left-6 h-1 w-1 animate-bounce rounded-full'
-                  style={{ animationDelay: '1s' }}
-                ></div>
-              </div>
-            </div>
-
-            {/* 进度指示器 */}
-            <div className='mx-auto mb-6 w-80 max-w-full'>
-              <div className='mb-4 flex justify-center space-x-2'>
-                <div
-                  className={`h-3 w-3 rounded-full transition-all duration-500 ${
-                    loadingStage === 'searching' || loadingStage === 'fetching'
-                      ? 'bg-primary scale-125'
-                      : loadingStage === 'ready'
-                        ? 'bg-primary'
-                        : 'bg-muted'
-                  }`}
-                ></div>
-                <div
-                  className={`h-3 w-3 rounded-full transition-all duration-500 ${
-                    loadingStage === 'ready'
-                      ? 'bg-primary scale-125'
-                      : 'bg-muted'
-                  }`}
-                ></div>
-              </div>
-
-              {/* 进度条 */}
-              <div className='bg-muted h-2 w-full overflow-hidden rounded-full'>
-                <div
-                  className='bg-primary h-full rounded-full transition-all duration-1000 ease-out'
-                  style={{
-                    width:
-                      loadingStage === 'searching' ||
-                      loadingStage === 'fetching'
-                        ? '50%'
-                        : '100%',
-                  }}
-                ></div>
-              </div>
-            </div>
-
-            {/* 加载消息 */}
-            <div className='space-y-2'>
-              <p className='text-foreground animate-pulse text-xl font-semibold tracking-wide'>
-                {loadingMessage}
-              </p>
-              <p className='text-muted-foreground text-sm'>请稍候片刻</p>
-            </div>
-          </div>
-        </div>
-      </>
+      <PlayLoadingView
+        loadingStage={loadingStage}
+        loadingMessage={loadingMessage}
+      />
     );
   }
 
   if (error) {
     return (
-      <>
-        <div className='bg-background flex min-h-screen items-center justify-center px-4'>
-          <div className='mx-auto w-full max-w-md rounded-2xl border border-border/70 bg-card/60 px-6 py-8 text-center shadow-sm backdrop-blur-sm'>
-            {/* 错误图标 */}
-            <div className='relative mb-8'>
-              <div className='bg-linear-to-r from-destructive to-warning relative mx-auto flex h-24 w-24 transform items-center justify-center rounded-2xl shadow-xl transition-transform duration-300 hover:scale-105'>
-                <div className='text-4xl text-white'>😵</div>
-                {/* 脉冲效果 */}
-                <div className='bg-linear-to-r from-destructive to-warning absolute -inset-2 animate-pulse rounded-2xl opacity-20'></div>
-              </div>
-
-              {/* 浮动错误粒子 */}
-              <div className='pointer-events-none absolute left-0 top-0 h-full w-full'>
-                <div className='bg-destructive/70 absolute left-2 top-2 h-2 w-2 animate-bounce rounded-full'></div>
-                <div
-                  className='bg-warning absolute right-4 top-4 h-1.5 w-1.5 animate-bounce rounded-full'
-                  style={{ animationDelay: '0.5s' }}
-                ></div>
-                <div
-                  className='bg-info absolute bottom-3 left-6 h-1 w-1 animate-bounce rounded-full'
-                  style={{ animationDelay: '1s' }}
-                ></div>
-              </div>
-            </div>
-
-            {/* 错误信息 */}
-            <div className='mb-8 space-y-4'>
-              <h2 className='text-foreground text-2xl font-bold tracking-wide'>
-                哎呀，出现了一些问题
-              </h2>
-              <div className='border-destructive/30 bg-destructive/8 rounded-lg border p-4'>
-                <p className='text-destructive text-sm font-medium'>{error}</p>
-              </div>
-              <p className='text-muted-foreground text-sm leading-6'>
-                请检查网络连接或尝试刷新页面
-              </p>
-            </div>
-
-            {/* 操作按钮 */}
-            <div className='space-y-3'>
-              <button
-                onClick={() =>
-                  videoTitle
-                    ? router.push(`/search?q=${encodeURIComponent(videoTitle)}`)
-                    : router.back()
-                }
-                className='bg-primary hover:bg-primary/90 text-primary-foreground w-full transform rounded-xl px-6 py-3 font-medium shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl'
-              >
-                {videoTitle ? '🔍 返回搜索' : '← 返回上页'}
-              </button>
-
-              <button
-                onClick={() => window.location.reload()}
-                className='bg-card text-foreground hover:bg-muted w-full rounded-xl border border-border/70 px-6 py-3 font-medium transition-colors duration-200'
-              >
-                🔄 重新尝试
-              </button>
-            </div>
-          </div>
-        </div>
-      </>
+      <PlayErrorView
+        error={error}
+        videoTitle={videoTitle}
+        onBack={() =>
+          videoTitle
+            ? router.push(`/search?q=${encodeURIComponent(videoTitle)}`)
+            : router.back()
+        }
+        onRetry={() => window.location.reload()}
+      />
     );
   }
 
@@ -1813,4 +1606,3 @@ const FavoriteIcon = ({ filled }: { filled: boolean }) => {
 };
 
 export default PlayPageClient;
-
