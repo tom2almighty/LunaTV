@@ -7,7 +7,8 @@ import { getDoubanCategoriesServer } from '@/lib/douban';
 import HomeContent from '@/components/HomeContent';
 import PageLayout from '@/components/PageLayout';
 
-// 服务端数据获取
+export const dynamic = 'force-dynamic';
+
 async function getHomeData() {
   try {
     const [moviesData, tvShowsData, varietyShowsData] = await Promise.all([

@@ -6,6 +6,7 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   images: {
+    // Keep disabled by policy; do not enable optimization in this refactor track.
     unoptimized: true,
   },
   turbopack: {
