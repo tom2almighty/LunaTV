@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { API_CONFIG, ApiSite, getConfig } from '@/lib/config';
-import { getCachedSearchPage, setCachedSearchPage } from '@/lib/search-cache';
 import { composeAbortSignal, isAbortError } from '@/lib/search/abortable-search';
+import { getCachedSearchPage, setCachedSearchPage } from '@/lib/search-cache';
 import { SearchResult } from '@/lib/types';
 import { cleanHtmlTags } from '@/lib/utils';
 

@@ -20,8 +20,8 @@ export function useWakeLock() {
         return;
       }
       wakeLockRef.current = await wakeLockApi.request('screen');
-    } catch (err) {
-      console.warn('Wake Lock request failed:', err);
+    } catch {
+      // Ignore wake lock acquisition failures on unsupported/restricted platforms.
     }
   }, []);
 
@@ -32,8 +32,8 @@ export function useWakeLock() {
       }
       await wakeLockRef.current.release();
       wakeLockRef.current = null;
-    } catch (err) {
-      console.warn('Wake Lock release failed:', err);
+    } catch {
+      // Ignore release failures if sentinel is already invalidated by the browser.
     }
   }, []);
 

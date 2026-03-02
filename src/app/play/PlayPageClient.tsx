@@ -23,6 +23,7 @@ import { SearchResult } from '@/lib/types';
 import { usePlaySessionBootstrap } from '@/hooks/usePlaySessionBootstrap';
 
 import EpisodeSelector from '@/components/EpisodeSelector';
+
 import { PlayErrorView } from '@/app/play/components/play-error-view';
 import { PlayLoadingView } from '@/app/play/components/play-loading-view';
 import { useArtPlayerInstance } from '@/app/play/hooks/use-art-player-instance';
@@ -1050,7 +1051,7 @@ function PlayPageClient() {
                     artPlayerRef.current.video as HTMLVideoElement,
                   );
                   artPlayerRef.current.destroy();
-                  artPlayerRef.current = null;
+                  artPlayerRef.current = null as unknown as typeof artPlayerRef.current;
                 }
                 setBlockAdEnabled(newVal);
               } catch (_) {

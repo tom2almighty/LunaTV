@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { type MutableRefObject, useCallback, useRef } from 'react';
 
 type VideoWithHls = HTMLVideoElement & {
   hls?: {
@@ -10,11 +10,30 @@ type VideoWithHls = HTMLVideoElement & {
 
 type ArtPlayerLike = {
   video?: HTMLVideoElement;
+  currentTime: number;
+  duration: number;
+  volume: number;
+  playbackRate: number;
+  paused: boolean;
+  fullscreen: boolean;
+  title: string;
+  poster: string;
+  notice: {
+    show: string;
+  };
+  setting: {
+    update: (config: unknown) => void;
+  };
+  on: (event: string, callback: (...args: unknown[]) => void) => void;
+  off?: (event: string, callback: (...args: unknown[]) => void) => void;
+  toggle: () => void;
+  switch: string | ((url: string) => void);
+  pause: () => void;
   destroy: () => void;
 };
 
 export function useArtPlayerInstance() {
-  const artPlayerRef = useRef<any>(null);
+  const artPlayerRef = useRef<ArtPlayerLike | null>(null);
   const artContainerRef = useRef<HTMLDivElement | null>(null);
 
   const destroyHlsInstance = useCallback(
@@ -33,8 +52,8 @@ export function useArtPlayerInstance() {
         if (typeof video.hls.destroy === 'function') {
           video.hls.destroy();
         }
-      } catch (err) {
-        console.warn('Destroy HLS instance failed:', err);
+      } catch {
+        // Ignore teardown errors to keep player cleanup non-blocking.
       } finally {
         video.hls = undefined;
       }
@@ -43,7 +62,7 @@ export function useArtPlayerInstance() {
   );
 
   const cleanupPlayer = useCallback(() => {
-    const player = artPlayerRef.current as ArtPlayerLike | null;
+    const player = artPlayerRef.current;
     if (!player) {
       return;
     }
@@ -51,15 +70,15 @@ export function useArtPlayerInstance() {
     try {
       destroyHlsInstance(player.video as VideoWithHls | undefined);
       player.destroy();
-    } catch (err) {
-      console.warn('Cleanup art player failed:', err);
+    } catch {
+      // Ignore teardown errors to avoid blocking route transitions.
     } finally {
       artPlayerRef.current = null;
     }
   }, [destroyHlsInstance]);
 
   return {
-    artPlayerRef,
+    artPlayerRef: artPlayerRef as MutableRefObject<ArtPlayerLike>,
     artContainerRef,
     destroyHlsInstance,
     cleanupPlayer,

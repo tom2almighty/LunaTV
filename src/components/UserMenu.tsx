@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
+
 import { SettingsModal } from '@/components/user-menu/settings-modal';
 import { useUserSettings } from '@/components/user-menu/use-user-settings';
 
