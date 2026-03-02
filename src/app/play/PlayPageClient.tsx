@@ -1397,7 +1397,7 @@ function PlayPageClient() {
           </div>
 
           <div
-            className={`grid gap-4 transition-all duration-300 ease-in-out lg:h-[500px] xl:h-[650px] ${
+            className={`grid gap-4 transition-all duration-300 ease-in-out lg:h-125 xl:h-162.5 ${
               isEpisodeSelectorCollapsed
                 ? 'grid-cols-1'
                 : 'grid-cols-1 md:grid-cols-[minmax(0,1fr)_320px]'
@@ -1409,7 +1409,7 @@ function PlayPageClient() {
                 isEpisodeSelectorCollapsed ? 'col-span-1' : 'md:col-span-1'
               }`}
             >
-              <div className='relative h-[300px] w-full lg:h-full'>
+              <div className='relative h-75 w-full lg:h-full'>
                 <div
                   ref={artRef}
                   className='bg-card h-full w-full overflow-hidden rounded-xl shadow-sm'
@@ -1457,7 +1457,7 @@ function PlayPageClient() {
 
             {/* 选集和换源 - 在移动端始终显示，在 lg 及以上可折叠 */}
             <div
-              className={`h-[300px] transition-all duration-300 ease-in-out md:overflow-hidden lg:h-full ${
+              className={`h-75 transition-all duration-300 ease-in-out md:overflow-hidden lg:h-full ${
                 isEpisodeSelectorCollapsed
                   ? 'lg:hidden lg:scale-95 lg:opacity-0'
                   : 'lg:scale-100 lg:opacity-100'
@@ -1481,7 +1481,7 @@ function PlayPageClient() {
         </div>
 
         {/* 详情展示 */}
-        <div className='border-border/60 bg-card/45 flex min-h-[320px] flex-col rounded-xl border p-6 shadow-sm'>
+        <div className='border-border/60 bg-card/45 flex min-h-80 flex-col rounded-xl border p-6 shadow-sm'>
           {/* 标题 */}
           <h1 className='mb-3 flex w-full shrink-0 items-center text-center text-3xl font-bold tracking-wide md:text-left'>
             {videoTitle || '影片标题'}
