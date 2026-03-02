@@ -115,8 +115,7 @@ export const UserMenu: React.FC = () => {
 
       const savedDoubanDataSource = localStorage.getItem('doubanDataSource');
       const defaultDoubanProxyType =
-        (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY_TYPE ||
-        'server';
+        (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY_TYPE || 'server';
       if (savedDoubanDataSource !== null) {
         setDoubanDataSource(savedDoubanDataSource);
       } else if (defaultDoubanProxyType) {
@@ -136,8 +135,7 @@ export const UserMenu: React.FC = () => {
         'doubanImageProxyType',
       );
       const defaultDoubanImageProxyType =
-        (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY_TYPE ||
-        'server';
+        (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY_TYPE || 'server';
       if (savedDoubanImageProxyType !== null) {
         setDoubanImageProxyType(savedDoubanImageProxyType);
       } else if (defaultDoubanImageProxyType) {
@@ -211,8 +209,8 @@ export const UserMenu: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/logout', {
-        method: 'POST',
+      await fetch('/api/auth/sessions/current', {
+        method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
     } catch (error) {
@@ -257,8 +255,8 @@ export const UserMenu: React.FC = () => {
     setPasswordLoading(true);
 
     try {
-      const response = await fetch('/api/change-password', {
-        method: 'POST',
+      const response = await fetch('/api/users/current/password', {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -338,13 +336,11 @@ export const UserMenu: React.FC = () => {
 
   const handleResetSettings = () => {
     const defaultDoubanProxyType =
-      (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY_TYPE ||
-      'server';
+      (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY_TYPE || 'server';
     const defaultDoubanProxy =
       (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY || '';
     const defaultDoubanImageProxyType =
-      (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY_TYPE ||
-      'server';
+      (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY_TYPE || 'server';
     const defaultDoubanImageProxyUrl =
       (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY || '';
     const defaultFluidSearch =
@@ -592,7 +588,6 @@ export const UserMenu: React.FC = () => {
                   </div>
                 )}
               </div>
-
             </div>
 
             {/* 豆瓣代理地址设置 - 仅在选择自定义代理时显示 */}
@@ -682,7 +677,6 @@ export const UserMenu: React.FC = () => {
                   </div>
                 )}
               </div>
-
             </div>
 
             {/* 豆瓣图片代理地址设置 - 仅在选择自定义代理时显示 */}

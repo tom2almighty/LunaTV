@@ -25,8 +25,8 @@ export async function fetchWithAuth(
   if (!res.ok) {
     if (res.status === 401) {
       try {
-        await fetch('/api/logout', {
-          method: 'POST',
+        await fetch('/api/auth/sessions/current', {
+          method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
         });
       } catch (error) {

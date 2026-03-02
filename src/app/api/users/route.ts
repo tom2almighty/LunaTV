@@ -6,7 +6,6 @@ import { checkUserExist, registerUser, saveAdminConfig } from '@/lib/db.server';
 
 export const runtime = 'nodejs';
 
-// 生成签名
 async function generateSignature(
   data: string,
   secret: string,
@@ -15,7 +14,6 @@ async function generateSignature(
   const keyData = encoder.encode(secret);
   const messageData = encoder.encode(data);
 
-  // 导入密钥
   const key = await crypto.subtle.importKey(
     'raw',
     keyData,
@@ -24,16 +22,13 @@ async function generateSignature(
     ['sign'],
   );
 
-  // 生成签名
   const signature = await crypto.subtle.sign('HMAC', key, messageData);
 
-  // 转换为十六进制字符串
   return Array.from(new Uint8Array(signature))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
-// 生成认证Cookie（带签名）
 async function generateAuthCookie(
   username: string,
   role: 'owner' | 'admin' | 'user' = 'user',
@@ -42,10 +37,12 @@ async function generateAuthCookie(
 
   if (username && process.env.APP_ADMIN_PASSWORD) {
     authData.username = username;
-    // 使用密码作为密钥对用户名进行签名
-    const signature = await generateSignature(username, process.env.APP_ADMIN_PASSWORD);
+    const signature = await generateSignature(
+      username,
+      process.env.APP_ADMIN_PASSWORD,
+    );
     authData.signature = signature;
-    authData.timestamp = Date.now(); // 添加时间戳防重放攻击
+    authData.timestamp = Date.now();
   }
 
   return encodeURIComponent(JSON.stringify(authData));
@@ -53,16 +50,13 @@ async function generateAuthCookie(
 
 export async function POST(req: NextRequest) {
   try {
-    // 检查注册开关
     const config = await getConfig();
     if (!config.SiteConfig.EnableRegistration) {
       return NextResponse.json({ error: '注册功能已关闭' }, { status: 403 });
     }
 
-    // 获取用户名和密码
     const { username, password } = await req.json();
 
-    // 验证用户名
     if (!username || typeof username !== 'string') {
       return NextResponse.json({ error: '用户名不能为空' }, { status: 400 });
     }
@@ -72,7 +66,6 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-    // 用户名只能包含字母、数字、下划线
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
       return NextResponse.json(
         { error: '用户名只能包含字母、数字和下划线' },
@@ -80,7 +73,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 验证密码
     if (!password || typeof password !== 'string') {
       return NextResponse.json({ error: '密码不能为空' }, { status: 400 });
     }
@@ -91,21 +83,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 检查用户名是否与站长用户名冲突
     if (username === process.env.APP_ADMIN_USERNAME) {
       return NextResponse.json({ error: '该用户名已被使用' }, { status: 400 });
     }
 
-    // 检查用户是否已存在
     const userExists = await checkUserExist(username);
     if (userExists) {
       return NextResponse.json({ error: '用户名已存在' }, { status: 400 });
     }
 
-    // 创建用户
     await registerUser(username, password);
 
-    // 更新配置，将新用户添加到 UserConfig.Users 数组
     config.UserConfig.Users.push({
       username,
       role: 'user',
@@ -113,11 +101,10 @@ export async function POST(req: NextRequest) {
     });
     await saveAdminConfig(config);
 
-    // 自动登录：生成认证 Cookie
     const response = NextResponse.json({ ok: true });
     const cookieValue = await generateAuthCookie(username, 'user');
     const expires = new Date();
-    expires.setDate(expires.getDate() + 7); // 7天过期
+    expires.setDate(expires.getDate() + 7);
 
     response.cookies.set('auth', cookieValue, {
       path: '/',
@@ -133,4 +120,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '服务器错误' }, { status: 500 });
   }
 }
-

@@ -24,7 +24,7 @@ function LoginPageClient() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // 获取注册开关状态
-      fetch('/api/server-config')
+      fetch('/api/public/site')
         .then((res) => res.json())
         .then((data) => {
           setEnableRegistration(data.EnableRegistration === true);
@@ -60,7 +60,7 @@ function LoginPageClient() {
 
     try {
       setLoading(true);
-      const endpoint = isRegisterMode ? '/api/register' : '/api/login';
+      const endpoint = isRegisterMode ? '/api/users' : '/api/auth/sessions';
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

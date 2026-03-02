@@ -7,7 +7,7 @@ import { getConfig } from '@/lib/config';
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
-  console.log('server-config called: ', request.url);
+  console.log('public site called: ', request.url);
 
   const config = await getConfig();
   const result = {

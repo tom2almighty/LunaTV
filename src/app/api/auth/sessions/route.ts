@@ -6,7 +6,6 @@ import { verifyUser } from '@/lib/db.server';
 
 export const runtime = 'nodejs';
 
-// 生成签名
 async function generateSignature(
   data: string,
   secret: string,
@@ -15,7 +14,6 @@ async function generateSignature(
   const keyData = encoder.encode(secret);
   const messageData = encoder.encode(data);
 
-  // 导入密钥
   const key = await crypto.subtle.importKey(
     'raw',
     keyData,
@@ -24,16 +22,13 @@ async function generateSignature(
     ['sign'],
   );
 
-  // 生成签名
   const signature = await crypto.subtle.sign('HMAC', key, messageData);
 
-  // 转换为十六进制字符串
   return Array.from(new Uint8Array(signature))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
-// 生成认证Cookie（带签名）
 async function generateAuthCookie(
   username?: string,
   password?: string,
@@ -42,17 +37,18 @@ async function generateAuthCookie(
 ): Promise<string> {
   const authData: any = { role: role || 'user' };
 
-  // 只在需要时包含 password
   if (includePassword && password) {
     authData.password = password;
   }
 
   if (username && process.env.APP_ADMIN_PASSWORD) {
     authData.username = username;
-    // 使用密码作为密钥对用户名进行签名
-    const signature = await generateSignature(username, process.env.APP_ADMIN_PASSWORD);
+    const signature = await generateSignature(
+      username,
+      process.env.APP_ADMIN_PASSWORD,
+    );
     authData.signature = signature;
-    authData.timestamp = Date.now(); // 添加时间戳防重放攻击
+    authData.timestamp = Date.now();
   }
 
   return encodeURIComponent(JSON.stringify(authData));
@@ -60,7 +56,6 @@ async function generateAuthCookie(
 
 export async function POST(req: NextRequest) {
   try {
-    // 数据库模式——校验用户名并尝试连接数据库
     const { username, password } = await req.json();
 
     if (!username || typeof username !== 'string') {
@@ -70,12 +65,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '密码不能为空' }, { status: 400 });
     }
 
-    // 可能是站长，直接读环境变量
     if (
       username === process.env.APP_ADMIN_USERNAME &&
       password === process.env.APP_ADMIN_PASSWORD
     ) {
-      // 验证成功，设置认证cookie
       const response = NextResponse.json({ ok: true });
       const cookieValue = await generateAuthCookie(
         username,
@@ -84,7 +77,7 @@ export async function POST(req: NextRequest) {
         false,
       );
       const expires = new Date();
-      expires.setDate(expires.getDate() + 7); // 7天过期
+      expires.setDate(expires.getDate() + 7);
 
       response.cookies.set('auth', cookieValue, {
         path: '/',
@@ -105,7 +98,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '用户被封禁' }, { status: 401 });
     }
 
-    // 校验用户密码
     try {
       const pass = await verifyUser(username, password);
       if (!pass) {
@@ -115,7 +107,6 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // 验证成功，设置认证cookie
       const response = NextResponse.json({ ok: true });
       const cookieValue = await generateAuthCookie(
         username,
@@ -124,7 +115,7 @@ export async function POST(req: NextRequest) {
         false,
       );
       const expires = new Date();
-      expires.setDate(expires.getDate() + 7); // 7天过期
+      expires.setDate(expires.getDate() + 7);
 
       response.cookies.set('auth', cookieValue, {
         path: '/',
@@ -144,4 +135,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '服务器错误' }, { status: 500 });
   }
 }
-
