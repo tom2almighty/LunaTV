@@ -21,14 +21,13 @@ export function useUserConfigActions(
   const addUser = async (payload: AddUserPayload) => {
     const { username, password, userGroup } = payload;
 
-    const res = await fetch('/api/admin/user', {
+    const res = await fetch('/api/admin/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        targetUsername: username,
-        targetPassword: password,
-        ...(userGroup ? { userGroup } : {}),
-        action: 'add',
+        username,
+        password,
+        userGroup,
       }),
     });
 

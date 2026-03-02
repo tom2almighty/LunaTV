@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { useUserConfigActions } from '@/app/admin/_components/user-config/use-user-config-actions';
 
 describe('useUserConfigActions', () => {
-  it('calls /api/admin/user with correct payload for add user', async () => {
+  it('calls /api/admin/users with correct payload for add user', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({}),
@@ -24,6 +24,9 @@ describe('useUserConfigActions', () => {
       userGroup: 'default',
     });
 
-    expect(fetchMock).toHaveBeenCalledWith('/api/admin/user', expect.anything());
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/users',
+      expect.anything(),
+    );
   });
 });
