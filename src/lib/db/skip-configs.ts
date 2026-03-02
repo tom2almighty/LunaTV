@@ -11,7 +11,7 @@ import { cacheManager } from './cache-manager';
 import { SkipConfig } from '../types';
 
 function syncInBackground(cached: Record<string, SkipConfig>): void {
-  fetchFromApi<Record<string, SkipConfig>>('/api/skipconfigs')
+  fetchFromApi<Record<string, SkipConfig>>('/api/user/skip-configs')
     .then((fresh) => {
       if (JSON.stringify(cached) !== JSON.stringify(fresh)) {
         cacheManager.cacheSkipConfigs(fresh);
@@ -37,8 +37,9 @@ export async function getSkipConfig(
   }
 
   try {
-    const fresh =
-      await fetchFromApi<Record<string, SkipConfig>>('/api/skipconfigs');
+    const fresh = await fetchFromApi<Record<string, SkipConfig>>(
+      '/api/user/skip-configs',
+    );
     cacheManager.cacheSkipConfigs(fresh);
     return fresh[key] || null;
   } catch (err) {
@@ -58,8 +59,9 @@ export async function getAllSkipConfigs(): Promise<Record<string, SkipConfig>> {
   }
 
   try {
-    const fresh =
-      await fetchFromApi<Record<string, SkipConfig>>('/api/skipconfigs');
+    const fresh = await fetchFromApi<Record<string, SkipConfig>>(
+      '/api/user/skip-configs',
+    );
     cacheManager.cacheSkipConfigs(fresh);
     return fresh;
   } catch (err) {
@@ -83,7 +85,7 @@ export async function saveSkipConfig(
   );
 
   try {
-    await fetchWithAuth('/api/skipconfigs', {
+    await fetchWithAuth('/api/user/skip-configs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key, config }),
@@ -107,9 +109,12 @@ export async function deleteSkipConfig(
   );
 
   try {
-    await fetchWithAuth(`/api/skipconfigs?key=${encodeURIComponent(key)}`, {
-      method: 'DELETE',
-    });
+    await fetchWithAuth(
+      `/api/user/skip-configs?key=${encodeURIComponent(key)}`,
+      {
+        method: 'DELETE',
+      },
+    );
   } catch (err) {
     console.error('删除跳过片头片尾配置失败:', err);
     triggerGlobalError('删除跳过片头片尾配置失败');

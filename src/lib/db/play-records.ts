@@ -14,8 +14,9 @@ async function handleFailure(error: unknown): Promise<void> {
   console.error('数据库操作失败 (playRecords):', error);
   triggerGlobalError('数据库操作失败');
   try {
-    const fresh =
-      await fetchFromApi<Record<string, PlayRecord>>('/api/playrecords');
+    const fresh = await fetchFromApi<Record<string, PlayRecord>>(
+      '/api/user/play-records',
+    );
     cacheManager.cachePlayRecords(fresh);
     window.dispatchEvent(
       new CustomEvent('playRecordsUpdated', { detail: fresh }),
@@ -30,7 +31,7 @@ export async function getAllPlayRecords(): Promise<Record<string, PlayRecord>> {
 
   const cached = cacheManager.getCachedPlayRecords();
   if (cached) {
-    fetchFromApi<Record<string, PlayRecord>>('/api/playrecords')
+    fetchFromApi<Record<string, PlayRecord>>('/api/user/play-records')
       .then((fresh) => {
         if (JSON.stringify(cached) !== JSON.stringify(fresh)) {
           cacheManager.cachePlayRecords(fresh);
@@ -47,8 +48,9 @@ export async function getAllPlayRecords(): Promise<Record<string, PlayRecord>> {
   }
 
   try {
-    const fresh =
-      await fetchFromApi<Record<string, PlayRecord>>('/api/playrecords');
+    const fresh = await fetchFromApi<Record<string, PlayRecord>>(
+      '/api/user/play-records',
+    );
     cacheManager.cachePlayRecords(fresh);
     return fresh;
   } catch (err) {
@@ -72,7 +74,7 @@ export async function savePlayRecord(
   );
 
   try {
-    await fetchWithAuth('/api/playrecords', {
+    await fetchWithAuth('/api/user/play-records', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key, record }),
@@ -97,9 +99,12 @@ export async function deletePlayRecord(
   );
 
   try {
-    await fetchWithAuth(`/api/playrecords?key=${encodeURIComponent(key)}`, {
-      method: 'DELETE',
-    });
+    await fetchWithAuth(
+      `/api/user/play-records?key=${encodeURIComponent(key)}`,
+      {
+        method: 'DELETE',
+      },
+    );
   } catch (err) {
     await handleFailure(err);
     triggerGlobalError('删除播放记录失败');
@@ -112,7 +117,7 @@ export async function clearAllPlayRecords(): Promise<void> {
   window.dispatchEvent(new CustomEvent('playRecordsUpdated', { detail: {} }));
 
   try {
-    await fetchWithAuth('/api/playrecords', {
+    await fetchWithAuth('/api/user/play-records', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
     });

@@ -80,10 +80,10 @@ export async function refreshAllCache(): Promise<void> {
   try {
     const [playRecords, favorites, searchHistory, skipConfigs] =
       await Promise.allSettled([
-        fetchFromApi<Record<string, PlayRecord>>('/api/playrecords'),
-        fetchFromApi<Record<string, Favorite>>('/api/favorites'),
-        fetchFromApi<string[]>('/api/searchhistory'),
-        fetchFromApi<Record<string, SkipConfig>>('/api/skipconfigs'),
+        fetchFromApi<Record<string, PlayRecord>>('/api/user/play-records'),
+        fetchFromApi<Record<string, Favorite>>('/api/user/favorites'),
+        fetchFromApi<string[]>('/api/user/search-history'),
+        fetchFromApi<Record<string, SkipConfig>>('/api/user/skip-configs'),
       ]);
 
     if (playRecords.status === 'fulfilled') {

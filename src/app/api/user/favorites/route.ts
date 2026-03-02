@@ -5,19 +5,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
 import {
-  addSearchHistory,
-  deleteSearchHistory,
-  getSearchHistory,
+  deleteAllFavorites,
+  deleteFavorite,
+  getAllFavorites,
+  getFavorite,
+  saveFavorite,
 } from '@/lib/db.server';
+import { Favorite } from '@/lib/types';
 
 export const runtime = 'nodejs';
 
-// 最大保存条数（与客户端保持一致）
-const HISTORY_LIMIT = 20;
-
 /**
- * GET /api/searchhistory
- * 返回 string[]
+ * GET /api/favorites
+ *
+ * 支持两种调用方式：
+ * 1. 不带 query，返回全部收藏列表（Record<string, Favorite>）。
+ * 2. 带 key=source+id，返回单条收藏（Favorite | null）。
  */
 export async function GET(request: NextRequest) {
   try {
@@ -41,10 +44,27 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const history = await getSearchHistory(authInfo.username);
-    return NextResponse.json(history, { status: 200 });
+    const { searchParams } = new URL(request.url);
+    const key = searchParams.get('key');
+
+    // 查询单条收藏
+    if (key) {
+      const [source, id] = key.split('+');
+      if (!source || !id) {
+        return NextResponse.json(
+          { error: 'Invalid key format' },
+          { status: 400 },
+        );
+      }
+      const fav = await getFavorite(authInfo.username, source, id);
+      return NextResponse.json(fav, { status: 200 });
+    }
+
+    // 查询全部收藏
+    const favorites = await getAllFavorites(authInfo.username);
+    return NextResponse.json(favorites, { status: 200 });
   } catch (err) {
-    console.error('获取搜索历史失败', err);
+    console.error('获取收藏失败', err);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 },
@@ -53,8 +73,8 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * POST /api/searchhistory
- * body: { keyword: string }
+ * POST /api/favorites
+ * body: { key: string; favorite: Favorite }
  */
 export async function POST(request: NextRequest) {
   try {
@@ -79,22 +99,41 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const keyword: string = body.keyword?.trim();
+    const { key, favorite }: { key: string; favorite: Favorite } = body;
 
-    if (!keyword) {
+    if (!key || !favorite) {
       return NextResponse.json(
-        { error: 'Keyword is required' },
+        { error: 'Missing key or favorite' },
         { status: 400 },
       );
     }
 
-    await addSearchHistory(authInfo.username, keyword);
+    // 验证必要字段
+    if (!favorite.title || !favorite.source_name) {
+      return NextResponse.json(
+        { error: 'Invalid favorite data' },
+        { status: 400 },
+      );
+    }
 
-    // 再次获取最新列表，确保客户端与服务端同步
-    const history = await getSearchHistory(authInfo.username);
-    return NextResponse.json(history.slice(0, HISTORY_LIMIT), { status: 200 });
+    const [source, id] = key.split('+');
+    if (!source || !id) {
+      return NextResponse.json(
+        { error: 'Invalid key format' },
+        { status: 400 },
+      );
+    }
+
+    const finalFavorite = {
+      ...favorite,
+      save_time: favorite.save_time ?? Date.now(),
+    } as Favorite;
+
+    await saveFavorite(authInfo.username, source, id, finalFavorite);
+
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
-    console.error('添加搜索历史失败', err);
+    console.error('保存收藏失败', err);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 },
@@ -103,10 +142,10 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * DELETE /api/searchhistory?keyword=<kw>
+ * DELETE /api/favorites
  *
- * 1. 不带 keyword -> 清空全部搜索历史
- * 2. 带 keyword=<kw> -> 删除单条关键字
+ * 1. 不带 query -> 清空全部收藏
+ * 2. 带 key=source+id -> 删除单条收藏
  */
 export async function DELETE(request: NextRequest) {
   try {
@@ -130,18 +169,31 @@ export async function DELETE(request: NextRequest) {
       }
     }
 
+    const username = authInfo.username;
     const { searchParams } = new URL(request.url);
-    const kw = searchParams.get('keyword')?.trim();
+    const key = searchParams.get('key');
 
-    await deleteSearchHistory(authInfo.username, kw || undefined);
+    if (key) {
+      // 删除单条
+      const [source, id] = key.split('+');
+      if (!source || !id) {
+        return NextResponse.json(
+          { error: 'Invalid key format' },
+          { status: 400 },
+        );
+      }
+      await deleteFavorite(username, source, id);
+    } else {
+      // 清空全部
+      await deleteAllFavorites(username);
+    }
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
-    console.error('删除搜索历史失败', err);
+    console.error('删除收藏失败', err);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 },
     );
   }
 }
-
