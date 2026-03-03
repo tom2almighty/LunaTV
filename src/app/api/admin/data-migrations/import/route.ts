@@ -129,7 +129,9 @@ export async function POST(req: NextRequest) {
     }
 
     const db = getDb();
-    const checkedAdminConfig = configSelfCheck(importData.payload.adminConfig as any);
+    const checkedAdminConfig = configSelfCheck(
+      importData.payload.adminConfig as any,
+    );
 
     const owner = process.env.APP_ADMIN_USERNAME || '';
     const ownerPassword = process.env.APP_ADMIN_PASSWORD || '';
@@ -166,10 +168,7 @@ export async function POST(req: NextRequest) {
     let searchHistoryCount = 0;
 
     const insertTransaction = db.transaction(
-      (
-        txUsers: BackupUserV2[],
-        adminConfig: Record<string, unknown>,
-      ): void => {
+      (txUsers: BackupUserV2[], adminConfig: Record<string, unknown>): void => {
         db.exec(`
           DELETE FROM users;
           DELETE FROM play_records;

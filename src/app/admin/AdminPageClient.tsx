@@ -99,7 +99,7 @@ function AdminPageClient() {
   const handleConfirmResetConfig = async () => {
     await withLoading('resetConfig', async () => {
       try {
-        const response = await fetch('/api/admin/reset');
+        const response = await fetch('/api/admin/system/reset');
         if (!response.ok) throw new Error('重置失败: ' + response.status);
         showSuccess('重置成功，请刷新页面！', showAlert);
         await fetchConfig();

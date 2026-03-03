@@ -591,7 +591,7 @@ export const UserConfig = ({
                     onChange={async (e) => {
                       const newValue = e.target.checked;
                       try {
-                        const res = await fetch('/api/admin/site', {
+                        const res = await fetch('/api/admin/site-settings', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({

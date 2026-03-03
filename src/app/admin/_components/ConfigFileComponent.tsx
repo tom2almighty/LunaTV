@@ -49,7 +49,7 @@ export const ConfigFileComponent = ({
 
     await withLoading('fetchConfig', async () => {
       try {
-        const resp = await fetch('/api/admin/config_subscription/fetch', {
+        const resp = await fetch('/api/admin/config-subscriptions/fetch', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: subscriptionUrl }),
@@ -81,7 +81,7 @@ export const ConfigFileComponent = ({
   const handleSave = async () => {
     await withLoading('saveConfig', async () => {
       try {
-        const resp = await fetch('/api/admin/config_file', {
+        const resp = await fetch('/api/admin/config-files', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

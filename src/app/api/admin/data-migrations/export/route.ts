@@ -136,7 +136,9 @@ export async function POST(req: NextRequest) {
       return {
         username: user.username,
         password:
-          user.username === owner && ownerPassword ? ownerPassword : user.password,
+          user.username === owner && ownerPassword
+            ? ownerPassword
+            : user.password,
         playRecords: playRows.map((row) => ({
           source: row.source,
           videoId: row.video_id,
@@ -146,7 +148,10 @@ export async function POST(req: NextRequest) {
         favorites: favRows.map((row) => ({
           source: row.source,
           videoId: row.video_id,
-          favorite: parseJsonSafe<Record<string, unknown>>(row.favorite_json, {}),
+          favorite: parseJsonSafe<Record<string, unknown>>(
+            row.favorite_json,
+            {},
+          ),
           createdAt: Number(row.created_at || 0),
         })),
         skipConfigs: skipRows.map((row) => ({
@@ -199,4 +204,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-

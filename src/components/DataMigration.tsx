@@ -191,7 +191,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
     try {
       setIsExporting(true);
 
-      const response = await fetch('/api/admin/data_migration/export', {
+      const response = await fetch('/api/admin/data-migrations/export', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -280,7 +280,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
       formData.append('file', selectedFile);
       formData.append('password', importPassword);
 
-      const response = await fetch('/api/admin/data_migration/import', {
+      const response = await fetch('/api/admin/data-migrations/import', {
         method: 'POST',
         body: formData,
       });
