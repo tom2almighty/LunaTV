@@ -16,7 +16,11 @@ import {
 import { buttonStyles, inputStyles } from './buttonStyles';
 import { useLoadingState } from './LoadingSystem';
 import { useUserConfigActions } from './user-config/use-user-config-actions';
-import { UserListPanel } from './user-config/user-list-panel';
+import { UserConfigContainer } from './user-config/user-config-container';
+import {
+  submitUserGroupAssignments,
+  submitUserGroupUpdate,
+} from './user-config/user-group-actions';
 
 // 用户配置组件
 interface UserConfigProps {
@@ -111,37 +115,11 @@ export const UserConfig = ({
   ) => {
     return withLoading(`userGroup_${action}_${groupName}`, async () => {
       try {
-        let endpoint = '/api/admin/user-groups';
-        let method: 'POST' | 'PATCH' | 'DELETE' = 'POST';
-        let body: Record<string, unknown> | undefined;
-
-        if (action === 'add') {
-          method = 'POST';
-          body = {
-            name: groupName,
-            enabledApis: enabledApis || [],
-          };
-        } else if (action === 'edit') {
-          method = 'PATCH';
-          endpoint = `/api/admin/user-groups/${encodeURIComponent(groupName)}`;
-          body = {
-            enabledApis: enabledApis || [],
-          };
-        } else {
-          method = 'DELETE';
-          endpoint = `/api/admin/user-groups/${encodeURIComponent(groupName)}`;
-        }
-
-        const res = await fetch(endpoint, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          ...(body ? { body: JSON.stringify(body) } : {}),
+        await submitUserGroupUpdate({
+          action,
+          groupName,
+          enabledApis,
         });
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || `操作失败: ${res.status}`);
-        }
 
         await refreshConfig();
 
@@ -227,19 +205,10 @@ export const UserConfig = ({
   ) => {
     return withLoading(`assignUserGroup_${username}`, async () => {
       try {
-        const res = await fetch('/api/admin/user-groups/assignments', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username,
-            userGroups,
-          }),
+        await submitUserGroupAssignments({
+          username,
+          userGroups,
         });
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || `操作失败: ${res.status}`);
-        }
 
         await refreshConfig();
         showSuccess('用户组分配成功', showAlert);
@@ -391,19 +360,10 @@ export const UserConfig = ({
 
     await withLoading('batchSetUserGroup', async () => {
       try {
-        const res = await fetch('/api/admin/user-groups/assignments', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            usernames: Array.from(selectedUsers),
-            userGroups: userGroup === '' ? [] : [userGroup],
-          }),
+        await submitUserGroupAssignments({
+          usernames: Array.from(selectedUsers),
+          userGroups: userGroup === '' ? [] : [userGroup],
         });
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || `操作失败: ${res.status}`);
-        }
 
         const userCount = selectedUsers.size;
         setSelectedUsers(new Set());
@@ -552,7 +512,7 @@ export const UserConfig = ({
   }
 
   return (
-    <UserListPanel title='用户配置'>
+    <UserConfigContainer>
       <div className='space-y-6'>
         {/* 用户统计和注册设置 */}
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
@@ -2200,6 +2160,6 @@ export const UserConfig = ({
           showConfirm={alertModal.showConfirm}
         />
       </div>
-    </UserListPanel>
+    </UserConfigContainer>
   );
 };

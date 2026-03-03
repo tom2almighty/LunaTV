@@ -9,17 +9,15 @@ import {
   LogOut,
   Settings,
   Shield,
-  User,
   X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 
 import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
 
-import { SettingsModal } from '@/components/user-menu/settings-modal';
 import { useUserSettings } from '@/components/user-menu/use-user-settings';
+import { UserMenuContainer } from '@/components/user-menu/user-menu-container';
 
 interface AuthInfo {
   username?: string;
@@ -881,29 +879,15 @@ export const UserMenu: React.FC = () => {
   );
 
   return (
-    <>
-      <div className='relative'>
-        <button
-          onClick={handleMenuClick}
-          className='text-muted-foreground hover:bg-muted/50 flex h-10 w-10 items-center justify-center rounded-full p-2 transition-colors'
-          aria-label='User Menu'
-        >
-          <User className='h-full w-full' />
-        </button>
-      </div>
-
-      {/* 使用 Portal 将菜单面板渲染到 document.body */}
-      {isOpen && mounted && createPortal(menuPanel, document.body)}
-
-      {/* 使用 Portal 将设置面板渲染到 document.body */}
-      <SettingsModal isOpen={isSettingsOpen} mounted={mounted}>
-        {settingsPanel}
-      </SettingsModal>
-
-      {/* 使用 Portal 将修改密码面板渲染到 document.body */}
-      {isChangePasswordOpen &&
-        mounted &&
-        createPortal(changePasswordPanel, document.body)}
-    </>
+    <UserMenuContainer
+      isOpen={isOpen}
+      mounted={mounted}
+      isSettingsOpen={isSettingsOpen}
+      isChangePasswordOpen={isChangePasswordOpen}
+      onToggleMenu={handleMenuClick}
+      menuPanel={menuPanel}
+      settingsPanel={settingsPanel}
+      changePasswordPanel={changePasswordPanel}
+    />
   );
 };

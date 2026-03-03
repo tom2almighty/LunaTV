@@ -11,7 +11,11 @@ describe('admin user routes', () => {
       'src/app/admin/_components/UserConfig.tsx',
       'utf8',
     );
-    const merged = `${actionsContent}\n${userConfigContent}`;
+    const userGroupActionsContent = readFileSync(
+      'src/app/admin/_components/user-config/user-group-actions.ts',
+      'utf8',
+    );
+    const merged = `${actionsContent}\n${userConfigContent}\n${userGroupActionsContent}`;
 
     expect(/\/api\/admin\/user['"`]/.test(merged)).toBe(false);
     expect(merged.includes('/api/admin/users')).toBe(true);
