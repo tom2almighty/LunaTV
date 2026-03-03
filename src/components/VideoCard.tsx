@@ -35,6 +35,12 @@ import { useLongPress } from '@/hooks/useLongPress';
 import { ImagePlaceholder } from '@/components/ImagePlaceholder';
 import MobileActionSheet from '@/components/MobileActionSheet';
 import { useVideoCardActions } from '@/components/video-card/use-video-card-actions';
+import {
+  buildPlaySessionPayload,
+  buildPlaySessionUrl,
+} from '@/components/video-card/use-video-card-navigation';
+import { useVideoCardState } from '@/components/video-card/use-video-card-state';
+import { VideoCardView } from '@/components/video-card/video-card-view';
 
 export interface VideoCardProps {
   id?: string;
@@ -98,27 +104,18 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
     ); // 搜索结果的收藏状态
 
     // 可外部修改的可控字段
-    const [dynamicEpisodes, setDynamicEpisodes] = useState<number | undefined>(
+    const {
+      dynamicEpisodes,
+      setDynamicEpisodes,
+      dynamicSourceNames,
+      setDynamicSourceNames,
+      dynamicDoubanId,
+      setDynamicDoubanId,
+    } = useVideoCardState({
       episodes,
-    );
-    const [dynamicSourceNames, setDynamicSourceNames] = useState<
-      string[] | undefined
-    >(source_names);
-    const [dynamicDoubanId, setDynamicDoubanId] = useState<number | undefined>(
-      douban_id,
-    );
-
-    useEffect(() => {
-      setDynamicEpisodes(episodes);
-    }, [episodes]);
-
-    useEffect(() => {
-      setDynamicSourceNames(source_names);
-    }, [source_names]);
-
-    useEffect(() => {
-      setDynamicDoubanId(douban_id);
-    }, [douban_id]);
+      sourceNames: source_names,
+      doubanId: douban_id,
+    });
 
     useImperativeHandle(ref, () => ({
       setEpisodes: (eps?: number) => setDynamicEpisodes(eps),
@@ -261,58 +258,16 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
         setIsRouting(true);
 
         try {
-          let payload: Record<string, any> | null = null;
-
-          if (from === 'search') {
-            if (play_group && play_group.length > 0) {
-              payload = {
-                mode: 'group',
-                title: actualTitle,
-                year: actualYear || 'unknown',
-                type: actualSearchType || undefined,
-                query: actualQuery || actualTitle,
-                preferredSource: actualSource || undefined,
-                preferredId: actualId || undefined,
-                candidates: play_group,
-              };
-            } else if (actualSource && actualId) {
-              payload = {
-                mode: 'direct',
-                source: actualSource,
-                id: actualId,
-                title: actualTitle,
-                year: actualYear || 'unknown',
-                type: actualSearchType || undefined,
-                query: actualQuery || actualTitle,
-              };
-            } else {
-              payload = {
-                mode: 'search',
-                keyword: actualQuery || actualTitle,
-                expectedTitle: actualTitle || undefined,
-                expectedYear: actualYear || undefined,
-                expectedType: actualSearchType || undefined,
-              };
-            }
-          } else if (actualSource && actualId) {
-            payload = {
-              mode: 'direct',
-              source: actualSource,
-              id: actualId,
-              title: actualTitle,
-              year: actualYear || 'unknown',
-              type: actualSearchType || undefined,
-              query: actualQuery || actualTitle,
-            };
-          } else {
-            payload = {
-              mode: 'search',
-              keyword: actualQuery || actualTitle,
-              expectedTitle: actualTitle || undefined,
-              expectedYear: actualYear || undefined,
-              expectedType: actualSearchType || undefined,
-            };
-          }
+          const payload = buildPlaySessionPayload({
+            from,
+            playGroup: play_group,
+            title: actualTitle,
+            year: actualYear,
+            searchType: actualSearchType,
+            query: actualQuery,
+            source: actualSource,
+            id: actualId,
+          });
 
           const resp = await fetch('/api/play/sessions', {
             method: 'POST',
@@ -324,8 +279,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             throw new Error(data.error || '创建播放会话失败');
           }
 
-          const playSessionId = encodeURIComponent(data.play_session_id);
-          const url = `/play?ps=${playSessionId}`;
+          const url = buildPlaySessionUrl(String(data.play_session_id));
           if (openInNewTab) {
             window.open(url, '_blank');
           } else {
@@ -616,31 +570,15 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
 
     return (
       <>
-        <div
-          className='group relative w-full cursor-pointer rounded-lg bg-transparent transition-all duration-300 ease-in-out hover:z-50 hover:scale-[1.05]'
+        <VideoCardView
           onClick={handleClick}
-          {...longPressProps}
-          style={
-            {
-              // 禁用所有默认的长按和选择效果
-              WebkitUserSelect: 'none',
-              userSelect: 'none',
-              WebkitTouchCallout: 'none',
-              WebkitTapHighlightColor: 'transparent',
-              touchAction: 'manipulation',
-              // 禁用右键菜单和长按菜单
-              pointerEvents: 'auto',
-            } as React.CSSProperties
-          }
+          gestureProps={longPressProps}
           onContextMenu={(e) => {
-            // 阻止默认右键菜单
             e.preventDefault();
             e.stopPropagation();
 
-            // 右键弹出操作菜单
             setShowMobileActions(true);
 
-            // 异步检查收藏状态，不阻塞菜单显示
             if (
               from === 'search' &&
               !isAggregate &&
@@ -654,7 +592,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             return false;
           }}
           onDragStart={(e) => {
-            // 阻止拖拽
             e.preventDefault();
             return false;
           }}
@@ -905,7 +842,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
               </span>
             )}
           </div>
-        </div>
+        </VideoCardView>
 
         {/* 操作菜单 - 支持右键和长按触发 */}
         <MobileActionSheet
