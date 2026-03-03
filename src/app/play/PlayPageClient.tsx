@@ -4,7 +4,7 @@
 
 import { Heart } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   deleteFavorite,
@@ -26,7 +26,10 @@ import EpisodeSelector from '@/components/EpisodeSelector';
 
 import { PlayErrorView } from '@/app/play/components/play-error-view';
 import { PlayLoadingView } from '@/app/play/components/play-loading-view';
+import { PlayPageContainer } from '@/app/play/components/play-page-container';
 import { useArtPlayerInstance } from '@/app/play/hooks/use-art-player-instance';
+import { usePlayPageActions } from '@/app/play/hooks/use-play-page-actions';
+import { usePlayPageState } from '@/app/play/hooks/use-play-page-state';
 import { usePlayProgress } from '@/app/play/hooks/use-play-progress';
 import { useWakeLock } from '@/app/play/hooks/use-wake-lock';
 
@@ -49,13 +52,47 @@ function PlayPageClient() {
   // -----------------------------------------------------------------------------
   // 状态变量（State）
   // -----------------------------------------------------------------------------
-  const [loading, setLoading] = useState(true);
-  const [loadingStage, setLoadingStage] = useState<
-    'searching' | 'fetching' | 'ready'
-  >('fetching');
-  const [loadingMessage, setLoadingMessage] = useState('正在加载播放信息...');
-  const [error, setError] = useState<string | null>(null);
-  const [detail, setDetail] = useState<SearchResult | null>(null);
+  const {
+    loading,
+    setLoading,
+    loadingStage,
+    setLoadingStage,
+    loadingMessage,
+    setLoadingMessage,
+    error,
+    setError,
+    detail,
+    setDetail,
+    videoTitle,
+    setVideoTitle,
+    videoYear,
+    setVideoYear,
+    videoCover,
+    setVideoCover,
+    videoDoubanId,
+    setVideoDoubanId,
+    currentSource,
+    setCurrentSource,
+    currentId,
+    setCurrentId,
+    searchTitle,
+    currentEpisodeIndex,
+    setCurrentEpisodeIndex,
+    totalEpisodes,
+    availableSources,
+    setAvailableSources,
+    sourceSearchLoading,
+    setSourceSearchLoading,
+    sourceSearchError,
+    setSourceSearchError,
+    isEpisodeSelectorCollapsed,
+    setIsEpisodeSelectorCollapsed,
+    isVideoLoading,
+    setIsVideoLoading,
+    videoLoadingStage,
+    setVideoLoadingStage,
+    handleBootstrapSuccess,
+  } = usePlayPageState();
 
   // 收藏状态
   const [favorited, setFavorited] = useState(false);
@@ -98,18 +135,6 @@ function PlayPageClient() {
 
   // 视频基本信息
   const playSessionId = searchParams.get('ps') || '';
-  const [videoTitle, setVideoTitle] = useState('');
-  const [videoYear, setVideoYear] = useState('');
-  const [videoCover, setVideoCover] = useState('');
-  const [videoDoubanId, setVideoDoubanId] = useState(0);
-  // 当前源和ID
-  const [currentSource, setCurrentSource] = useState('');
-  const [currentId, setCurrentId] = useState('');
-
-  // 搜索所需信息
-  const [searchTitle, setSearchTitle] = useState('');
-  // 集数相关
-  const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
 
   const currentSourceRef = useRef(currentSource);
   const currentIdRef = useRef(currentId);
@@ -135,39 +160,8 @@ function PlayPageClient() {
     videoYear,
   ]);
 
-  const handleBootstrapSuccess = useCallback(
-    (payload: {
-      detail: SearchResult;
-      availableSources: SearchResult[];
-      searchTitle: string;
-      currentSource: string;
-      currentId: string;
-      title: string;
-      year: string;
-    }) => {
-      const detailData = payload.detail;
-      setError(null);
-      setAvailableSources(payload.availableSources);
-      setSearchTitle(payload.searchTitle);
-      setCurrentSource(payload.currentSource);
-      setCurrentId(payload.currentId);
-      setVideoYear(payload.year);
-      setVideoTitle(payload.title);
-      setVideoCover(detailData.poster || '');
-      setVideoDoubanId(detailData.douban_id || 0);
-      setDetail(detailData);
-      setCurrentEpisodeIndex((prev) =>
-        prev >= detailData.episodes.length ? 0 : prev,
-      );
-    },
-    [],
-  );
-
   // 视频播放地址
   const [videoUrl, setVideoUrl] = useState('');
-
-  // 总集数
-  const totalEpisodes = detail?.episodes?.length || 0;
 
   // 用于记录是否需要在播放器 ready 后跳转到指定进度
   const resumeTimeRef = useRef<number | null>(null);
@@ -175,23 +169,6 @@ function PlayPageClient() {
   const lastVolumeRef = useRef<number>(0.7);
   // 上次使用的播放速率，默认 1.0
   const lastPlaybackRateRef = useRef<number>(1.0);
-
-  // 换源相关状态
-  const [availableSources, setAvailableSources] = useState<SearchResult[]>([]);
-  const [sourceSearchLoading, setSourceSearchLoading] = useState(false);
-  const [sourceSearchError, setSourceSearchError] = useState<string | null>(
-    null,
-  );
-
-  // 折叠状态（仅在 lg 及以上屏幕有效）
-  const [isEpisodeSelectorCollapsed, setIsEpisodeSelectorCollapsed] =
-    useState(false);
-
-  // 换源加载状态
-  const [isVideoLoading, setIsVideoLoading] = useState(true);
-  const [videoLoadingStage, setVideoLoadingStage] = useState<
-    'initing' | 'sourceChanging'
-  >('initing');
 
   const {
     artPlayerRef,
@@ -603,42 +580,6 @@ function PlayPageClient() {
   }, []);
 
   // ---------------------------------------------------------------------------
-  // 集数切换
-  // ---------------------------------------------------------------------------
-  // 处理集数切换
-  const handleEpisodeChange = (episodeNumber: number) => {
-    if (episodeNumber >= 0 && episodeNumber < totalEpisodes) {
-      // 在更换集数前保存当前播放进度
-      if (artPlayerRef.current && artPlayerRef.current.paused) {
-        saveCurrentPlayProgress();
-      }
-      setCurrentEpisodeIndex(episodeNumber);
-    }
-  };
-
-  const handlePreviousEpisode = () => {
-    const d = detailRef.current;
-    const idx = currentEpisodeIndexRef.current;
-    if (d && d.episodes && idx > 0) {
-      if (artPlayerRef.current && !artPlayerRef.current.paused) {
-        saveCurrentPlayProgress();
-      }
-      setCurrentEpisodeIndex(idx - 1);
-    }
-  };
-
-  const handleNextEpisode = () => {
-    const d = detailRef.current;
-    const idx = currentEpisodeIndexRef.current;
-    if (d && d.episodes && idx < d.episodes.length - 1) {
-      if (artPlayerRef.current && !artPlayerRef.current.paused) {
-        saveCurrentPlayProgress();
-      }
-      setCurrentEpisodeIndex(idx + 1);
-    }
-  };
-
-  // ---------------------------------------------------------------------------
   // 键盘快捷键
   // ---------------------------------------------------------------------------
   // 处理全局快捷键
@@ -769,6 +710,15 @@ function PlayPageClient() {
       console.error('保存播放进度失败:', err);
     }
   };
+  const { handleEpisodeChange, handlePreviousEpisode, handleNextEpisode } =
+    usePlayPageActions({
+      totalEpisodes,
+      detailRef,
+      currentEpisodeIndexRef,
+      artPlayerRef,
+      setCurrentEpisodeIndex,
+      saveCurrentPlayProgress,
+    });
   const { bindPlayer: bindProgressEvents } = usePlayProgress(
     saveCurrentPlayProgress,
   );
@@ -1323,246 +1273,240 @@ function PlayPageClient() {
   }
 
   return (
-    <>
-      <div className='flex flex-col gap-4 px-5 py-4 lg:px-12 2xl:px-20'>
-        {/* 第一行：影片标题 */}
-        <div className='border-border/60 bg-card/40 rounded-xl border px-4 py-3'>
-          <h1 className='text-foreground text-xl font-semibold'>
-            {videoTitle || '影片标题'}
-            {totalEpisodes > 1 && (
-              <span className='text-muted-foreground ml-1'>
-                {` > ${detail?.episodes_titles?.[currentEpisodeIndex] || `第 ${currentEpisodeIndex + 1} 集`}`}
-              </span>
-            )}
-          </h1>
-        </div>
-        {/* 第二行：播放器和选集 */}
-        <div className='space-y-2'>
-          {/* 折叠控制 - 仅在 lg 及以上屏幕显示 */}
-          <div className='hidden justify-end lg:flex'>
-            <button
-              onClick={() =>
-                setIsEpisodeSelectorCollapsed(!isEpisodeSelectorCollapsed)
-              }
-              className='bg-card/80 hover:bg-card/80 dark:hover:bg-card border-border/50 group relative flex items-center space-x-1.5 rounded-full border px-3 py-1.5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md'
-              title={
-                isEpisodeSelectorCollapsed ? '显示选集面板' : '隐藏选集面板'
-              }
+    <PlayPageContainer>
+      {/* 第一行：影片标题 */}
+      <div className='border-border/60 bg-card/40 rounded-xl border px-4 py-3'>
+        <h1 className='text-foreground text-xl font-semibold'>
+          {videoTitle || '影片标题'}
+          {totalEpisodes > 1 && (
+            <span className='text-muted-foreground ml-1'>
+              {` > ${detail?.episodes_titles?.[currentEpisodeIndex] || `第 ${currentEpisodeIndex + 1} 集`}`}
+            </span>
+          )}
+        </h1>
+      </div>
+      {/* 第二行：播放器和选集 */}
+      <div className='space-y-2'>
+        {/* 折叠控制 - 仅在 lg 及以上屏幕显示 */}
+        <div className='hidden justify-end lg:flex'>
+          <button
+            onClick={() =>
+              setIsEpisodeSelectorCollapsed(!isEpisodeSelectorCollapsed)
+            }
+            className='bg-card/80 hover:bg-card/80 dark:hover:bg-card border-border/50 group relative flex items-center space-x-1.5 rounded-full border px-3 py-1.5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md'
+            title={isEpisodeSelectorCollapsed ? '显示选集面板' : '隐藏选集面板'}
+          >
+            <svg
+              className={`text-muted-foreground h-3.5 w-3.5 transition-transform duration-200 ${
+                isEpisodeSelectorCollapsed ? 'rotate-180' : 'rotate-0'
+              }`}
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
             >
-              <svg
-                className={`text-muted-foreground h-3.5 w-3.5 transition-transform duration-200 ${
-                  isEpisodeSelectorCollapsed ? 'rotate-180' : 'rotate-0'
-                }`}
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='M9 5l7 7-7 7'
-                />
-              </svg>
-              <span className='text-foreground text-xs font-medium'>
-                {isEpisodeSelectorCollapsed ? '显示' : '隐藏'}
-              </span>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
+                d='M9 5l7 7-7 7'
+              />
+            </svg>
+            <span className='text-foreground text-xs font-medium'>
+              {isEpisodeSelectorCollapsed ? '显示' : '隐藏'}
+            </span>
 
-              {/* 精致的状态指示点 */}
-              <div
-                className={`absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full transition-all duration-200 ${
-                  isEpisodeSelectorCollapsed
-                    ? 'bg-warning animate-pulse'
-                    : 'bg-primary'
-                }`}
-              ></div>
-            </button>
-          </div>
+            {/* 精致的状态指示点 */}
+            <div
+              className={`absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full transition-all duration-200 ${
+                isEpisodeSelectorCollapsed
+                  ? 'bg-warning animate-pulse'
+                  : 'bg-primary'
+              }`}
+            ></div>
+          </button>
+        </div>
 
+        <div
+          className={`lg:h-125 xl:h-162.5 grid gap-4 transition-all duration-300 ease-in-out ${
+            isEpisodeSelectorCollapsed
+              ? 'grid-cols-1'
+              : 'grid-cols-1 md:grid-cols-[minmax(0,1fr)_320px]'
+          }`}
+        >
+          {/* 播放器 */}
           <div
-            className={`lg:h-125 xl:h-162.5 grid gap-4 transition-all duration-300 ease-in-out ${
-              isEpisodeSelectorCollapsed
-                ? 'grid-cols-1'
-                : 'grid-cols-1 md:grid-cols-[minmax(0,1fr)_320px]'
+            className={`border-border/70 bg-card/25 h-full rounded-xl border shadow-sm transition-all duration-300 ease-in-out ${
+              isEpisodeSelectorCollapsed ? 'col-span-1' : 'md:col-span-1'
             }`}
           >
-            {/* 播放器 */}
-            <div
-              className={`border-border/70 bg-card/25 h-full rounded-xl border shadow-sm transition-all duration-300 ease-in-out ${
-                isEpisodeSelectorCollapsed ? 'col-span-1' : 'md:col-span-1'
-              }`}
-            >
-              <div className='h-75 relative w-full lg:h-full'>
-                <div
-                  ref={artRef}
-                  className='bg-card h-full w-full overflow-hidden rounded-xl shadow-sm'
-                ></div>
+            <div className='h-75 relative w-full lg:h-full'>
+              <div
+                ref={artRef}
+                className='bg-card h-full w-full overflow-hidden rounded-xl shadow-sm'
+              ></div>
 
-                {/* 换源加载蒙层 */}
-                {isVideoLoading && (
-                  <div className='bg-background/88 z-500 absolute inset-0 flex items-center justify-center rounded-xl backdrop-blur-md transition-all duration-300'>
-                    <div className='mx-auto max-w-md px-6 text-center'>
-                      {/* 动画影院图标 */}
-                      <div className='relative mb-8'>
-                        <div className='bg-primary/90 relative mx-auto flex h-24 w-24 transform items-center justify-center rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-105'>
-                          <div className='text-4xl text-white'>🎬</div>
-                          {/* 旋转光环 */}
-                          <div className='bg-primary absolute -inset-2 animate-spin rounded-2xl opacity-20'></div>
-                        </div>
-
-                        {/* 浮动粒子效果 */}
-                        <div className='pointer-events-none absolute left-0 top-0 h-full w-full'>
-                          <div className='bg-primary absolute left-2 top-2 h-2 w-2 animate-bounce rounded-full'></div>
-                          <div
-                            className='bg-primary absolute right-4 top-4 h-1.5 w-1.5 animate-bounce rounded-full'
-                            style={{ animationDelay: '0.5s' }}
-                          ></div>
-                          <div
-                            className='bg-primary absolute bottom-4 left-4 h-2 w-2 animate-bounce rounded-full'
-                            style={{ animationDelay: '1s' }}
-                          ></div>
-                        </div>
+              {/* 换源加载蒙层 */}
+              {isVideoLoading && (
+                <div className='bg-background/88 z-500 absolute inset-0 flex items-center justify-center rounded-xl backdrop-blur-md transition-all duration-300'>
+                  <div className='mx-auto max-w-md px-6 text-center'>
+                    {/* 动画影院图标 */}
+                    <div className='relative mb-8'>
+                      <div className='bg-primary/90 relative mx-auto flex h-24 w-24 transform items-center justify-center rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-105'>
+                        <div className='text-4xl text-white'>🎬</div>
+                        {/* 旋转光环 */}
+                        <div className='bg-primary absolute -inset-2 animate-spin rounded-2xl opacity-20'></div>
                       </div>
 
-                      {/* 换源消息 */}
-                      <div className='space-y-2'>
-                        <p className='text-foreground animate-pulse text-xl font-semibold tracking-wide'>
-                          {videoLoadingStage === 'sourceChanging'
-                            ? '🔄 切换播放源...'
-                            : '🔄 视频加载中...'}
-                        </p>
+                      {/* 浮动粒子效果 */}
+                      <div className='pointer-events-none absolute left-0 top-0 h-full w-full'>
+                        <div className='bg-primary absolute left-2 top-2 h-2 w-2 animate-bounce rounded-full'></div>
+                        <div
+                          className='bg-primary absolute right-4 top-4 h-1.5 w-1.5 animate-bounce rounded-full'
+                          style={{ animationDelay: '0.5s' }}
+                        ></div>
+                        <div
+                          className='bg-primary absolute bottom-4 left-4 h-2 w-2 animate-bounce rounded-full'
+                          style={{ animationDelay: '1s' }}
+                        ></div>
                       </div>
                     </div>
+
+                    {/* 换源消息 */}
+                    <div className='space-y-2'>
+                      <p className='text-foreground animate-pulse text-xl font-semibold tracking-wide'>
+                        {videoLoadingStage === 'sourceChanging'
+                          ? '🔄 切换播放源...'
+                          : '🔄 视频加载中...'}
+                      </p>
+                    </div>
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* 选集和换源 - 在移动端始终显示，在 lg 及以上可折叠 */}
-            <div
-              className={`h-75 transition-all duration-300 ease-in-out md:overflow-hidden lg:h-full ${
-                isEpisodeSelectorCollapsed
-                  ? 'lg:hidden lg:scale-95 lg:opacity-0'
-                  : 'lg:scale-100 lg:opacity-100'
-              }`}
-            >
-              <EpisodeSelector
-                totalEpisodes={totalEpisodes}
-                episodes_titles={detail?.episodes_titles || []}
-                value={currentEpisodeIndex + 1}
-                onChange={handleEpisodeChange}
-                onSourceChange={handleSourceChange}
-                currentSource={currentSource}
-                currentId={currentId}
-                videoTitle={searchTitle || videoTitle}
-                availableSources={availableSources}
-                sourceSearchLoading={sourceSearchLoading}
-                sourceSearchError={sourceSearchError}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 详情展示 */}
-        <div className='border-border/60 bg-card/45 flex min-h-80 flex-col rounded-xl border p-6 shadow-sm'>
-          {/* 标题 */}
-          <h1 className='mb-3 flex w-full shrink-0 items-center text-center text-3xl font-bold tracking-wide md:text-left'>
-            {videoTitle || '影片标题'}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleFavorite();
-              }}
-              className='ml-3 shrink-0 transition-opacity hover:opacity-80'
-            >
-              <FavoriteIcon filled={favorited} />
-            </button>
-          </h1>
-
-          {/* 关键信息行 */}
-          <div className='text-foreground mb-4 flex shrink-0 flex-wrap items-center gap-2 text-sm'>
-            {detail?.score &&
-              detail.score !== '0.0' &&
-              detail.score !== '0' && (
-                <span className='bg-warning/12 text-warning rounded-md px-2 py-1 text-sm font-semibold'>
-                  {detail.score} 分
-                </span>
-              )}
-            {detail?.class && (
-              <span className='bg-primary/12 text-primary rounded-md px-2 py-1 font-medium'>
-                {detail.class}
-              </span>
-            )}
-            {(detail?.year || videoYear) && (
-              <span className='bg-muted/70 rounded-md px-2 py-1'>
-                {detail?.year || videoYear}
-              </span>
-            )}
-            {detail?.area && (
-              <span className='bg-muted/70 rounded-md px-2 py-1'>
-                {detail.area}
-              </span>
-            )}
-            {detail?.lang && (
-              <span className='bg-muted/70 rounded-md px-2 py-1'>
-                {detail.lang}
-              </span>
-            )}
-            {detail?.source_name && (
-              <span className='border-border/70 bg-card rounded-md border px-2 py-1'>
-                {detail.source_name}
-              </span>
-            )}
-            {detail?.type_name && (
-              <span className='bg-muted/70 rounded-md px-2 py-1'>
-                {detail.type_name}
-              </span>
-            )}
-            {videoDoubanId !== 0 && (
-              <a
-                href={`https://movie.douban.com/subject/${videoDoubanId.toString()}`}
-                target='_blank'
-                rel='noopener noreferrer'
-                className='border-success/30 bg-success/12 text-success rounded-md border px-2 py-1 font-medium transition-opacity hover:opacity-85'
-              >
-                豆瓣
-              </a>
-            )}
-          </div>
-
-          {/* 演职员信息 */}
-          {(detail?.directors || detail?.actors) && (
-            <div className='text-muted-foreground mb-4 space-y-1 text-sm leading-6'>
-              {detail?.directors && (
-                <div className='line-clamp-1'>
-                  <span className='text-foreground mr-2 font-semibold'>
-                    导演:
-                  </span>
-                  {detail.directors}
-                </div>
-              )}
-              {detail?.actors && (
-                <div className='line-clamp-2'>
-                  <span className='text-foreground mr-2 font-semibold'>
-                    主演:
-                  </span>
-                  {detail.actors}
                 </div>
               )}
             </div>
-          )}
-          {/* 剧情简介 */}
-          {detail?.desc && (
-            <div
-              className='scrollbar-hide border-border/60 bg-muted/35 text-foreground mt-0 min-h-0 flex-1 overflow-y-auto rounded-lg border px-3 py-3 pr-2 text-sm leading-7 md:text-base'
-              style={{ whiteSpace: 'pre-line' }}
-            >
-              {detail.desc}
-            </div>
-          )}
+          </div>
+
+          {/* 选集和换源 - 在移动端始终显示，在 lg 及以上可折叠 */}
+          <div
+            className={`h-75 transition-all duration-300 ease-in-out md:overflow-hidden lg:h-full ${
+              isEpisodeSelectorCollapsed
+                ? 'lg:hidden lg:scale-95 lg:opacity-0'
+                : 'lg:scale-100 lg:opacity-100'
+            }`}
+          >
+            <EpisodeSelector
+              totalEpisodes={totalEpisodes}
+              episodes_titles={detail?.episodes_titles || []}
+              value={currentEpisodeIndex + 1}
+              onChange={handleEpisodeChange}
+              onSourceChange={handleSourceChange}
+              currentSource={currentSource}
+              currentId={currentId}
+              videoTitle={searchTitle || videoTitle}
+              availableSources={availableSources}
+              sourceSearchLoading={sourceSearchLoading}
+              sourceSearchError={sourceSearchError}
+            />
+          </div>
         </div>
       </div>
-    </>
+
+      {/* 详情展示 */}
+      <div className='border-border/60 bg-card/45 flex min-h-80 flex-col rounded-xl border p-6 shadow-sm'>
+        {/* 标题 */}
+        <h1 className='mb-3 flex w-full shrink-0 items-center text-center text-3xl font-bold tracking-wide md:text-left'>
+          {videoTitle || '影片标题'}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleFavorite();
+            }}
+            className='ml-3 shrink-0 transition-opacity hover:opacity-80'
+          >
+            <FavoriteIcon filled={favorited} />
+          </button>
+        </h1>
+
+        {/* 关键信息行 */}
+        <div className='text-foreground mb-4 flex shrink-0 flex-wrap items-center gap-2 text-sm'>
+          {detail?.score && detail.score !== '0.0' && detail.score !== '0' && (
+            <span className='bg-warning/12 text-warning rounded-md px-2 py-1 text-sm font-semibold'>
+              {detail.score} 分
+            </span>
+          )}
+          {detail?.class && (
+            <span className='bg-primary/12 text-primary rounded-md px-2 py-1 font-medium'>
+              {detail.class}
+            </span>
+          )}
+          {(detail?.year || videoYear) && (
+            <span className='bg-muted/70 rounded-md px-2 py-1'>
+              {detail?.year || videoYear}
+            </span>
+          )}
+          {detail?.area && (
+            <span className='bg-muted/70 rounded-md px-2 py-1'>
+              {detail.area}
+            </span>
+          )}
+          {detail?.lang && (
+            <span className='bg-muted/70 rounded-md px-2 py-1'>
+              {detail.lang}
+            </span>
+          )}
+          {detail?.source_name && (
+            <span className='border-border/70 bg-card rounded-md border px-2 py-1'>
+              {detail.source_name}
+            </span>
+          )}
+          {detail?.type_name && (
+            <span className='bg-muted/70 rounded-md px-2 py-1'>
+              {detail.type_name}
+            </span>
+          )}
+          {videoDoubanId !== 0 && (
+            <a
+              href={`https://movie.douban.com/subject/${videoDoubanId.toString()}`}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='border-success/30 bg-success/12 text-success rounded-md border px-2 py-1 font-medium transition-opacity hover:opacity-85'
+            >
+              豆瓣
+            </a>
+          )}
+        </div>
+
+        {/* 演职员信息 */}
+        {(detail?.directors || detail?.actors) && (
+          <div className='text-muted-foreground mb-4 space-y-1 text-sm leading-6'>
+            {detail?.directors && (
+              <div className='line-clamp-1'>
+                <span className='text-foreground mr-2 font-semibold'>
+                  导演:
+                </span>
+                {detail.directors}
+              </div>
+            )}
+            {detail?.actors && (
+              <div className='line-clamp-2'>
+                <span className='text-foreground mr-2 font-semibold'>
+                  主演:
+                </span>
+                {detail.actors}
+              </div>
+            )}
+          </div>
+        )}
+        {/* 剧情简介 */}
+        {detail?.desc && (
+          <div
+            className='scrollbar-hide border-border/60 bg-muted/35 text-foreground mt-0 min-h-0 flex-1 overflow-y-auto rounded-lg border px-3 py-3 pr-2 text-sm leading-7 md:text-base'
+            style={{ whiteSpace: 'pre-line' }}
+          >
+            {detail.desc}
+          </div>
+        )}
+      </div>
+    </PlayPageContainer>
   );
 }
 
