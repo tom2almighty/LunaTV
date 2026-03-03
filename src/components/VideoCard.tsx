@@ -324,7 +324,8 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             throw new Error(data.error || '创建播放会话失败');
           }
 
-          const url = `/play?ps=${encodeURIComponent(data.play_session_id)}`;
+          const playSessionId = encodeURIComponent(data.play_session_id);
+          const url = `/play?ps=${playSessionId}`;
           if (openInNewTab) {
             window.open(url, '_blank');
           } else {

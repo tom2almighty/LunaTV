@@ -98,13 +98,6 @@ function PlayPageClient() {
 
   // 视频基本信息
   const playSessionId = searchParams.get('ps') || '';
-  const fallbackSource = searchParams.get('source') || '';
-  const fallbackId = searchParams.get('id') || '';
-  const fallbackTitle = searchParams.get('title') || '';
-  const fallbackYear = searchParams.get('year') || '';
-  const fallbackSearchTitle = searchParams.get('stitle') || '';
-  const fallbackSourceName = searchParams.get('sname') || '';
-  const fallbackType = searchParams.get('stype') || '';
   const [videoTitle, setVideoTitle] = useState('');
   const [videoYear, setVideoYear] = useState('');
   const [videoCover, setVideoCover] = useState('');
@@ -213,13 +206,6 @@ function PlayPageClient() {
   usePlaySessionBootstrap(
     {
       playSessionId,
-      fallbackSource,
-      fallbackId,
-      fallbackTitle,
-      fallbackYear,
-      fallbackSearchTitle,
-      fallbackSourceName,
-      fallbackType,
     },
     {
       setLoading,
