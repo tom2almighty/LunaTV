@@ -16,7 +16,7 @@ export const runtime = 'nodejs';
 const HISTORY_LIMIT = 20;
 
 /**
- * GET /api/searchhistory
+ * GET /api/user/search-history
  * 返回 string[]
  */
 export async function GET(request: NextRequest) {
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * POST /api/searchhistory
+ * POST /api/user/search-history
  * body: { keyword: string }
  */
 export async function POST(request: NextRequest) {
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * DELETE /api/searchhistory?keyword=<kw>
+ * DELETE /api/user/search-history?keyword=<kw>
  *
  * 1. 不带 keyword -> 清空全部搜索历史
  * 2. 带 keyword=<kw> -> 删除单条关键字

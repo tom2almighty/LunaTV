@@ -76,7 +76,7 @@ services:
   - `api`：资源站提供的 `vod` JSON API 根地址。
   - `name`：在界面中展示的名称。
   - `detail`：（可选）部分无法通过 API 获取剧集详情的站点，需要提供网页详情根 URL，用于爬取。
-MoonTV 支持标准的苹果 CMS V10 API 格式。
+    MoonTV 支持标准的苹果 CMS V10 API 格式。
 
 #### 订阅
 
@@ -136,6 +136,16 @@ MoonTV 支持标准的苹果 CMS V10 API 格式。
 - 如因公开分享导致的任何法律问题，用户需自行承担责任
 - 项目开发者不对用户的使用行为承担任何法律责任
 - 本项目不在中国大陆地区提供服务。如有该项目在向中国大陆地区提供服务，属个人行为。在该地区使用所产生的法律风险及责任，属于用户个人行为，与本项目无关，须自行承担全部责任。特此声明
+
+## RESTful API Contract (2026-03)
+
+- Legacy compatibility endpoints and snake_case admin paths were removed.
+- Play page URL contract is session-only: `/play?ps=<play_session_id>`.
+- All play session operations use REST resources:
+  - `POST /api/play/sessions`
+  - `GET /api/play/sessions/{sessionId}`
+  - `PATCH /api/play/sessions/{sessionId}`
+- Full route map is documented in `docs/plans/2026-03-02-restful-api-route-map.md`.
 
 ## License
 
