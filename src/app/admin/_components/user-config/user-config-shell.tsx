@@ -926,7 +926,7 @@ export const UserConfigShell = ({
                 );
                 return (
                   <tbody className='divide-border divide-y'>
-                    {sortedUsers.map((user) => {
+                    {sortedUsers.map((user, index) => {
                       // 修改密码权限：站长可修改管理员和普通用户密码，管理员可修改普通用户和自己的密码，但任何人都不能修改站长密码
                       const canChangePassword =
                         user.role !== 'owner' && // 不能修改站长密码
@@ -948,7 +948,7 @@ export const UserConfigShell = ({
                           (role === 'admin' && user.role === 'user'));
                       return (
                         <tr
-                          key={user.username}
+                          key={`${user.username}-${index}`}
                           className='hover:bg-muted transition-colors'
                         >
                           <td className='w-4' />

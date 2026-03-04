@@ -11,6 +11,10 @@ describe('admin user routes', () => {
       'src/app/admin/_components/UserConfig.tsx',
       'utf8',
     );
+    const userConfigShellContent = readFileSync(
+      'src/app/admin/_components/user-config/user-config-shell.tsx',
+      'utf8',
+    );
     const userGroupActionsContent = readFileSync(
       'src/app/admin/_components/user-config/user-group-actions.ts',
       'utf8',
@@ -26,5 +30,8 @@ describe('admin user routes', () => {
     expect(/\/api\/admin\/user['"`]/.test(merged)).toBe(false);
     expect(merged.includes('/api/admin/users')).toBe(true);
     expect(merged.includes('/api/admin/user-groups')).toBe(true);
+    expect(userConfigShellContent).toMatch(
+      /key=\{`\$\{user\.username\}-\$\{index\}`\}/,
+    );
   });
 });
