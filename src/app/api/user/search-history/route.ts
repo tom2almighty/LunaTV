@@ -2,13 +2,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-import {
-  addSearchHistory,
-  deleteSearchHistory,
-  getSearchHistory,
-} from '@/lib/db.server';
-
 import { executeApiHandler } from '@/server/api/handler';
+import { userDataRepository } from '@/server/repositories/user-data-repository';
 
 export const runtime = 'nodejs';
 
@@ -23,7 +18,9 @@ export async function GET(request: NextRequest) {
   return executeApiHandler(
     request,
     async ({ username }) => {
-      const history = await getSearchHistory(username as string);
+      const history = await userDataRepository.getSearchHistory(
+        username as string,
+      );
       return history;
     },
     { requireAuth: true, responseShape: 'raw' },
@@ -48,9 +45,11 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      await addSearchHistory(username as string, keyword);
+      await userDataRepository.addSearchHistory(username as string, keyword);
 
-      const history = await getSearchHistory(username as string);
+      const history = await userDataRepository.getSearchHistory(
+        username as string,
+      );
       return history.slice(0, HISTORY_LIMIT);
     },
     { requireAuth: true, responseShape: 'raw' },
@@ -67,7 +66,7 @@ export async function DELETE(request: NextRequest) {
   return executeApiHandler(
     request,
     async ({ username }) => {
-      await deleteSearchHistory(username as string);
+      await userDataRepository.deleteSearchHistory(username as string);
       return { success: true };
     },
     { requireAuth: true, responseShape: 'raw' },

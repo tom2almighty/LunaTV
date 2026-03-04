@@ -2,10 +2,9 @@
 
 import { NextRequest } from 'next/server';
 
-import { deleteSearchHistory } from '@/lib/db.server';
-
 import { executeApiHandler } from '@/server/api/handler';
 import { jsonError } from '@/server/api/http';
+import { userDataRepository } from '@/server/repositories/user-data-repository';
 
 export const runtime = 'nodejs';
 
@@ -23,7 +22,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
         return jsonError('Keyword is required', 400);
       }
 
-      await deleteSearchHistory(username as string, trimmed);
+      await userDataRepository.deleteSearchHistory(username as string, trimmed);
       return { success: true };
     },
     { requireAuth: true, responseShape: 'raw' },

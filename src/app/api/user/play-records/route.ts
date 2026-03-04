@@ -2,16 +2,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-import {
-  deleteAllPlayRecords,
-  getAllPlayRecords,
-  savePlayRecord,
-} from '@/lib/db.server';
 import { PlayRecord } from '@/lib/types';
 
 import { executeApiHandler } from '@/server/api/handler';
 import { jsonError } from '@/server/api/http';
 import { parseResourceIdentity } from '@/server/api/validation';
+import { userDataRepository } from '@/server/repositories/user-data-repository';
 
 export const runtime = 'nodejs';
 
@@ -19,7 +15,9 @@ export async function GET(request: NextRequest) {
   return executeApiHandler(
     request,
     async ({ username }) => {
-      const records = await getAllPlayRecords(username as string);
+      const records = await userDataRepository.getAllPlayRecords(
+        username as string,
+      );
       return records;
     },
     { requireAuth: true, responseShape: 'raw' },
@@ -74,7 +72,7 @@ export async function POST(request: NextRequest) {
         save_time: record.save_time ?? Date.now(),
       } as PlayRecord;
 
-      await savePlayRecord(
+      await userDataRepository.savePlayRecord(
         username as string,
         identity.source,
         identity.videoId,
@@ -91,7 +89,7 @@ export async function DELETE(request: NextRequest) {
   return executeApiHandler(
     request,
     async ({ username }) => {
-      await deleteAllPlayRecords(username as string);
+      await userDataRepository.deleteAllPlayRecords(username as string);
       return { success: true };
     },
     { requireAuth: true, responseShape: 'raw' },

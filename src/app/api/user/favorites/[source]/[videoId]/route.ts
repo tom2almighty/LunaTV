@@ -2,11 +2,10 @@
 
 import { NextRequest } from 'next/server';
 
-import { deleteFavorite, getFavorite } from '@/lib/db.server';
-
 import { executeApiHandler } from '@/server/api/handler';
 import { jsonError } from '@/server/api/http';
 import { parseResourceIdentity } from '@/server/api/validation';
+import { userDataRepository } from '@/server/repositories/user-data-repository';
 
 export const runtime = 'nodejs';
 
@@ -35,7 +34,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         return jsonError('Invalid resource identity', 400);
       }
 
-      const favorite = await getFavorite(
+      const favorite = await userDataRepository.getFavorite(
         username as string,
         identity.source,
         identity.videoId,
@@ -56,7 +55,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
         return jsonError('Invalid resource identity', 400);
       }
 
-      await deleteFavorite(
+      await userDataRepository.deleteFavorite(
         username as string,
         identity.source,
         identity.videoId,

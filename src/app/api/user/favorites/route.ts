@@ -2,16 +2,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-import {
-  deleteAllFavorites,
-  getAllFavorites,
-  saveFavorite,
-} from '@/lib/db.server';
 import { Favorite } from '@/lib/types';
 
 import { executeApiHandler } from '@/server/api/handler';
 import { jsonError } from '@/server/api/http';
 import { parseResourceIdentity } from '@/server/api/validation';
+import { userDataRepository } from '@/server/repositories/user-data-repository';
 
 export const runtime = 'nodejs';
 
@@ -19,7 +15,9 @@ export async function GET(request: NextRequest) {
   return executeApiHandler(
     request,
     async ({ username }) => {
-      const favorites = await getAllFavorites(username as string);
+      const favorites = await userDataRepository.getAllFavorites(
+        username as string,
+      );
       return favorites;
     },
     { requireAuth: true, responseShape: 'raw' },
@@ -77,7 +75,7 @@ export async function POST(request: NextRequest) {
         save_time: favorite.save_time ?? Date.now(),
       } as Favorite;
 
-      await saveFavorite(
+      await userDataRepository.saveFavorite(
         username as string,
         identity.source,
         identity.videoId,
@@ -94,7 +92,7 @@ export async function DELETE(request: NextRequest) {
   return executeApiHandler(
     request,
     async ({ username }) => {
-      await deleteAllFavorites(username as string);
+      await userDataRepository.deleteAllFavorites(username as string);
       return { success: true };
     },
     { requireAuth: true, responseShape: 'raw' },

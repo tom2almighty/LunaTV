@@ -2,12 +2,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getAllSkipConfigs, setSkipConfig } from '@/lib/db.server';
 import { SkipConfig } from '@/lib/types';
 
 import { executeApiHandler } from '@/server/api/handler';
 import { jsonError } from '@/server/api/http';
 import { parseResourceIdentity } from '@/server/api/validation';
+import { userDataRepository } from '@/server/repositories/user-data-repository';
 
 export const runtime = 'nodejs';
 
@@ -15,7 +15,9 @@ export async function GET(request: NextRequest) {
   return executeApiHandler(
     request,
     async ({ username }) => {
-      const configs = await getAllSkipConfigs(username as string);
+      const configs = await userDataRepository.getAllSkipConfigs(
+        username as string,
+      );
       return configs;
     },
     {
@@ -73,7 +75,7 @@ export async function POST(request: NextRequest) {
         outro_time: Number(config.outro_time) || 0,
       };
 
-      await setSkipConfig(
+      await userDataRepository.setSkipConfig(
         username as string,
         identity.source,
         identity.videoId,
