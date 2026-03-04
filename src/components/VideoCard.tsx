@@ -62,6 +62,15 @@ export interface VideoCardProps {
   type?: string;
   isAggregate?: boolean;
   play_group?: SearchResult[];
+  testId?: string;
+  interactionMode?: 'default' | 'preview-first';
+  onOpenPreview?: (payload: {
+    key: string;
+    title: string;
+    sourceCount: number;
+    onPlayNow: () => void;
+  }) => void;
+  onBeforePlayNavigate?: (payload: { key: string; title: string }) => void;
 }
 
 export type VideoCardHandle = {
@@ -91,6 +100,10 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
       type = '',
       isAggregate = false,
       play_group,
+      testId,
+      interactionMode = 'default',
+      onOpenPreview,
+      onBeforePlayNavigate,
     }: VideoCardProps,
     ref,
   ) {
@@ -137,6 +150,8 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
         ? 'movie'
         : 'tv'
       : type;
+    const previewKey = `${actualSource || 'agg'}-${actualId || actualTitle}`;
+    const previewTitle = actualTitle || '未命名';
 
     // 获取收藏状态（搜索结果页面不检查）
     useEffect(() => {
@@ -310,13 +325,66 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
     );
 
     const handleClick = useCallback(() => {
+      if (
+        from === 'search' &&
+        interactionMode === 'preview-first' &&
+        onOpenPreview
+      ) {
+        const previewSourceNames =
+          dynamicSourceNames && dynamicSourceNames.length > 0
+            ? dynamicSourceNames
+            : (play_group || [])
+                .map((item) => item.source_name)
+                .filter((name): name is string => Boolean(name));
+        const uniqueSourceCount = Array.from(
+          new Set(previewSourceNames),
+        ).length;
+        const sourceCount = isAggregate
+          ? Math.max(1, uniqueSourceCount || play_group?.length || 1)
+          : Math.max(1, play_group?.length || 1);
+
+        onOpenPreview({
+          key: previewKey,
+          title: previewTitle,
+          sourceCount,
+          onPlayNow: () => {
+            onBeforePlayNavigate?.({ key: previewKey, title: previewTitle });
+            void executePlayAction(() => createPlaySession(false));
+          },
+        });
+        return;
+      }
+
+      onBeforePlayNavigate?.({ key: previewKey, title: previewTitle });
       void executePlayAction(() => createPlaySession(false));
-    }, [createPlaySession, executePlayAction]);
+    }, [
+      actualId,
+      actualSource,
+      actualTitle,
+      createPlaySession,
+      dynamicSourceNames,
+      executePlayAction,
+      from,
+      interactionMode,
+      isAggregate,
+      onOpenPreview,
+      onBeforePlayNavigate,
+      play_group,
+      previewKey,
+      previewTitle,
+    ]);
 
     // 新标签页播放处理函数
     const handlePlayInNewTab = useCallback(() => {
+      onBeforePlayNavigate?.({ key: previewKey, title: previewTitle });
       void executePlayAction(() => createPlaySession(true));
-    }, [createPlaySession, executePlayAction]);
+    }, [
+      createPlaySession,
+      executePlayAction,
+      onBeforePlayNavigate,
+      previewKey,
+      previewTitle,
+    ]);
 
     // 检查搜索结果的收藏状态
     const checkSearchFavoriteStatus = useCallback(async () => {
@@ -572,6 +640,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
     return (
       <>
         <VideoCardView
+          dataTestId={testId}
           onClick={handleClick}
           gestureProps={longPressProps}
           onContextMenu={(e) => {

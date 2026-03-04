@@ -3,7 +3,7 @@
 'use client';
 
 import { Heart } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import {
@@ -31,6 +31,7 @@ import { useArtPlayerInstance } from '@/app/play/hooks/use-art-player-instance';
 import { usePlayPageActions } from '@/app/play/hooks/use-play-page-actions';
 import { usePlayPageState } from '@/app/play/hooks/use-play-page-state';
 import { usePlayProgress } from '@/app/play/hooks/use-play-progress';
+import { usePlayReturnToSearch } from '@/app/play/hooks/use-play-return-to-search';
 import { useWakeLock } from '@/app/play/hooks/use-wake-lock';
 
 // 扩展 HTMLVideoElement 类型以支持 hls 属性
@@ -46,7 +47,6 @@ type PlayerLibraries = {
 };
 
 export function PlayPlayerRuntime() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // -----------------------------------------------------------------------------
@@ -135,6 +135,7 @@ export function PlayPlayerRuntime() {
 
   // 视频基本信息
   const playSessionId = searchParams.get('ps') || '';
+  const returnToSearch = usePlayReturnToSearch(searchTitle, videoTitle);
 
   const currentSourceRef = useRef(currentSource);
   const currentIdRef = useRef(currentId);
@@ -1262,11 +1263,7 @@ export function PlayPlayerRuntime() {
       <PlayErrorView
         error={error}
         videoTitle={videoTitle}
-        onBack={() =>
-          videoTitle
-            ? router.push(`/search?q=${encodeURIComponent(videoTitle)}`)
-            : router.back()
-        }
+        onBack={returnToSearch}
         onRetry={() => window.location.reload()}
       />
     );
@@ -1276,14 +1273,23 @@ export function PlayPlayerRuntime() {
     <PlayPageContainer>
       {/* 第一行：影片标题 */}
       <div className='border-border/60 bg-card/40 rounded-xl border px-4 py-3'>
-        <h1 className='text-foreground text-xl font-semibold'>
-          {videoTitle || '影片标题'}
-          {totalEpisodes > 1 && (
-            <span className='text-muted-foreground ml-1'>
-              {` > ${detail?.episodes_titles?.[currentEpisodeIndex] || `第 ${currentEpisodeIndex + 1} 集`}`}
-            </span>
-          )}
-        </h1>
+        <div className='flex items-center justify-between gap-3'>
+          <h1 className='text-foreground text-xl font-semibold'>
+            {videoTitle || '影片标题'}
+            {totalEpisodes > 1 && (
+              <span className='text-muted-foreground ml-1'>
+                {` > ${detail?.episodes_titles?.[currentEpisodeIndex] || `第 ${currentEpisodeIndex + 1} 集`}`}
+              </span>
+            )}
+          </h1>
+          <button
+            type='button'
+            onClick={returnToSearch}
+            className='bg-muted text-foreground hover:bg-muted/80 rounded-lg px-3 py-1.5 text-sm font-medium'
+          >
+            返回搜索
+          </button>
+        </div>
       </div>
       {/* 第二行：播放器和选集 */}
       <div className='space-y-2'>
