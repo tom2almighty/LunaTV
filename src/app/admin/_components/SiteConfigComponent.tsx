@@ -38,6 +38,7 @@ export const SiteConfigComponent = ({
     DisableYellowFilter: false,
     FluidSearch: true,
     EnableRegistration: false,
+    M3U8AdFilterEnabled: true,
   });
 
   // 豆瓣数据源相关状态
@@ -69,6 +70,7 @@ export const SiteConfigComponent = ({
         DisableYellowFilter: Boolean(config.SiteConfig.DisableYellowFilter),
         FluidSearch: config.SiteConfig.FluidSearch !== false,
         EnableRegistration: Boolean(config.SiteConfig.EnableRegistration),
+        M3U8AdFilterEnabled: config.SiteConfig.M3U8AdFilterEnabled !== false,
       });
     }
   }, [config]);
@@ -486,6 +488,40 @@ export const SiteConfigComponent = ({
         </div>
         <p className='text-muted-foreground mt-1 text-xs'>
           启用后搜索结果将实时流式返回，提升用户体验。
+        </p>
+      </div>
+
+      {/* m3u8 广告过滤 */}
+      <div>
+        <div className='flex items-center justify-between'>
+          <label className='text-foreground mb-2 block text-sm font-medium'>
+            启用 m3u8 广告过滤
+          </label>
+          <button
+            type='button'
+            onClick={() =>
+              setSiteSettings((prev) => ({
+                ...prev,
+                M3U8AdFilterEnabled: !prev.M3U8AdFilterEnabled,
+              }))
+            }
+            className={`focus:ring-primary relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              siteSettings.M3U8AdFilterEnabled
+                ? buttonStyles.toggleOn
+                : buttonStyles.toggleOff
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full ${buttonStyles.toggleThumb} transition-transform ${
+                siteSettings.M3U8AdFilterEnabled
+                  ? buttonStyles.toggleThumbOn
+                  : buttonStyles.toggleThumbOff
+              }`}
+            />
+          </button>
+        </div>
+        <p className='text-muted-foreground mt-1 text-xs'>
+          关闭后播放器将不再对 m3u8 清单执行广告分段过滤。
         </p>
       </div>
 

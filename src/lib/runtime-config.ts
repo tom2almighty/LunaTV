@@ -7,6 +7,7 @@ export type RuntimeConfig = {
   DOUBAN_IMAGE_PROXY: string;
   DISABLE_YELLOW_FILTER: boolean;
   FLUID_SEARCH: boolean;
+  M3U8_AD_FILTER_ENABLED: boolean;
 };
 
 export function buildRuntimeConfig(siteConfig: SiteConfig): RuntimeConfig {
@@ -17,6 +18,7 @@ export function buildRuntimeConfig(siteConfig: SiteConfig): RuntimeConfig {
     DOUBAN_IMAGE_PROXY: siteConfig.DoubanImageProxy,
     DISABLE_YELLOW_FILTER: siteConfig.DisableYellowFilter,
     FLUID_SEARCH: siteConfig.FluidSearch,
+    M3U8_AD_FILTER_ENABLED: siteConfig.M3U8AdFilterEnabled !== false,
   };
 }
 

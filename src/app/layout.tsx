@@ -45,6 +45,7 @@ export default async function RootLayout({
   const siteName = config.SiteConfig.SiteName;
   const announcement = config.SiteConfig.Announcement;
   const runtimeConfig = buildRuntimeConfig(config.SiteConfig);
+  const runtimeConfigScript = serializeRuntimeConfig(runtimeConfig);
 
   return (
     <html lang='zh-CN' suppressHydrationWarning>
@@ -57,7 +58,7 @@ export default async function RootLayout({
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script
           dangerouslySetInnerHTML={{
-            __html: serializeRuntimeConfig(runtimeConfig),
+            __html: runtimeConfigScript,
           }}
         />
       </head>

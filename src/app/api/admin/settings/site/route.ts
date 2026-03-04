@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
       DisableYellowFilter,
       FluidSearch,
       EnableRegistration,
+      M3U8AdFilterEnabled,
     } = body as {
       SiteName: string;
       Announcement: string;
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
       DisableYellowFilter: boolean;
       FluidSearch: boolean;
       EnableRegistration: boolean;
+      M3U8AdFilterEnabled: boolean;
     };
 
     if (
@@ -58,7 +60,8 @@ export async function POST(request: NextRequest) {
       typeof DoubanImageProxy !== 'string' ||
       typeof DisableYellowFilter !== 'boolean' ||
       typeof FluidSearch !== 'boolean' ||
-      typeof EnableRegistration !== 'boolean'
+      typeof EnableRegistration !== 'boolean' ||
+      typeof M3U8AdFilterEnabled !== 'boolean'
     ) {
       return NextResponse.json({ error: '参数格式错误' }, { status: 400 });
     }
@@ -86,6 +89,7 @@ export async function POST(request: NextRequest) {
       DisableYellowFilter,
       FluidSearch,
       EnableRegistration,
+      M3U8AdFilterEnabled,
     };
 
     await saveAdminConfig(adminConfig);

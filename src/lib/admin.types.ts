@@ -20,6 +20,7 @@ export interface SiteConfig {
   DisableYellowFilter: boolean;
   FluidSearch: boolean;
   EnableRegistration: boolean;
+  M3U8AdFilterEnabled: boolean;
 }
 
 export interface AdminConfig {

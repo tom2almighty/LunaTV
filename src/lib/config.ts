@@ -133,6 +133,8 @@ async function getInitConfig(
       FluidSearch: process.env.NEXT_PUBLIC_FLUID_SEARCH !== 'false',
       EnableRegistration:
         process.env.NEXT_PUBLIC_ENABLE_REGISTRATION === 'true', // 默认关闭注册
+      M3U8AdFilterEnabled:
+        process.env.NEXT_PUBLIC_M3U8_AD_FILTER_ENABLED !== 'false',
     },
     UserConfig: {
       Users: [],
@@ -229,6 +231,12 @@ export function configSelfCheck(adminConfig: AdminConfig): AdminConfig {
   }
   if (!adminConfig.SourceConfig || !Array.isArray(adminConfig.SourceConfig)) {
     adminConfig.SourceConfig = [];
+  }
+  if (!adminConfig.SiteConfig) {
+    adminConfig.SiteConfig = {} as AdminConfig['SiteConfig'];
+  }
+  if (typeof adminConfig.SiteConfig.M3U8AdFilterEnabled !== 'boolean') {
+    adminConfig.SiteConfig.M3U8AdFilterEnabled = true;
   }
   // 站长变更自检
   const ownerUser = process.env.APP_ADMIN_USERNAME;
@@ -366,4 +374,3 @@ export async function getAvailableApiSites(user?: string): Promise<ApiSite[]> {
 export async function setCachedConfig(config: AdminConfig) {
   cachedConfig = config;
 }
-

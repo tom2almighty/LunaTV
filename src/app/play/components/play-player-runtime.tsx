@@ -129,6 +129,14 @@ export function PlayPlayerRuntime() {
     if (typeof window !== 'undefined') {
       const v = localStorage.getItem('enable_blockad');
       if (v !== null) return v === 'true';
+      const runtimeConfig = (
+        window as Window & {
+          RUNTIME_CONFIG?: { M3U8_AD_FILTER_ENABLED?: boolean };
+        }
+      ).RUNTIME_CONFIG;
+      if (typeof runtimeConfig?.M3U8_AD_FILTER_ENABLED === 'boolean') {
+        return runtimeConfig.M3U8_AD_FILTER_ENABLED;
+      }
     }
     return true;
   });
