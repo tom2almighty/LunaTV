@@ -29,8 +29,6 @@ import {
   loadSearchContext,
   saveSearchContext,
 } from '@/app/search/_state/search-context-storage';
-import { QuickPreviewPanel } from '@/app/search/components/quick-preview-panel';
-import { useSearchPreviewState } from '@/app/search/hooks/use-search-preview-state';
 
 function SearchPageClient() {
   const MIN_SEARCH_LOADING_MS = 280;
@@ -135,8 +133,6 @@ function SearchPageClient() {
   const [viewMode, setViewMode] = useState<'agg' | 'all'>(() => {
     return getDefaultAggregate() ? 'agg' : 'all';
   });
-  const { isPreviewOpen, activePreview, openPreview, closePreview } =
-    useSearchPreviewState();
   const hasRestoredContextRef = useRef(false);
 
   // 在“无排序”场景用于每个源批次的预排序：完全匹配标题优先，其次年份倒序，未知年份最后
@@ -459,16 +455,6 @@ function SearchPageClient() {
                   </div>
                 </label>
               </div>
-              <div className='mb-6'>
-                <QuickPreviewPanel
-                  mode='desktop'
-                  open={isPreviewOpen && !!activePreview}
-                  title={activePreview?.title || ''}
-                  sourceCount={activePreview?.sourceCount || 0}
-                  onClose={closePreview}
-                  onPlayNow={() => activePreview?.onPlayNow?.()}
-                />
-              </div>
               {searchResults.length === 0 ? (
                 isLoading ? (
                   <div className='flex h-40 items-center justify-center'>
@@ -543,13 +529,6 @@ function SearchPageClient() {
                                     : ''
                                 }
                                 type={type}
-                                interactionMode='preview-first'
-                                onOpenPreview={(payload) =>
-                                  openPreview({
-                                    ...payload,
-                                    key: `agg-${mapKey}`,
-                                  })
-                                }
                                 onBeforePlayNavigate={() =>
                                   persistSearchContext(`agg-${mapKey}`)
                                 }
@@ -589,13 +568,6 @@ function SearchPageClient() {
                               year={item.year}
                               from='search'
                               type={item.episodes.length > 1 ? 'tv' : 'movie'}
-                              interactionMode='preview-first'
-                              onOpenPreview={(payload) =>
-                                openPreview({
-                                  ...payload,
-                                  key: `all-${item.source}-${item.id}`,
-                                })
-                              }
                               onBeforePlayNavigate={() =>
                                 persistSearchContext(
                                   `all-${item.source}-${item.id}`,

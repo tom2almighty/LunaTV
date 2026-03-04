@@ -151,9 +151,10 @@ vi.mock('@/hooks/useSearchExecution', () => ({
 }));
 
 describe('search preview open flow', () => {
-  it('opens preview instead of routing immediately when clicking result card', async () => {
+  it('does not show quick preview actions when clicking a result card', async () => {
     render(<SearchPageClient />);
     fireEvent.click(await screen.findByTestId('search-card-0'));
-    expect(screen.getByText('立即播放')).toBeInTheDocument();
+    expect(screen.queryByLabelText('快速预览')).not.toBeInTheDocument();
+    expect(screen.queryByText('立即播放')).not.toBeInTheDocument();
   });
 });
