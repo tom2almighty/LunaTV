@@ -17,6 +17,12 @@ describe('admin user routes', () => {
     );
     const merged = `${actionsContent}\n${userConfigContent}\n${userGroupActionsContent}`;
 
+    expect(
+      readFileSync('src/app/admin/_components/UserConfig.tsx', 'utf8').split(
+        '\n',
+      ).length,
+    ).toBeLessThan(700);
+
     expect(/\/api\/admin\/user['"`]/.test(merged)).toBe(false);
     expect(merged.includes('/api/admin/users')).toBe(true);
     expect(merged.includes('/api/admin/user-groups')).toBe(true);
