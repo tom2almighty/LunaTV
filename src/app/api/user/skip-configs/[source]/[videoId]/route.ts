@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 import { deleteSkipConfig, getSkipConfig } from '@/lib/db.server';
 
-import { ApiAuthError, requireActiveUsername } from '@/server/api/guards';
+import { executeApiHandler } from '@/server/api/handler';
 import { jsonError } from '@/server/api/http';
 import { parseResourceIdentity } from '@/server/api/validation';
 
@@ -26,45 +26,43 @@ function parseParams(
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
-  try {
-    const username = await requireActiveUsername(request);
-    const params = await context.params;
-    const identity = parseParams(params.source, params.videoId);
-    if (!identity) {
-      return jsonError('Invalid resource identity', 400);
-    }
+  const params = await context.params;
+  return executeApiHandler(
+    request,
+    async ({ username }) => {
+      const identity = parseParams(params.source, params.videoId);
+      if (!identity) {
+        return jsonError('Invalid resource identity', 400);
+      }
 
-    const config = await getSkipConfig(
-      username,
-      identity.source,
-      identity.videoId,
-    );
-    return NextResponse.json(config, { status: 200 });
-  } catch (error) {
-    if (error instanceof ApiAuthError) {
-      return jsonError(error.message, error.status);
-    }
-    console.error('获取跳过配置失败:', error);
-    return jsonError('Internal Server Error', 500);
-  }
+      const config = await getSkipConfig(
+        username as string,
+        identity.source,
+        identity.videoId,
+      );
+      return config;
+    },
+    { requireAuth: true, responseShape: 'raw' },
+  );
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  try {
-    const username = await requireActiveUsername(request);
-    const params = await context.params;
-    const identity = parseParams(params.source, params.videoId);
-    if (!identity) {
-      return jsonError('Invalid resource identity', 400);
-    }
+  const params = await context.params;
+  return executeApiHandler(
+    request,
+    async ({ username }) => {
+      const identity = parseParams(params.source, params.videoId);
+      if (!identity) {
+        return jsonError('Invalid resource identity', 400);
+      }
 
-    await deleteSkipConfig(username, identity.source, identity.videoId);
-    return NextResponse.json({ success: true }, { status: 200 });
-  } catch (error) {
-    if (error instanceof ApiAuthError) {
-      return jsonError(error.message, error.status);
-    }
-    console.error('删除跳过配置失败:', error);
-    return jsonError('Internal Server Error', 500);
-  }
+      await deleteSkipConfig(
+        username as string,
+        identity.source,
+        identity.videoId,
+      );
+      return { success: true };
+    },
+    { requireAuth: true, responseShape: 'raw' },
+  );
 }
