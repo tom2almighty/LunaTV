@@ -24,34 +24,8 @@ vi.mock('@/components/SearchResultFilter', () => {
 
 vi.mock('@/components/VideoCard', () => {
   return {
-    default: (props: {
-      testId?: string;
-      title?: string;
-      play_group?: unknown[];
-      interactionMode?: string;
-      onOpenPreview?: (payload: {
-        key: string;
-        title: string;
-        sourceCount: number;
-        onPlayNow: () => void;
-      }) => void;
-    }) => (
-      <button
-        data-testid={props.testId || 'search-card-fallback'}
-        onClick={() => {
-          if (
-            props.interactionMode === 'preview-first' &&
-            props.onOpenPreview
-          ) {
-            props.onOpenPreview({
-              key: 'agg-0',
-              title: props.title || '未命名',
-              sourceCount: props.play_group?.length || 1,
-              onPlayNow: () => {},
-            });
-          }
-        }}
-      >
+    default: (props: { testId?: string; title?: string }) => (
+      <button data-testid={props.testId || 'search-card-fallback'}>
         {props.title || 'card'}
       </button>
     ),

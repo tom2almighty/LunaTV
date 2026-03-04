@@ -63,13 +63,6 @@ export interface VideoCardProps {
   isAggregate?: boolean;
   play_group?: SearchResult[];
   testId?: string;
-  interactionMode?: 'default' | 'preview-first';
-  onOpenPreview?: (payload: {
-    key: string;
-    title: string;
-    sourceCount: number;
-    onPlayNow: () => void;
-  }) => void;
   onBeforePlayNavigate?: (payload: { key: string; title: string }) => void;
 }
 
@@ -101,8 +94,6 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
       isAggregate = false,
       play_group,
       testId,
-      interactionMode = 'default',
-      onOpenPreview,
       onBeforePlayNavigate,
     }: VideoCardProps,
     ref,
@@ -325,51 +316,12 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
     );
 
     const handleClick = useCallback(() => {
-      if (
-        from === 'search' &&
-        interactionMode === 'preview-first' &&
-        onOpenPreview
-      ) {
-        const previewSourceNames =
-          dynamicSourceNames && dynamicSourceNames.length > 0
-            ? dynamicSourceNames
-            : (play_group || [])
-                .map((item) => item.source_name)
-                .filter((name): name is string => Boolean(name));
-        const uniqueSourceCount = Array.from(
-          new Set(previewSourceNames),
-        ).length;
-        const sourceCount = isAggregate
-          ? Math.max(1, uniqueSourceCount || play_group?.length || 1)
-          : Math.max(1, play_group?.length || 1);
-
-        onOpenPreview({
-          key: previewKey,
-          title: previewTitle,
-          sourceCount,
-          onPlayNow: () => {
-            onBeforePlayNavigate?.({ key: previewKey, title: previewTitle });
-            void executePlayAction(() => createPlaySession(false));
-          },
-        });
-        return;
-      }
-
       onBeforePlayNavigate?.({ key: previewKey, title: previewTitle });
       void executePlayAction(() => createPlaySession(false));
     }, [
-      actualId,
-      actualSource,
-      actualTitle,
       createPlaySession,
-      dynamicSourceNames,
       executePlayAction,
-      from,
-      interactionMode,
-      isAggregate,
-      onOpenPreview,
       onBeforePlayNavigate,
-      play_group,
       previewKey,
       previewTitle,
     ]);
