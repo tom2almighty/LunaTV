@@ -141,11 +141,12 @@ services:
 
 - Legacy compatibility endpoints and snake_case admin paths were removed.
 - Play page URL contract is session-only: `/play?ps=<play_session_id>`.
+- Resource identity now uses path params (e.g. `/api/user/favorites/{source}/{videoId}`), not legacy `?key=` composite query.
 - All play session operations use REST resources:
   - `POST /api/play/sessions`
   - `GET /api/play/sessions/{sessionId}`
-  - `PATCH /api/play/sessions/{sessionId}`
-- Full route map is documented in `docs/plans/2026-03-02-restful-api-route-map.md`.
+  - `PATCH /api/play/sessions/{sessionId}/current`
+- Full route map is documented in `docs/plans/2026-03-04-restful-api-route-map.md`.
 
 ## License
 

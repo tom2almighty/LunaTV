@@ -10,6 +10,23 @@ import { SearchResult } from '@/lib/types';
 export const runtime = 'nodejs';
 let cronRunningPromise: Promise<void> | null = null;
 
+function parseResourceIdentityFromKey(key: string): {
+  source: string;
+  videoId: string;
+} {
+  const separatorIndex = key.indexOf('+');
+  if (separatorIndex <= 0 || separatorIndex >= key.length - 1) {
+    return {
+      source: '',
+      videoId: '',
+    };
+  }
+  return {
+    source: key.slice(0, separatorIndex),
+    videoId: key.slice(separatorIndex + 1),
+  };
+}
+
 export async function GET(request: NextRequest) {
   console.log(request.url);
   try {
@@ -126,11 +143,10 @@ async function refreshRecordAndFavorites() {
           source,
           id,
           fallbackTitle: fallbackTitle.trim(),
-        })
-          .catch((err) => {
-            console.error(`获取视频详情失败 (${source}+${id}):`, err);
-            return null;
-          });
+        }).catch((err) => {
+          console.error(`获取视频详情失败 (${source}+${id}):`, err);
+          return null;
+        });
         detailCache.set(key, promise);
       }
       return promise;
@@ -147,7 +163,7 @@ async function refreshRecordAndFavorites() {
 
         for (const [key, record] of Object.entries(playRecords)) {
           try {
-            const { source, videoId: id } = db.parseStorageKey(key);
+            const { source, videoId: id } = parseResourceIdentityFromKey(key);
             if (!source || !id) {
               console.warn(`跳过无效的播放记录键: ${key}`);
               continue;
@@ -198,7 +214,7 @@ async function refreshRecordAndFavorites() {
 
         for (const [key, fav] of Object.entries(favorites)) {
           try {
-            const { source, videoId: id } = db.parseStorageKey(key);
+            const { source, videoId: id } = parseResourceIdentityFromKey(key);
             if (!source || !id) {
               console.warn(`跳过无效的收藏键: ${key}`);
               continue;
@@ -253,4 +269,3 @@ async function cleanDoubanCache() {
     console.error('清理豆瓣缓存失败:', err);
   }
 }
-

@@ -33,29 +33,6 @@ function allRows<T>(
   return db.prepare(sql).all(...params) as T;
 }
 
-// 工具函数：生成存储key
-export function generateStorageKey(source: string, id: string): string {
-  return `${source}+${id}`;
-}
-
-// 工具函数：解析存储key
-export function parseStorageKey(key: string): {
-  source: string;
-  videoId: string;
-} {
-  const plusIndex = key.indexOf('+');
-  if (plusIndex <= 0 || plusIndex >= key.length - 1) {
-    return {
-      source: '',
-      videoId: '',
-    };
-  }
-  return {
-    source: key.slice(0, plusIndex),
-    videoId: key.slice(plusIndex + 1),
-  };
-}
-
 // ==================== 用户相关 ====================
 
 export async function registerUser(
@@ -74,7 +51,8 @@ export async function verifyUser(
   password: string,
 ): Promise<boolean> {
   const db = getDb();
-  const row = getRow<{ password: string }>(db, 
+  const row = getRow<{ password: string }>(
+    db,
     'SELECT password FROM users WHERE username = ?',
     [username],
   );
@@ -83,9 +61,7 @@ export async function verifyUser(
 
 export async function checkUserExist(username: string): Promise<boolean> {
   const db = getDb();
-  const row = getRow(db, 'SELECT 1 FROM users WHERE username = ?', [
-    username,
-  ]);
+  const row = getRow(db, 'SELECT 1 FROM users WHERE username = ?', [username]);
   return !!row;
 }
 
@@ -111,7 +87,8 @@ export async function deleteUser(username: string): Promise<void> {
 
 export async function getAllUsers(): Promise<string[]> {
   const db = getDb();
-  const rows = allRows<{ username: string }[]>(db, 
+  const rows = allRows<{ username: string }[]>(
+    db,
     'SELECT username FROM users',
   );
   return rows.map((r) => r.username);
@@ -125,7 +102,8 @@ export async function getPlayRecord(
   videoId: string,
 ): Promise<PlayRecord | null> {
   const db = getDb();
-  const row = getRow<{ record_json: string }>(db, 
+  const row = getRow<{ record_json: string }>(
+    db,
     'SELECT record_json FROM play_records WHERE username = ? AND source = ? AND video_id = ?',
     [username, source, videoId],
   );
@@ -139,7 +117,8 @@ export async function savePlayRecord(
   record: PlayRecord,
 ): Promise<void> {
   const db = getDb();
-  run(db, 
+  run(
+    db,
     `INSERT INTO play_records (username, source, video_id, record_json, updated_at)
      VALUES (?, ?, ?, ?, strftime('%s', 'now'))
      ON CONFLICT(username, source, video_id)
@@ -154,7 +133,8 @@ export async function getAllPlayRecords(
   const db = getDb();
   const rows = allRows<
     { source: string; video_id: string; record_json: string }[]
-  >(db, 
+  >(
+    db,
     'SELECT source, video_id, record_json FROM play_records WHERE username = ?',
     [username],
   );
@@ -172,7 +152,8 @@ export async function deletePlayRecord(
   videoId: string,
 ): Promise<void> {
   const db = getDb();
-  run(db, 
+  run(
+    db,
     'DELETE FROM play_records WHERE username = ? AND source = ? AND video_id = ?',
     [username, source, videoId],
   );
@@ -191,7 +172,8 @@ export async function getFavorite(
   videoId: string,
 ): Promise<Favorite | null> {
   const db = getDb();
-  const row = getRow<{ favorite_json: string }>(db, 
+  const row = getRow<{ favorite_json: string }>(
+    db,
     'SELECT favorite_json FROM favorites WHERE username = ? AND source = ? AND video_id = ?',
     [username, source, videoId],
   );
@@ -205,7 +187,8 @@ export async function saveFavorite(
   favorite: Favorite,
 ): Promise<void> {
   const db = getDb();
-  run(db, 
+  run(
+    db,
     `INSERT INTO favorites (username, source, video_id, favorite_json)
      VALUES (?, ?, ?, ?)
      ON CONFLICT(username, source, video_id)
@@ -220,7 +203,8 @@ export async function getAllFavorites(
   const db = getDb();
   const rows = allRows<
     { source: string; video_id: string; favorite_json: string }[]
-  >(db, 
+  >(
+    db,
     'SELECT source, video_id, favorite_json FROM favorites WHERE username = ?',
     [username],
   );
@@ -238,7 +222,8 @@ export async function deleteFavorite(
   videoId: string,
 ): Promise<void> {
   const db = getDb();
-  run(db, 
+  run(
+    db,
     'DELETE FROM favorites WHERE username = ? AND source = ? AND video_id = ?',
     [username, source, videoId],
   );
@@ -253,7 +238,8 @@ export async function deleteAllFavorites(username: string): Promise<void> {
 
 export async function getSearchHistory(username: string): Promise<string[]> {
   const db = getDb();
-  const rows = allRows<{ keyword: string }[]>(db, 
+  const rows = allRows<{ keyword: string }[]>(
+    db,
     'SELECT keyword FROM search_history WHERE username = ? ORDER BY created_at DESC LIMIT ?',
     [username, SEARCH_HISTORY_LIMIT],
   );
@@ -266,17 +252,18 @@ export async function addSearchHistory(
 ): Promise<void> {
   const db = getDb();
   // 先删除已存在的相同关键词
-  run(db, 
-    'DELETE FROM search_history WHERE username = ? AND keyword = ?',
-    [username, keyword],
-  );
+  run(db, 'DELETE FROM search_history WHERE username = ? AND keyword = ?', [
+    username,
+    keyword,
+  ]);
   // 插入新记录
   run(db, 'INSERT INTO search_history (username, keyword) VALUES (?, ?)', [
     username,
     keyword,
   ]);
   // 清理超出限制的旧记录
-  run(db, 
+  run(
+    db,
     `DELETE FROM search_history WHERE username = ? AND id NOT IN (
       SELECT id FROM search_history WHERE username = ? ORDER BY created_at DESC LIMIT ?
     )`,
@@ -290,10 +277,10 @@ export async function deleteSearchHistory(
 ): Promise<void> {
   const db = getDb();
   if (keyword) {
-    run(db, 
-      'DELETE FROM search_history WHERE username = ? AND keyword = ?',
-      [username, keyword],
-    );
+    run(db, 'DELETE FROM search_history WHERE username = ? AND keyword = ?', [
+      username,
+      keyword,
+    ]);
   } else {
     run(db, 'DELETE FROM search_history WHERE username = ?', [username]);
   }
@@ -307,7 +294,8 @@ export async function getSkipConfig(
   videoId: string,
 ): Promise<SkipConfig | null> {
   const db = getDb();
-  const row = getRow<{ config_json: string }>(db, 
+  const row = getRow<{ config_json: string }>(
+    db,
     'SELECT config_json FROM skip_configs WHERE username = ? AND source = ? AND video_id = ?',
     [username, source, videoId],
   );
@@ -321,7 +309,8 @@ export async function setSkipConfig(
   config: SkipConfig,
 ): Promise<void> {
   const db = getDb();
-  run(db, 
+  run(
+    db,
     `INSERT INTO skip_configs (username, source, video_id, config_json)
      VALUES (?, ?, ?, ?)
      ON CONFLICT(username, source, video_id)
@@ -336,7 +325,8 @@ export async function deleteSkipConfig(
   videoId: string,
 ): Promise<void> {
   const db = getDb();
-  run(db, 
+  run(
+    db,
     'DELETE FROM skip_configs WHERE username = ? AND source = ? AND video_id = ?',
     [username, source, videoId],
   );
@@ -348,7 +338,8 @@ export async function getAllSkipConfigs(
   const db = getDb();
   const rows = allRows<
     { source: string; video_id: string; config_json: string }[]
-  >(db, 
+  >(
+    db,
     'SELECT source, video_id, config_json FROM skip_configs WHERE username = ?',
     [username],
   );
@@ -364,7 +355,8 @@ export async function getAllSkipConfigs(
 
 export async function getAdminConfig(): Promise<AdminConfig | null> {
   const db = getDb();
-  const row = getRow<{ value_json: string }>(db, 
+  const row = getRow<{ value_json: string }>(
+    db,
     "SELECT value_json FROM admin_config WHERE key = 'main'",
   );
   return row ? JSON.parse(row.value_json) : null;
@@ -372,7 +364,8 @@ export async function getAdminConfig(): Promise<AdminConfig | null> {
 
 export async function saveAdminConfig(config: AdminConfig): Promise<void> {
   const db = getDb();
-  run(db, 
+  run(
+    db,
     `INSERT INTO admin_config (key, value_json) VALUES ('main', ?)
      ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
     [JSON.stringify(config)],
@@ -390,7 +383,8 @@ export async function getDoubanCache<T>(cacheKey: {
 }): Promise<T | null> {
   const db = getDb();
   const now = Math.floor(Date.now() / 1000);
-  const row = getRow<{ payload_json: string }>(db, 
+  const row = getRow<{ payload_json: string }>(
+    db,
     `SELECT payload_json
      FROM douban_cache
      WHERE kind = ?
@@ -424,7 +418,8 @@ export async function setDoubanCache(
 ): Promise<void> {
   const db = getDb();
   const expiresAt = Math.floor(Date.now() / 1000) + expireSeconds;
-  run(db, 
+  run(
+    db,
     `INSERT INTO douban_cache (
       kind,
       category,
@@ -456,10 +451,9 @@ export async function setDoubanCache(
 export async function cleanExpiredDoubanCache(): Promise<number> {
   const db = getDb();
   const now = Math.floor(Date.now() / 1000);
-  const result = run(db, 
-    'DELETE FROM douban_cache WHERE expires_at <= ?',
-    [now],
-  );
+  const result = run(db, 'DELETE FROM douban_cache WHERE expires_at <= ?', [
+    now,
+  ]);
   return result.changes || 0;
 }
 
@@ -476,5 +470,3 @@ export async function clearAllData(): Promise<void> {
   run(db, 'DELETE FROM douban_cache');
   console.log('所有数据已清空');
 }
-
-
