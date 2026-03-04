@@ -8,6 +8,7 @@
     "start": "next start",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:business": "vitest run src/app/admin/_components/user-config/__tests__/use-user-config-actions.test.ts src/app/admin/_components/user-config/__tests__/user-group-actions.test.ts src/app/login/__tests__/page.test.tsx src/app/play/hooks/__tests__/use-play-page-state.test.ts src/app/play/hooks/__tests__/use-play-progress.test.ts src/app/play/hooks/__tests__/use-play-return-to-search.test.ts src/app/search/__tests__/search-context-restore.test.tsx src/app/search/__tests__/search-preview-open-flow.test.tsx src/app/search/_state/__tests__/search-context-snapshot.test.ts src/app/search/_state/__tests__/search-context-storage.test.ts src/components/video-card/__tests__/use-video-card-actions.test.ts src/hooks/__tests__/use-search-execution.test.ts src/hooks/__tests__/useSearchResultFilters.test.ts src/lib/__tests__/proxy-matcher.test.ts src/lib/search/__tests__/abortable-search.test.ts src/server/api/__tests__/guards.test.ts",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src",
