@@ -24,6 +24,11 @@ import { useSearchVirtualGrid } from '@/hooks/useSearchVirtualGrid';
 import SearchResultFilter from '@/components/SearchResultFilter';
 import VideoCard, { VideoCardHandle } from '@/components/VideoCard';
 
+import {
+  clearSearchContext,
+  loadSearchContext,
+  saveSearchContext,
+} from '@/app/search/_state/search-context-storage';
 import { QuickPreviewPanel } from '@/app/search/components/quick-preview-panel';
 import { useSearchPreviewState } from '@/app/search/hooks/use-search-preview-state';
 
@@ -132,6 +137,7 @@ function SearchPageClient() {
   });
   const { isPreviewOpen, activePreview, openPreview, closePreview } =
     useSearchPreviewState();
+  const hasRestoredContextRef = useRef(false);
 
   // 在“无排序”场景用于每个源批次的预排序：完全匹配标题优先，其次年份倒序，未知年份最后
   const sortBatchForNoOrder = (items: SearchResult[]) => {
@@ -210,6 +216,8 @@ function SearchPageClient() {
     hasQuery: !!searchParams.get('q'),
     setUseFluidSearch,
   });
+  const restoreFlag = searchParams.get('restore');
+  const queryFromParams = searchParams.get('q') || '';
 
   useSearchExecution({
     searchParams,
@@ -246,6 +254,75 @@ function SearchPageClient() {
       completedSources,
     });
   }, [searchResults, totalSources, completedSources, showResults]);
+
+  const persistSearchContext = useCallback(
+    (activeKey: string | null) => {
+      const query = (currentQueryRef.current || searchQuery).trim();
+      if (!query) return;
+
+      const grid = virtualGridRef.current as { scrollTop?: number } | null;
+      const scrollTop =
+        typeof grid?.scrollTop === 'number' ? grid.scrollTop : 0;
+
+      saveSearchContext({
+        query,
+        viewMode,
+        filterAll,
+        filterAgg,
+        scrollTop,
+        activeKey,
+      });
+    },
+    [filterAgg, filterAll, searchQuery, viewMode, virtualGridRef],
+  );
+
+  useEffect(() => {
+    if (restoreFlag !== '1' || hasRestoredContextRef.current || !showResults) {
+      return;
+    }
+
+    const snapshot = loadSearchContext();
+    if (!snapshot) return;
+
+    const expectedQuery = (
+      queryFromParams ||
+      currentQueryRef.current ||
+      searchQuery
+    ).trim();
+    if (!expectedQuery || snapshot.query.trim() !== expectedQuery) {
+      return;
+    }
+
+    hasRestoredContextRef.current = true;
+    setViewMode(snapshot.viewMode);
+    setFilterAll(snapshot.filterAll);
+    setFilterAgg(snapshot.filterAgg);
+    clearSearchContext();
+
+    const tryRestoreScroll = () => {
+      const grid = virtualGridRef.current as {
+        scrollTo?: (options: { top: number; behavior: ScrollBehavior }) => void;
+        scrollTop?: number;
+      } | null;
+      if (!grid) return false;
+      if (typeof grid.scrollTo === 'function') {
+        grid.scrollTo({ top: snapshot.scrollTop, behavior: 'auto' });
+        if (typeof grid.scrollTop === 'number') {
+          grid.scrollTop = snapshot.scrollTop;
+        }
+        return true;
+      }
+      if (typeof grid.scrollTop === 'number') {
+        grid.scrollTop = snapshot.scrollTop;
+        return true;
+      }
+      return false;
+    };
+
+    window.setTimeout(() => {
+      tryRestoreScroll();
+    }, 0);
+  }, [queryFromParams, restoreFlag, searchQuery, showResults, virtualGridRef]);
 
   // 输入框内容变化时触发
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -406,6 +483,7 @@ function SearchPageClient() {
                 <div
                   key={`search-results-${viewMode}`}
                   ref={virtualGridRef}
+                  data-testid='search-results-scroll-container'
                   className='max-h-[72vh] overflow-y-auto pr-1'
                 >
                   <div
@@ -467,7 +545,13 @@ function SearchPageClient() {
                                 type={type}
                                 interactionMode='preview-first'
                                 onOpenPreview={(payload) =>
-                                  openPreview(payload)
+                                  openPreview({
+                                    ...payload,
+                                    key: `agg-${mapKey}`,
+                                  })
+                                }
+                                onBeforePlayNavigate={() =>
+                                  persistSearchContext(`agg-${mapKey}`)
                                 }
                               />
                             </div>,
@@ -506,7 +590,17 @@ function SearchPageClient() {
                               from='search'
                               type={item.episodes.length > 1 ? 'tv' : 'movie'}
                               interactionMode='preview-first'
-                              onOpenPreview={(payload) => openPreview(payload)}
+                              onOpenPreview={(payload) =>
+                                openPreview({
+                                  ...payload,
+                                  key: `all-${item.source}-${item.id}`,
+                                })
+                              }
+                              onBeforePlayNavigate={() =>
+                                persistSearchContext(
+                                  `all-${item.source}-${item.id}`,
+                                )
+                              }
                             />
                           </div>,
                         );

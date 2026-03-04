@@ -70,6 +70,7 @@ export interface VideoCardProps {
     sourceCount: number;
     onPlayNow: () => void;
   }) => void;
+  onBeforePlayNavigate?: (payload: { key: string; title: string }) => void;
 }
 
 export type VideoCardHandle = {
@@ -102,6 +103,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
       testId,
       interactionMode = 'default',
       onOpenPreview,
+      onBeforePlayNavigate,
     }: VideoCardProps,
     ref,
   ) {
@@ -148,6 +150,8 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
         ? 'movie'
         : 'tv'
       : type;
+    const previewKey = `${actualSource || 'agg'}-${actualId || actualTitle}`;
+    const previewTitle = actualTitle || '未命名';
 
     // 获取收藏状态（搜索结果页面不检查）
     useEffect(() => {
@@ -340,16 +344,18 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           : Math.max(1, play_group?.length || 1);
 
         onOpenPreview({
-          key: `${actualSource || 'agg'}-${actualId || actualTitle}`,
-          title: actualTitle || '未命名',
+          key: previewKey,
+          title: previewTitle,
           sourceCount,
           onPlayNow: () => {
+            onBeforePlayNavigate?.({ key: previewKey, title: previewTitle });
             void executePlayAction(() => createPlaySession(false));
           },
         });
         return;
       }
 
+      onBeforePlayNavigate?.({ key: previewKey, title: previewTitle });
       void executePlayAction(() => createPlaySession(false));
     }, [
       actualId,
@@ -362,13 +368,23 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
       interactionMode,
       isAggregate,
       onOpenPreview,
+      onBeforePlayNavigate,
       play_group,
+      previewKey,
+      previewTitle,
     ]);
 
     // 新标签页播放处理函数
     const handlePlayInNewTab = useCallback(() => {
+      onBeforePlayNavigate?.({ key: previewKey, title: previewTitle });
       void executePlayAction(() => createPlaySession(true));
-    }, [createPlaySession, executePlayAction]);
+    }, [
+      createPlaySession,
+      executePlayAction,
+      onBeforePlayNavigate,
+      previewKey,
+      previewTitle,
+    ]);
 
     // 检查搜索结果的收藏状态
     const checkSearchFavoriteStatus = useCallback(async () => {
