@@ -5,6 +5,8 @@
  * API 请求封装 + 通用工具
  */
 
+import { requestJson, requestWithAuth } from '@/lib/api/client';
+
 export function triggerGlobalError(message: string) {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(
@@ -25,29 +27,9 @@ export async function fetchWithAuth(
   url: string,
   options?: RequestInit,
 ): Promise<Response> {
-  const res = await fetch(url, options);
-  if (!res.ok) {
-    if (res.status === 401) {
-      try {
-        await fetch('/api/auth/sessions/current', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-        });
-      } catch (error) {
-        console.error('注销请求失败:', error);
-      }
-      const currentUrl = window.location.pathname + window.location.search;
-      const loginUrl = new URL('/login', window.location.origin);
-      loginUrl.searchParams.set('redirect', currentUrl);
-      window.location.href = loginUrl.toString();
-      throw new Error('用户未授权，已跳转到登录页面');
-    }
-    throw new Error(`请求 ${url} 失败: ${res.status}`);
-  }
-  return res;
+  return requestWithAuth(url, options);
 }
 
 export async function fetchFromApi<T>(path: string): Promise<T> {
-  const res = await fetchWithAuth(path);
-  return (await res.json()) as T;
+  return requestJson<T>(path);
 }

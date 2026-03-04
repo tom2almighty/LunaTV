@@ -1,22 +1,21 @@
 /* eslint-disable no-console */
 'use client';
 
-import {
-  fetchFromApi,
-  fetchWithAuth,
-  generateStorageKey,
-  triggerGlobalError,
-} from './api-client';
+import { generateStorageKey, triggerGlobalError } from './api-client';
 import { cacheManager } from './cache-manager';
+import {
+  clearFavoritesFromApi,
+  deleteFavoriteFromApi,
+  getFavoritesFromApi,
+  saveFavoriteToApi,
+} from '../api/user-data-client';
 import { Favorite } from '../types';
 
 async function handleFailure(error: unknown): Promise<void> {
   console.error('数据库操作失败 (favorites):', error);
   triggerGlobalError('数据库操作失败');
   try {
-    const fresh = await fetchFromApi<Record<string, Favorite>>(
-      '/api/user/favorites',
-    );
+    const fresh = await getFavoritesFromApi();
     cacheManager.cacheFavorites(fresh);
     window.dispatchEvent(
       new CustomEvent('favoritesUpdated', { detail: fresh }),
@@ -27,7 +26,7 @@ async function handleFailure(error: unknown): Promise<void> {
 }
 
 function syncInBackground(cached: Record<string, Favorite>): void {
-  fetchFromApi<Record<string, Favorite>>('/api/user/favorites')
+  getFavoritesFromApi()
     .then((fresh) => {
       if (JSON.stringify(cached) !== JSON.stringify(fresh)) {
         cacheManager.cacheFavorites(fresh);
@@ -52,9 +51,7 @@ export async function getAllFavorites(): Promise<Record<string, Favorite>> {
   }
 
   try {
-    const fresh = await fetchFromApi<Record<string, Favorite>>(
-      '/api/user/favorites',
-    );
+    const fresh = await getFavoritesFromApi();
     cacheManager.cacheFavorites(fresh);
     return fresh;
   } catch (err) {
@@ -76,9 +73,7 @@ export async function isFavorited(
   }
 
   try {
-    const fresh = await fetchFromApi<Record<string, Favorite>>(
-      '/api/user/favorites',
-    );
+    const fresh = await getFavoritesFromApi();
     cacheManager.cacheFavorites(fresh);
     return !!fresh[key];
   } catch (err) {
@@ -100,11 +95,7 @@ export async function saveFavorite(
   window.dispatchEvent(new CustomEvent('favoritesUpdated', { detail: cached }));
 
   try {
-    await fetchWithAuth('/api/user/favorites', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source, videoId: id, favorite }),
-    });
+    await saveFavoriteToApi(source, id, favorite);
   } catch (err) {
     await handleFailure(err);
     triggerGlobalError('保存收藏失败');
@@ -123,10 +114,7 @@ export async function deleteFavorite(
   window.dispatchEvent(new CustomEvent('favoritesUpdated', { detail: cached }));
 
   try {
-    await fetchWithAuth(
-      `/api/user/favorites/${encodeURIComponent(source)}/${encodeURIComponent(id)}`,
-      { method: 'DELETE' },
-    );
+    await deleteFavoriteFromApi(source, id);
   } catch (err) {
     await handleFailure(err);
     triggerGlobalError('删除收藏失败');
@@ -139,10 +127,7 @@ export async function clearAllFavorites(): Promise<void> {
   window.dispatchEvent(new CustomEvent('favoritesUpdated', { detail: {} }));
 
   try {
-    await fetchWithAuth('/api/user/favorites', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-    });
+    await clearFavoritesFromApi();
   } catch (err) {
     await handleFailure(err);
     triggerGlobalError('清空收藏失败');

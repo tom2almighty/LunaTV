@@ -1,17 +1,17 @@
 /* eslint-disable no-console */
 'use client';
 
-import {
-  fetchFromApi,
-  fetchWithAuth,
-  generateStorageKey,
-  triggerGlobalError,
-} from './api-client';
+import { generateStorageKey, triggerGlobalError } from './api-client';
 import { cacheManager } from './cache-manager';
+import {
+  deleteSkipConfigFromApi,
+  getSkipConfigsFromApi,
+  saveSkipConfigToApi,
+} from '../api/user-data-client';
 import { SkipConfig } from '../types';
 
 function syncInBackground(cached: Record<string, SkipConfig>): void {
-  fetchFromApi<Record<string, SkipConfig>>('/api/user/skip-configs')
+  getSkipConfigsFromApi()
     .then((fresh) => {
       if (JSON.stringify(cached) !== JSON.stringify(fresh)) {
         cacheManager.cacheSkipConfigs(fresh);
@@ -37,9 +37,7 @@ export async function getSkipConfig(
   }
 
   try {
-    const fresh = await fetchFromApi<Record<string, SkipConfig>>(
-      '/api/user/skip-configs',
-    );
+    const fresh = await getSkipConfigsFromApi();
     cacheManager.cacheSkipConfigs(fresh);
     return fresh[key] || null;
   } catch (err) {
@@ -59,9 +57,7 @@ export async function getAllSkipConfigs(): Promise<Record<string, SkipConfig>> {
   }
 
   try {
-    const fresh = await fetchFromApi<Record<string, SkipConfig>>(
-      '/api/user/skip-configs',
-    );
+    const fresh = await getSkipConfigsFromApi();
     cacheManager.cacheSkipConfigs(fresh);
     return fresh;
   } catch (err) {
@@ -85,11 +81,7 @@ export async function saveSkipConfig(
   );
 
   try {
-    await fetchWithAuth('/api/user/skip-configs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source, videoId: id, config }),
-    });
+    await saveSkipConfigToApi(source, id, config);
   } catch (err) {
     console.error('保存跳过片头片尾配置失败:', err);
     triggerGlobalError('保存跳过片头片尾配置失败');
@@ -109,10 +101,7 @@ export async function deleteSkipConfig(
   );
 
   try {
-    await fetchWithAuth(
-      `/api/user/skip-configs/${encodeURIComponent(source)}/${encodeURIComponent(id)}`,
-      { method: 'DELETE' },
-    );
+    await deleteSkipConfigFromApi(source, id);
   } catch (err) {
     console.error('删除跳过片头片尾配置失败:', err);
     triggerGlobalError('删除跳过片头片尾配置失败');
