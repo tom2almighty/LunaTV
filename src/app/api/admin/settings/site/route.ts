@@ -46,7 +46,6 @@ export async function POST(request: NextRequest) {
       EnableRegistration: boolean;
     };
 
-    // 参数校验
     if (
       typeof SiteName !== 'string' ||
       typeof Announcement !== 'string' ||
@@ -65,10 +64,7 @@ export async function POST(request: NextRequest) {
     }
 
     const adminConfig = await getConfig();
-
-    // 权限校验
     if (username !== process.env.APP_ADMIN_USERNAME) {
-      // 管理员
       const user = adminConfig.UserConfig.Users.find(
         (u) => u.username === username,
       );
@@ -77,7 +73,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 更新缓存中的站点设置
     adminConfig.SiteConfig = {
       SiteName,
       Announcement,
@@ -93,14 +88,13 @@ export async function POST(request: NextRequest) {
       EnableRegistration,
     };
 
-    // 写入数据库
     await saveAdminConfig(adminConfig);
 
     return NextResponse.json(
       { ok: true },
       {
         headers: {
-          'Cache-Control': 'no-store', // 不缓存结果
+          'Cache-Control': 'no-store',
         },
       },
     );

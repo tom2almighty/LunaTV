@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result, {
       headers: {
-        'Cache-Control': 'no-store', // 管理员配置不缓存
+        'Cache-Control': 'no-store',
       },
     });
   } catch (error) {

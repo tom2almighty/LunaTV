@@ -8,7 +8,6 @@ export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
-    // 权限检查：仅站长可以拉取配置订阅
     const authInfo = getAuthInfoFromCookie(request);
     if (!authInfo || !authInfo.username) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -27,9 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '缺少URL参数' }, { status: 400 });
     }
 
-    // 直接 fetch URL 获取配置内容
     const response = await fetch(url);
-
     if (!response.ok) {
       return NextResponse.json(
         { error: `请求失败: ${response.status} ${response.statusText}` },
@@ -39,7 +36,6 @@ export async function POST(request: NextRequest) {
 
     const configContent = await response.text();
 
-    // 对 configContent 进行 base58 解码
     let decodedContent;
     try {
       const bs58 = (await import('bs58')).default;

@@ -16,10 +16,7 @@ export async function POST(request: NextRequest) {
   const username = authInfo.username;
 
   try {
-    // 检查用户权限
     let adminConfig = await getConfig();
-
-    // 仅站长可以修改配置文件
     if (username !== process.env.APP_ADMIN_USERNAME) {
       return NextResponse.json(
         { error: '权限不足，只有站长可以修改配置文件' },
@@ -27,7 +24,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 获取请求体
     const body = await request.json();
     const { configFile, subscriptionUrl, autoUpdate, lastCheckTime } = body;
 
@@ -38,10 +34,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 验证 JSON 格式
     try {
       JSON.parse(configFile);
-    } catch (e) {
+    } catch {
       return NextResponse.json(
         { error: '配置文件格式错误，请检查 JSON 语法' },
         { status: 400 },
@@ -57,7 +52,6 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    // 更新订阅配置
     if (subscriptionUrl !== undefined) {
       adminConfig.ConfigSubscribtion.URL = subscriptionUrl;
     }
@@ -67,7 +61,6 @@ export async function POST(request: NextRequest) {
     adminConfig.ConfigSubscribtion.LastCheck = lastCheckTime || '';
 
     adminConfig = refineConfig(adminConfig);
-    // 更新配置文件
     await saveAdminConfig(adminConfig);
     return NextResponse.json({
       success: true,

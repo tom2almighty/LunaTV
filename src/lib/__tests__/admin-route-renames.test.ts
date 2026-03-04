@@ -24,14 +24,16 @@ describe('admin route renames', () => {
       'utf8',
     );
 
-    expect(configFileComponent).toContain('/api/admin/config-files');
+    expect(configFileComponent).toContain('/api/admin/settings/config-file');
     expect(configFileComponent).toContain(
-      '/api/admin/config-subscriptions/fetch',
+      '/api/admin/settings/config-subscription/fetch',
     );
-    expect(siteConfigComponent).toContain('/api/admin/site-settings');
+    expect(siteConfigComponent).toContain('/api/admin/settings/site');
     expect(dataMigration).toContain('/api/admin/data-migrations/export');
     expect(dataMigration).toContain('/api/admin/data-migrations/import');
+    expect(adminPageClient).toContain('/api/admin/settings/overview');
     expect(adminPageClient).toContain('/api/admin/system/reset');
+    expect(adminPageClient.includes('/api/admin/config')).toBe(false);
     expect(videoSourceContent).toContain('/api/admin/sources');
     expect(videoSourceContent).not.toMatch(/\/api\/admin\/source(?!s)/);
   });
