@@ -54,6 +54,10 @@ type SessionPayload = {
   title?: string;
 };
 
+function buildPlaySessionResourcePath(playSessionId: string) {
+  return `/api/play/sessions/${encodeURIComponent(playSessionId)}`;
+}
+
 export function usePlaySessionBootstrap(
   params: PlaySessionBootstrapParams,
   handlers: PlaySessionBootstrapHandlers,
@@ -79,7 +83,7 @@ export function usePlaySessionBootstrap(
       resolvedPlaySessionId: string,
     ): Promise<SessionPayload> => {
       const response = await fetch(
-        `/api/play/sessions/${encodeURIComponent(resolvedPlaySessionId)}`,
+        buildPlaySessionResourcePath(resolvedPlaySessionId),
       );
       const data = await response.json();
       if (!response.ok) {

@@ -11,6 +11,18 @@ type BuildPlaySessionPayloadParams = {
   id?: string;
 };
 
+export function buildPlaySessionCreateApiPath() {
+  return '/api/play/sessions';
+}
+
+export function buildPlaySessionResourceApiPath(playSessionId: string) {
+  return `/api/play/sessions/${encodeURIComponent(playSessionId)}`;
+}
+
+export function buildPlaySessionCurrentApiPath(playSessionId: string) {
+  return `${buildPlaySessionResourceApiPath(playSessionId)}/current`;
+}
+
 export function buildPlaySessionUrl(playSessionId: string) {
   return `/play?ps=${encodeURIComponent(playSessionId)}`;
 }

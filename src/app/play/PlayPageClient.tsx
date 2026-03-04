@@ -516,7 +516,7 @@ function PlayPageClient() {
       }
 
       const switchResponse = await fetch(
-        `/api/play/sessions/${encodeURIComponent(playSessionId)}`,
+        `/api/play/sessions/${encodeURIComponent(playSessionId)}/current`,
         {
           method: 'PATCH',
           headers: {
