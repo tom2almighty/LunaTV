@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface CollapsibleTabProps {
   title: string;
@@ -18,6 +18,16 @@ export const CollapsibleTab = ({
   onToggle,
   children,
 }: CollapsibleTabProps) => {
+  const [hasExpanded, setHasExpanded] = useState(isExpanded);
+
+  useEffect(() => {
+    if (isExpanded) {
+      setHasExpanded(true);
+    }
+  }, [isExpanded]);
+
+  const shouldRenderContent = isExpanded || hasExpanded;
+
   return (
     <div className='bg-card/80 ring-border mb-4 overflow-hidden rounded-xl shadow-sm ring-1 backdrop-blur-md'>
       <button
@@ -32,7 +42,14 @@ export const CollapsibleTab = ({
           {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </div>
       </button>
-      {isExpanded && <div className='px-6 py-4'>{children}</div>}
+      {shouldRenderContent && (
+        <div
+          className={'px-6 py-4' + (isExpanded ? '' : ' hidden')}
+          aria-hidden={!isExpanded}
+        >
+          {children}
+        </div>
+      )}
     </div>
   );
 };

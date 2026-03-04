@@ -8,8 +8,6 @@ import { createPortal } from 'react-dom';
 
 import { AdminConfig, AdminConfigResult } from '@/lib/admin.types';
 
-import DataMigration from '@/components/DataMigration';
-
 import {
   AlertModal,
   showError,
@@ -20,36 +18,62 @@ import { buttonStyles } from './_components/buttonStyles';
 import { CollapsibleTab } from './_components/CollapsibleTab';
 import { useLoadingState } from './_components/LoadingSystem';
 
+const AdminTabLoadingFallback = () => (
+  <div className='space-y-3'>
+    <div className='bg-muted h-8 animate-pulse rounded-md' />
+    <div className='bg-muted h-8 animate-pulse rounded-md' />
+    <div className='bg-muted h-8 animate-pulse rounded-md' />
+  </div>
+);
+
+const loadUserConfig = () =>
+  import('./_components/UserConfig').then((m) => ({ default: m.UserConfig }));
 const UserConfig = dynamic<{
   config: AdminConfig | null;
   role: 'owner' | 'admin' | null;
   refreshConfig: (showLoading?: boolean) => Promise<void>;
-}>(() =>
-  import('./_components/UserConfig').then((m) => ({ default: m.UserConfig })),
-);
+}>(loadUserConfig, {
+  loading: AdminTabLoadingFallback,
+});
+
+const loadVideoSourceConfig = () =>
+  import('./_components/VideoSourceConfig').then((m) => ({
+    default: m.VideoSourceConfig,
+  }));
 const VideoSourceConfig = dynamic<{
   config: AdminConfig | null;
   refreshConfig: (showLoading?: boolean) => Promise<void>;
-}>(() =>
-  import('./_components/VideoSourceConfig').then((m) => ({
-    default: m.VideoSourceConfig,
-  })),
-);
+}>(loadVideoSourceConfig, {
+  loading: AdminTabLoadingFallback,
+});
+
+const loadConfigFileComponent = () =>
+  import('./_components/ConfigFileComponent').then((m) => ({
+    default: m.ConfigFileComponent,
+  }));
 const ConfigFileComponent = dynamic<{
   config: AdminConfig | null;
   refreshConfig: (showLoading?: boolean) => Promise<void>;
-}>(() =>
-  import('./_components/ConfigFileComponent').then((m) => ({
-    default: m.ConfigFileComponent,
-  })),
-);
+}>(loadConfigFileComponent, {
+  loading: AdminTabLoadingFallback,
+});
+
+const loadSiteConfigComponent = () =>
+  import('./_components/SiteConfigComponent').then((m) => ({
+    default: m.SiteConfigComponent,
+  }));
 const SiteConfigComponent = dynamic<{
   config: AdminConfig | null;
   refreshConfig: (showLoading?: boolean) => Promise<void>;
-}>(() =>
-  import('./_components/SiteConfigComponent').then((m) => ({
-    default: m.SiteConfigComponent,
-  })),
+}>(loadSiteConfigComponent, {
+  loading: AdminTabLoadingFallback,
+});
+
+const DataMigration = dynamic<{ onRefreshConfig?: () => Promise<void> }>(
+  () => import('@/components/DataMigration'),
+  {
+    loading: AdminTabLoadingFallback,
+  },
 );
 
 function AdminPageClient() {
