@@ -1,6 +1,20 @@
 # Business Test Inventory
 
-This inventory lists retained tests after pruning and the business behavior each file protects.
+This inventory lists retained tests after pruning, and maps them to protected core-business flows used by the gradual refactor plan.
+
+## Protected Flow Mapping
+
+- Search (normal): `src/hooks/__tests__/use-search-execution.test.ts`, `src/hooks/__tests__/useSearchResultFilters.test.ts`, `src/app/search/_state/__tests__/search-context-snapshot.test.ts`, `src/app/search/_state/__tests__/search-context-storage.test.ts`.
+- Search (stream): partial automated coverage via `src/hooks/__tests__/use-search-execution.test.ts`; manual smoke required (see `docs/testing/core-business-regression-matrix.md`).
+- Open play from search: `src/app/search/__tests__/search-preview-open-flow.test.tsx`, `src/components/video-card/__tests__/use-video-card-actions.test.ts`.
+- Source switch and episode switch in play: `src/app/play/hooks/__tests__/use-play-page-state.test.ts` plus manual smoke.
+- Favorites CRUD: `src/components/video-card/__tests__/use-video-card-actions.test.ts` plus manual smoke.
+- Play-records CRUD and resume: `src/app/play/hooks/__tests__/use-play-progress.test.ts`, `src/app/play/hooks/__tests__/use-play-return-to-search.test.ts`.
+- Skip-config CRUD and intro/outro skip: partial automated coverage via play hook tests; manual smoke required.
+- m3u8 ad-filter toggle: manual smoke required.
+- Admin user: `src/app/admin/_components/user-config/__tests__/use-user-config-actions.test.ts`.
+- Admin user-group: `src/app/admin/_components/user-config/__tests__/user-group-actions.test.ts`.
+- Admin source/site-settings/data-migration: manual smoke required.
 
 ## Retained Tests
 
