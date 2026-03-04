@@ -1,22 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getAuthInfoFromCookie } from '@/lib/auth';
-import { getAvailableApiSites, getCacheTime } from '@/lib/config';
-import { getDetailFromApi } from '@/lib/downstream';
+import { getCacheTime } from '@/lib/config';
+
+import { getVideoDetailBySource } from '@/server/services/search-service';
 
 export const runtime = 'nodejs';
 
-export async function GET(request: NextRequest) {
+type RouteContext = {
+  params: Promise<{ source: string; videoId: string }>;
+};
+
+export async function GET(request: NextRequest, context: RouteContext) {
   const authInfo = getAuthInfoFromCookie(request);
   if (!authInfo || !authInfo.username) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
-  const sourceCode = searchParams.get('source');
-
-  if (!id || !sourceCode) {
+  const { source, videoId } = await context.params;
+  const sourceCode = String(source || '').trim();
+  const id = String(videoId || '').trim();
+  if (!sourceCode || !id) {
     return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
   }
 
@@ -25,14 +29,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const apiSites = await getAvailableApiSites(authInfo.username);
-    const apiSite = apiSites.find((site) => site.key === sourceCode);
-
-    if (!apiSite) {
-      return NextResponse.json({ error: '无效的API来源' }, { status: 400 });
-    }
-
-    const result = await getDetailFromApi(apiSite, id);
+    const result = await getVideoDetailBySource(
+      sourceCode,
+      id,
+      authInfo.username,
+    );
     const cacheTime = await getCacheTime();
 
     return NextResponse.json(result, {
@@ -44,9 +45,8 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 500 },
-    );
+    const message = error instanceof Error ? error.message : '获取视频详情失败';
+    const status = message.includes('无效的API来源') ? 400 : 500;
+    return NextResponse.json({ error: message }, { status });
   }
 }
