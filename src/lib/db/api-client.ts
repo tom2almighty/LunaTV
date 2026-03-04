@@ -2,10 +2,8 @@
 'use client';
 
 /**
- * API 请求封装 + 通用工具
+ * 客户端 DB 辅助工具
  */
-
-import { requestJson, requestWithAuth } from '@/lib/api/client';
 
 export function triggerGlobalError(message: string) {
   if (typeof window !== 'undefined') {
@@ -17,19 +15,4 @@ export function triggerGlobalError(message: string) {
 
 export function generateStorageKey(source: string, id: string): string {
   return `${source}+${id}`;
-}
-
-export function buildResourceIdentityPath(source: string, id: string): string {
-  return `${encodeURIComponent(source)}/${encodeURIComponent(id)}`;
-}
-
-export async function fetchWithAuth(
-  url: string,
-  options?: RequestInit,
-): Promise<Response> {
-  return requestWithAuth(url, options);
-}
-
-export async function fetchFromApi<T>(path: string): Promise<T> {
-  return requestJson<T>(path);
 }

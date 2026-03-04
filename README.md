@@ -142,10 +142,17 @@ services:
 - Legacy compatibility endpoints and snake_case admin paths were removed.
 - Play page URL contract is session-only: `/play?ps=<play_session_id>`.
 - Resource identity now uses path params (e.g. `/api/user/favorites/{source}/{videoId}`), not legacy composite-key query style.
+- Frontend user-data access now follows a single typed entry:
+  `UI/Hook -> src/lib/api/user-data-client.ts -> src/lib/api/client.ts`.
 - All play session operations use REST resources:
   - `POST /api/play/sessions`
   - `GET /api/play/sessions/{sessionId}`
   - `PATCH /api/play/sessions/{sessionId}/current`
+- API routes follow unified handlers:
+  - generic: `src/server/api/handler.ts` (`executeApiHandler`)
+  - admin: `src/server/api/admin-handler.ts` (`executeAdminApiHandler`)
+- User-domain persistence follows one repository path:
+  `API route -> src/server/repositories/user-data-repository.ts -> SQLite`.
 - Full route map is documented in `docs/plans/2026-03-04-restful-api-route-map.md`.
 
 ## License

@@ -1,5 +1,3 @@
-import React from 'react';
-
 type UserStatCardProps = {
   label: string;
   value: number;

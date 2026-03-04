@@ -1,5 +1,15 @@
 # RESTful API Route Map (2026-03-04)
 
+## Unified Interaction Chain (Blessed Paths)
+
+- Frontend request entry: `src/lib/api/client.ts` (domain adapters in `src/lib/api/user-data-client.ts`).
+- API handler template:
+  - `src/server/api/handler.ts` (`executeApiHandler`)
+  - `src/server/api/admin-handler.ts` (`executeAdminApiHandler`)
+- User-domain data access: `src/server/repositories/user-data-repository.ts`.
+- Redundant frontend DB wrappers removed from `src/lib/db/api-client.ts`:
+  `buildResourceIdentityPath`, `fetchWithAuth`, `fetchFromApi`.
+
 ## User Data
 
 | Domain         | List/Create                                | Single Resource                                        | Notes                                  |

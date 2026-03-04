@@ -139,7 +139,7 @@ export async function executeApiHandler<TPayload, TParams = unknown>(
     context: ApiHandlerContext<TParams>,
   ) => Promise<ApiHandlerResult<TPayload>> | ApiHandlerResult<TPayload>,
   options: ApiHandlerOptions<TParams> = {},
-): Promise<NextResponse> {
+): Promise<Response> {
   const {
     requireAuth = false,
     params,

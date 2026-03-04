@@ -54,18 +54,20 @@ export async function persistPlayProgress(
     return;
   }
 
-  await savePlayRecord(input.source, input.id, {
+  const record = {
     title: input.title,
     source_name: input.sourceName,
-    year: input.year,
+    year: input.year ?? '',
     cover: input.cover,
     index: input.episodeIndex + 1,
     total_episodes: input.totalEpisodes,
     play_time: Math.floor(input.currentTime),
     total_time: Math.floor(input.duration),
     save_time: Date.now(),
-    search_title: input.searchTitle,
-  });
+    ...(input.searchTitle ? { search_title: input.searchTitle } : {}),
+  };
+
+  await savePlayRecord(input.source, input.id, record);
 }
 
 export async function clearPlayProgressForVideo(
