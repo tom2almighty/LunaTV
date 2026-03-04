@@ -62,6 +62,14 @@ export interface VideoCardProps {
   type?: string;
   isAggregate?: boolean;
   play_group?: SearchResult[];
+  testId?: string;
+  interactionMode?: 'default' | 'preview-first';
+  onOpenPreview?: (payload: {
+    key: string;
+    title: string;
+    sourceCount: number;
+    onPlayNow: () => void;
+  }) => void;
 }
 
 export type VideoCardHandle = {
@@ -91,6 +99,9 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
       type = '',
       isAggregate = false,
       play_group,
+      testId,
+      interactionMode = 'default',
+      onOpenPreview,
     }: VideoCardProps,
     ref,
   ) {
@@ -310,8 +321,49 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
     );
 
     const handleClick = useCallback(() => {
+      if (
+        from === 'search' &&
+        interactionMode === 'preview-first' &&
+        onOpenPreview
+      ) {
+        const previewSourceNames =
+          dynamicSourceNames && dynamicSourceNames.length > 0
+            ? dynamicSourceNames
+            : (play_group || [])
+                .map((item) => item.source_name)
+                .filter((name): name is string => Boolean(name));
+        const uniqueSourceCount = Array.from(
+          new Set(previewSourceNames),
+        ).length;
+        const sourceCount = isAggregate
+          ? Math.max(1, uniqueSourceCount || play_group?.length || 1)
+          : Math.max(1, play_group?.length || 1);
+
+        onOpenPreview({
+          key: `${actualSource || 'agg'}-${actualId || actualTitle}`,
+          title: actualTitle || '未命名',
+          sourceCount,
+          onPlayNow: () => {
+            void executePlayAction(() => createPlaySession(false));
+          },
+        });
+        return;
+      }
+
       void executePlayAction(() => createPlaySession(false));
-    }, [createPlaySession, executePlayAction]);
+    }, [
+      actualId,
+      actualSource,
+      actualTitle,
+      createPlaySession,
+      dynamicSourceNames,
+      executePlayAction,
+      from,
+      interactionMode,
+      isAggregate,
+      onOpenPreview,
+      play_group,
+    ]);
 
     // 新标签页播放处理函数
     const handlePlayInNewTab = useCallback(() => {
@@ -572,6 +624,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
     return (
       <>
         <VideoCardView
+          dataTestId={testId}
           onClick={handleClick}
           gestureProps={longPressProps}
           onContextMenu={(e) => {
