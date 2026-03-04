@@ -3,6 +3,8 @@ import { useCallback, useState } from 'react';
 type SearchPreviewPayload = {
   key: string;
   title: string;
+  sourceCount?: number;
+  onPlayNow?: () => void;
 };
 
 export function useSearchPreviewState() {

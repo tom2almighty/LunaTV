@@ -23,7 +23,11 @@ export function QuickPreviewPanel({
       : 'w-full rounded-t-2xl border border-border/60 bg-card/95 p-4';
 
   return (
-    <section className={containerClass} aria-label='快速预览'>
+    <section
+      className={containerClass}
+      aria-label='快速预览'
+      data-testid={`quick-preview-${mode}`}
+    >
       <div className='mb-4 flex items-start justify-between gap-3'>
         <div>
           <h3 className='text-foreground text-lg font-semibold'>{title}</h3>
