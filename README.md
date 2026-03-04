@@ -141,7 +141,7 @@ services:
 
 - Legacy compatibility endpoints and snake_case admin paths were removed.
 - Play page URL contract is session-only: `/play?ps=<play_session_id>`.
-- Resource identity now uses path params (e.g. `/api/user/favorites/{source}/{videoId}`), not legacy `?key=` composite query.
+- Resource identity now uses path params (e.g. `/api/user/favorites/{source}/{videoId}`), not legacy composite-key query style.
 - All play session operations use REST resources:
   - `POST /api/play/sessions`
   - `GET /api/play/sessions/{sessionId}`

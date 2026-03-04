@@ -37,4 +37,24 @@ describe('admin route renames', () => {
     expect(videoSourceContent).toContain('/api/admin/sources');
     expect(videoSourceContent).not.toMatch(/\/api\/admin\/source(?!s)/);
   });
+
+  it('removes legacy admin/search/key contracts from active callsites', () => {
+    const allCallsites = [
+      readFileSync('src/app/admin/AdminPageClient.tsx', 'utf8'),
+      readFileSync('src/app/admin/_components/ConfigFileComponent.tsx', 'utf8'),
+      readFileSync('src/app/admin/_components/SiteConfigComponent.tsx', 'utf8'),
+      readFileSync('src/app/admin/_components/VideoSourceConfig.tsx', 'utf8'),
+      readFileSync('src/hooks/useSearchExecution.ts', 'utf8'),
+      readFileSync('src/hooks/usePlaySessionBootstrap.ts', 'utf8'),
+      readFileSync('src/components/VideoCard.tsx', 'utf8'),
+      readFileSync('src/lib/db/favorites.ts', 'utf8'),
+      readFileSync('src/lib/db/play-records.ts', 'utf8'),
+      readFileSync('src/lib/db/skip-configs.ts', 'utf8'),
+      readFileSync('README.md', 'utf8'),
+    ].join('\n');
+
+    expect(allCallsites).not.toMatch(/\/api\/admin\/source\b/);
+    expect(allCallsites).not.toMatch(/\/api\/search\/ws\b/);
+    expect(allCallsites).not.toMatch(/\?key=/);
+  });
 });

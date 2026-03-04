@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const sourceMap = new Map(
       adminConfig.SourceConfig.map((source) => [source.key, source]),
     );
-    const reordered = [];
+    const reordered: typeof adminConfig.SourceConfig = [];
     order.forEach((key) => {
       const source = sourceMap.get(key);
       if (source) {
