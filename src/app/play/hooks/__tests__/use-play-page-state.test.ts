@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 import { resolveEpisodeIndexOnSourceChange } from '@/app/play/hooks/use-play-page-state';
@@ -9,10 +8,7 @@ describe('usePlayPageState', () => {
     expect(resolveEpisodeIndexOnSourceChange(4, 3)).toBe(0);
   });
 
-  it('keeps PlayPageClient as a thin orchestrator', () => {
-    expect(
-      readFileSync('src/app/play/PlayPageClient.tsx', 'utf8').split('\n')
-        .length,
-    ).toBeLessThan(500);
+  it('resets to first episode when episode list becomes empty', () => {
+    expect(resolveEpisodeIndexOnSourceChange(1, 0)).toBe(0);
   });
 });

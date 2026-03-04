@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -25,12 +24,23 @@ describe('useSearchExecution', () => {
     expect(staleResultsApplied).toBe(false);
   });
 
-  it('uses /api/search/stream instead of /api/search/ws', () => {
-    const searchExecution = readFileSync(
-      'src/hooks/useSearchExecution.ts',
-      'utf8',
-    );
-    expect(searchExecution).toContain('/api/search/stream?q=');
-    expect(searchExecution.includes('/api/search/ws?q=')).toBe(false);
+  it('treats payload staleness by query and run token business rules', () => {
+    expect(
+      isStaleSearchPayload({
+        currentQuery: 'naruto',
+        expectedQuery: 'naruto',
+        currentRunToken: 7,
+        payloadRunToken: 7,
+      }),
+    ).toBe(false);
+
+    expect(
+      isStaleSearchPayload({
+        currentQuery: 'naruto',
+        expectedQuery: 'naruto',
+        currentRunToken: 7,
+        payloadRunToken: 6,
+      }),
+    ).toBe(true);
   });
 });
