@@ -90,7 +90,7 @@ export async function deleteSearchHistory(keyword: string): Promise<void> {
 
   try {
     await fetchWithAuth(
-      `/api/user/search-history?keyword=${encodeURIComponent(trimmed)}`,
+      `/api/user/search-history/${encodeURIComponent(trimmed)}`,
       { method: 'DELETE' },
     );
   } catch (err) {

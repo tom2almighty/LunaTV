@@ -36,5 +36,10 @@ describe('api routes', () => {
     for (const newPath of newPaths) {
       expect(content.includes(newPath)).toBe(true);
     }
+
+    expect(content.includes('/api/user/favorites?key=')).toBe(false);
+    expect(content.includes('/api/user/play-records?key=')).toBe(false);
+    expect(content.includes('/api/user/skip-configs?key=')).toBe(false);
+    expect(content.includes('/api/user/favorites/')).toBe(true);
   });
 });

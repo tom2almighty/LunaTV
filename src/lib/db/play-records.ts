@@ -77,7 +77,7 @@ export async function savePlayRecord(
     await fetchWithAuth('/api/user/play-records', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, record }),
+      body: JSON.stringify({ source, videoId: id, record }),
     });
   } catch (err) {
     await handleFailure(err);
@@ -100,10 +100,8 @@ export async function deletePlayRecord(
 
   try {
     await fetchWithAuth(
-      `/api/user/play-records?key=${encodeURIComponent(key)}`,
-      {
-        method: 'DELETE',
-      },
+      `/api/user/play-records/${encodeURIComponent(source)}/${encodeURIComponent(id)}`,
+      { method: 'DELETE' },
     );
   } catch (err) {
     await handleFailure(err);

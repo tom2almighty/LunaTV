@@ -2,156 +2,87 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
-import { getConfig } from '@/lib/config';
-import {
-  deleteSkipConfig,
-  getAllSkipConfigs,
-  getSkipConfig,
-  setSkipConfig,
-} from '@/lib/db.server';
+import { getAllSkipConfigs, setSkipConfig } from '@/lib/db.server';
 import { SkipConfig } from '@/lib/types';
+
+import { ApiAuthError, requireActiveUsername } from '@/server/api/guards';
+import { jsonError } from '@/server/api/http';
+import { parseResourceIdentity } from '@/server/api/validation';
 
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
-    const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo || !authInfo.username) {
-      return NextResponse.json({ error: '未登录' }, { status: 401 });
-    }
-
-    const config = await getConfig();
-    if (authInfo.username !== process.env.APP_ADMIN_USERNAME) {
-      // 非站长，检查用户存在或被封禁
-      const user = config.UserConfig.Users.find(
-        (u) => u.username === authInfo.username,
-      );
-      if (!user) {
-        return NextResponse.json({ error: '用户不存在' }, { status: 401 });
-      }
-      if (user.banned) {
-        return NextResponse.json({ error: '用户已被封禁' }, { status: 401 });
-      }
-    }
-
-    const { searchParams } = new URL(request.url);
-    const source = searchParams.get('source');
-    const id = searchParams.get('id');
-
-    if (source && id) {
-      // 获取单个配置
-      const skipCfg = await getSkipConfig(authInfo.username, source, id);
-      return NextResponse.json(skipCfg);
-    } else {
-      // 获取所有配置
-      const configs = await getAllSkipConfigs(authInfo.username);
-      return NextResponse.json(configs);
-    }
+    const username = await requireActiveUsername(request);
+    const configs = await getAllSkipConfigs(username);
+    return NextResponse.json(configs);
   } catch (error) {
+    if (error instanceof ApiAuthError) {
+      return jsonError(error.message, error.status);
+    }
     console.error('获取跳过片头片尾配置失败:', error);
-    return NextResponse.json(
-      { error: '获取跳过片头片尾配置失败' },
-      { status: 500 },
-    );
+    return jsonError('获取跳过片头片尾配置失败', 500);
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo || !authInfo.username) {
-      return NextResponse.json({ error: '未登录' }, { status: 401 });
-    }
-
-    const adminConfig = await getConfig();
-    if (authInfo.username !== process.env.APP_ADMIN_USERNAME) {
-      // 非站长，检查用户存在或被封禁
-      const user = adminConfig.UserConfig.Users.find(
-        (u) => u.username === authInfo.username,
-      );
-      if (!user) {
-        return NextResponse.json({ error: '用户不存在' }, { status: 401 });
-      }
-      if (user.banned) {
-        return NextResponse.json({ error: '用户已被封禁' }, { status: 401 });
-      }
-    }
-
+    const username = await requireActiveUsername(request);
     const body = await request.json();
-    const { key, config } = body;
+    const {
+      key,
+      source,
+      videoId,
+      config,
+    }: {
+      key?: string;
+      source?: string;
+      videoId?: string;
+      config?: SkipConfig;
+    } = body;
 
-    if (!key || !config) {
+    if (!config) {
       return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
     }
 
-    // 解析key为source和id
-    const [source, id] = key.split('+');
-    if (!source || !id) {
-      return NextResponse.json({ error: '无效的key格式' }, { status: 400 });
+    let resolvedSource = source;
+    let resolvedVideoId = videoId;
+    if (key && (!resolvedSource || !resolvedVideoId)) {
+      const [s, v] = key.split('+');
+      resolvedSource = s;
+      resolvedVideoId = v;
     }
 
-    // 验证配置格式
+    let identity: { source: string; videoId: string };
+    try {
+      identity = parseResourceIdentity(resolvedSource, resolvedVideoId);
+    } catch {
+      return jsonError('无效的资源标识', 400);
+    }
+
     const skipConfig: SkipConfig = {
       enable: Boolean(config.enable),
       intro_time: Number(config.intro_time) || 0,
       outro_time: Number(config.outro_time) || 0,
     };
 
-    await setSkipConfig(authInfo.username, source, id, skipConfig);
+    await setSkipConfig(
+      username,
+      identity.source,
+      identity.videoId,
+      skipConfig,
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    if (error instanceof ApiAuthError) {
+      return jsonError(error.message, error.status);
+    }
     console.error('保存跳过片头片尾配置失败:', error);
-    return NextResponse.json(
-      { error: '保存跳过片头片尾配置失败' },
-      { status: 500 },
-    );
+    return jsonError('保存跳过片头片尾配置失败', 500);
   }
 }
 
-export async function DELETE(request: NextRequest) {
-  try {
-    const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo || !authInfo.username) {
-      return NextResponse.json({ error: '未登录' }, { status: 401 });
-    }
-
-    const adminConfig = await getConfig();
-    if (authInfo.username !== process.env.APP_ADMIN_USERNAME) {
-      // 非站长，检查用户存在或被封禁
-      const user = adminConfig.UserConfig.Users.find(
-        (u) => u.username === authInfo.username,
-      );
-      if (!user) {
-        return NextResponse.json({ error: '用户不存在' }, { status: 401 });
-      }
-      if (user.banned) {
-        return NextResponse.json({ error: '用户已被封禁' }, { status: 401 });
-      }
-    }
-
-    const { searchParams } = new URL(request.url);
-    const key = searchParams.get('key');
-
-    if (!key) {
-      return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
-    }
-
-    // 解析key为source和id
-    const [source, id] = key.split('+');
-    if (!source || !id) {
-      return NextResponse.json({ error: '无效的key格式' }, { status: 400 });
-    }
-
-    await deleteSkipConfig(authInfo.username, source, id);
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('删除跳过片头片尾配置失败:', error);
-    return NextResponse.json(
-      { error: '删除跳过片头片尾配置失败' },
-      { status: 500 },
-    );
-  }
+export async function DELETE() {
+  return jsonError('Method Not Allowed', 405);
 }

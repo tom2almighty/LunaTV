@@ -88,7 +88,7 @@ export async function saveSkipConfig(
     await fetchWithAuth('/api/user/skip-configs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, config }),
+      body: JSON.stringify({ source, videoId: id, config }),
     });
   } catch (err) {
     console.error('保存跳过片头片尾配置失败:', err);
@@ -110,10 +110,8 @@ export async function deleteSkipConfig(
 
   try {
     await fetchWithAuth(
-      `/api/user/skip-configs?key=${encodeURIComponent(key)}`,
-      {
-        method: 'DELETE',
-      },
+      `/api/user/skip-configs/${encodeURIComponent(source)}/${encodeURIComponent(id)}`,
+      { method: 'DELETE' },
     );
   } catch (err) {
     console.error('删除跳过片头片尾配置失败:', err);
