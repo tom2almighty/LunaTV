@@ -3,6 +3,10 @@ import { describe, expect, it } from 'vitest';
 
 describe('admin route renames', () => {
   it('uses kebab-case admin endpoints in admin callers', () => {
+    const videoSourceContent = readFileSync(
+      'src/app/admin/_components/VideoSourceConfig.tsx',
+      'utf8',
+    );
     const configFileComponent = readFileSync(
       'src/app/admin/_components/ConfigFileComponent.tsx',
       'utf8',
@@ -28,5 +32,7 @@ describe('admin route renames', () => {
     expect(dataMigration).toContain('/api/admin/data-migrations/export');
     expect(dataMigration).toContain('/api/admin/data-migrations/import');
     expect(adminPageClient).toContain('/api/admin/system/reset');
+    expect(videoSourceContent).toContain('/api/admin/sources');
+    expect(videoSourceContent).not.toMatch(/\/api\/admin\/source(?!s)/);
   });
 });

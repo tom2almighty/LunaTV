@@ -120,11 +120,59 @@ export const VideoSourceConfig = ({
   // 通用 API 请求
   const callSourceApi = async (body: Record<string, any>) => {
     try {
-      const resp = await fetch('/api/admin/source', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...body }),
-      });
+      let resp: Response;
+      switch (body.action) {
+        case 'add':
+          resp = await fetch('/api/admin/sources', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              key: body.key,
+              name: body.name,
+              api: body.api,
+              detail: body.detail,
+            }),
+          });
+          break;
+        case 'enable':
+        case 'disable':
+          resp = await fetch(
+            `/api/admin/sources/${encodeURIComponent(body.key)}`,
+            {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ disabled: body.action === 'disable' }),
+            },
+          );
+          break;
+        case 'delete':
+          resp = await fetch(
+            `/api/admin/sources/${encodeURIComponent(body.key)}`,
+            { method: 'DELETE' },
+          );
+          break;
+        case 'sort':
+          resp = await fetch('/api/admin/sources/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order: body.order }),
+          });
+          break;
+        case 'batch_enable':
+        case 'batch_disable':
+        case 'batch_delete':
+          resp = await fetch('/api/admin/sources', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: body.action,
+              keys: body.keys,
+            }),
+          });
+          break;
+        default:
+          throw new Error('不支持的视频源操作');
+      }
 
       if (!resp.ok) {
         const data = await resp.json().catch(() => ({}));
@@ -233,7 +281,7 @@ export const VideoSourceConfig = ({
       try {
         // 使用EventSource接收流式数据
         const eventSource = new EventSource(
-          `/api/admin/source/validate?q=${encodeURIComponent(searchKeyword.trim())}`,
+          `/api/admin/sources/validation-stream?q=${encodeURIComponent(searchKeyword.trim())}`,
         );
 
         eventSource.onmessage = (event) => {
