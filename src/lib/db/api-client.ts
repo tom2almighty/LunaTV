@@ -17,6 +17,10 @@ export function generateStorageKey(source: string, id: string): string {
   return `${source}+${id}`;
 }
 
+export function buildResourceIdentityPath(source: string, id: string): string {
+  return `${encodeURIComponent(source)}/${encodeURIComponent(id)}`;
+}
+
 export async function fetchWithAuth(
   url: string,
   options?: RequestInit,

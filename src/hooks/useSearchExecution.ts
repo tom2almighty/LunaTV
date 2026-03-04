@@ -133,7 +133,9 @@ export function useSearchExecution({
 
       if (currentFluidSearch) {
         // 流式搜索：打开新的流式连接
-        const es = new EventSource(`/api/search/ws?q=${encodeURIComponent(trimmed)}`);
+        const es = new EventSource(
+          `/api/search/stream?q=${encodeURIComponent(trimmed)}`,
+        );
         eventSourceRef.current = es;
 
         es.onmessage = (event) => {
@@ -154,7 +156,9 @@ export function useSearchExecution({
                 ) {
                   // 缓冲新增结果，节流刷入，避免频繁重渲染导致闪烁
                   const activeYearOrder =
-                    viewMode === 'agg' ? filterAggYearOrder : filterAllYearOrder;
+                    viewMode === 'agg'
+                      ? filterAggYearOrder
+                      : filterAllYearOrder;
                   const incoming: SearchResult[] =
                     activeYearOrder === 'none'
                       ? sortBatchForNoOrder(payload.results as SearchResult[])
@@ -257,7 +261,12 @@ export function useSearchExecution({
       setShowResults(false);
       endSearchLoading();
     }
-  }, [searchParams, beginSearchLoading, endSearchLoading, endSearchLoadingImmediately]);
+  }, [
+    searchParams,
+    beginSearchLoading,
+    endSearchLoading,
+    endSearchLoadingImmediately,
+  ]);
 
   useEffect(() => {
     return () => {

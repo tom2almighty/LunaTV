@@ -128,7 +128,7 @@ export const SiteConfigComponent = ({
   const handleSave = async () => {
     await withLoading('saveSiteConfig', async () => {
       try {
-        const resp = await fetch('/api/admin/site-settings', {
+        const resp = await fetch('/api/admin/settings/site', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...siteSettings }),

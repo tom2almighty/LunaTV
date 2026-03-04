@@ -1,0 +1,111 @@
+/* eslint-disable @typescript-eslint/no-explicit-any,no-console */
+
+import { NextRequest, NextResponse } from 'next/server';
+
+import { getAuthInfoFromCookie } from '@/lib/auth';
+import { getConfig } from '@/lib/config';
+import { saveAdminConfig } from '@/lib/db.server';
+
+export const runtime = 'nodejs';
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+
+    const authInfo = getAuthInfoFromCookie(request);
+    if (!authInfo || !authInfo.username) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const username = authInfo.username;
+
+    const {
+      SiteName,
+      Announcement,
+      SearchDownstreamMaxPage,
+      SiteInterfaceCacheTime,
+      DoubanDataCacheTime,
+      DoubanProxyType,
+      DoubanProxy,
+      DoubanImageProxyType,
+      DoubanImageProxy,
+      DisableYellowFilter,
+      FluidSearch,
+      EnableRegistration,
+    } = body as {
+      SiteName: string;
+      Announcement: string;
+      SearchDownstreamMaxPage: number;
+      SiteInterfaceCacheTime: number;
+      DoubanDataCacheTime: number;
+      DoubanProxyType: string;
+      DoubanProxy: string;
+      DoubanImageProxyType: string;
+      DoubanImageProxy: string;
+      DisableYellowFilter: boolean;
+      FluidSearch: boolean;
+      EnableRegistration: boolean;
+    };
+
+    if (
+      typeof SiteName !== 'string' ||
+      typeof Announcement !== 'string' ||
+      typeof SearchDownstreamMaxPage !== 'number' ||
+      typeof SiteInterfaceCacheTime !== 'number' ||
+      typeof DoubanDataCacheTime !== 'number' ||
+      typeof DoubanProxyType !== 'string' ||
+      typeof DoubanProxy !== 'string' ||
+      typeof DoubanImageProxyType !== 'string' ||
+      typeof DoubanImageProxy !== 'string' ||
+      typeof DisableYellowFilter !== 'boolean' ||
+      typeof FluidSearch !== 'boolean' ||
+      typeof EnableRegistration !== 'boolean'
+    ) {
+      return NextResponse.json({ error: '参数格式错误' }, { status: 400 });
+    }
+
+    const adminConfig = await getConfig();
+    if (username !== process.env.APP_ADMIN_USERNAME) {
+      const user = adminConfig.UserConfig.Users.find(
+        (u) => u.username === username,
+      );
+      if (!user || user.role !== 'admin' || user.banned) {
+        return NextResponse.json({ error: '权限不足' }, { status: 401 });
+      }
+    }
+
+    adminConfig.SiteConfig = {
+      SiteName,
+      Announcement,
+      SearchDownstreamMaxPage,
+      SiteInterfaceCacheTime,
+      DoubanDataCacheTime,
+      DoubanProxyType,
+      DoubanProxy,
+      DoubanImageProxyType,
+      DoubanImageProxy,
+      DisableYellowFilter,
+      FluidSearch,
+      EnableRegistration,
+    };
+
+    await saveAdminConfig(adminConfig);
+
+    return NextResponse.json(
+      { ok: true },
+      {
+        headers: {
+          'Cache-Control': 'no-store',
+        },
+      },
+    );
+  } catch (error) {
+    console.error('更新站点配置失败:', error);
+    return NextResponse.json(
+      {
+        error: '更新站点配置失败',
+        details: (error as Error).message,
+      },
+      { status: 500 },
+    );
+  }
+}

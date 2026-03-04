@@ -71,7 +71,7 @@ function AdminPageClient() {
   const fetchConfig = useCallback(async (showLoading = false) => {
     try {
       if (showLoading) setLoading(true);
-      const response = await fetch('/api/admin/config');
+      const response = await fetch('/api/admin/settings/overview');
       if (!response.ok) {
         const data = (await response.json()) as any;
         throw new Error('获取配置失败: ' + data.error);
@@ -99,7 +99,9 @@ function AdminPageClient() {
   const handleConfirmResetConfig = async () => {
     await withLoading('resetConfig', async () => {
       try {
-        const response = await fetch('/api/admin/system/reset');
+        const response = await fetch('/api/admin/system/reset', {
+          method: 'POST',
+        });
         if (!response.ok) throw new Error('重置失败: ' + response.status);
         showSuccess('重置成功，请刷新页面！', showAlert);
         await fetchConfig();

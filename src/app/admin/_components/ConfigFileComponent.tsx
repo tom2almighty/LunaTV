@@ -49,11 +49,14 @@ export const ConfigFileComponent = ({
 
     await withLoading('fetchConfig', async () => {
       try {
-        const resp = await fetch('/api/admin/config-subscriptions/fetch', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: subscriptionUrl }),
-        });
+        const resp = await fetch(
+          '/api/admin/settings/config-subscription/fetch',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: subscriptionUrl }),
+          },
+        );
 
         if (!resp.ok) {
           const data = await resp.json().catch(() => ({}));
@@ -81,7 +84,7 @@ export const ConfigFileComponent = ({
   const handleSave = async () => {
     await withLoading('saveConfig', async () => {
       try {
-        const resp = await fetch('/api/admin/config-files', {
+        const resp = await fetch('/api/admin/settings/config-file', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

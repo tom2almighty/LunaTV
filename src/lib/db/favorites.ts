@@ -103,7 +103,7 @@ export async function saveFavorite(
     await fetchWithAuth('/api/user/favorites', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, favorite }),
+      body: JSON.stringify({ source, videoId: id, favorite }),
     });
   } catch (err) {
     await handleFailure(err);
@@ -123,9 +123,10 @@ export async function deleteFavorite(
   window.dispatchEvent(new CustomEvent('favoritesUpdated', { detail: cached }));
 
   try {
-    await fetchWithAuth(`/api/user/favorites?key=${encodeURIComponent(key)}`, {
-      method: 'DELETE',
-    });
+    await fetchWithAuth(
+      `/api/user/favorites/${encodeURIComponent(source)}/${encodeURIComponent(id)}`,
+      { method: 'DELETE' },
+    );
   } catch (err) {
     await handleFailure(err);
     triggerGlobalError('删除收藏失败');

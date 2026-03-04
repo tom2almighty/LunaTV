@@ -13,6 +13,20 @@ describe('play session bootstrap contract', () => {
     expect(content.includes('/api/play/session?ps=')).toBe(false);
   });
 
+  it('uses nested current route for play session switching', () => {
+    const sessionRoute = readFileSync(
+      'src/app/api/play/sessions/[sessionId]/route.ts',
+      'utf8',
+    );
+    const currentRoute = readFileSync(
+      'src/app/api/play/sessions/[sessionId]/current/route.ts',
+      'utf8',
+    );
+
+    expect(sessionRoute.includes('export async function PATCH')).toBe(false);
+    expect(currentRoute.includes('export async function PATCH')).toBe(true);
+  });
+
   it('does not build legacy fallback play query params in video card', () => {
     const content = readFileSync('src/components/VideoCard.tsx', 'utf8');
 

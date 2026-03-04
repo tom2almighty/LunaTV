@@ -36,6 +36,7 @@ import { ImagePlaceholder } from '@/components/ImagePlaceholder';
 import MobileActionSheet from '@/components/MobileActionSheet';
 import { useVideoCardActions } from '@/components/video-card/use-video-card-actions';
 import {
+  buildPlaySessionCreateApiPath,
   buildPlaySessionPayload,
   buildPlaySessionUrl,
 } from '@/components/video-card/use-video-card-navigation';
@@ -269,7 +270,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             id: actualId,
           });
 
-          const resp = await fetch('/api/play/sessions', {
+          const resp = await fetch(buildPlaySessionCreateApiPath(), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
