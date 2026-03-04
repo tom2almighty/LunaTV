@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
-
-import {
-  AdminUserServiceError,
-  executeAdminUserAction,
-} from '@/server/services/admin-user-service';
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
+import { ApiValidationError } from '@/server/api/handler';
+import { executeAdminUserAction } from '@/server/services/admin-user-service';
 
 export const runtime = 'nodejs';
 
@@ -14,19 +11,21 @@ type RouteContext = {
 };
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
-  try {
-    const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo?.username) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { groupName } = await context.params;
+
+  return executeAdminApiHandler(request, async ({ username }) => {
+    let body: { enabledApis?: unknown[] };
+    try {
+      body = await request.json();
+    } catch {
+      throw new ApiValidationError('请求体格式错误');
     }
 
-    const { groupName } = await context.params;
-    const body = await request.json();
     const enabledApis = Array.isArray(body.enabledApis)
-      ? body.enabledApis.filter((v: unknown) => typeof v === 'string')
+      ? body.enabledApis.filter((v): v is string => typeof v === 'string')
       : [];
 
-    await executeAdminUserAction(authInfo.username, {
+    await executeAdminUserAction(username, {
       action: 'userGroup',
       groupAction: 'edit',
       groupName,
@@ -41,26 +40,14 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         },
       },
     );
-  } catch (error) {
-    if (error instanceof AdminUserServiceError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    return NextResponse.json({ error: '用户组操作失败' }, { status: 500 });
-  }
+  });
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  try {
-    const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo?.username) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  const { groupName } = await context.params;
 
-    const { groupName } = await context.params;
-    await executeAdminUserAction(authInfo.username, {
+  return executeAdminApiHandler(request, async ({ username }) => {
+    await executeAdminUserAction(username, {
       action: 'userGroup',
       groupAction: 'delete',
       groupName,
@@ -74,13 +61,5 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
         },
       },
     );
-  } catch (error) {
-    if (error instanceof AdminUserServiceError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    return NextResponse.json({ error: '用户组操作失败' }, { status: 500 });
-  }
+  });
 }

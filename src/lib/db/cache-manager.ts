@@ -137,16 +137,6 @@ class HybridCacheManager {
   cacheSkipConfigs = (d: Record<string, SkipConfig>) =>
     this.set('skipConfigs', d);
 
-  clearUserCache(username?: string): void {
-    const target = username || this.getCurrentUsername();
-    if (!target) return;
-    try {
-      localStorage.removeItem(this.getUserCacheKey(target));
-    } catch {
-      /* noop */
-    }
-  }
-
   clearExpiredCaches(): void {
     if (typeof window === 'undefined') return;
     try {

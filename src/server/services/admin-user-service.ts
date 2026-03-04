@@ -8,6 +8,9 @@ import {
   saveAdminConfig,
 } from '@/lib/db.server';
 
+import { resolveAdminRole } from '@/server/api/guards';
+import { ApiBusinessError } from '@/server/api/handler';
+
 type OperatorRole = 'owner' | 'admin';
 
 export const ADMIN_USER_ACTIONS = [
@@ -40,12 +43,10 @@ export type AdminUserActionPayload = {
   groupName?: string;
 };
 
-export class AdminUserServiceError extends Error {
-  status: number;
-
+export class AdminUserServiceError extends ApiBusinessError {
   constructor(status: number, message: string) {
-    super(message);
-    this.status = status;
+    super(message, status, 'ADMIN_USER_SERVICE_ERROR');
+    this.name = 'AdminUserServiceError';
   }
 }
 
@@ -55,23 +56,12 @@ function fail(status: number, message: string): never {
 
 async function resolveOperatorContext(operatorUsername: string) {
   const adminConfig = await getConfig();
-
-  if (operatorUsername === process.env.APP_ADMIN_USERNAME) {
-    return { adminConfig, operatorRole: 'owner' as OperatorRole };
+  const role = resolveAdminRole(adminConfig, operatorUsername);
+  if (!role) {
+    throw new ApiBusinessError('权限不足', 401, 'ADMIN_PERMISSION_DENIED');
   }
 
-  const operatorEntry = adminConfig.UserConfig.Users.find(
-    (u) => u.username === operatorUsername,
-  );
-  if (
-    !operatorEntry ||
-    operatorEntry.role !== 'admin' ||
-    operatorEntry.banned
-  ) {
-    fail(401, '权限不足');
-  }
-
-  return { adminConfig, operatorRole: 'admin' as OperatorRole };
+  return { adminConfig, operatorRole: role as OperatorRole };
 }
 
 function getTargetEntry(adminConfig: any, targetUsername: string) {

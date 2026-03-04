@@ -1,23 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any,no-console */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 import { API_CONFIG } from '@/lib/config';
 
-import { AdminSourceApiError, requireSourceAdminConfig } from '../_utils';
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
+import { ApiValidationError } from '@/server/api/handler';
+
+import { requireSourceAdminConfig } from '../_utils';
 
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
-  try {
-    const adminConfig = await requireSourceAdminConfig(request);
+  return executeAdminApiHandler(request, async ({ username }) => {
+    const adminConfig = await requireSourceAdminConfig(username);
     const { searchParams } = new URL(request.url);
     const searchKeyword = searchParams.get('q');
     if (!searchKeyword) {
-      return NextResponse.json(
-        { error: '搜索关键词不能为空' },
-        { status: 400 },
-      );
+      throw new ApiValidationError('搜索关键词不能为空');
     }
 
     const apiSites = adminConfig.SourceConfig;
@@ -36,8 +36,7 @@ export async function GET(request: NextRequest) {
             }
             controller.enqueue(data);
             return true;
-          } catch (error) {
-            console.warn('Failed to enqueue data:', error);
+          } catch {
             streamClosed = true;
             return false;
           }
@@ -88,7 +87,7 @@ export async function GET(request: NextRequest) {
                 status = 'no_results';
               }
 
-              completedSources++;
+              completedSources += 1;
               if (!streamClosed) {
                 const sourceEvent = `data: ${JSON.stringify({
                   type: 'source_result',
@@ -105,7 +104,7 @@ export async function GET(request: NextRequest) {
             }
           } catch (error) {
             console.warn(`验证失败 ${site.name}:`, error);
-            completedSources++;
+            completedSources += 1;
             if (!streamClosed) {
               const errorEvent = `data: ${JSON.stringify({
                 type: 'source_error',
@@ -125,11 +124,7 @@ export async function GET(request: NextRequest) {
               completedSources,
             })}\n\n`;
             if (safeEnqueue(encoder.encode(completeEvent))) {
-              try {
-                controller.close();
-              } catch (error) {
-                console.warn('Failed to close controller:', error);
-              }
+              controller.close();
             }
           }
         });
@@ -138,7 +133,6 @@ export async function GET(request: NextRequest) {
       },
       cancel() {
         streamClosed = true;
-        console.log('Client disconnected, cancelling validation stream');
       },
     });
 
@@ -152,13 +146,5 @@ export async function GET(request: NextRequest) {
         'Access-Control-Allow-Headers': 'Content-Type',
       },
     });
-  } catch (error) {
-    if (error instanceof AdminSourceApiError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    return NextResponse.json({ error: '验证视频源失败' }, { status: 500 });
-  }
+  });
 }

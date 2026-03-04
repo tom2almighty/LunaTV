@@ -2,21 +2,22 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
 import { saveAdminConfig } from '@/lib/db.server';
+
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
+import { ApiValidationError } from '@/server/api/handler';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-
-    const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo || !authInfo.username) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  return executeAdminApiHandler(request, async () => {
+    let body: any;
+    try {
+      body = await request.json();
+    } catch {
+      throw new ApiValidationError('请求体格式错误');
     }
-    const username = authInfo.username;
 
     const {
       SiteName,
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest) {
       DisableYellowFilter,
       FluidSearch,
       EnableRegistration,
+      M3U8AdFilterEnabled,
     } = body as {
       SiteName: string;
       Announcement: string;
@@ -44,6 +46,7 @@ export async function POST(request: NextRequest) {
       DisableYellowFilter: boolean;
       FluidSearch: boolean;
       EnableRegistration: boolean;
+      M3U8AdFilterEnabled: boolean;
     };
 
     if (
@@ -58,21 +61,13 @@ export async function POST(request: NextRequest) {
       typeof DoubanImageProxy !== 'string' ||
       typeof DisableYellowFilter !== 'boolean' ||
       typeof FluidSearch !== 'boolean' ||
-      typeof EnableRegistration !== 'boolean'
+      typeof EnableRegistration !== 'boolean' ||
+      typeof M3U8AdFilterEnabled !== 'boolean'
     ) {
-      return NextResponse.json({ error: '参数格式错误' }, { status: 400 });
+      throw new ApiValidationError('参数格式错误');
     }
 
     const adminConfig = await getConfig();
-    if (username !== process.env.APP_ADMIN_USERNAME) {
-      const user = adminConfig.UserConfig.Users.find(
-        (u) => u.username === username,
-      );
-      if (!user || user.role !== 'admin' || user.banned) {
-        return NextResponse.json({ error: '权限不足' }, { status: 401 });
-      }
-    }
-
     adminConfig.SiteConfig = {
       SiteName,
       Announcement,
@@ -86,6 +81,7 @@ export async function POST(request: NextRequest) {
       DisableYellowFilter,
       FluidSearch,
       EnableRegistration,
+      M3U8AdFilterEnabled,
     };
 
     await saveAdminConfig(adminConfig);
@@ -98,14 +94,5 @@ export async function POST(request: NextRequest) {
         },
       },
     );
-  } catch (error) {
-    console.error('更新站点配置失败:', error);
-    return NextResponse.json(
-      {
-        error: '更新站点配置失败',
-        details: (error as Error).message,
-      },
-      { status: 500 },
-    );
-  }
+  });
 }

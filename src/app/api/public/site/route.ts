@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
   const result = {
     SiteName: config.SiteConfig.SiteName,
     EnableRegistration: config.SiteConfig.EnableRegistration || false,
+    M3U8AdFilterEnabled: config.SiteConfig.M3U8AdFilterEnabled !== false,
   };
   return NextResponse.json(result);
 }

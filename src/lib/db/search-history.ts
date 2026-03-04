@@ -1,15 +1,21 @@
 /* eslint-disable no-console */
 'use client';
 
-import { fetchFromApi, fetchWithAuth, triggerGlobalError } from './api-client';
+import { triggerGlobalError } from './api-client';
 import { cacheManager } from './cache-manager';
+import {
+  addSearchHistoryToApi,
+  clearSearchHistoryFromApi,
+  deleteSearchHistoryItemFromApi,
+  getSearchHistoryFromApi,
+} from '../api/user-data-client';
 
 const SEARCH_HISTORY_LIMIT = 20;
 
 async function handleFailure(error: unknown): Promise<void> {
   console.error('数据库操作失败 (searchHistory):', error);
   try {
-    const fresh = await fetchFromApi<string[]>('/api/user/search-history');
+    const fresh = await getSearchHistoryFromApi();
     cacheManager.cacheSearchHistory(fresh);
     window.dispatchEvent(
       new CustomEvent('searchHistoryUpdated', { detail: fresh }),
@@ -24,7 +30,7 @@ export async function getSearchHistory(): Promise<string[]> {
 
   const cached = cacheManager.getCachedSearchHistory();
   if (cached) {
-    fetchFromApi<string[]>('/api/user/search-history')
+    getSearchHistoryFromApi()
       .then((fresh) => {
         if (JSON.stringify(cached) !== JSON.stringify(fresh)) {
           cacheManager.cacheSearchHistory(fresh);
@@ -41,7 +47,7 @@ export async function getSearchHistory(): Promise<string[]> {
   }
 
   try {
-    const fresh = await fetchFromApi<string[]>('/api/user/search-history');
+    const fresh = await getSearchHistoryFromApi();
     cacheManager.cacheSearchHistory(fresh);
     return fresh;
   } catch (err) {
@@ -66,11 +72,7 @@ export async function addSearchHistory(keyword: string): Promise<void> {
   );
 
   try {
-    await fetchWithAuth('/api/user/search-history', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ keyword: trimmed }),
-    });
+    await addSearchHistoryToApi(trimmed);
   } catch (err) {
     await handleFailure(err);
   }
@@ -89,10 +91,7 @@ export async function deleteSearchHistory(keyword: string): Promise<void> {
   );
 
   try {
-    await fetchWithAuth(
-      `/api/user/search-history/${encodeURIComponent(trimmed)}`,
-      { method: 'DELETE' },
-    );
+    await deleteSearchHistoryItemFromApi(trimmed);
   } catch (err) {
     await handleFailure(err);
   }
@@ -103,7 +102,7 @@ export async function clearSearchHistory(): Promise<void> {
   window.dispatchEvent(new CustomEvent('searchHistoryUpdated', { detail: [] }));
 
   try {
-    await fetchWithAuth('/api/user/search-history', { method: 'DELETE' });
+    await clearSearchHistoryFromApi();
   } catch (err) {
     await handleFailure(err);
   }

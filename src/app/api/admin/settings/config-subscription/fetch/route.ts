@@ -1,58 +1,58 @@
 /* eslint-disable no-console */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
+import { ApiBusinessError, ApiValidationError } from '@/server/api/handler';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
-  try {
-    const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo || !authInfo.username) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  return executeAdminApiHandler(
+    request,
+    async () => {
+      let body: { url?: unknown };
+      try {
+        body = await request.json();
+      } catch {
+        throw new ApiValidationError('请求体格式错误');
+      }
 
-    if (authInfo.username !== process.env.APP_ADMIN_USERNAME) {
-      return NextResponse.json(
-        { error: '权限不足，只有站长可以拉取配置订阅' },
-        { status: 401 },
-      );
-    }
+      const url = String(body.url || '');
+      if (!url) {
+        throw new ApiValidationError('缺少URL参数');
+      }
 
-    const { url } = await request.json();
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new ApiBusinessError(
+          `请求失败: ${response.status} ${response.statusText}`,
+          response.status,
+          'CONFIG_SUBSCRIPTION_FETCH_FAILED',
+        );
+      }
 
-    if (!url) {
-      return NextResponse.json({ error: '缺少URL参数' }, { status: 400 });
-    }
+      const configContent = await response.text();
 
-    const response = await fetch(url);
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: `请求失败: ${response.status} ${response.statusText}` },
-        { status: response.status },
-      );
-    }
+      let decodedContent;
+      try {
+        const bs58 = (await import('bs58')).default;
+        const decodedBytes = bs58.decode(configContent);
+        decodedContent = new TextDecoder().decode(decodedBytes);
+      } catch (decodeError) {
+        console.warn('Base58 解码失败', decodeError);
+        throw new ApiBusinessError('拉取配置失败', 500, 'CONFIG_DECODE_FAILED');
+      }
 
-    const configContent = await response.text();
-
-    let decodedContent;
-    try {
-      const bs58 = (await import('bs58')).default;
-      const decodedBytes = bs58.decode(configContent);
-      decodedContent = new TextDecoder().decode(decodedBytes);
-    } catch (decodeError) {
-      console.warn('Base58 解码失败', decodeError);
-      throw decodeError;
-    }
-
-    return NextResponse.json({
-      success: true,
-      configContent: decodedContent,
-      message: '配置拉取成功',
-    });
-  } catch (error) {
-    console.error('拉取配置失败:', error);
-    return NextResponse.json({ error: '拉取配置失败' }, { status: 500 });
-  }
+      return {
+        success: true,
+        configContent: decodedContent,
+        message: '配置拉取成功',
+      };
+    },
+    {
+      ownerOnly: true,
+      ownerOnlyMessage: '权限不足，只有站长可以拉取配置订阅',
+    },
+  );
 }

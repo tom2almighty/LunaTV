@@ -1,11 +1,10 @@
 /* eslint-disable no-console */
 
+import { userDataRepository } from '@/server/repositories/user-data-repository';
+
 import { AdminConfig } from './admin.types';
 import { getDb, SQLiteDatabase } from './sqlite';
 import { Favorite, PlayRecord, SkipConfig } from './types';
-
-// 搜索历史最大条数
-const SEARCH_HISTORY_LIMIT = 20;
 
 type QueryParams = unknown[];
 
@@ -101,13 +100,7 @@ export async function getPlayRecord(
   source: string,
   videoId: string,
 ): Promise<PlayRecord | null> {
-  const db = getDb();
-  const row = getRow<{ record_json: string }>(
-    db,
-    'SELECT record_json FROM play_records WHERE username = ? AND source = ? AND video_id = ?',
-    [username, source, videoId],
-  );
-  return row ? JSON.parse(row.record_json) : null;
+  return userDataRepository.getPlayRecord(username, source, videoId);
 }
 
 export async function savePlayRecord(
@@ -116,34 +109,13 @@ export async function savePlayRecord(
   videoId: string,
   record: PlayRecord,
 ): Promise<void> {
-  const db = getDb();
-  run(
-    db,
-    `INSERT INTO play_records (username, source, video_id, record_json, updated_at)
-     VALUES (?, ?, ?, ?, strftime('%s', 'now'))
-     ON CONFLICT(username, source, video_id)
-     DO UPDATE SET record_json = excluded.record_json, updated_at = excluded.updated_at`,
-    [username, source, videoId, JSON.stringify(record)],
-  );
+  return userDataRepository.savePlayRecord(username, source, videoId, record);
 }
 
 export async function getAllPlayRecords(
   username: string,
 ): Promise<Record<string, PlayRecord>> {
-  const db = getDb();
-  const rows = allRows<
-    { source: string; video_id: string; record_json: string }[]
-  >(
-    db,
-    'SELECT source, video_id, record_json FROM play_records WHERE username = ?',
-    [username],
-  );
-  const result: Record<string, PlayRecord> = {};
-  for (const row of rows) {
-    const key = `${row.source}+${row.video_id}`;
-    result[key] = JSON.parse(row.record_json);
-  }
-  return result;
+  return userDataRepository.getAllPlayRecords(username);
 }
 
 export async function deletePlayRecord(
@@ -151,17 +123,11 @@ export async function deletePlayRecord(
   source: string,
   videoId: string,
 ): Promise<void> {
-  const db = getDb();
-  run(
-    db,
-    'DELETE FROM play_records WHERE username = ? AND source = ? AND video_id = ?',
-    [username, source, videoId],
-  );
+  return userDataRepository.deletePlayRecord(username, source, videoId);
 }
 
 export async function deleteAllPlayRecords(username: string): Promise<void> {
-  const db = getDb();
-  run(db, 'DELETE FROM play_records WHERE username = ?', [username]);
+  return userDataRepository.deleteAllPlayRecords(username);
 }
 
 // ==================== 收藏 ====================
@@ -171,13 +137,7 @@ export async function getFavorite(
   source: string,
   videoId: string,
 ): Promise<Favorite | null> {
-  const db = getDb();
-  const row = getRow<{ favorite_json: string }>(
-    db,
-    'SELECT favorite_json FROM favorites WHERE username = ? AND source = ? AND video_id = ?',
-    [username, source, videoId],
-  );
-  return row ? JSON.parse(row.favorite_json) : null;
+  return userDataRepository.getFavorite(username, source, videoId);
 }
 
 export async function saveFavorite(
@@ -186,34 +146,13 @@ export async function saveFavorite(
   videoId: string,
   favorite: Favorite,
 ): Promise<void> {
-  const db = getDb();
-  run(
-    db,
-    `INSERT INTO favorites (username, source, video_id, favorite_json)
-     VALUES (?, ?, ?, ?)
-     ON CONFLICT(username, source, video_id)
-     DO UPDATE SET favorite_json = excluded.favorite_json`,
-    [username, source, videoId, JSON.stringify(favorite)],
-  );
+  return userDataRepository.saveFavorite(username, source, videoId, favorite);
 }
 
 export async function getAllFavorites(
   username: string,
 ): Promise<Record<string, Favorite>> {
-  const db = getDb();
-  const rows = allRows<
-    { source: string; video_id: string; favorite_json: string }[]
-  >(
-    db,
-    'SELECT source, video_id, favorite_json FROM favorites WHERE username = ?',
-    [username],
-  );
-  const result: Record<string, Favorite> = {};
-  for (const row of rows) {
-    const key = `${row.source}+${row.video_id}`;
-    result[key] = JSON.parse(row.favorite_json);
-  }
-  return result;
+  return userDataRepository.getAllFavorites(username);
 }
 
 export async function deleteFavorite(
@@ -221,69 +160,31 @@ export async function deleteFavorite(
   source: string,
   videoId: string,
 ): Promise<void> {
-  const db = getDb();
-  run(
-    db,
-    'DELETE FROM favorites WHERE username = ? AND source = ? AND video_id = ?',
-    [username, source, videoId],
-  );
+  return userDataRepository.deleteFavorite(username, source, videoId);
 }
 
 export async function deleteAllFavorites(username: string): Promise<void> {
-  const db = getDb();
-  run(db, 'DELETE FROM favorites WHERE username = ?', [username]);
+  return userDataRepository.deleteAllFavorites(username);
 }
 
 // ==================== 搜索历史 ====================
 
 export async function getSearchHistory(username: string): Promise<string[]> {
-  const db = getDb();
-  const rows = allRows<{ keyword: string }[]>(
-    db,
-    'SELECT keyword FROM search_history WHERE username = ? ORDER BY created_at DESC LIMIT ?',
-    [username, SEARCH_HISTORY_LIMIT],
-  );
-  return rows.map((r) => r.keyword);
+  return userDataRepository.getSearchHistory(username);
 }
 
 export async function addSearchHistory(
   username: string,
   keyword: string,
 ): Promise<void> {
-  const db = getDb();
-  // 先删除已存在的相同关键词
-  run(db, 'DELETE FROM search_history WHERE username = ? AND keyword = ?', [
-    username,
-    keyword,
-  ]);
-  // 插入新记录
-  run(db, 'INSERT INTO search_history (username, keyword) VALUES (?, ?)', [
-    username,
-    keyword,
-  ]);
-  // 清理超出限制的旧记录
-  run(
-    db,
-    `DELETE FROM search_history WHERE username = ? AND id NOT IN (
-      SELECT id FROM search_history WHERE username = ? ORDER BY created_at DESC LIMIT ?
-    )`,
-    [username, username, SEARCH_HISTORY_LIMIT],
-  );
+  return userDataRepository.addSearchHistory(username, keyword);
 }
 
 export async function deleteSearchHistory(
   username: string,
   keyword?: string,
 ): Promise<void> {
-  const db = getDb();
-  if (keyword) {
-    run(db, 'DELETE FROM search_history WHERE username = ? AND keyword = ?', [
-      username,
-      keyword,
-    ]);
-  } else {
-    run(db, 'DELETE FROM search_history WHERE username = ?', [username]);
-  }
+  return userDataRepository.deleteSearchHistory(username, keyword);
 }
 
 // ==================== 跳过片头片尾配置 ====================
@@ -293,13 +194,7 @@ export async function getSkipConfig(
   source: string,
   videoId: string,
 ): Promise<SkipConfig | null> {
-  const db = getDb();
-  const row = getRow<{ config_json: string }>(
-    db,
-    'SELECT config_json FROM skip_configs WHERE username = ? AND source = ? AND video_id = ?',
-    [username, source, videoId],
-  );
-  return row ? JSON.parse(row.config_json) : null;
+  return userDataRepository.getSkipConfig(username, source, videoId);
 }
 
 export async function setSkipConfig(
@@ -308,15 +203,7 @@ export async function setSkipConfig(
   videoId: string,
   config: SkipConfig,
 ): Promise<void> {
-  const db = getDb();
-  run(
-    db,
-    `INSERT INTO skip_configs (username, source, video_id, config_json)
-     VALUES (?, ?, ?, ?)
-     ON CONFLICT(username, source, video_id)
-     DO UPDATE SET config_json = excluded.config_json`,
-    [username, source, videoId, JSON.stringify(config)],
-  );
+  return userDataRepository.setSkipConfig(username, source, videoId, config);
 }
 
 export async function deleteSkipConfig(
@@ -324,31 +211,13 @@ export async function deleteSkipConfig(
   source: string,
   videoId: string,
 ): Promise<void> {
-  const db = getDb();
-  run(
-    db,
-    'DELETE FROM skip_configs WHERE username = ? AND source = ? AND video_id = ?',
-    [username, source, videoId],
-  );
+  return userDataRepository.deleteSkipConfig(username, source, videoId);
 }
 
 export async function getAllSkipConfigs(
   username: string,
 ): Promise<Record<string, SkipConfig>> {
-  const db = getDb();
-  const rows = allRows<
-    { source: string; video_id: string; config_json: string }[]
-  >(
-    db,
-    'SELECT source, video_id, config_json FROM skip_configs WHERE username = ?',
-    [username],
-  );
-  const result: Record<string, SkipConfig> = {};
-  for (const row of rows) {
-    const key = `${row.source}+${row.video_id}`;
-    result[key] = JSON.parse(row.config_json);
-  }
-  return result;
+  return userDataRepository.getAllSkipConfigs(username);
 }
 
 // ==================== 管理员配置 ====================

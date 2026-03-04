@@ -2,14 +2,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-import {
-  addSearchHistory,
-  deleteSearchHistory,
-  getSearchHistory,
-} from '@/lib/db.server';
-
-import { ApiAuthError, requireActiveUsername } from '@/server/api/guards';
-import { jsonError } from '@/server/api/http';
+import { executeApiHandler } from '@/server/api/handler';
+import { userDataRepository } from '@/server/repositories/user-data-repository';
 
 export const runtime = 'nodejs';
 
@@ -21,17 +15,16 @@ const HISTORY_LIMIT = 20;
  * 返回 string[]
  */
 export async function GET(request: NextRequest) {
-  try {
-    const username = await requireActiveUsername(request);
-    const history = await getSearchHistory(username);
-    return NextResponse.json(history, { status: 200 });
-  } catch (err) {
-    if (err instanceof ApiAuthError) {
-      return jsonError(err.message, err.status);
-    }
-    console.error('获取搜索历史失败', err);
-    return jsonError('Internal Server Error', 500);
-  }
+  return executeApiHandler(
+    request,
+    async ({ username }) => {
+      const history = await userDataRepository.getSearchHistory(
+        username as string,
+      );
+      return history;
+    },
+    { requireAuth: true, responseShape: 'raw' },
+  );
 }
 
 /**
@@ -39,30 +32,28 @@ export async function GET(request: NextRequest) {
  * body: { keyword: string }
  */
 export async function POST(request: NextRequest) {
-  try {
-    const username = await requireActiveUsername(request);
-    const body = await request.json();
-    const keyword: string = body.keyword?.trim();
+  return executeApiHandler(
+    request,
+    async ({ username }) => {
+      const body = await request.json();
+      const keyword: string = body.keyword?.trim();
 
-    if (!keyword) {
-      return NextResponse.json(
-        { error: 'Keyword is required' },
-        { status: 400 },
+      if (!keyword) {
+        return NextResponse.json(
+          { error: 'Keyword is required' },
+          { status: 400 },
+        );
+      }
+
+      await userDataRepository.addSearchHistory(username as string, keyword);
+
+      const history = await userDataRepository.getSearchHistory(
+        username as string,
       );
-    }
-
-    await addSearchHistory(username, keyword);
-
-    // 再次获取最新列表，确保客户端与服务端同步
-    const history = await getSearchHistory(username);
-    return NextResponse.json(history.slice(0, HISTORY_LIMIT), { status: 200 });
-  } catch (err) {
-    if (err instanceof ApiAuthError) {
-      return jsonError(err.message, err.status);
-    }
-    console.error('添加搜索历史失败', err);
-    return jsonError('Internal Server Error', 500);
-  }
+      return history.slice(0, HISTORY_LIMIT);
+    },
+    { requireAuth: true, responseShape: 'raw' },
+  );
 }
 
 /**
@@ -72,16 +63,12 @@ export async function POST(request: NextRequest) {
  * 2. 带 keyword=<kw> -> 删除单条关键字
  */
 export async function DELETE(request: NextRequest) {
-  try {
-    const username = await requireActiveUsername(request);
-    await deleteSearchHistory(username);
-
-    return NextResponse.json({ success: true }, { status: 200 });
-  } catch (err) {
-    if (err instanceof ApiAuthError) {
-      return jsonError(err.message, err.status);
-    }
-    console.error('删除搜索历史失败', err);
-    return jsonError('Internal Server Error', 500);
-  }
+  return executeApiHandler(
+    request,
+    async ({ username }) => {
+      await userDataRepository.deleteSearchHistory(username as string);
+      return { success: true };
+    },
+    { requireAuth: true, responseShape: 'raw' },
+  );
 }

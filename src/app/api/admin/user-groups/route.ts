@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
-
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
+import { ApiValidationError } from '@/server/api/handler';
 import {
-  AdminUserServiceError,
   executeAdminUserAction,
   getUserGroupsForOperator,
 } from '@/server/services/admin-user-service';
@@ -11,43 +10,31 @@ import {
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
-  try {
-    const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo?.username) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const groups = await getUserGroupsForOperator(authInfo.username);
-    return NextResponse.json({ groups });
-  } catch (error) {
-    if (error instanceof AdminUserServiceError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    return NextResponse.json({ error: '用户组操作失败' }, { status: 500 });
-  }
+  return executeAdminApiHandler(request, async ({ username }) => {
+    const groups = await getUserGroupsForOperator(username);
+    return { groups };
+  });
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo?.username) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  return executeAdminApiHandler(request, async ({ username }) => {
+    let body: { name?: string; enabledApis?: unknown[] };
+    try {
+      body = await request.json();
+    } catch {
+      throw new ApiValidationError('请求体格式错误');
     }
 
-    const body = await request.json();
-    const groupName = String(body.name || '');
-    if (!groupName.trim()) {
-      return NextResponse.json({ error: '缺少用户组名称' }, { status: 400 });
+    const groupName = String(body.name || '').trim();
+    if (!groupName) {
+      throw new ApiValidationError('缺少用户组名称');
     }
 
     const enabledApis = Array.isArray(body.enabledApis)
-      ? body.enabledApis.filter((v: unknown) => typeof v === 'string')
+      ? body.enabledApis.filter((v): v is string => typeof v === 'string')
       : [];
 
-    await executeAdminUserAction(authInfo.username, {
+    await executeAdminUserAction(username, {
       action: 'userGroup',
       groupAction: 'add',
       groupName,
@@ -62,13 +49,5 @@ export async function POST(request: NextRequest) {
         },
       },
     );
-  } catch (error) {
-    if (error instanceof AdminUserServiceError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    return NextResponse.json({ error: '用户组操作失败' }, { status: 500 });
-  }
+  });
 }

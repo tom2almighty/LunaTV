@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 
+import { AdminConfig } from '@/lib/admin.types';
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
 
@@ -39,4 +40,43 @@ export async function requireActiveUsername(
   }
 
   return username;
+}
+
+export type AdminRole = 'owner' | 'admin';
+
+export function resolveAdminRole(
+  config: AdminConfig,
+  username: string,
+): AdminRole | null {
+  if (username === process.env.APP_ADMIN_USERNAME) {
+    return 'owner';
+  }
+
+  const user = config.UserConfig.Users.find(
+    (item) => item.username === username,
+  );
+  if (!user || user.role !== 'admin' || user.banned) {
+    return null;
+  }
+
+  return 'admin';
+}
+
+export async function requireAdminRoleByUsername(
+  username: string,
+  options?: {
+    ownerOnly?: boolean;
+    forbiddenMessage?: string;
+    ownerOnlyMessage?: string;
+  },
+): Promise<AdminRole> {
+  const config = await getConfig();
+  const role = resolveAdminRole(config, username);
+  if (!role) {
+    throw new ApiAuthError(options?.forbiddenMessage || '权限不足', 401);
+  }
+  if (options?.ownerOnly && role !== 'owner') {
+    throw new ApiAuthError(options.ownerOnlyMessage || '权限不足', 401);
+  }
+  return role;
 }
