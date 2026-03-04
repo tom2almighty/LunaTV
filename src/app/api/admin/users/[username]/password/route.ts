@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
-
-import {
-  AdminUserServiceError,
-  executeAdminUserAction,
-} from '@/server/services/admin-user-service';
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
+import { ApiValidationError } from '@/server/api/handler';
+import { executeAdminUserAction } from '@/server/services/admin-user-service';
 
 export const runtime = 'nodejs';
 
@@ -14,24 +11,30 @@ type RouteContext = {
 };
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
-  try {
-    const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo?.username) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { username: targetUsername } = await context.params;
+
+  return executeAdminApiHandler(request, async ({ username }) => {
+    let body: {
+      targetPassword?: string;
+      password?: string;
+      newPassword?: string;
+    };
+    try {
+      body = await request.json();
+    } catch {
+      throw new ApiValidationError('请求体格式错误');
     }
 
-    const { username } = await context.params;
-    const body = await request.json();
     const targetPassword = String(
       body.targetPassword || body.password || body.newPassword || '',
     );
     if (!targetPassword) {
-      return NextResponse.json({ error: '缺少新密码' }, { status: 400 });
+      throw new ApiValidationError('缺少新密码');
     }
 
-    await executeAdminUserAction(authInfo.username, {
+    await executeAdminUserAction(username, {
       action: 'changePassword',
-      targetUsername: username,
+      targetUsername,
       targetPassword,
     });
 
@@ -43,13 +46,5 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         },
       },
     );
-  } catch (error) {
-    if (error instanceof AdminUserServiceError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    return NextResponse.json({ error: '用户管理操作失败' }, { status: 500 });
-  }
+  });
 }

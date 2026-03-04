@@ -2,8 +2,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
+import { ApiValidationError } from '@/server/api/handler';
+
 import {
-  AdminSourceApiError,
   cleanupSourcePermissions,
   persistAdminConfig,
   requireSourceAdminConfig,
@@ -11,38 +13,39 @@ import {
 
 export const runtime = 'nodejs';
 
+type BatchAction = 'batch_disable' | 'batch_enable' | 'batch_delete';
+
 export async function GET(request: NextRequest) {
-  try {
-    const adminConfig = await requireSourceAdminConfig(request);
+  return executeAdminApiHandler(request, async ({ username }) => {
+    const adminConfig = await requireSourceAdminConfig(username);
     return NextResponse.json(adminConfig.SourceConfig, {
       headers: { 'Cache-Control': 'no-store' },
     });
-  } catch (error) {
-    if (error instanceof AdminSourceApiError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    return NextResponse.json({ error: '获取视频源失败' }, { status: 500 });
-  }
+  });
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const adminConfig = await requireSourceAdminConfig(request);
-    const body = (await request.json()) as {
+  return executeAdminApiHandler(request, async ({ username }) => {
+    const adminConfig = await requireSourceAdminConfig(username);
+    let body: {
       key?: string;
       name?: string;
       api?: string;
       detail?: string;
     };
+
+    try {
+      body = await request.json();
+    } catch {
+      throw new ApiValidationError('请求体格式错误');
+    }
+
     const { key, name, api, detail } = body;
     if (!key || !name || !api) {
-      return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
+      throw new ApiValidationError('缺少必要参数');
     }
     if (adminConfig.SourceConfig.some((item) => item.key === key)) {
-      return NextResponse.json({ error: '该源已存在' }, { status: 400 });
+      throw new ApiValidationError('该源已存在');
     }
 
     adminConfig.SourceConfig.push({
@@ -59,33 +62,23 @@ export async function POST(request: NextRequest) {
       { ok: true },
       { headers: { 'Cache-Control': 'no-store' } },
     );
-  } catch (error) {
-    if (error instanceof AdminSourceApiError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    console.error('新增视频源失败:', error);
-    return NextResponse.json({ error: '新增视频源失败' }, { status: 500 });
-  }
+  });
 }
 
-type BatchAction = 'batch_disable' | 'batch_enable' | 'batch_delete';
-
 export async function PATCH(request: NextRequest) {
-  try {
-    const adminConfig = await requireSourceAdminConfig(request);
-    const body = (await request.json()) as {
-      action?: BatchAction;
-      keys?: string[];
-    };
+  return executeAdminApiHandler(request, async ({ username }) => {
+    const adminConfig = await requireSourceAdminConfig(username);
+    let body: { action?: BatchAction; keys?: string[] };
+
+    try {
+      body = await request.json();
+    } catch {
+      throw new ApiValidationError('请求体格式错误');
+    }
+
     const { action, keys } = body;
     if (!action || !Array.isArray(keys) || keys.length === 0) {
-      return NextResponse.json(
-        { error: '缺少 keys 参数或为空' },
-        { status: 400 },
-      );
+      throw new ApiValidationError('缺少 keys 参数或为空');
     }
 
     if (action === 'batch_disable' || action === 'batch_enable') {
@@ -112,7 +105,7 @@ export async function PATCH(request: NextRequest) {
         cleanupSourcePermissions(adminConfig, deletedKeys);
       }
     } else {
-      return NextResponse.json({ error: '未知操作' }, { status: 400 });
+      throw new ApiValidationError('未知操作');
     }
 
     await persistAdminConfig(adminConfig);
@@ -120,14 +113,5 @@ export async function PATCH(request: NextRequest) {
       { ok: true },
       { headers: { 'Cache-Control': 'no-store' } },
     );
-  } catch (error) {
-    if (error instanceof AdminSourceApiError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    console.error('批量操作视频源失败:', error);
-    return NextResponse.json({ error: '批量操作视频源失败' }, { status: 500 });
-  }
+  });
 }

@@ -2,8 +2,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
+import { ApiBusinessError, ApiValidationError } from '@/server/api/handler';
+
 import {
-  AdminSourceApiError,
   cleanupSourcePermissions,
   persistAdminConfig,
   requireSourceAdminConfig,
@@ -16,22 +18,27 @@ type RouteContext = {
 };
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
-  try {
-    const adminConfig = await requireSourceAdminConfig(request);
-    const { sourceKey } = await context.params;
-    const body = (await request.json()) as { disabled?: boolean };
+  const { sourceKey } = await context.params;
+
+  return executeAdminApiHandler(request, async ({ username }) => {
+    const adminConfig = await requireSourceAdminConfig(username);
+    let body: { disabled?: boolean };
+
+    try {
+      body = await request.json();
+    } catch {
+      throw new ApiValidationError('请求体格式错误');
+    }
+
     if (typeof body.disabled !== 'boolean') {
-      return NextResponse.json(
-        { error: '缺少 disabled 参数' },
-        { status: 400 },
-      );
+      throw new ApiValidationError('缺少 disabled 参数');
     }
 
     const source = adminConfig.SourceConfig.find(
       (item) => item.key === sourceKey,
     );
     if (!source) {
-      return NextResponse.json({ error: '源不存在' }, { status: 404 });
+      throw new ApiBusinessError('源不存在', 404, 'ADMIN_SOURCE_NOT_FOUND');
     }
 
     source.disabled = body.disabled;
@@ -41,32 +48,24 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       { ok: true },
       { headers: { 'Cache-Control': 'no-store' } },
     );
-  } catch (error) {
-    if (error instanceof AdminSourceApiError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    console.error('更新视频源失败:', error);
-    return NextResponse.json({ error: '更新视频源失败' }, { status: 500 });
-  }
+  });
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  try {
-    const adminConfig = await requireSourceAdminConfig(request);
-    const { sourceKey } = await context.params;
+  const { sourceKey } = await context.params;
+
+  return executeAdminApiHandler(request, async ({ username }) => {
+    const adminConfig = await requireSourceAdminConfig(username);
     const sourceIndex = adminConfig.SourceConfig.findIndex(
       (item) => item.key === sourceKey,
     );
     if (sourceIndex === -1) {
-      return NextResponse.json({ error: '源不存在' }, { status: 404 });
+      throw new ApiBusinessError('源不存在', 404, 'ADMIN_SOURCE_NOT_FOUND');
     }
 
     const source = adminConfig.SourceConfig[sourceIndex];
     if (source.from === 'config') {
-      return NextResponse.json({ error: '该源不可删除' }, { status: 400 });
+      throw new ApiValidationError('该源不可删除');
     }
 
     adminConfig.SourceConfig.splice(sourceIndex, 1);
@@ -77,14 +76,5 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       { ok: true },
       { headers: { 'Cache-Control': 'no-store' } },
     );
-  } catch (error) {
-    if (error instanceof AdminSourceApiError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    console.error('删除视频源失败:', error);
-    return NextResponse.json({ error: '删除视频源失败' }, { status: 500 });
-  }
+  });
 }

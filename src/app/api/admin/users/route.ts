@@ -1,23 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
-
-import {
-  AdminUserServiceError,
-  executeAdminUserAction,
-} from '@/server/services/admin-user-service';
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
+import { ApiValidationError } from '@/server/api/handler';
+import { executeAdminUserAction } from '@/server/services/admin-user-service';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
-  try {
-    const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo?.username) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  return executeAdminApiHandler(request, async ({ username }) => {
+    let body: { username?: string; password?: string; userGroup?: string };
+    try {
+      body = await request.json();
+    } catch {
+      throw new ApiValidationError('请求体格式错误');
     }
 
-    const body = await request.json();
-    await executeAdminUserAction(authInfo.username, {
+    await executeAdminUserAction(username, {
       action: 'add',
       targetUsername: String(body.username || ''),
       targetPassword: String(body.password || ''),
@@ -32,13 +30,5 @@ export async function POST(request: NextRequest) {
         },
       },
     );
-  } catch (error) {
-    if (error instanceof AdminUserServiceError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    return NextResponse.json({ error: '用户管理操作失败' }, { status: 500 });
-  }
+  });
 }

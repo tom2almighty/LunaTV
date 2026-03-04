@@ -2,40 +2,30 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
 import { resetConfig } from '@/lib/config';
+
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
-  const authInfo = getAuthInfoFromCookie(request);
-  if (!authInfo || !authInfo.username) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  const username = authInfo.username;
+  return executeAdminApiHandler(
+    request,
+    async () => {
+      await resetConfig();
 
-  if (username !== process.env.APP_ADMIN_USERNAME) {
-    return NextResponse.json({ error: '仅支持站长重置配置' }, { status: 401 });
-  }
-
-  try {
-    await resetConfig();
-
-    return NextResponse.json(
-      { ok: true },
-      {
-        headers: {
-          'Cache-Control': 'no-store', // 管理员配置不缓存
+      return NextResponse.json(
+        { ok: true },
+        {
+          headers: {
+            'Cache-Control': 'no-store',
+          },
         },
-      },
-    );
-  } catch (error) {
-    return NextResponse.json(
-      {
-        error: '重置管理员配置失败',
-        details: (error as Error).message,
-      },
-      { status: 500 },
-    );
-  }
+      );
+    },
+    {
+      ownerOnly: true,
+      ownerOnlyMessage: '仅支持站长重置配置',
+    },
+  );
 }

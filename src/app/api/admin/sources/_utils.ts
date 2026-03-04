@@ -1,40 +1,22 @@
-import { NextRequest } from 'next/server';
-
 import { AdminConfig } from '@/lib/admin.types';
-import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
 import { saveAdminConfig } from '@/lib/db.server';
 
-export class AdminSourceApiError extends Error {
-  readonly status: number;
+import { requireAdminRoleByUsername } from '@/server/api/guards';
+import { ApiBusinessError } from '@/server/api/handler';
 
+export class AdminSourceApiError extends ApiBusinessError {
   constructor(message: string, status: number) {
-    super(message);
+    super(message, status, 'ADMIN_SOURCE_ERROR');
     this.name = 'AdminSourceApiError';
-    this.status = status;
   }
 }
 
 export async function requireSourceAdminConfig(
-  request: NextRequest,
+  username: string,
 ): Promise<AdminConfig> {
-  const authInfo = getAuthInfoFromCookie(request);
-  const username = authInfo?.username;
-  if (!username) {
-    throw new AdminSourceApiError('Unauthorized', 401);
-  }
-
-  const adminConfig = await getConfig();
-  if (username !== process.env.APP_ADMIN_USERNAME) {
-    const userEntry = adminConfig.UserConfig.Users.find(
-      (item) => item.username === username,
-    );
-    if (!userEntry || userEntry.role !== 'admin' || userEntry.banned) {
-      throw new AdminSourceApiError('权限不足', 401);
-    }
-  }
-
-  return adminConfig;
+  await requireAdminRoleByUsername(username);
+  return getConfig();
 }
 
 export function cleanupSourcePermissions(

@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
-
-import {
-  AdminUserServiceError,
-  executeAdminUserAction,
-} from '@/server/services/admin-user-service';
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
+import { ApiValidationError } from '@/server/api/handler';
+import { executeAdminUserAction } from '@/server/services/admin-user-service';
 
 export const runtime = 'nodejs';
 
@@ -14,22 +11,24 @@ type RouteContext = {
 };
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
-  try {
-    const authInfo = getAuthInfoFromCookie(request);
-    if (!authInfo?.username) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { username: targetUsername } = await context.params;
+
+  return executeAdminApiHandler(request, async ({ username }) => {
+    let body: { role?: string };
+    try {
+      body = await request.json();
+    } catch {
+      throw new ApiValidationError('请求体格式错误');
     }
 
-    const { username } = await context.params;
-    const body = await request.json();
     const role = String(body.role || '');
     if (role !== 'admin' && role !== 'user') {
-      return NextResponse.json({ error: '参数格式错误' }, { status: 400 });
+      throw new ApiValidationError('参数格式错误');
     }
 
-    await executeAdminUserAction(authInfo.username, {
+    await executeAdminUserAction(username, {
       action: role === 'admin' ? 'setAdmin' : 'cancelAdmin',
-      targetUsername: username,
+      targetUsername,
     });
 
     return NextResponse.json(
@@ -40,13 +39,5 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         },
       },
     );
-  } catch (error) {
-    if (error instanceof AdminUserServiceError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status },
-      );
-    }
-    return NextResponse.json({ error: '用户管理操作失败' }, { status: 500 });
-  }
+  });
 }

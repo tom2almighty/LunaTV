@@ -1,79 +1,73 @@
 /* eslint-disable no-console,@typescript-eslint/no-explicit-any */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig, refineConfig } from '@/lib/config';
 import { saveAdminConfig } from '@/lib/db.server';
+
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
+import { ApiValidationError } from '@/server/api/handler';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
-  const authInfo = getAuthInfoFromCookie(request);
-  if (!authInfo || !authInfo.username) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  const username = authInfo.username;
-
-  try {
-    let adminConfig = await getConfig();
-    if (username !== process.env.APP_ADMIN_USERNAME) {
-      return NextResponse.json(
-        { error: '权限不足，只有站长可以修改配置文件' },
-        { status: 401 },
-      );
-    }
-
-    const body = await request.json();
-    const { configFile, subscriptionUrl, autoUpdate, lastCheckTime } = body;
-
-    if (!configFile || typeof configFile !== 'string') {
-      return NextResponse.json(
-        { error: '配置文件内容不能为空' },
-        { status: 400 },
-      );
-    }
-
-    try {
-      JSON.parse(configFile);
-    } catch {
-      return NextResponse.json(
-        { error: '配置文件格式错误，请检查 JSON 语法' },
-        { status: 400 },
-      );
-    }
-
-    adminConfig.ConfigFile = configFile;
-    if (!adminConfig.ConfigSubscribtion) {
-      adminConfig.ConfigSubscribtion = {
-        URL: '',
-        AutoUpdate: false,
-        LastCheck: '',
+  return executeAdminApiHandler(
+    request,
+    async () => {
+      let body: {
+        configFile?: unknown;
+        subscriptionUrl?: unknown;
+        autoUpdate?: unknown;
+        lastCheckTime?: unknown;
       };
-    }
+      try {
+        body = await request.json();
+      } catch {
+        throw new ApiValidationError('请求体格式错误');
+      }
 
-    if (subscriptionUrl !== undefined) {
-      adminConfig.ConfigSubscribtion.URL = subscriptionUrl;
-    }
-    if (autoUpdate !== undefined) {
-      adminConfig.ConfigSubscribtion.AutoUpdate = autoUpdate;
-    }
-    adminConfig.ConfigSubscribtion.LastCheck = lastCheckTime || '';
+      const configFile = body.configFile;
+      if (!configFile || typeof configFile !== 'string') {
+        throw new ApiValidationError('配置文件内容不能为空');
+      }
 
-    adminConfig = refineConfig(adminConfig);
-    await saveAdminConfig(adminConfig);
-    return NextResponse.json({
-      success: true,
-      message: '配置文件更新成功',
-    });
-  } catch (error) {
-    console.error('更新配置文件失败:', error);
-    return NextResponse.json(
-      {
-        error: '更新配置文件失败',
-        details: (error as Error).message,
-      },
-      { status: 500 },
-    );
-  }
+      try {
+        JSON.parse(configFile);
+      } catch {
+        throw new ApiValidationError('配置文件格式错误，请检查 JSON 语法');
+      }
+
+      let adminConfig = await getConfig();
+      adminConfig.ConfigFile = configFile;
+      if (!adminConfig.ConfigSubscribtion) {
+        adminConfig.ConfigSubscribtion = {
+          URL: '',
+          AutoUpdate: false,
+          LastCheck: '',
+        };
+      }
+
+      if (body.subscriptionUrl !== undefined) {
+        adminConfig.ConfigSubscribtion.URL = String(body.subscriptionUrl || '');
+      }
+      if (body.autoUpdate !== undefined) {
+        adminConfig.ConfigSubscribtion.AutoUpdate = Boolean(body.autoUpdate);
+      }
+      adminConfig.ConfigSubscribtion.LastCheck = String(
+        body.lastCheckTime || '',
+      );
+
+      adminConfig = refineConfig(adminConfig);
+      await saveAdminConfig(adminConfig);
+
+      return {
+        success: true,
+        message: '配置文件更新成功',
+      };
+    },
+    {
+      ownerOnly: true,
+      ownerOnlyMessage: '权限不足，只有站长可以修改配置文件',
+    },
+  );
 }
