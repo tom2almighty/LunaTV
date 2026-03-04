@@ -8,15 +8,9 @@ import { useEffect, useRef, useState } from 'react';
 
 import {
   deleteFavorite,
-  deletePlayRecord,
-  deleteSkipConfig,
   generateStorageKey,
-  getAllPlayRecords,
-  getSkipConfig,
   isFavorited,
   saveFavorite,
-  savePlayRecord,
-  saveSkipConfig,
   subscribeToDataUpdates,
 } from '@/lib/db';
 import { SearchResult } from '@/lib/types';
@@ -33,6 +27,20 @@ import { usePlayPageState } from '@/app/play/hooks/use-play-page-state';
 import { usePlayProgress } from '@/app/play/hooks/use-play-progress';
 import { usePlayReturnToSearch } from '@/app/play/hooks/use-play-return-to-search';
 import { useWakeLock } from '@/app/play/hooks/use-wake-lock';
+import { filterAdsFromM3U8 } from '@/app/play/services/m3u8-ad-filter';
+import {
+  clearPlayProgressForVideo,
+  loadResumeProgress,
+  persistPlayProgress,
+} from '@/app/play/services/play-progress-service';
+import {
+  formatSkipDuration,
+  isSkipConfigEmpty,
+  loadSkipConfigForVideo,
+  persistSkipConfigForVideo,
+  SkipConfigValue,
+  transferSkipConfigOnSourceSwitch,
+} from '@/app/play/services/skip-config-service';
 
 // 扩展 HTMLVideoElement 类型以支持 hls 属性
 declare global {
@@ -98,11 +106,7 @@ export function PlayPlayerRuntime() {
   const [favorited, setFavorited] = useState(false);
 
   // 跳过片头片尾配置
-  const [skipConfig, setSkipConfig] = useState<{
-    enable: boolean;
-    intro_time: number;
-    outro_time: number;
-  }>({
+  const [skipConfig, setSkipConfig] = useState<SkipConfigValue>({
     enable: false,
     intro_time: 0,
     outro_time: 0,
@@ -270,38 +274,18 @@ export function PlayPlayerRuntime() {
     }
   };
 
-  // 去广告相关函数
-  function filterAdsFromM3U8(m3u8Content: string): string {
-    if (!m3u8Content) return '';
-
-    // 按行分割M3U8内容
-    const lines = m3u8Content.split('\n');
-    const filteredLines = [];
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-
-      // 只过滤#EXT-X-DISCONTINUITY标识
-      if (!line.includes('#EXT-X-DISCONTINUITY')) {
-        filteredLines.push(line);
-      }
-    }
-
-    return filteredLines.join('\n');
-  }
-
   // 跳过片头片尾配置相关函数
-  const handleSkipConfigChange = async (newConfig: {
-    enable: boolean;
-    intro_time: number;
-    outro_time: number;
-  }) => {
+  const handleSkipConfigChange = async (newConfig: SkipConfigValue) => {
     if (!currentSourceRef.current || !currentIdRef.current) return;
 
     try {
       setSkipConfig(newConfig);
-      if (!newConfig.enable && !newConfig.intro_time && !newConfig.outro_time) {
-        await deleteSkipConfig(currentSourceRef.current, currentIdRef.current);
+      await persistSkipConfigForVideo(
+        currentSourceRef.current,
+        currentIdRef.current,
+        newConfig,
+      );
+      if (isSkipConfigEmpty(newConfig)) {
         artPlayerRef.current.setting.update({
           name: '跳过片头片尾',
           html: '跳过片头片尾',
@@ -359,37 +343,13 @@ export function PlayPlayerRuntime() {
             }
           },
         });
-      } else {
-        await saveSkipConfig(
-          currentSourceRef.current,
-          currentIdRef.current,
-          newConfig,
-        );
       }
     } catch (err) {
       console.error('保存跳过片头片尾配置失败:', err);
     }
   };
 
-  const formatTime = (seconds: number): string => {
-    if (seconds === 0) return '00:00';
-
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = Math.round(seconds % 60);
-
-    if (hours === 0) {
-      // 不到一小时，格式为 00:00
-      return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
-        .toString()
-        .padStart(2, '0')}`;
-    } else {
-      // 超过一小时，格式为 00:00:00
-      return `${hours.toString().padStart(2, '0')}:${minutes
-        .toString()
-        .padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-    }
-  };
+  const formatTime = formatSkipDuration;
 
   const createCustomHlsJsLoader = (Hls: any) =>
     class CustomHlsJsLoader extends Hls.DefaultConfig.loader {
@@ -433,19 +393,15 @@ export function PlayPlayerRuntime() {
       if (!currentSource || !currentId) return;
 
       try {
-        const allRecords = await getAllPlayRecords();
-        const key = generateStorageKey(currentSource, currentId);
-        const record = allRecords[key];
-
-        if (record) {
-          const targetIndex = record.index - 1;
-          const targetTime = record.play_time;
-
-          if (targetIndex !== currentEpisodeIndex) {
-            setCurrentEpisodeIndex(targetIndex);
+        const resumeProgress = await loadResumeProgress(
+          currentSource,
+          currentId,
+        );
+        if (resumeProgress) {
+          if (resumeProgress.targetIndex !== currentEpisodeIndex) {
+            setCurrentEpisodeIndex(resumeProgress.targetIndex);
           }
-
-          resumeTimeRef.current = targetTime;
+          resumeTimeRef.current = resumeProgress.targetTime;
         }
       } catch (err) {
         console.error('读取播放记录失败:', err);
@@ -461,7 +417,7 @@ export function PlayPlayerRuntime() {
       if (!currentSource || !currentId) return;
 
       try {
-        const config = await getSkipConfig(currentSource, currentId);
+        const config = await loadSkipConfigForVideo(currentSource, currentId);
         if (config) {
           setSkipConfig(config);
         }
@@ -490,7 +446,7 @@ export function PlayPlayerRuntime() {
       // 清除前一个历史记录
       if (currentSourceRef.current && currentIdRef.current) {
         try {
-          await deletePlayRecord(
+          await clearPlayProgressForVideo(
             currentSourceRef.current,
             currentIdRef.current,
           );
@@ -502,11 +458,13 @@ export function PlayPlayerRuntime() {
       // 清除并设置下一个跳过片头片尾配置
       if (currentSourceRef.current && currentIdRef.current) {
         try {
-          await deleteSkipConfig(
+          await transferSkipConfigOnSourceSwitch(
             currentSourceRef.current,
             currentIdRef.current,
+            newSource,
+            newId,
+            skipConfigRef.current,
           );
-          await saveSkipConfig(newSource, newId, skipConfigRef.current);
         } catch (err) {
           console.error('清除跳过片头片尾配置失败:', err);
         }
@@ -679,33 +637,26 @@ export function PlayPlayerRuntime() {
       !artPlayerRef.current ||
       !currentSourceRef.current ||
       !currentIdRef.current ||
-      !videoTitleRef.current ||
-      !detailRef.current?.source_name
+      !videoTitleRef.current
     ) {
       return;
     }
 
     const player = artPlayerRef.current;
-    const currentTime = player.currentTime || 0;
-    const duration = player.duration || 0;
-
-    // 如果播放时间太短（少于5秒）或者视频时长无效，不保存
-    if (currentTime < 1 || !duration) {
-      return;
-    }
 
     try {
-      await savePlayRecord(currentSourceRef.current, currentIdRef.current, {
+      await persistPlayProgress({
+        source: currentSourceRef.current,
+        id: currentIdRef.current,
         title: videoTitleRef.current,
-        source_name: detailRef.current?.source_name || '',
+        sourceName: detailRef.current?.source_name || '',
         year: detailRef.current?.year,
         cover: detailRef.current?.poster || '',
-        index: currentEpisodeIndexRef.current + 1, // 转换为1基索引
-        total_episodes: detailRef.current?.episodes.length || 1,
-        play_time: Math.floor(currentTime),
-        total_time: Math.floor(duration),
-        save_time: Date.now(),
-        search_title: searchTitle,
+        episodeIndex: currentEpisodeIndexRef.current,
+        totalEpisodes: detailRef.current?.episodes.length || 1,
+        currentTime: player.currentTime || 0,
+        duration: player.duration || 0,
+        searchTitle,
       });
     } catch (err) {
       console.error('保存播放进度失败:', err);
