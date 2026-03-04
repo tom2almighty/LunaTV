@@ -4,6 +4,8 @@ import { ApiSite } from '@/lib/config';
 import { getDetailFromApi } from '@/lib/downstream';
 import { SearchResult } from '@/lib/types';
 
+import { ApiBusinessError, ApiValidationError } from '@/server/api/handler';
+
 const PLAY_SESSION_TTL_MS = 30 * 60 * 1000;
 const DEFAULT_MAX_PLAY_SESSION_COUNT = 300;
 const DEFAULT_MAX_SOURCES_PER_SESSION = 50;
@@ -142,7 +144,8 @@ function pickDefaultCurrentSource(
 ) {
   if (preferredSource && preferredId) {
     const preferred = sources.find(
-      (source) => source.source === preferredSource && source.id === preferredId,
+      (source) =>
+        source.source === preferredSource && source.id === preferredId,
     );
     if (preferred) {
       return preferred;
@@ -191,9 +194,7 @@ export function createPlaySession({
     username,
     title: (title || defaultSource.snapshot.title).trim(),
     year: normalizeYear(year || defaultSource.snapshot.year),
-    type:
-      type ||
-      (defaultSource.snapshot.episodes.length > 1 ? 'tv' : 'movie'),
+    type: type || (defaultSource.snapshot.episodes.length > 1 ? 'tv' : 'movie'),
     query: (query || '').trim(),
     currentSource: defaultSource.source,
     currentId: defaultSource.id,
@@ -229,7 +230,11 @@ function findSessionSource(
     (item) => item.source === source && item.id === id,
   );
   if (!sourceItem) {
-    throw new Error('播放源不存在');
+    throw new ApiBusinessError(
+      '播放源不存在',
+      400,
+      'PLAY_SESSION_SOURCE_MISSING',
+    );
   }
   return sourceItem;
 }
@@ -306,4 +311,59 @@ export function toSessionResponse(
     detail: currentDetail,
     available_sources: availableSources,
   };
+}
+
+function validatePlaySessionId(playSessionId: string): string {
+  const id = String(playSessionId || '').trim();
+  if (!id) {
+    throw new ApiValidationError('缺少播放会话ID');
+  }
+  return id;
+}
+
+export function getPlaySessionOrThrow(
+  username: string,
+  playSessionId: string,
+): PlaySession {
+  const session = getPlaySession(
+    username,
+    validatePlaySessionId(playSessionId),
+  );
+  if (!session) {
+    throw new ApiBusinessError(
+      '播放会话不存在或已过期',
+      404,
+      'PLAY_SESSION_NOT_FOUND',
+    );
+  }
+  return session;
+}
+
+export async function getHydratedPlaySessionResponse(
+  username: string,
+  playSessionId: string,
+  apiSites: ApiSite[],
+) {
+  const session = getPlaySessionOrThrow(username, playSessionId);
+  const currentDetail = await hydrateCurrentPlayDetail(session, apiSites);
+  return toSessionResponse(session, currentDetail);
+}
+
+export async function switchPlaySessionCurrentAndHydrate(
+  username: string,
+  playSessionId: string,
+  source: string,
+  id: string,
+  apiSites: ApiSite[],
+) {
+  const normalizedSource = String(source || '').trim();
+  const normalizedId = String(id || '').trim();
+  if (!normalizedSource || !normalizedId) {
+    throw new ApiValidationError('缺少必要参数');
+  }
+
+  const session = getPlaySessionOrThrow(username, playSessionId);
+  setPlaySessionCurrent(session, normalizedSource, normalizedId);
+  const currentDetail = await hydrateCurrentPlayDetail(session, apiSites);
+  return toSessionResponse(session, currentDetail);
 }

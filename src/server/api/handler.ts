@@ -17,6 +17,7 @@ type ApiHandlerResult<TPayload> =
       data: TPayload;
       status?: number;
     }
+  | Response
   | NextResponse;
 
 type MappedApiError = {
@@ -65,6 +66,10 @@ export class ApiValidationError extends ApiBusinessError {
 
 function isNextResponse(value: unknown): value is NextResponse {
   return value instanceof NextResponse;
+}
+
+function isResponse(value: unknown): value is Response {
+  return value instanceof Response;
 }
 
 function isPayloadWithStatus<TPayload>(
@@ -150,6 +155,9 @@ export async function executeApiHandler<TPayload, TParams = unknown>(
     const result = await handler({ request, params, username });
 
     if (isNextResponse(result)) {
+      return result;
+    }
+    if (isResponse(result)) {
       return result;
     }
 
