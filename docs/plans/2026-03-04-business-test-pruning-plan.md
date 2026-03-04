@@ -8,6 +8,8 @@
 
 **Tech Stack:** Vitest, Testing Library, Next.js app router, TypeScript.
 
+**Scope Reference:** `docs/testing/business-test-scope.md` is the canonical keep/remove rule set for this plan.
+
 ---
 
 ### Task 1: Lock Test Scope (Business-Only Definition)
