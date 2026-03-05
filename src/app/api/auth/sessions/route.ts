@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getConfig } from '@/lib/config';
 import { verifyUser } from '@/lib/db.server';
 
+import { ApiValidationError, executeApiHandler } from '@/server/api/handler';
+
 export const runtime = 'nodejs';
 
 async function generateSignature(
@@ -54,84 +56,96 @@ async function generateAuthCookie(
   return encodeURIComponent(JSON.stringify(authData));
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const { username, password } = await req.json();
+async function buildSessionResponse(
+  username: string,
+  role: 'owner' | 'admin' | 'user',
+): Promise<NextResponse> {
+  const response = NextResponse.json({ ok: true });
+  const cookieValue = await generateAuthCookie(
+    username,
+    undefined,
+    role,
+    false,
+  );
+  const expires = new Date();
+  expires.setDate(expires.getDate() + 7);
 
-    if (!username || typeof username !== 'string') {
-      return NextResponse.json({ error: '用户名不能为空' }, { status: 400 });
-    }
-    if (!password || typeof password !== 'string') {
-      return NextResponse.json({ error: '密码不能为空' }, { status: 400 });
-    }
+  response.cookies.set('auth', cookieValue, {
+    path: '/',
+    expires,
+    sameSite: 'lax',
+    httpOnly: false,
+    secure: false,
+  });
 
-    if (
-      username === process.env.APP_ADMIN_USERNAME &&
-      password === process.env.APP_ADMIN_PASSWORD
-    ) {
-      const response = NextResponse.json({ ok: true });
-      const cookieValue = await generateAuthCookie(
-        username,
-        password,
-        'owner',
-        false,
-      );
-      const expires = new Date();
-      expires.setDate(expires.getDate() + 7);
+  return response;
+}
 
-      response.cookies.set('auth', cookieValue, {
-        path: '/',
-        expires,
-        sameSite: 'lax',
-        httpOnly: false,
-        secure: false,
-      });
+export async function POST(request: NextRequest) {
+  return executeApiHandler(
+    request,
+    async () => {
+      let body: { username?: unknown; password?: unknown };
+      try {
+        body = await request.json();
+      } catch {
+        throw new ApiValidationError('请求体格式错误');
+      }
 
-      return response;
-    } else if (username === process.env.APP_ADMIN_USERNAME) {
-      return NextResponse.json({ error: '用户名或密码错误' }, { status: 401 });
-    }
+      const username = typeof body.username === 'string' ? body.username : '';
+      const password = typeof body.password === 'string' ? body.password : '';
 
-    const config = await getConfig();
-    const user = config.UserConfig.Users.find((u) => u.username === username);
-    if (user && user.banned) {
-      return NextResponse.json({ error: '用户被封禁' }, { status: 401 });
-    }
+      if (!username) {
+        return NextResponse.json({ error: '用户名不能为空' }, { status: 400 });
+      }
+      if (!password) {
+        return NextResponse.json({ error: '密码不能为空' }, { status: 400 });
+      }
 
-    try {
-      const pass = await verifyUser(username, password);
-      if (!pass) {
+      if (
+        username === process.env.APP_ADMIN_USERNAME &&
+        password === process.env.APP_ADMIN_PASSWORD
+      ) {
+        return buildSessionResponse(username, 'owner');
+      }
+      if (username === process.env.APP_ADMIN_USERNAME) {
         return NextResponse.json(
           { error: '用户名或密码错误' },
           { status: 401 },
         );
       }
 
-      const response = NextResponse.json({ ok: true });
-      const cookieValue = await generateAuthCookie(
-        username,
-        password,
-        user?.role || 'user',
-        false,
+      const config = await getConfig();
+      const user = config.UserConfig.Users.find(
+        (item) => item.username === username,
       );
-      const expires = new Date();
-      expires.setDate(expires.getDate() + 7);
+      if (user?.banned) {
+        return NextResponse.json({ error: '用户被封禁' }, { status: 401 });
+      }
 
-      response.cookies.set('auth', cookieValue, {
-        path: '/',
-        expires,
-        sameSite: 'lax',
-        httpOnly: false,
-        secure: false,
-      });
+      try {
+        const pass = await verifyUser(username, password);
+        if (!pass) {
+          return NextResponse.json(
+            { error: '用户名或密码错误' },
+            { status: 401 },
+          );
+        }
 
-      return response;
-    } catch (err) {
-      console.error('数据库验证失败', err);
-      return NextResponse.json({ error: '数据库错误' }, { status: 500 });
-    }
-  } catch (error) {
-    console.error('登录接口异常', error);
-    return NextResponse.json({ error: '服务器错误' }, { status: 500 });
-  }
+        return buildSessionResponse(username, user?.role || 'user');
+      } catch (error) {
+        console.error('数据库验证失败', error);
+        return NextResponse.json({ error: '数据库错误' }, { status: 500 });
+      }
+    },
+    {
+      responseShape: 'raw',
+      onError: (_, mappedError) => {
+        if (mappedError.status !== 500) {
+          return undefined;
+        }
+        return NextResponse.json({ error: '服务器错误' }, { status: 500 });
+      },
+    },
+  );
 }
