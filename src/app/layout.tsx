@@ -19,6 +19,9 @@ import SerwistProviderClient from '../components/SerwistProviderClient';
 
 const inter = Inter({ subsets: ['latin'] });
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getConfig();
   const siteName = config.SiteConfig.SiteName;

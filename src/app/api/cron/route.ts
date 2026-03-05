@@ -1,5 +1,6 @@
 /* eslint-disable no-console,@typescript-eslint/no-explicit-any */
 
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getConfig, refineConfig } from '@/lib/config';
@@ -138,6 +139,7 @@ async function refreshConfig() {
       config.ConfigSubscribtion.LastCheck = new Date().toISOString();
       config = refineConfig(config);
       await db.saveAdminConfig(config);
+      revalidatePath('/', 'layout');
     } catch (e) {
       console.error('刷新配置失败:', e);
     }

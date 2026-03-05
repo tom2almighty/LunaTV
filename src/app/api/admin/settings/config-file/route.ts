@@ -1,5 +1,6 @@
 /* eslint-disable no-console,@typescript-eslint/no-explicit-any */
 
+import { revalidatePath } from 'next/cache';
 import { NextRequest } from 'next/server';
 
 import { getConfig, refineConfig } from '@/lib/config';
@@ -59,6 +60,7 @@ export async function POST(request: NextRequest) {
 
       adminConfig = refineConfig(adminConfig);
       await saveAdminConfig(adminConfig);
+      revalidatePath('/', 'layout');
 
       return {
         success: true,

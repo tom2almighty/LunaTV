@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any,no-console */
 
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getConfig } from '@/lib/config';
@@ -122,6 +123,7 @@ export async function POST(request: NextRequest) {
     };
 
     await saveAdminConfig(adminConfig);
+    revalidatePath('/', 'layout');
 
     return NextResponse.json(
       { ok: true },
