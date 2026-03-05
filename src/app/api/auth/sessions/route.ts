@@ -1,6 +1,7 @@
 /* eslint-disable no-console,@typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 
+import { AUTH_COOKIE_NAME, getSessionCookieExpires } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
 import { verifyUser } from '@/lib/db.server';
 
@@ -31,19 +32,10 @@ async function generateSignature(
     .join('');
 }
 
-async function generateAuthCookie(
-  username?: string,
-  password?: string,
-  role?: 'owner' | 'admin' | 'user',
-  includePassword = false,
-): Promise<string> {
-  const authData: any = { role: role || 'user' };
+async function generateAuthCookie(username: string): Promise<string> {
+  const authData: Record<string, string | number> = {};
 
-  if (includePassword && password) {
-    authData.password = password;
-  }
-
-  if (username && process.env.APP_ADMIN_PASSWORD) {
+  if (process.env.APP_ADMIN_PASSWORD) {
     authData.username = username;
     const signature = await generateSignature(
       username,
@@ -56,26 +48,16 @@ async function generateAuthCookie(
   return encodeURIComponent(JSON.stringify(authData));
 }
 
-async function buildSessionResponse(
-  username: string,
-  role: 'owner' | 'admin' | 'user',
-): Promise<NextResponse> {
+async function buildSessionResponse(username: string): Promise<NextResponse> {
   const response = NextResponse.json({ ok: true });
-  const cookieValue = await generateAuthCookie(
-    username,
-    undefined,
-    role,
-    false,
-  );
-  const expires = new Date();
-  expires.setDate(expires.getDate() + 7);
+  const cookieValue = await generateAuthCookie(username);
 
-  response.cookies.set('auth', cookieValue, {
+  response.cookies.set(AUTH_COOKIE_NAME, cookieValue, {
     path: '/',
-    expires,
+    expires: getSessionCookieExpires(),
     sameSite: 'lax',
-    httpOnly: false,
-    secure: false,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
   });
 
   return response;
@@ -106,7 +88,7 @@ export async function POST(request: NextRequest) {
         username === process.env.APP_ADMIN_USERNAME &&
         password === process.env.APP_ADMIN_PASSWORD
       ) {
-        return buildSessionResponse(username, 'owner');
+        return buildSessionResponse(username);
       }
       if (username === process.env.APP_ADMIN_USERNAME) {
         return NextResponse.json(
@@ -132,7 +114,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        return buildSessionResponse(username, user?.role || 'user');
+        return buildSessionResponse(username);
       } catch (error) {
         console.error('数据库验证失败', error);
         return NextResponse.json({ error: '数据库错误' }, { status: 500 });

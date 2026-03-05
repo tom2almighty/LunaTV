@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 
 import { AdminConfig } from '@/lib/admin.types';
-import { getAuthInfoFromCookie } from '@/lib/auth';
+import { getAuthInfoFromCookie, getSessionMaxAgeMs } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
 
 import { verifyAuthSignature } from '@/server/api/auth-verifier';
@@ -22,8 +22,18 @@ export async function requireActiveUsername(
   const authInfo = getAuthInfoFromCookie(request);
   const username = authInfo?.username?.trim();
   const signature = authInfo?.signature?.trim();
-  if (!username || !signature) {
+  const timestamp = authInfo?.timestamp;
+  if (!username || !signature || typeof timestamp !== 'number') {
     throw new ApiAuthError('Unauthorized', 401);
+  }
+
+  if (!Number.isFinite(timestamp)) {
+    throw new ApiAuthError('Unauthorized', 401);
+  }
+
+  const sessionMaxAgeMs = getSessionMaxAgeMs();
+  if (Date.now() - timestamp > sessionMaxAgeMs) {
+    throw new ApiAuthError('Session expired', 401);
   }
 
   const adminPassword = process.env.APP_ADMIN_PASSWORD;
@@ -57,6 +67,30 @@ export async function requireActiveUsername(
   }
 
   return username;
+}
+
+export type SessionRole = 'owner' | 'admin' | 'user';
+
+export async function resolveSessionRoleByUsername(
+  username: string,
+): Promise<SessionRole> {
+  if (username === process.env.APP_ADMIN_USERNAME) {
+    return 'owner';
+  }
+
+  const config = await getConfig();
+  const user = config.UserConfig.Users.find(
+    (item) => item.username === username && !item.banned,
+  );
+  if (!user) {
+    throw new ApiAuthError('用户不存在', 401);
+  }
+
+  if (user.role === 'admin') {
+    return 'admin';
+  }
+
+  return 'user';
 }
 
 export type AdminRole = 'owner' | 'admin';

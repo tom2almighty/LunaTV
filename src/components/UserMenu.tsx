@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { requestJson } from '@/lib/api/client';
-import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
 
 import { useUserSettings } from '@/components/user-menu/use-user-settings';
 import { UserMenuContainer } from '@/components/user-menu/user-menu-container';
@@ -96,10 +95,23 @@ export const UserMenu: React.FC = () => {
 
   // 获取认证信息
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const auth = getAuthInfoFromBrowserCookie();
-      setAuthInfo(auth);
-    }
+    let cancelled = false;
+
+    requestJson<AuthInfo>('/api/auth/sessions/me')
+      .then((session) => {
+        if (!cancelled) {
+          setAuthInfo(session);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAuthInfo(null);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // 从 localStorage 读取设置

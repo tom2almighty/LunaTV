@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
+import { getAuthInfoFromCookie, getSessionMaxAgeMs } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
 
 import { verifyAuthSignature } from '@/server/api/auth-verifier';
@@ -13,6 +13,7 @@ import {
 
 vi.mock('@/lib/auth', () => ({
   getAuthInfoFromCookie: vi.fn(),
+  getSessionMaxAgeMs: vi.fn(),
 }));
 
 vi.mock('@/lib/config', () => ({
@@ -24,6 +25,7 @@ vi.mock('@/server/api/auth-verifier', () => ({
 }));
 
 const mockedGetAuthInfoFromCookie = vi.mocked(getAuthInfoFromCookie);
+const mockedGetSessionMaxAgeMs = vi.mocked(getSessionMaxAgeMs);
 const mockedVerifyAuthSignature = vi.mocked(verifyAuthSignature);
 const mockedGetConfig = vi.mocked(getConfig);
 
@@ -31,24 +33,30 @@ describe('requireActiveUsername', () => {
   const request = new NextRequest('http://localhost/api/test');
   const previousAdminUsername = process.env.APP_ADMIN_USERNAME;
   const previousAdminPassword = process.env.APP_ADMIN_PASSWORD;
+  const previousSessionMaxAge = process.env.SESSION_MAX_AGE_MS;
 
   beforeEach(() => {
     process.env.APP_ADMIN_USERNAME = 'owner';
     process.env.APP_ADMIN_PASSWORD = 'owner-password';
+    process.env.SESSION_MAX_AGE_MS = String(7 * 24 * 60 * 60 * 1000);
     mockedGetAuthInfoFromCookie.mockReset();
+    mockedGetSessionMaxAgeMs.mockReset();
     mockedVerifyAuthSignature.mockReset();
     mockedGetConfig.mockReset();
+    mockedGetSessionMaxAgeMs.mockReturnValue(7 * 24 * 60 * 60 * 1000);
   });
 
   afterEach(() => {
     process.env.APP_ADMIN_USERNAME = previousAdminUsername;
     process.env.APP_ADMIN_PASSWORD = previousAdminPassword;
+    process.env.SESSION_MAX_AGE_MS = previousSessionMaxAge;
   });
 
   it('returns owner when signature is valid', async () => {
     mockedGetAuthInfoFromCookie.mockReturnValue({
       username: 'owner',
       signature: 'valid-signature',
+      timestamp: Date.now(),
     });
     mockedVerifyAuthSignature.mockResolvedValue(true);
 
@@ -65,8 +73,21 @@ describe('requireActiveUsername', () => {
     mockedGetAuthInfoFromCookie.mockReturnValue({
       username: 'alice',
       signature: 'tampered-signature',
+      timestamp: Date.now(),
     });
     mockedVerifyAuthSignature.mockResolvedValue(false);
+
+    await expect(requireActiveUsername(request)).rejects.toThrow(ApiAuthError);
+  });
+
+  it('rejects expired session timestamp', async () => {
+    mockedGetSessionMaxAgeMs.mockReturnValue(1000);
+    mockedGetAuthInfoFromCookie.mockReturnValue({
+      username: 'owner',
+      signature: 'valid-signature',
+      timestamp: Date.now() - 2_000,
+    });
+    mockedVerifyAuthSignature.mockResolvedValue(true);
 
     await expect(requireActiveUsername(request)).rejects.toThrow(ApiAuthError);
   });
@@ -84,6 +105,7 @@ describe('requireActiveUsername', () => {
     mockedGetAuthInfoFromCookie.mockReturnValue({
       username: 'alice',
       signature: 'valid-signature',
+      timestamp: Date.now(),
     });
     mockedVerifyAuthSignature.mockResolvedValue(true);
     mockedGetConfig.mockResolvedValue({

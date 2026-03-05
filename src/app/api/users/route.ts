@@ -1,6 +1,7 @@
 /* eslint-disable no-console,@typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 
+import { AUTH_COOKIE_NAME, getSessionCookieExpires } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
 import { checkUserExist, registerUser, saveAdminConfig } from '@/lib/db.server';
 
@@ -31,11 +32,8 @@ async function generateSignature(
     .join('');
 }
 
-async function generateAuthCookie(
-  username: string,
-  role: 'owner' | 'admin' | 'user' = 'user',
-): Promise<string> {
-  const authData: any = { role };
+async function generateAuthCookie(username: string): Promise<string> {
+  const authData: Record<string, string | number> = {};
 
   if (username && process.env.APP_ADMIN_PASSWORD) {
     authData.username = username;
@@ -117,16 +115,14 @@ export async function POST(request: NextRequest) {
       await saveAdminConfig(config);
 
       const response = NextResponse.json({ ok: true });
-      const cookieValue = await generateAuthCookie(username, 'user');
-      const expires = new Date();
-      expires.setDate(expires.getDate() + 7);
+      const cookieValue = await generateAuthCookie(username);
 
-      response.cookies.set('auth', cookieValue, {
+      response.cookies.set(AUTH_COOKIE_NAME, cookieValue, {
         path: '/',
-        expires,
+        expires: getSessionCookieExpires(),
         sameSite: 'lax',
-        httpOnly: false,
-        secure: false,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
       });
 
       return response;
