@@ -2,15 +2,7 @@
 
 'use client';
 
-import {
-  Check,
-  ChevronDown,
-  KeyRound,
-  LogOut,
-  Settings,
-  Shield,
-  X,
-} from 'lucide-react';
+import { KeyRound, LogOut, Settings, Shield, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -23,6 +15,47 @@ interface AuthInfo {
   username?: string;
   role?: 'owner' | 'admin' | 'user';
 }
+
+type ProxyMode = 'server' | 'preset' | 'custom';
+
+type RuntimeProxyPreset = {
+  id: string;
+  name: string;
+  url: string;
+};
+
+type RuntimeConfig = {
+  DOUBAN_DATA_PROXY_MODE?: ProxyMode;
+  DOUBAN_DATA_PROXY_PRESET_ID?: string;
+  DOUBAN_DATA_PROXY_CUSTOM_URL?: string;
+  DOUBAN_DATA_PROXY_PRESETS?: RuntimeProxyPreset[];
+  DOUBAN_IMAGE_PROXY_MODE?: ProxyMode;
+  DOUBAN_IMAGE_PROXY_PRESET_ID?: string;
+  DOUBAN_IMAGE_PROXY_CUSTOM_URL?: string;
+  DOUBAN_IMAGE_PROXY_PRESETS?: RuntimeProxyPreset[];
+  FLUID_SEARCH?: boolean;
+};
+
+const normalizeMode = (value: unknown): ProxyMode => {
+  if (value === 'server' || value === 'preset' || value === 'custom') {
+    return value;
+  }
+  return 'server';
+};
+
+const normalizePresets = (presets: unknown): RuntimeProxyPreset[] => {
+  if (!Array.isArray(presets)) {
+    return [];
+  }
+  return presets.filter(
+    (preset): preset is RuntimeProxyPreset =>
+      typeof preset === 'object' &&
+      preset !== null &&
+      typeof preset.id === 'string' &&
+      typeof preset.name === 'string' &&
+      typeof preset.url === 'string',
+  );
+};
 
 export const UserMenu: React.FC = () => {
   const router = useRouter();
@@ -60,27 +93,22 @@ export const UserMenu: React.FC = () => {
 
   // 设置相关状态
   const [defaultAggregateSearch, setDefaultAggregateSearch] = useState(true);
-  const [doubanProxyUrl, setDoubanProxyUrl] = useState('');
-
   const [fluidSearch, setFluidSearch] = useState(true);
-  const [doubanDataSource, setDoubanDataSource] = useState('server');
-  const [doubanImageProxyType, setDoubanImageProxyType] = useState('server');
-  const [doubanImageProxyUrl, setDoubanImageProxyUrl] = useState('');
-  const [isDoubanDropdownOpen, setIsDoubanDropdownOpen] = useState(false);
-  const [isDoubanImageProxyDropdownOpen, setIsDoubanImageProxyDropdownOpen] =
-    useState(false);
-
-  // 豆瓣数据源选项（简化为服务端代理和自定义代理）
-  const doubanDataSourceOptions = [
-    { value: 'server', label: '服务端代理（服务器直接请求豆瓣）' },
-    { value: 'custom', label: '自定义代理' },
-  ];
-
-  // 豆瓣图片代理选项（简化为服务端代理和自定义代理）
-  const doubanImageProxyTypeOptions = [
-    { value: 'server', label: '服务器代理（由服务器代理请求豆瓣）' },
-    { value: 'custom', label: '自定义代理' },
-  ];
+  const [doubanDataProxyMode, setDoubanDataProxyMode] =
+    useState<ProxyMode>('server');
+  const [doubanDataProxyPresetId, setDoubanDataProxyPresetId] = useState('');
+  const [doubanDataProxyCustomUrl, setDoubanDataProxyCustomUrl] = useState('');
+  const [doubanImageProxyMode, setDoubanImageProxyMode] =
+    useState<ProxyMode>('server');
+  const [doubanImageProxyPresetId, setDoubanImageProxyPresetId] = useState('');
+  const [doubanImageProxyCustomUrl, setDoubanImageProxyCustomUrl] =
+    useState('');
+  const [doubanDataProxyPresets, setDoubanDataProxyPresets] = useState<
+    RuntimeProxyPreset[]
+  >([]);
+  const [doubanImageProxyPresets, setDoubanImageProxyPresets] = useState<
+    RuntimeProxyPreset[]
+  >([]);
 
   // 修改密码相关状态
   const [newPassword, setNewPassword] = useState('');
@@ -117,6 +145,8 @@ export const UserMenu: React.FC = () => {
   // 从 localStorage 读取设置
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const runtimeConfig = ((window as any).RUNTIME_CONFIG ||
+        {}) as RuntimeConfig;
       const savedAggregateSearch = localStorage.getItem(
         'defaultAggregateSearch',
       );
@@ -124,49 +154,63 @@ export const UserMenu: React.FC = () => {
         setDefaultAggregateSearch(JSON.parse(savedAggregateSearch));
       }
 
-      const savedDoubanDataSource = localStorage.getItem('doubanDataSource');
-      const defaultDoubanProxyType =
-        (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY_TYPE || 'server';
-      if (savedDoubanDataSource !== null) {
-        setDoubanDataSource(savedDoubanDataSource);
-      } else if (defaultDoubanProxyType) {
-        setDoubanDataSource(defaultDoubanProxyType);
-      }
-
-      const savedDoubanProxyUrl = localStorage.getItem('doubanProxyUrl');
-      const defaultDoubanProxy =
-        (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY || '';
-      if (savedDoubanProxyUrl !== null) {
-        setDoubanProxyUrl(savedDoubanProxyUrl);
-      } else if (defaultDoubanProxy) {
-        setDoubanProxyUrl(defaultDoubanProxy);
-      }
-
-      const savedDoubanImageProxyType = localStorage.getItem(
-        'doubanImageProxyType',
+      setDoubanDataProxyPresets(
+        normalizePresets(runtimeConfig.DOUBAN_DATA_PROXY_PRESETS),
       );
-      const defaultDoubanImageProxyType =
-        (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY_TYPE || 'server';
-      if (savedDoubanImageProxyType !== null) {
-        setDoubanImageProxyType(savedDoubanImageProxyType);
-      } else if (defaultDoubanImageProxyType) {
-        setDoubanImageProxyType(defaultDoubanImageProxyType);
-      }
-
-      const savedDoubanImageProxyUrl = localStorage.getItem(
-        'doubanImageProxyUrl',
+      setDoubanImageProxyPresets(
+        normalizePresets(runtimeConfig.DOUBAN_IMAGE_PROXY_PRESETS),
       );
-      const defaultDoubanImageProxyUrl =
-        (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY || '';
-      if (savedDoubanImageProxyUrl !== null) {
-        setDoubanImageProxyUrl(savedDoubanImageProxyUrl);
-      } else if (defaultDoubanImageProxyUrl) {
-        setDoubanImageProxyUrl(defaultDoubanImageProxyUrl);
-      }
+
+      const defaultDoubanDataProxyMode = normalizeMode(
+        runtimeConfig.DOUBAN_DATA_PROXY_MODE,
+      );
+      const defaultDoubanDataProxyPresetId =
+        runtimeConfig.DOUBAN_DATA_PROXY_PRESET_ID || '';
+      const defaultDoubanDataProxyCustomUrl =
+        runtimeConfig.DOUBAN_DATA_PROXY_CUSTOM_URL || '';
+      const savedDoubanDataProxyMode = localStorage.getItem(
+        'doubanDataProxyMode',
+      );
+      setDoubanDataProxyMode(
+        savedDoubanDataProxyMode === null
+          ? defaultDoubanDataProxyMode
+          : normalizeMode(savedDoubanDataProxyMode),
+      );
+      setDoubanDataProxyPresetId(
+        localStorage.getItem('doubanDataProxyPresetId') ||
+          defaultDoubanDataProxyPresetId,
+      );
+      setDoubanDataProxyCustomUrl(
+        localStorage.getItem('doubanDataProxyCustomUrl') ||
+          defaultDoubanDataProxyCustomUrl,
+      );
+
+      const defaultDoubanImageProxyMode = normalizeMode(
+        runtimeConfig.DOUBAN_IMAGE_PROXY_MODE,
+      );
+      const defaultDoubanImageProxyPresetId =
+        runtimeConfig.DOUBAN_IMAGE_PROXY_PRESET_ID || '';
+      const defaultDoubanImageProxyCustomUrl =
+        runtimeConfig.DOUBAN_IMAGE_PROXY_CUSTOM_URL || '';
+      const savedDoubanImageProxyMode = localStorage.getItem(
+        'doubanImageProxyMode',
+      );
+      setDoubanImageProxyMode(
+        savedDoubanImageProxyMode === null
+          ? defaultDoubanImageProxyMode
+          : normalizeMode(savedDoubanImageProxyMode),
+      );
+      setDoubanImageProxyPresetId(
+        localStorage.getItem('doubanImageProxyPresetId') ||
+          defaultDoubanImageProxyPresetId,
+      );
+      setDoubanImageProxyCustomUrl(
+        localStorage.getItem('doubanImageProxyCustomUrl') ||
+          defaultDoubanImageProxyCustomUrl,
+      );
 
       const savedFluidSearch = localStorage.getItem('fluidSearch');
-      const defaultFluidSearch =
-        (window as any).RUNTIME_CONFIG?.FLUID_SEARCH !== false;
+      const defaultFluidSearch = runtimeConfig.FLUID_SEARCH !== false;
       if (savedFluidSearch !== null) {
         setFluidSearch(JSON.parse(savedFluidSearch));
       } else if (defaultFluidSearch !== undefined) {
@@ -174,41 +218,6 @@ export const UserMenu: React.FC = () => {
       }
     }
   }, []);
-
-  // 点击外部区域关闭下拉框
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isDoubanDropdownOpen) {
-        const target = event.target as Element;
-        if (!target.closest('[data-dropdown="douban-datasource"]')) {
-          setIsDoubanDropdownOpen(false);
-        }
-      }
-    };
-
-    if (isDoubanDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () =>
-        document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isDoubanDropdownOpen]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isDoubanImageProxyDropdownOpen) {
-        const target = event.target as Element;
-        if (!target.closest('[data-dropdown="douban-image-proxy"]')) {
-          setIsDoubanImageProxyDropdownOpen(false);
-        }
-      }
-    };
-
-    if (isDoubanImageProxyDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () =>
-        document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isDoubanImageProxyDropdownOpen]);
 
   const handleMenuClick = () => {
     setIsOpen(!isOpen);
@@ -299,10 +308,45 @@ export const UserMenu: React.FC = () => {
     }
   };
 
-  const handleDoubanProxyUrlChange = (value: string) => {
-    setDoubanProxyUrl(value);
+  const handleDoubanDataProxyModeChange = (value: ProxyMode) => {
+    setDoubanDataProxyMode(value);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('doubanProxyUrl', value);
+      localStorage.setItem('doubanDataProxyMode', value);
+    }
+  };
+
+  const handleDoubanDataProxyPresetIdChange = (value: string) => {
+    setDoubanDataProxyPresetId(value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('doubanDataProxyPresetId', value);
+    }
+  };
+
+  const handleDoubanDataProxyCustomUrlChange = (value: string) => {
+    setDoubanDataProxyCustomUrl(value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('doubanDataProxyCustomUrl', value);
+    }
+  };
+
+  const handleDoubanImageProxyModeChange = (value: ProxyMode) => {
+    setDoubanImageProxyMode(value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('doubanImageProxyMode', value);
+    }
+  };
+
+  const handleDoubanImageProxyPresetIdChange = (value: string) => {
+    setDoubanImageProxyPresetId(value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('doubanImageProxyPresetId', value);
+    }
+  };
+
+  const handleDoubanImageProxyCustomUrlChange = (value: string) => {
+    setDoubanImageProxyCustomUrl(value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('doubanImageProxyCustomUrl', value);
     }
   };
 
@@ -313,54 +357,55 @@ export const UserMenu: React.FC = () => {
     }
   };
 
-  const handleDoubanDataSourceChange = (value: string) => {
-    setDoubanDataSource(value);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('doubanDataSource', value);
-    }
-  };
-
-  const handleDoubanImageProxyTypeChange = (value: string) => {
-    setDoubanImageProxyType(value);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('doubanImageProxyType', value);
-    }
-  };
-
-  const handleDoubanImageProxyUrlChange = (value: string) => {
-    setDoubanImageProxyUrl(value);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('doubanImageProxyUrl', value);
-    }
-  };
-
   const handleResetSettings = () => {
-    const defaultDoubanProxyType =
-      (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY_TYPE || 'server';
-    const defaultDoubanProxy =
-      (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY || '';
-    const defaultDoubanImageProxyType =
-      (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY_TYPE || 'server';
-    const defaultDoubanImageProxyUrl =
-      (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY || '';
-    const defaultFluidSearch =
-      (window as any).RUNTIME_CONFIG?.FLUID_SEARCH !== false;
+    const runtimeConfig = ((window as any).RUNTIME_CONFIG ||
+      {}) as RuntimeConfig;
+    const defaultDoubanDataProxyMode = normalizeMode(
+      runtimeConfig.DOUBAN_DATA_PROXY_MODE,
+    );
+    const defaultDoubanDataProxyPresetId =
+      runtimeConfig.DOUBAN_DATA_PROXY_PRESET_ID || '';
+    const defaultDoubanDataProxyCustomUrl =
+      runtimeConfig.DOUBAN_DATA_PROXY_CUSTOM_URL || '';
+    const defaultDoubanImageProxyMode = normalizeMode(
+      runtimeConfig.DOUBAN_IMAGE_PROXY_MODE,
+    );
+    const defaultDoubanImageProxyPresetId =
+      runtimeConfig.DOUBAN_IMAGE_PROXY_PRESET_ID || '';
+    const defaultDoubanImageProxyCustomUrl =
+      runtimeConfig.DOUBAN_IMAGE_PROXY_CUSTOM_URL || '';
+    const defaultFluidSearch = runtimeConfig.FLUID_SEARCH !== false;
 
     setDefaultAggregateSearch(true);
-
+    setDoubanDataProxyMode(defaultDoubanDataProxyMode);
+    setDoubanDataProxyPresetId(defaultDoubanDataProxyPresetId);
+    setDoubanDataProxyCustomUrl(defaultDoubanDataProxyCustomUrl);
+    setDoubanImageProxyMode(defaultDoubanImageProxyMode);
+    setDoubanImageProxyPresetId(defaultDoubanImageProxyPresetId);
+    setDoubanImageProxyCustomUrl(defaultDoubanImageProxyCustomUrl);
     setFluidSearch(defaultFluidSearch);
-    setDoubanProxyUrl(defaultDoubanProxy);
-    setDoubanDataSource(defaultDoubanProxyType);
-    setDoubanImageProxyType(defaultDoubanImageProxyType);
-    setDoubanImageProxyUrl(defaultDoubanImageProxyUrl);
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('defaultAggregateSearch', JSON.stringify(true));
       localStorage.setItem('fluidSearch', JSON.stringify(defaultFluidSearch));
-      localStorage.setItem('doubanProxyUrl', defaultDoubanProxy);
-      localStorage.setItem('doubanDataSource', defaultDoubanProxyType);
-      localStorage.setItem('doubanImageProxyType', defaultDoubanImageProxyType);
-      localStorage.setItem('doubanImageProxyUrl', defaultDoubanImageProxyUrl);
+      localStorage.setItem('doubanDataProxyMode', defaultDoubanDataProxyMode);
+      localStorage.setItem(
+        'doubanDataProxyPresetId',
+        defaultDoubanDataProxyPresetId,
+      );
+      localStorage.setItem(
+        'doubanDataProxyCustomUrl',
+        defaultDoubanDataProxyCustomUrl,
+      );
+      localStorage.setItem('doubanImageProxyMode', defaultDoubanImageProxyMode);
+      localStorage.setItem(
+        'doubanImageProxyPresetId',
+        defaultDoubanImageProxyPresetId,
+      );
+      localStorage.setItem(
+        'doubanImageProxyCustomUrl',
+        defaultDoubanImageProxyCustomUrl,
+      );
     }
   };
 
@@ -529,178 +574,125 @@ export const UserMenu: React.FC = () => {
 
           {/* 设置项 */}
           <div className='space-y-6'>
-            {/* 豆瓣数据源选择 */}
             <div className='space-y-3'>
               <div>
-                <h4 className='text-foreground text-sm font-medium'>
-                  豆瓣数据代理
-                </h4>
+                <label
+                  htmlFor='usermenu-douban-data-mode'
+                  className='text-foreground text-sm font-medium'
+                >
+                  豆瓣数据代理模式
+                </label>
                 <p className='text-muted-foreground mt-1 text-xs'>
-                  选择获取豆瓣数据的方式
+                  数据代理支持服务端、预设池和自定义三种模式
                 </p>
               </div>
-              <div className='relative' data-dropdown='douban-datasource'>
-                {/* 自定义下拉选择框 */}
-                <button
-                  type='button'
-                  onClick={() => setIsDoubanDropdownOpen(!isDoubanDropdownOpen)}
-                  className='border-border focus:ring-primary focus:border-primary bg-card text-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 pr-10 text-left text-sm shadow-sm transition-all duration-200 focus:outline-none focus:ring-2'
-                >
-                  {
-                    doubanDataSourceOptions.find(
-                      (option) => option.value === doubanDataSource,
-                    )?.label
+              <select
+                id='usermenu-douban-data-mode'
+                className='border-border focus:ring-primary focus:border-primary bg-card text-foreground w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2'
+                value={doubanDataProxyMode}
+                onChange={(e) =>
+                  handleDoubanDataProxyModeChange(
+                    normalizeMode(e.target.value) as ProxyMode,
+                  )
+                }
+              >
+                <option value='server'>服务端代理</option>
+                <option value='preset'>预设代理</option>
+                <option value='custom'>自定义代理</option>
+              </select>
+
+              {doubanDataProxyMode === 'preset' && (
+                <select
+                  id='usermenu-douban-data-preset'
+                  className='border-border focus:ring-primary focus:border-primary bg-card text-foreground w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2'
+                  value={doubanDataProxyPresetId}
+                  onChange={(e) =>
+                    handleDoubanDataProxyPresetIdChange(e.target.value)
                   }
-                </button>
+                >
+                  <option value=''>请选择预设</option>
+                  {doubanDataProxyPresets.map((preset) => (
+                    <option key={preset.id} value={preset.id}>
+                      {preset.name || preset.id}
+                    </option>
+                  ))}
+                </select>
+              )}
 
-                {/* 下拉箭头 */}
-                <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3'>
-                  <ChevronDown
-                    className={`text-muted-foreground h-4 w-4 transition-transform duration-200 ${
-                      isDoubanImageProxyDropdownOpen ? 'rotate-180' : ''
-                    }`}
-                  />
-                </div>
-
-                {/* 下拉选项列表 */}
-                {isDoubanDropdownOpen && (
-                  <div className='bg-card border-border absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border shadow-lg'>
-                    {doubanDataSourceOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        type='button'
-                        onClick={() => {
-                          handleDoubanDataSourceChange(option.value);
-                          setIsDoubanDropdownOpen(false);
-                        }}
-                        className={`hover:bg-muted flex w-full items-center justify-between px-3 py-2.5 text-left text-sm transition-colors duration-150 ${
-                          doubanDataSource === option.value
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-foreground'
-                        }`}
-                      >
-                        <span className='truncate'>{option.label}</span>
-                        {doubanDataSource === option.value && (
-                          <Check className='text-primary ml-2 h-4 w-4 shrink-0' />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {doubanDataProxyMode === 'custom' && (
+                <input
+                  id='usermenu-douban-data-custom-url'
+                  type='text'
+                  className='border-border focus:ring-primary focus:border-primary bg-card text-foreground placeholder:text-muted-foreground w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2'
+                  placeholder='例如: https://proxy.example.com/fetch?url='
+                  value={doubanDataProxyCustomUrl}
+                  onChange={(e) =>
+                    handleDoubanDataProxyCustomUrlChange(e.target.value)
+                  }
+                />
+              )}
             </div>
 
-            {/* 豆瓣代理地址设置 - 仅在选择自定义代理时显示 */}
-            {doubanDataSource === 'custom' && (
-              <div className='space-y-3'>
-                <div>
-                  <h4 className='text-foreground text-sm font-medium'>
-                    豆瓣代理地址
-                  </h4>
-                  <p className='text-muted-foreground mt-1 text-xs'>
-                    自定义代理服务器地址
-                  </p>
-                </div>
-                <input
-                  type='text'
-                  className='border-border focus:ring-primary focus:border-primary bg-card text-foreground placeholder:text-muted-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm transition-all duration-200 focus:outline-none focus:ring-2'
-                  placeholder='例如: https://proxy.example.com/fetch?url='
-                  value={doubanProxyUrl}
-                  onChange={(e) => handleDoubanProxyUrlChange(e.target.value)}
-                />
-              </div>
-            )}
-
-            {/* 分割线 */}
             <div className='border-border border-t'></div>
 
-            {/* 豆瓣图片代理设置 */}
             <div className='space-y-3'>
               <div>
-                <h4 className='text-foreground text-sm font-medium'>
-                  豆瓣图片代理
-                </h4>
+                <label
+                  htmlFor='usermenu-douban-image-mode'
+                  className='text-foreground text-sm font-medium'
+                >
+                  豆瓣图片代理模式
+                </label>
                 <p className='text-muted-foreground mt-1 text-xs'>
-                  选择获取豆瓣图片的方式
+                  图片代理支持服务端、预设池和自定义三种模式
                 </p>
               </div>
-              <div className='relative' data-dropdown='douban-image-proxy'>
-                {/* 自定义下拉选择框 */}
-                <button
-                  type='button'
-                  onClick={() =>
-                    setIsDoubanImageProxyDropdownOpen(
-                      !isDoubanImageProxyDropdownOpen,
-                    )
-                  }
-                  className='border-border focus:ring-primary focus:border-primary bg-card text-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 pr-10 text-left text-sm shadow-sm transition-all duration-200 focus:outline-none focus:ring-2'
-                >
-                  {
-                    doubanImageProxyTypeOptions.find(
-                      (option) => option.value === doubanImageProxyType,
-                    )?.label
-                  }
-                </button>
+              <select
+                id='usermenu-douban-image-mode'
+                className='border-border focus:ring-primary focus:border-primary bg-card text-foreground w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2'
+                value={doubanImageProxyMode}
+                onChange={(e) =>
+                  handleDoubanImageProxyModeChange(
+                    normalizeMode(e.target.value) as ProxyMode,
+                  )
+                }
+              >
+                <option value='server'>服务端代理</option>
+                <option value='preset'>预设代理</option>
+                <option value='custom'>自定义代理</option>
+              </select>
 
-                {/* 下拉箭头 */}
-                <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3'>
-                  <ChevronDown
-                    className={`text-muted-foreground h-4 w-4 transition-transform duration-200 ${
-                      isDoubanDropdownOpen ? 'rotate-180' : ''
-                    }`}
-                  />
-                </div>
-
-                {/* 下拉选项列表 */}
-                {isDoubanImageProxyDropdownOpen && (
-                  <div className='bg-card border-border absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border shadow-lg'>
-                    {doubanImageProxyTypeOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        type='button'
-                        onClick={() => {
-                          handleDoubanImageProxyTypeChange(option.value);
-                          setIsDoubanImageProxyDropdownOpen(false);
-                        }}
-                        className={`hover:bg-muted flex w-full items-center justify-between px-3 py-2.5 text-left text-sm transition-colors duration-150 ${
-                          doubanImageProxyType === option.value
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-foreground'
-                        }`}
-                      >
-                        <span className='truncate'>{option.label}</span>
-                        {doubanImageProxyType === option.value && (
-                          <Check className='text-primary ml-2 h-4 w-4 shrink-0' />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* 豆瓣图片代理地址设置 - 仅在选择自定义代理时显示 */}
-            {doubanImageProxyType === 'custom' && (
-              <div className='space-y-3'>
-                <div>
-                  <h4 className='text-foreground text-sm font-medium'>
-                    豆瓣图片代理地址
-                  </h4>
-                  <p className='text-muted-foreground mt-1 text-xs'>
-                    自定义图片代理服务器地址
-                  </p>
-                </div>
-                <input
-                  type='text'
-                  className='border-border focus:ring-primary focus:border-primary bg-card text-foreground placeholder:text-muted-foreground hover:border-border/80 w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm transition-all duration-200 focus:outline-none focus:ring-2'
-                  placeholder='例如: https://proxy.example.com/fetch?url='
-                  value={doubanImageProxyUrl}
+              {doubanImageProxyMode === 'preset' && (
+                <select
+                  id='usermenu-douban-image-preset'
+                  className='border-border focus:ring-primary focus:border-primary bg-card text-foreground w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2'
+                  value={doubanImageProxyPresetId}
                   onChange={(e) =>
-                    handleDoubanImageProxyUrlChange(e.target.value)
+                    handleDoubanImageProxyPresetIdChange(e.target.value)
+                  }
+                >
+                  <option value=''>请选择预设</option>
+                  {doubanImageProxyPresets.map((preset) => (
+                    <option key={preset.id} value={preset.id}>
+                      {preset.name || preset.id}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              {doubanImageProxyMode === 'custom' && (
+                <input
+                  id='usermenu-douban-image-custom-url'
+                  type='text'
+                  className='border-border focus:ring-primary focus:border-primary bg-card text-foreground placeholder:text-muted-foreground w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2'
+                  placeholder='例如: https://proxy.example.com/fetch?url='
+                  value={doubanImageProxyCustomUrl}
+                  onChange={(e) =>
+                    handleDoubanImageProxyCustomUrlChange(e.target.value)
                   }
                 />
-              </div>
-            )}
+              )}
+            </div>
 
             {/* 分割线 */}
             <div className='border-border border-t'></div>
