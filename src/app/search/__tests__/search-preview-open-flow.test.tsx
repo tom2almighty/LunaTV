@@ -42,18 +42,6 @@ vi.mock('@/hooks/useSearchPageInit', () => ({
   }),
 }));
 
-vi.mock('@/hooks/useSearchVirtualGrid', () => ({
-  useSearchVirtualGrid: () => ({
-    virtualGridRef: { current: null },
-    virtualGridColumns: 1,
-    resultsVirtualizer: {
-      getTotalSize: () => 1,
-      getVirtualItems: () => [{ key: 'row-0', index: 0, start: 0 }],
-      measureElement: () => {},
-    },
-  }),
-}));
-
 vi.mock('@/hooks/useSearchResultFilters', () => ({
   useSearchResultFilters: ({
     searchResults,

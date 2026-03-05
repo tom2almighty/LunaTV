@@ -19,7 +19,6 @@ import {
   SearchFilterState,
   useSearchResultFilters,
 } from '@/hooks/useSearchResultFilters';
-import { useSearchVirtualGrid } from '@/hooks/useSearchVirtualGrid';
 
 import SearchResultFilter from '@/components/SearchResultFilter';
 import VideoCard, { VideoCardHandle } from '@/components/VideoCard';
@@ -50,6 +49,7 @@ function SearchPageClient() {
   const pendingResultsRef = useRef<SearchResult[]>([]);
   const flushTimerRef = useRef<number | null>(null);
   const [useFluidSearch, setUseFluidSearch] = useState(true);
+  const virtualGridRef = useRef<HTMLDivElement | null>(null);
   // 聚合卡片 refs 与聚合统计缓存
   const groupRefs = useRef<
     Map<string, React.RefObject<VideoCardHandle | null>>
@@ -165,7 +165,6 @@ function SearchPageClient() {
     filterOptions,
     filteredAllResults,
     filteredAggResults,
-    currentResultCount,
   } = useSearchResultFilters({
     searchResults,
     searchQuery,
@@ -203,12 +202,6 @@ function SearchPageClient() {
     });
   }, [aggregatedResults, computeGroupStats, groupStatsMap]);
 
-  const { virtualGridRef, virtualGridColumns, resultsVirtualizer } =
-    useSearchVirtualGrid({
-      showResults,
-      currentResultCount,
-      viewMode,
-    });
   const showBackToTop = useBackToTopVisibility(virtualGridRef);
   const { searchHistory } = useSearchPageInit({
     hasQuery: !!searchParams.get('q'),
@@ -482,27 +475,10 @@ function SearchPageClient() {
                   data-testid='search-results-scroll-container'
                   className='max-h-[72vh] overflow-y-auto pr-1'
                 >
-                  <div
-                    style={{
-                      height: `${resultsVirtualizer.getTotalSize()}px`,
-                      position: 'relative',
-                      width: '100%',
-                    }}
-                  >
-                    {resultsVirtualizer.getVirtualItems().map((virtualRow) => {
-                      const startIndex = virtualRow.index * virtualGridColumns;
-                      const endIndex = Math.min(
-                        startIndex + virtualGridColumns,
-                        currentResultCount,
-                      );
-
-                      const rowCards: React.ReactNode[] = [];
-
-                      for (let index = startIndex; index < endIndex; index++) {
-                        if (viewMode === 'agg') {
-                          const [mapKey, group] =
-                            filteredAggResults[index] || [];
-                          if (!mapKey || !group) continue;
+                  <div className='grid grid-cols-3 gap-x-2 gap-y-14 px-0 pb-14 sm:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] sm:gap-x-8 sm:gap-y-20 sm:px-2 sm:pb-20'>
+                    {viewMode === 'agg'
+                      ? filteredAggResults.map(([mapKey, group], index) => {
+                          if (!mapKey || !group) return null;
 
                           const title = group[0]?.title || '';
                           const poster = group[0]?.poster || '';
@@ -520,7 +496,7 @@ function SearchPageClient() {
                             });
                           }
 
-                          rowCards.push(
+                          return (
                             <div key={`agg-${mapKey}`} className='w-full'>
                               <VideoCard
                                 ref={getGroupRef(mapKey)}
@@ -544,67 +520,48 @@ function SearchPageClient() {
                                   persistSearchContext(`agg-${mapKey}`)
                                 }
                               />
-                            </div>,
+                            </div>
                           );
-                          continue;
-                        }
+                        })
+                      : filteredAllResults.map((item, index) => {
+                          if (!item) return null;
 
-                        const item = filteredAllResults[index];
-                        if (!item) continue;
-
-                        rowCards.push(
-                          <div
-                            key={`all-${item.source}-${item.id}`}
-                            className='w-full'
-                          >
-                            <VideoCard
-                              testId={`search-card-${index}`}
-                              id={item.id}
-                              title={item.title}
-                              poster={item.poster}
-                              episodes={item.episodes.length}
-                              play_group={
-                                aggregateGroupMap.get(
-                                  buildAggregateKey(item),
-                                ) || [item]
-                              }
-                              source={item.source}
-                              source_name={item.source_name}
-                              douban_id={item.douban_id}
-                              query={
-                                searchQuery.trim() !== item.title
-                                  ? searchQuery.trim()
-                                  : ''
-                              }
-                              year={item.year}
-                              from='search'
-                              type={item.episodes.length > 1 ? 'tv' : 'movie'}
-                              onBeforePlayNavigate={() =>
-                                persistSearchContext(
-                                  `all-${item.source}-${item.id}`,
-                                )
-                              }
-                            />
-                          </div>,
-                        );
-                      }
-
-                      return (
-                        <div
-                          key={virtualRow.key}
-                          data-index={virtualRow.index}
-                          ref={resultsVirtualizer.measureElement}
-                          className='absolute left-0 top-0 grid gap-x-2 px-0 pb-14 sm:gap-x-8 sm:px-2 sm:pb-20'
-                          style={{
-                            width: '100%',
-                            transform: `translateY(${virtualRow.start}px)`,
-                            gridTemplateColumns: `repeat(${virtualGridColumns}, minmax(0, 1fr))`,
-                          }}
-                        >
-                          {rowCards}
-                        </div>
-                      );
-                    })}
+                          return (
+                            <div
+                              key={`all-${item.source}-${item.id}`}
+                              className='w-full'
+                            >
+                              <VideoCard
+                                testId={`search-card-${index}`}
+                                id={item.id}
+                                title={item.title}
+                                poster={item.poster}
+                                episodes={item.episodes.length}
+                                play_group={
+                                  aggregateGroupMap.get(
+                                    buildAggregateKey(item),
+                                  ) || [item]
+                                }
+                                source={item.source}
+                                source_name={item.source_name}
+                                douban_id={item.douban_id}
+                                query={
+                                  searchQuery.trim() !== item.title
+                                    ? searchQuery.trim()
+                                    : ''
+                                }
+                                year={item.year}
+                                from='search'
+                                type={item.episodes.length > 1 ? 'tv' : 'movie'}
+                                onBeforePlayNavigate={() =>
+                                  persistSearchContext(
+                                    `all-${item.source}-${item.id}`,
+                                  )
+                                }
+                              />
+                            </div>
+                          );
+                        })}
                   </div>
                 </div>
               )}

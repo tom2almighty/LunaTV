@@ -4,10 +4,6 @@ import { describe, expect, it, vi } from 'vitest';
 
 import SearchPageClient from '../SearchPageClient';
 
-const { virtualGridRefMock } = vi.hoisted(() => ({
-  virtualGridRefMock: { current: null as HTMLDivElement | null },
-}));
-
 vi.mock('next/navigation', () => {
   return {
     useRouter: () => ({
@@ -43,18 +39,6 @@ vi.mock('@/hooks/useBackToTopVisibility', () => ({
 vi.mock('@/hooks/useSearchPageInit', () => ({
   useSearchPageInit: () => ({
     searchHistory: [],
-  }),
-}));
-
-vi.mock('@/hooks/useSearchVirtualGrid', () => ({
-  useSearchVirtualGrid: () => ({
-    virtualGridRef: virtualGridRefMock,
-    virtualGridColumns: 1,
-    resultsVirtualizer: {
-      getTotalSize: () => 1,
-      getVirtualItems: () => [{ key: 'row-0', index: 0, start: 0 }],
-      measureElement: () => {},
-    },
   }),
 }));
 
