@@ -112,6 +112,7 @@ services:
 | `NEXT_PUBLIC_ENABLE_REGISTRATION`     | 是否开启前台注册（仅当值为 `true` 时开启）     | `false`      |
 | `PLAY_SESSION_MAX_COUNT`              | 内存中最多保留的播放会话数量上限               | `300`        |
 | `PLAY_SESSION_MAX_SOURCES`            | 单个播放会话最多保留的候选播放源数量上限       | `50`         |
+| `SEARCH_FANOUT_CONCURRENCY`           | 并发搜索数                                     | `5`          |
 
 说明：
 

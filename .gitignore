@@ -48,5 +48,3 @@ public/worker-*.js
 data/
 .worktrees/
 _tmp_*
-
-docs/plans/*.md
