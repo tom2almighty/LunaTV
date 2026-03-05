@@ -4,6 +4,8 @@ import { AdminConfig } from '@/lib/admin.types';
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
 
+import { verifyAuthSignature } from '@/server/api/auth-verifier';
+
 export class ApiAuthError extends Error {
   readonly status: number;
 
@@ -19,7 +21,22 @@ export async function requireActiveUsername(
 ): Promise<string> {
   const authInfo = getAuthInfoFromCookie(request);
   const username = authInfo?.username?.trim();
-  if (!username) {
+  const signature = authInfo?.signature?.trim();
+  if (!username || !signature) {
+    throw new ApiAuthError('Unauthorized', 401);
+  }
+
+  const adminPassword = process.env.APP_ADMIN_PASSWORD;
+  if (!adminPassword) {
+    throw new ApiAuthError('Unauthorized', 401);
+  }
+
+  const isValidSignature = await verifyAuthSignature(
+    username,
+    signature,
+    adminPassword,
+  );
+  if (!isValidSignature) {
     throw new ApiAuthError('Unauthorized', 401);
   }
 

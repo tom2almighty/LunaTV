@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getAuthInfoFromCookie } from '@/lib/auth';
 
+import { verifyAuthSignature } from '@/server/api/auth-verifier';
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const adminUsername = process.env.APP_ADMIN_USERNAME;
@@ -33,7 +35,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // 验证签名
-  const isValidSignature = await verifySignature(
+  const isValidSignature = await verifyAuthSignature(
     authInfo.username,
     authInfo.signature,
     adminPassword,
@@ -46,44 +48,6 @@ export async function proxy(request: NextRequest) {
 
   // 签名验证失败
   return handleAuthFailure(request, pathname);
-}
-
-// 验证签名
-async function verifySignature(
-  data: string,
-  signature: string,
-  secret: string,
-): Promise<boolean> {
-  const encoder = new TextEncoder();
-  const keyData = encoder.encode(secret);
-  const messageData = encoder.encode(data);
-
-  try {
-    // 导入密钥
-    const key = await crypto.subtle.importKey(
-      'raw',
-      keyData,
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['verify'],
-    );
-
-    // 将十六进制字符串转换为Uint8Array
-    const signatureBuffer = new Uint8Array(
-      signature.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || [],
-    );
-
-    // 验证签名
-    return await crypto.subtle.verify(
-      'HMAC',
-      key,
-      signatureBuffer,
-      messageData,
-    );
-  } catch (error) {
-    console.error('签名验证失败:', error);
-    return false;
-  }
 }
 
 // 处理认证失败的情况
