@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any, no-console */
 
 import { ApiSite, getAvailableApiSites, getConfig } from '@/lib/config';
 import { getDetailFromApi, searchFromApi } from '@/lib/downstream';
@@ -8,10 +8,13 @@ import { SearchResult } from '@/lib/types';
 import { yellowWords } from '@/lib/yellow';
 
 import { ApiBusinessError, ApiValidationError } from '@/server/api/handler';
+import { createSourceHealthManager } from '@/server/services/source-health';
 import { runWithConcurrencyLimit } from '@/server/services/source-search-scheduler';
 
 const SEARCH_SOURCE_TIMEOUT_MS = 9000;
 const DEFAULT_SEARCH_FANOUT_CONCURRENCY = 5;
+const DEFAULT_SOURCE_FAILURE_THRESHOLD = 3;
+const DEFAULT_SOURCE_COOLDOWN_MS = 60_000;
 
 type PlayMode = 'group' | 'direct' | 'search';
 
@@ -29,6 +32,33 @@ function getSearchFanoutConcurrency() {
   }
   return Math.min(20, parsed);
 }
+
+function getSourceFailureThreshold() {
+  const parsed = Number.parseInt(
+    process.env.SEARCH_SOURCE_FAILURE_THRESHOLD || '',
+    10,
+  );
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return DEFAULT_SOURCE_FAILURE_THRESHOLD;
+  }
+  return Math.min(10, parsed);
+}
+
+function getSourceCooldownMs() {
+  const parsed = Number.parseInt(
+    process.env.SEARCH_SOURCE_COOLDOWN_MS || '',
+    10,
+  );
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return DEFAULT_SOURCE_COOLDOWN_MS;
+  }
+  return parsed;
+}
+
+const sourceHealthManager = createSourceHealthManager({
+  failureThreshold: getSourceFailureThreshold(),
+  cooldownMs: getSourceCooldownMs(),
+});
 
 function parseType(value: unknown): 'movie' | 'tv' | undefined {
   if (value === 'movie' || value === 'tv') return value;
@@ -134,20 +164,50 @@ export async function searchAllSources(
   username: string,
   query: string,
 ): Promise<SearchResult[]> {
+  const startedAt = Date.now();
   const { apiSites, disableYellowFilter } =
     await resolveSearchContext(username);
-  const tasks = apiSites.map(
-    (site) => () => searchSiteWithTimeout(site, query, disableYellowFilter),
-  );
+  let skippedByCircuit = 0;
+  const tasks = apiSites.map((site) => async () => {
+    if (!sourceHealthManager.shouldAllowRequest(site.key)) {
+      skippedByCircuit += 1;
+      return [];
+    }
+
+    try {
+      const results = await searchSiteWithTimeout(
+        site,
+        query,
+        disableYellowFilter,
+      );
+      sourceHealthManager.markSuccess(site.key);
+      return results;
+    } catch {
+      sourceHealthManager.markFailure(site.key);
+      return [];
+    }
+  });
   const results = await runWithConcurrencyLimit(
     tasks,
     getSearchFanoutConcurrency(),
   );
 
-  return results
+  const flattened = results
     .filter((result) => result.status === 'fulfilled')
     .map((result) => (result as PromiseFulfilledResult<SearchResult[]>).value)
     .flat();
+
+  const hitSources = new Set(flattened.map((item) => item.source)).size;
+  console.info(
+    '[search.all] query=%s totalSources=%d hitSources=%d skippedByCircuit=%d durationMs=%d',
+    query,
+    apiSites.length,
+    hitSources,
+    skippedByCircuit,
+    Date.now() - startedAt,
+  );
+
+  return flattened;
 }
 
 export async function getApiSiteBySource(
@@ -248,20 +308,36 @@ async function searchCandidatesAcrossSources(
   expectedYear?: string,
   expectedType?: 'movie' | 'tv',
 ): Promise<SearchResult[]> {
+  const startedAt = Date.now();
   const config = await getConfig();
   const apiSites = await getAvailableApiSites(username);
+  let skippedByCircuit = 0;
 
   const tasks = apiSites.map(
     (site) => () =>
-      Promise.race([
-        searchFromApi(site, keyword),
-        new Promise<SearchResult[]>((_, reject) =>
-          setTimeout(
-            () => reject(new Error(`${site.name} timeout`)),
-            SEARCH_SOURCE_TIMEOUT_MS,
-          ),
-        ),
-      ]).catch(() => []),
+      (async () => {
+        if (!sourceHealthManager.shouldAllowRequest(site.key)) {
+          skippedByCircuit += 1;
+          return [];
+        }
+
+        try {
+          const results = await Promise.race([
+            searchFromApi(site, keyword),
+            new Promise<SearchResult[]>((_, reject) =>
+              setTimeout(
+                () => reject(new Error(`${site.name} timeout`)),
+                SEARCH_SOURCE_TIMEOUT_MS,
+              ),
+            ),
+          ]);
+          sourceHealthManager.markSuccess(site.key);
+          return results;
+        } catch {
+          sourceHealthManager.markFailure(site.key);
+          return [];
+        }
+      })().catch(() => []),
   );
 
   const settled = await runWithConcurrencyLimit(
@@ -277,6 +353,15 @@ async function searchCandidatesAcrossSources(
     expectedTitle,
     expectedYear,
     expectedType,
+  );
+
+  console.info(
+    '[search.candidates] keyword=%s totalSources=%d merged=%d skippedByCircuit=%d durationMs=%d',
+    keyword,
+    apiSites.length,
+    merged.length,
+    skippedByCircuit,
+    Date.now() - startedAt,
   );
 
   if (config.SiteConfig.DisableYellowFilter) {
@@ -416,6 +501,7 @@ export async function createSearchStreamResponse(
 
   const { apiSites, disableYellowFilter } =
     await resolveSearchContext(username);
+  const startedAt = Date.now();
 
   let streamClosed = false;
   const abortableSearch = createAbortableSearchController();
@@ -453,8 +539,42 @@ export async function createSearchStreamResponse(
 
       let completedSources = 0;
       const allResults: SearchResult[] = [];
+      let skippedByCircuit = 0;
 
       const tasks = apiSites.map((site) => async () => {
+        if (!sourceHealthManager.shouldAllowRequest(site.key)) {
+          skippedByCircuit += 1;
+          completedSources += 1;
+
+          if (!streamClosed) {
+            const skippedEvent = `data: ${JSON.stringify({
+              type: 'source_error',
+              source: site.key,
+              sourceName: site.name,
+              error: 'circuit_open',
+              timestamp: Date.now(),
+            })}\n\n`;
+            if (!safeEnqueue(encoder.encode(skippedEvent))) {
+              streamClosed = true;
+              return;
+            }
+          }
+
+          if (completedSources === apiSites.length && !streamClosed) {
+            const completeEvent = `data: ${JSON.stringify({
+              type: 'complete',
+              totalResults: allResults.length,
+              completedSources,
+              timestamp: Date.now(),
+            })}\n\n`;
+
+            if (safeEnqueue(encoder.encode(completeEvent))) {
+              controller.close();
+            }
+          }
+          return;
+        }
+
         try {
           const filteredResults = await searchSiteWithTimeout(
             site,
@@ -462,6 +582,7 @@ export async function createSearchStreamResponse(
             disableYellowFilter,
             { signal: abortableSearch.signal, timeoutMs: 20000 },
           );
+          sourceHealthManager.markSuccess(site.key);
 
           completedSources += 1;
           if (!streamClosed) {
@@ -483,6 +604,7 @@ export async function createSearchStreamResponse(
             allResults.push(...filteredResults);
           }
         } catch (error) {
+          sourceHealthManager.markFailure(site.key);
           completedSources += 1;
 
           if (!streamClosed) {
@@ -516,6 +638,15 @@ export async function createSearchStreamResponse(
       });
 
       await runWithConcurrencyLimit(tasks, getSearchFanoutConcurrency());
+      console.info(
+        '[search.stream] query=%s totalSources=%d completed=%d totalResults=%d skippedByCircuit=%d durationMs=%d',
+        query,
+        apiSites.length,
+        completedSources,
+        allResults.length,
+        skippedByCircuit,
+        Date.now() - startedAt,
+      );
     },
 
     cancel() {
