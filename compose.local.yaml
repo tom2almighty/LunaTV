@@ -10,5 +10,6 @@ services:
     environment:
       - APP_ADMIN_USERNAME=admin
       - APP_ADMIN_PASSWORD=your_password
+      - CRON_SECRET=strong_secret
     volumes:
       - ./data:/app/data
