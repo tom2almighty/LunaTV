@@ -87,7 +87,3 @@ export function verifyPassword(plain: string, stored: string): boolean {
 
   return timingSafeEqual(computed, parsed.hash);
 }
-
-export function isLegacyPlaintextPassword(stored: string): boolean {
-  return !stored.startsWith(`${PASSWORD_HASH_VERSION}$`);
-}

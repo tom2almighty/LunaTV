@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  hashPassword,
-  isLegacyPlaintextPassword,
-  verifyPassword,
-} from '../password';
+import { hashPassword, verifyPassword } from '../password';
 
 describe('password security', () => {
   it('hashPassword should not store plain text', () => {
@@ -22,10 +18,7 @@ describe('password security', () => {
     expect(verifyPassword('wrong-password', hashed)).toBe(false);
   });
 
-  it('isLegacyPlaintextPassword should identify legacy plain text format', () => {
-    const hashed = hashPassword('plain-to-hash');
-
-    expect(isLegacyPlaintextPassword('legacy-plain')).toBe(true);
-    expect(isLegacyPlaintextPassword(hashed)).toBe(false);
+  it('verifyPassword rejects non-hash legacy plain text', () => {
+    expect(verifyPassword('legacy-plain', 'legacy-plain')).toBe(false);
   });
 });

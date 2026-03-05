@@ -3,11 +3,7 @@
 import { userDataRepository } from '@/server/repositories/user-data-repository';
 
 import { AdminConfig } from './admin.types';
-import {
-  hashPassword,
-  isLegacyPlaintextPassword,
-  verifyPassword,
-} from './security/password';
+import { hashPassword, verifyPassword } from './security/password';
 import { getDb, SQLiteDatabase } from './sqlite';
 import { Favorite, PlayRecord, SkipConfig } from './types';
 
@@ -65,20 +61,7 @@ export async function verifyUser(
     return false;
   }
 
-  const storedPassword = row.password;
-  if (!isLegacyPlaintextPassword(storedPassword)) {
-    return verifyPassword(password, storedPassword);
-  }
-
-  if (storedPassword !== password) {
-    return false;
-  }
-
-  run(db, 'UPDATE users SET password = ? WHERE username = ?', [
-    hashPassword(password),
-    username,
-  ]);
-  return true;
+  return verifyPassword(password, row.password);
 }
 
 export async function checkUserExist(username: string): Promise<boolean> {

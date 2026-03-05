@@ -33,20 +33,10 @@ function parseAuthCookieJson(decodedValue: string): AuthCookieInfo | null {
 function parseAuthCookieValue(value: string): AuthCookieInfo | null {
   try {
     const decoded = decodeURIComponent(value);
-    const parsed = parseAuthCookieJson(decoded);
-    if (parsed) {
-      return parsed;
-    }
-
-    // 兼容历史双重编码
-    if (decoded.includes('%')) {
-      return parseAuthCookieJson(decodeURIComponent(decoded));
-    }
+    return parseAuthCookieJson(decoded);
   } catch {
     return null;
   }
-
-  return null;
 }
 
 export function getSessionMaxAgeMs(): number {

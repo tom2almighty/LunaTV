@@ -93,7 +93,7 @@ function isPrivateOrLoopbackIp(address: string): boolean {
 
 async function defaultResolveHostname(hostname: string): Promise<string[]> {
   const records = await lookup(hostname, { all: true, verbatim: true });
-  return [...new Set(records.map((record) => record.address))];
+  return Array.from(new Set(records.map((record) => record.address)));
 }
 
 export function parseAllowedHostsFromEnv(
