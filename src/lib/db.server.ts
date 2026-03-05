@@ -3,6 +3,11 @@
 import { userDataRepository } from '@/server/repositories/user-data-repository';
 
 import { AdminConfig } from './admin.types';
+import {
+  hashPassword,
+  isLegacyPlaintextPassword,
+  verifyPassword,
+} from './security/password';
 import { getDb, SQLiteDatabase } from './sqlite';
 import { Favorite, PlayRecord, SkipConfig } from './types';
 
@@ -39,9 +44,10 @@ export async function registerUser(
   password: string,
 ): Promise<void> {
   const db = getDb();
+  const passwordHash = hashPassword(password);
   run(db, 'INSERT INTO users (username, password) VALUES (?, ?)', [
     username,
-    password,
+    passwordHash,
   ]);
 }
 
@@ -55,7 +61,24 @@ export async function verifyUser(
     'SELECT password FROM users WHERE username = ?',
     [username],
   );
-  return row?.password === password;
+  if (!row) {
+    return false;
+  }
+
+  const storedPassword = row.password;
+  if (!isLegacyPlaintextPassword(storedPassword)) {
+    return verifyPassword(password, storedPassword);
+  }
+
+  if (storedPassword !== password) {
+    return false;
+  }
+
+  run(db, 'UPDATE users SET password = ? WHERE username = ?', [
+    hashPassword(password),
+    username,
+  ]);
+  return true;
 }
 
 export async function checkUserExist(username: string): Promise<boolean> {
@@ -69,8 +92,9 @@ export async function changePassword(
   newPassword: string,
 ): Promise<void> {
   const db = getDb();
+  const passwordHash = hashPassword(newPassword);
   run(db, 'UPDATE users SET password = ? WHERE username = ?', [
-    newPassword,
+    passwordHash,
     username,
   ]);
 }
