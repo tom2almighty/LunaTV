@@ -97,27 +97,33 @@ services:
 
 以下变量均为**非必须配置**；未配置时会使用默认值。
 
-| 变量名                                | 说明                                           | 默认值       |
-| ------------------------------------- | ---------------------------------------------- | ------------ |
-| `NEXT_PUBLIC_SITE_NAME`               | 站点名称                                       | `MoonTV`     |
-| `ANNOUNCEMENT`                        | 站点公告文案                                   | 内置免责声明 |
-| `NEXT_PUBLIC_SEARCH_MAX_PAGE`         | 搜索下游最大页数                               | `5`          |
-| `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME`  | 豆瓣数据缓存秒数                               | `7200`       |
-| `NEXT_PUBLIC_DOUBAN_PROXY_TYPE`       | 豆瓣 API 代理类型                              | `server`     |
-| `NEXT_PUBLIC_DOUBAN_PROXY`            | 自定义豆瓣 API 代理地址                        | 空字符串     |
-| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE` | 豆瓣图片代理类型                               | `server`     |
-| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY`      | 自定义豆瓣图片代理地址                         | 空字符串     |
-| `NEXT_PUBLIC_DISABLE_YELLOW_FILTER`   | 是否禁用黄色内容过滤（仅当值为 `true` 时生效） | `false`      |
-| `NEXT_PUBLIC_FLUID_SEARCH`            | 是否启用流式搜索（仅当值为 `false` 时关闭）    | `true`       |
-| `NEXT_PUBLIC_ENABLE_REGISTRATION`     | 是否开启前台注册（仅当值为 `true` 时开启）     | `false`      |
-| `PLAY_SESSION_MAX_COUNT`              | 内存中最多保留的播放会话数量上限               | `300`        |
-| `PLAY_SESSION_MAX_SOURCES`            | 单个播放会话最多保留的候选播放源数量上限       | `50`         |
-| `SEARCH_FANOUT_CONCURRENCY`           | 并发搜索数                                     | `5`          |
+| 变量名                                      | 说明                                              | 默认值       |
+| ------------------------------------------- | ------------------------------------------------- | ------------ |
+| `NEXT_PUBLIC_SITE_NAME`                     | 站点名称                                          | `MoonTV`     |
+| `ANNOUNCEMENT`                              | 站点公告文案                                      | 内置免责声明 |
+| `NEXT_PUBLIC_SEARCH_MAX_PAGE`               | 搜索下游最大页数                                  | `5`          |
+| `NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME`        | 豆瓣数据缓存秒数                                  | `7200`       |
+| `NEXT_PUBLIC_DOUBAN_DATA_PROXY_MODE`        | 豆瓣数据代理模式（`server\|preset\|custom`）      | `server`     |
+| `NEXT_PUBLIC_DOUBAN_DATA_PROXY_PRESET_ID`   | 豆瓣数据代理默认预设 ID（mode=`preset` 时）       | 空字符串     |
+| `NEXT_PUBLIC_DOUBAN_DATA_PROXY_CUSTOM_URL`  | 豆瓣数据代理默认自定义地址（mode=`custom` 时）    | 空字符串     |
+| `NEXT_PUBLIC_DOUBAN_DATA_PROXY_PRESETS`     | 豆瓣数据代理预设池 JSON 数组（`[{id,name,url}]`） | `[]`         |
+| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_MODE`       | 豆瓣图片代理模式（`server\|preset\|custom`）      | `server`     |
+| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_PRESET_ID`  | 豆瓣图片代理默认预设 ID（mode=`preset` 时）       | 空字符串     |
+| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_CUSTOM_URL` | 豆瓣图片代理默认自定义地址（mode=`custom` 时）    | 空字符串     |
+| `NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_PRESETS`    | 豆瓣图片代理预设池 JSON 数组（`[{id,name,url}]`） | `[]`         |
+| `NEXT_PUBLIC_DISABLE_YELLOW_FILTER`         | 是否禁用黄色内容过滤（仅当值为 `true` 时生效）    | `false`      |
+| `NEXT_PUBLIC_FLUID_SEARCH`                  | 是否启用流式搜索（仅当值为 `false` 时关闭）       | `true`       |
+| `NEXT_PUBLIC_ENABLE_REGISTRATION`           | 是否开启前台注册（仅当值为 `true` 时开启）        | `false`      |
+| `PLAY_SESSION_MAX_COUNT`                    | 内存中最多保留的播放会话数量上限                  | `300`        |
+| `PLAY_SESSION_MAX_SOURCES`                  | 单个播放会话最多保留的候选播放源数量上限          | `50`         |
+| `SEARCH_FANOUT_CONCURRENCY`                 | 并发搜索数                                        | `5`          |
 
 说明：
 
 - 数值变量（如 `NEXT_PUBLIC_SEARCH_MAX_PAGE`）如果不是合法数字，会回退到默认值。
 - 布尔变量统一按字符串判断，只有精确值 `true`/`false` 会触发对应开关逻辑。
+- 代理预设 URL 仅接受 `http/https`，并且每个预设池内的 `id` 必须唯一。
+- 旧字段/旧键 `NEXT_PUBLIC_DOUBAN_PROXY_TYPE`、`NEXT_PUBLIC_DOUBAN_PROXY`、`NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE`、`NEXT_PUBLIC_DOUBAN_IMAGE_PROXY` 已废弃且不再兼容。
 
 ## 安全与隐私提醒
 

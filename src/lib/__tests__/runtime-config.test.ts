@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import type { SiteConfig } from '@/lib/admin.types';
 import { buildRuntimeConfig } from '@/lib/runtime-config';
 

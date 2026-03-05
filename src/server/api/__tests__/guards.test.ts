@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getAuthInfoFromCookie, getSessionMaxAgeMs } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
 
+import { validateSiteSettingsPayload } from '@/app/api/admin/settings/site/route';
 import { verifyAuthSignature } from '@/server/api/auth-verifier';
 import {
   ApiAuthError,
@@ -148,5 +149,61 @@ describe('requireAdminRoleByUsername', () => {
     await expect(requireAdminRoleByUsername('alice')).rejects.toThrow(
       '权限不足',
     );
+  });
+});
+
+describe('validateSiteSettingsPayload', () => {
+  const validPayload = {
+    SiteName: 'MoonTV',
+    Announcement: '',
+    SearchDownstreamMaxPage: 5,
+    SiteInterfaceCacheTime: 7200,
+    DoubanDataCacheTime: 7200,
+    DoubanDataProxyMode: 'server',
+    DoubanDataProxyPresetId: '',
+    DoubanDataProxyCustomUrl: '',
+    DoubanDataProxyPresets: [
+      { id: 'data-a', name: 'Data A', url: 'https://a/?url=' },
+    ],
+    DoubanImageProxyMode: 'server',
+    DoubanImageProxyPresetId: '',
+    DoubanImageProxyCustomUrl: '',
+    DoubanImageProxyPresets: [
+      { id: 'img-a', name: 'Img A', url: 'https://img-a/?url=' },
+    ],
+    DisableYellowFilter: false,
+    FluidSearch: true,
+    EnableRegistration: false,
+    M3U8AdFilterEnabled: true,
+  } as const;
+
+  it('rejects invalid mode and invalid preset url', () => {
+    expect(() =>
+      validateSiteSettingsPayload({
+        ...validPayload,
+        DoubanDataProxyMode: 'invalid-mode',
+      }),
+    ).toThrow('参数格式错误');
+
+    expect(() =>
+      validateSiteSettingsPayload({
+        ...validPayload,
+        DoubanDataProxyPresets: [
+          { id: 'data-a', name: 'Data A', url: 'not-a-http-url' },
+        ],
+      }),
+    ).toThrow('参数格式错误');
+  });
+
+  it('rejects duplicate preset ids per pool', () => {
+    expect(() =>
+      validateSiteSettingsPayload({
+        ...validPayload,
+        DoubanImageProxyPresets: [
+          { id: 'dup', name: 'A', url: 'https://a/?url=' },
+          { id: 'dup', name: 'B', url: 'https://b/?url=' },
+        ],
+      }),
+    ).toThrow('参数格式错误');
   });
 });

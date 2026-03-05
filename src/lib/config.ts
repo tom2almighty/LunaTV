@@ -26,12 +26,32 @@ function parseProxyMode(mode: string | undefined): DoubanProxyMode {
   return 'server';
 }
 
+function isHttpUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function normalizeProxyCustomUrl(url: unknown): string {
+  if (typeof url !== 'string') {
+    return '';
+  }
+  const trimmed = url.trim();
+  if (!trimmed) {
+    return '';
+  }
+  return isHttpUrl(trimmed) ? trimmed : '';
+}
+
 function normalizeProxyPresets(presets: unknown): DoubanProxyPreset[] {
   if (!Array.isArray(presets)) {
     return [];
   }
 
-  return presets
+  const normalized = presets
     .filter((preset): preset is DoubanProxyPreset => {
       return (
         typeof preset === 'object' &&
@@ -46,7 +66,19 @@ function normalizeProxyPresets(presets: unknown): DoubanProxyPreset[] {
       name: preset.name.trim(),
       url: preset.url.trim(),
     }))
-    .filter((preset) => preset.id && preset.name && preset.url);
+    .filter(
+      (preset) =>
+        preset.id && preset.name && preset.url && isHttpUrl(preset.url),
+    );
+
+  const seenIds = new Set<string>();
+  return normalized.filter((preset) => {
+    if (seenIds.has(preset.id)) {
+      return false;
+    }
+    seenIds.add(preset.id);
+    return true;
+  });
 }
 
 function parseProxyPresetsFromEnv(
@@ -174,8 +206,9 @@ async function getInitConfig(
       ),
       DoubanDataProxyPresetId:
         process.env.NEXT_PUBLIC_DOUBAN_DATA_PROXY_PRESET_ID || '',
-      DoubanDataProxyCustomUrl:
-        process.env.NEXT_PUBLIC_DOUBAN_DATA_PROXY_CUSTOM_URL || '',
+      DoubanDataProxyCustomUrl: normalizeProxyCustomUrl(
+        process.env.NEXT_PUBLIC_DOUBAN_DATA_PROXY_CUSTOM_URL,
+      ),
       DoubanDataProxyPresets: parseProxyPresetsFromEnv(
         'NEXT_PUBLIC_DOUBAN_DATA_PROXY_PRESETS',
       ),
@@ -184,8 +217,9 @@ async function getInitConfig(
       ),
       DoubanImageProxyPresetId:
         process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_PRESET_ID || '',
-      DoubanImageProxyCustomUrl:
-        process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_CUSTOM_URL || '',
+      DoubanImageProxyCustomUrl: normalizeProxyCustomUrl(
+        process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_CUSTOM_URL,
+      ),
       DoubanImageProxyPresets: parseProxyPresetsFromEnv(
         'NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_PRESETS',
       ),
@@ -295,10 +329,9 @@ export function configSelfCheck(adminConfig: AdminConfig): AdminConfig {
     typeof adminConfig.SiteConfig.DoubanDataProxyPresetId === 'string'
       ? adminConfig.SiteConfig.DoubanDataProxyPresetId
       : '';
-  adminConfig.SiteConfig.DoubanDataProxyCustomUrl =
-    typeof adminConfig.SiteConfig.DoubanDataProxyCustomUrl === 'string'
-      ? adminConfig.SiteConfig.DoubanDataProxyCustomUrl
-      : '';
+  adminConfig.SiteConfig.DoubanDataProxyCustomUrl = normalizeProxyCustomUrl(
+    adminConfig.SiteConfig.DoubanDataProxyCustomUrl,
+  );
   adminConfig.SiteConfig.DoubanDataProxyPresets = normalizeProxyPresets(
     adminConfig.SiteConfig.DoubanDataProxyPresets,
   );
@@ -309,10 +342,9 @@ export function configSelfCheck(adminConfig: AdminConfig): AdminConfig {
     typeof adminConfig.SiteConfig.DoubanImageProxyPresetId === 'string'
       ? adminConfig.SiteConfig.DoubanImageProxyPresetId
       : '';
-  adminConfig.SiteConfig.DoubanImageProxyCustomUrl =
-    typeof adminConfig.SiteConfig.DoubanImageProxyCustomUrl === 'string'
-      ? adminConfig.SiteConfig.DoubanImageProxyCustomUrl
-      : '';
+  adminConfig.SiteConfig.DoubanImageProxyCustomUrl = normalizeProxyCustomUrl(
+    adminConfig.SiteConfig.DoubanImageProxyCustomUrl,
+  );
   adminConfig.SiteConfig.DoubanImageProxyPresets = normalizeProxyPresets(
     adminConfig.SiteConfig.DoubanImageProxyPresets,
   );
