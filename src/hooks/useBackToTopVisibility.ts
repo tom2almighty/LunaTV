@@ -10,32 +10,41 @@ export function useBackToTopVisibility(
 
   useEffect(() => {
     const getBodyScrollTop = () => document.body.scrollTop || 0;
-    const getContainerScrollTop = () => scrollContainerRef.current?.scrollTop || 0;
+    const getContainerScrollTop = () =>
+      scrollContainerRef.current?.scrollTop || 0;
+    const isVisible = () =>
+      getBodyScrollTop() > threshold || getContainerScrollTop() > threshold;
 
-    let running = true;
-    const checkScrollPosition = () => {
-      if (!running) return;
+    let rafId: number | null = null;
 
-      const shouldShow =
-        getBodyScrollTop() > threshold || getContainerScrollTop() > threshold;
-      setVisible(shouldShow);
-
-      window.requestAnimationFrame(checkScrollPosition);
+    const updateVisibility = () => {
+      rafId = null;
+      setVisible(isVisible());
     };
 
-    checkScrollPosition();
-
-    const handleScroll = () => {
-      const shouldShow =
-        getBodyScrollTop() > threshold || getContainerScrollTop() > threshold;
-      setVisible(shouldShow);
+    const scheduleVisibilityUpdate = () => {
+      if (rafId !== null) {
+        return;
+      }
+      rafId = window.requestAnimationFrame(updateVisibility);
     };
 
-    document.body.addEventListener('scroll', handleScroll, { passive: true });
+    scheduleVisibilityUpdate();
+
+    const container = scrollContainerRef.current;
+    container?.addEventListener('scroll', scheduleVisibilityUpdate, {
+      passive: true,
+    });
+    document.body.addEventListener('scroll', scheduleVisibilityUpdate, {
+      passive: true,
+    });
 
     return () => {
-      running = false;
-      document.body.removeEventListener('scroll', handleScroll);
+      container?.removeEventListener('scroll', scheduleVisibilityUpdate);
+      document.body.removeEventListener('scroll', scheduleVisibilityUpdate);
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
     };
   }, [scrollContainerRef, threshold]);
 
