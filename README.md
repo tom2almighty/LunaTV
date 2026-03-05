@@ -137,27 +137,9 @@ services:
 - 项目开发者不对用户的使用行为承担任何法律责任
 - 本项目不在中国大陆地区提供服务。如有该项目在向中国大陆地区提供服务，属个人行为。在该地区使用所产生的法律风险及责任，属于用户个人行为，与本项目无关，须自行承担全部责任。特此声明
 
-## RESTful API Contract (2026-03)
-
-- Legacy compatibility endpoints and snake_case admin paths were removed.
-- Play page URL contract is session-only: `/play?ps=<play_session_id>`.
-- Resource identity now uses path params (e.g. `/api/user/favorites/{source}/{videoId}`), not legacy composite-key query style.
-- Frontend user-data access now follows a single typed entry:
-  `UI/Hook -> src/lib/api/user-data-client.ts -> src/lib/api/client.ts`.
-- All play session operations use REST resources:
-  - `POST /api/play/sessions`
-  - `GET /api/play/sessions/{sessionId}`
-  - `PATCH /api/play/sessions/{sessionId}/current`
-- API routes follow unified handlers:
-  - generic: `src/server/api/handler.ts` (`executeApiHandler`)
-  - admin: `src/server/api/admin-handler.ts` (`executeAdminApiHandler`)
-- User-domain persistence follows one repository path:
-  `API route -> src/server/repositories/user-data-repository.ts -> SQLite`.
-- Full route map is documented in `docs/plans/2026-03-04-restful-api-route-map.md`.
-
 ## License
 
-[MIT](LICENSE) © 2025 MoonTV & Contributors
+[CC BY-NC-SA 4.0](LICENSE) © 2026 MoonTV & Contributors
 
 ## 致谢
 
