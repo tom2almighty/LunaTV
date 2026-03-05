@@ -161,6 +161,7 @@ function SearchPageClient() {
     computeGroupStats,
     aggregatedResults,
     aggregateGroupMap,
+    groupStatsMap,
     filterOptions,
     filteredAllResults,
     filteredAggResults,
@@ -176,7 +177,7 @@ function SearchPageClient() {
   // 当聚合结果变化时，如果某个聚合已存在，则调用其卡片 ref 的 set 方法增量更新
   useEffect(() => {
     aggregatedResults.forEach(([mapKey, group]) => {
-      const stats = computeGroupStats(group);
+      const stats = groupStatsMap.get(mapKey) || computeGroupStats(group);
       const prev = groupStatsRef.current.get(mapKey);
       if (!prev) {
         // 第一次出现，记录初始值，不调用 ref（由初始 props 渲染）
@@ -200,7 +201,7 @@ function SearchPageClient() {
         groupStatsRef.current.set(mapKey, stats);
       }
     });
-  }, [aggregatedResults]);
+  }, [aggregatedResults, computeGroupStats, groupStatsMap]);
 
   const { virtualGridRef, virtualGridColumns, resultsVirtualizer } =
     useSearchVirtualGrid({
@@ -507,6 +508,7 @@ function SearchPageClient() {
                           const poster = group[0]?.poster || '';
                           const year = group[0]?.year || 'unknown';
                           const { episodes, source_names, douban_id } =
+                            groupStatsMap.get(mapKey) ||
                             computeGroupStats(group);
                           const type = episodes === 1 ? 'movie' : 'tv';
 

@@ -51,5 +51,11 @@ describe('useSearchResultFilters', () => {
 
     const aggregatedCount = result.current.aggregatedResults.length;
     expect(aggregatedCount).toBe(1);
+    const [aggregateKey] = result.current.aggregatedResults[0];
+    expect(result.current.groupStatsMap.get(aggregateKey)).toEqual({
+      episodes: 1,
+      source_names: ['Source A', 'Source B'],
+      douban_id: undefined,
+    });
   });
 });

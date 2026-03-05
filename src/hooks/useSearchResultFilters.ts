@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { SearchResult } from '@/lib/types';
 
@@ -54,7 +54,7 @@ export function useSearchResultFilters({
     return `${normalizedTitle}-${normalizedYear}-${normalizedType}`;
   };
 
-  const computeGroupStats = (group: SearchResult[]) => {
+  const computeGroupStats = useCallback((group: SearchResult[]) => {
     const episodes = (() => {
       const countMap = new Map<number, number>();
       group.forEach((g) => {
@@ -95,7 +95,7 @@ export function useSearchResultFilters({
     })();
 
     return { episodes, source_names, douban_id };
-  };
+  }, []);
 
   const aggregatedResults = useMemo(() => {
     const map = new Map<string, SearchResult[]>();
@@ -119,6 +119,17 @@ export function useSearchResultFilters({
   const aggregateGroupMap = useMemo(
     () => new Map<string, SearchResult[]>(aggregatedResults),
     [aggregatedResults],
+  );
+
+  const groupStatsMap = useMemo(
+    () =>
+      new Map(
+        aggregatedResults.map(([key, group]) => [
+          key,
+          computeGroupStats(group),
+        ]),
+      ),
+    [aggregatedResults, computeGroupStats],
   );
 
   const filterOptions = useMemo(() => {
@@ -241,6 +252,7 @@ export function useSearchResultFilters({
     computeGroupStats,
     aggregatedResults,
     aggregateGroupMap,
+    groupStatsMap,
     filterOptions,
     filteredAllResults,
     filteredAggResults,

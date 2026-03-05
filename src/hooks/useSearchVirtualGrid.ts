@@ -75,7 +75,7 @@ export function useSearchVirtualGrid({
       window.cancelAnimationFrame(rafId);
       observer.disconnect();
     };
-  }, [showResults, viewMode, currentResultCount]);
+  }, [showResults, viewMode]);
 
   useEffect(() => {
     if (!showResults || currentResultCount === 0) return;
