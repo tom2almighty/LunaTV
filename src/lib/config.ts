@@ -2,7 +2,7 @@
 
 import { getAdminConfig, getAllUsers, saveAdminConfig } from '@/lib/db.server';
 
-import { AdminConfig } from './admin.types';
+import { AdminConfig, DoubanProxyMode, DoubanProxyPreset } from './admin.types';
 
 export interface ApiSite {
   key: string;
@@ -16,6 +16,54 @@ interface ConfigFileStruct {
   api_site?: {
     [key: string]: ApiSite;
   };
+}
+
+function parseProxyMode(mode: string | undefined): DoubanProxyMode {
+  if (mode === 'server' || mode === 'preset' || mode === 'custom') {
+    return mode;
+  }
+
+  return 'server';
+}
+
+function normalizeProxyPresets(presets: unknown): DoubanProxyPreset[] {
+  if (!Array.isArray(presets)) {
+    return [];
+  }
+
+  return presets
+    .filter((preset): preset is DoubanProxyPreset => {
+      return (
+        typeof preset === 'object' &&
+        preset !== null &&
+        typeof preset.id === 'string' &&
+        typeof preset.name === 'string' &&
+        typeof preset.url === 'string'
+      );
+    })
+    .map((preset) => ({
+      id: preset.id.trim(),
+      name: preset.name.trim(),
+      url: preset.url.trim(),
+    }))
+    .filter((preset) => preset.id && preset.name && preset.url);
+}
+
+function parseProxyPresetsFromEnv(
+  key:
+    | 'NEXT_PUBLIC_DOUBAN_DATA_PROXY_PRESETS'
+    | 'NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_PRESETS',
+): DoubanProxyPreset[] {
+  const raw = process.env[key];
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    return normalizeProxyPresets(JSON.parse(raw));
+  } catch {
+    return [];
+  }
 }
 
 export const API_CONFIG = {
@@ -123,11 +171,26 @@ async function getInitConfig(
       SiteInterfaceCacheTime: cfgFile.cache_time || 7200,
       DoubanDataCacheTime:
         Number(process.env.NEXT_PUBLIC_DOUBAN_DATA_CACHE_TIME) || 7200,
-      DoubanProxyType: process.env.NEXT_PUBLIC_DOUBAN_PROXY_TYPE || 'server',
-      DoubanProxy: process.env.NEXT_PUBLIC_DOUBAN_PROXY || '',
-      DoubanImageProxyType:
-        process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE || 'server',
-      DoubanImageProxy: process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY || '',
+      DoubanDataProxyMode: parseProxyMode(
+        process.env.NEXT_PUBLIC_DOUBAN_DATA_PROXY_MODE,
+      ),
+      DoubanDataProxyPresetId:
+        process.env.NEXT_PUBLIC_DOUBAN_DATA_PROXY_PRESET_ID || '',
+      DoubanDataProxyCustomUrl:
+        process.env.NEXT_PUBLIC_DOUBAN_DATA_PROXY_CUSTOM_URL || '',
+      DoubanDataProxyPresets: parseProxyPresetsFromEnv(
+        'NEXT_PUBLIC_DOUBAN_DATA_PROXY_PRESETS',
+      ),
+      DoubanImageProxyMode: parseProxyMode(
+        process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_MODE,
+      ),
+      DoubanImageProxyPresetId:
+        process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_PRESET_ID || '',
+      DoubanImageProxyCustomUrl:
+        process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_CUSTOM_URL || '',
+      DoubanImageProxyPresets: parseProxyPresetsFromEnv(
+        'NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_PRESETS',
+      ),
       DisableYellowFilter:
         process.env.NEXT_PUBLIC_DISABLE_YELLOW_FILTER === 'true',
       FluidSearch: process.env.NEXT_PUBLIC_FLUID_SEARCH !== 'false',
@@ -235,6 +298,34 @@ export function configSelfCheck(adminConfig: AdminConfig): AdminConfig {
   if (!adminConfig.SiteConfig) {
     adminConfig.SiteConfig = {} as AdminConfig['SiteConfig'];
   }
+  adminConfig.SiteConfig.DoubanDataProxyMode = parseProxyMode(
+    adminConfig.SiteConfig.DoubanDataProxyMode,
+  );
+  adminConfig.SiteConfig.DoubanDataProxyPresetId =
+    typeof adminConfig.SiteConfig.DoubanDataProxyPresetId === 'string'
+      ? adminConfig.SiteConfig.DoubanDataProxyPresetId
+      : '';
+  adminConfig.SiteConfig.DoubanDataProxyCustomUrl =
+    typeof adminConfig.SiteConfig.DoubanDataProxyCustomUrl === 'string'
+      ? adminConfig.SiteConfig.DoubanDataProxyCustomUrl
+      : '';
+  adminConfig.SiteConfig.DoubanDataProxyPresets = normalizeProxyPresets(
+    adminConfig.SiteConfig.DoubanDataProxyPresets,
+  );
+  adminConfig.SiteConfig.DoubanImageProxyMode = parseProxyMode(
+    adminConfig.SiteConfig.DoubanImageProxyMode,
+  );
+  adminConfig.SiteConfig.DoubanImageProxyPresetId =
+    typeof adminConfig.SiteConfig.DoubanImageProxyPresetId === 'string'
+      ? adminConfig.SiteConfig.DoubanImageProxyPresetId
+      : '';
+  adminConfig.SiteConfig.DoubanImageProxyCustomUrl =
+    typeof adminConfig.SiteConfig.DoubanImageProxyCustomUrl === 'string'
+      ? adminConfig.SiteConfig.DoubanImageProxyCustomUrl
+      : '';
+  adminConfig.SiteConfig.DoubanImageProxyPresets = normalizeProxyPresets(
+    adminConfig.SiteConfig.DoubanImageProxyPresets,
+  );
   if (typeof adminConfig.SiteConfig.M3U8AdFilterEnabled !== 'boolean') {
     adminConfig.SiteConfig.M3U8AdFilterEnabled = true;
   }

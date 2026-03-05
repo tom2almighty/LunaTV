@@ -10,6 +10,27 @@ import { ApiValidationError } from '@/server/api/handler';
 
 export const runtime = 'nodejs';
 
+function isProxyMode(value: unknown): value is 'server' | 'preset' | 'custom' {
+  return value === 'server' || value === 'preset' || value === 'custom';
+}
+
+function isProxyPresetArray(
+  value: unknown,
+): value is { id: string; name: string; url: string }[] {
+  if (!Array.isArray(value)) {
+    return false;
+  }
+
+  return value.every(
+    (preset) =>
+      typeof preset === 'object' &&
+      preset !== null &&
+      typeof preset.id === 'string' &&
+      typeof preset.name === 'string' &&
+      typeof preset.url === 'string',
+  );
+}
+
 export async function POST(request: NextRequest) {
   return executeAdminApiHandler(request, async () => {
     let body: any;
@@ -25,10 +46,14 @@ export async function POST(request: NextRequest) {
       SearchDownstreamMaxPage,
       SiteInterfaceCacheTime,
       DoubanDataCacheTime,
-      DoubanProxyType,
-      DoubanProxy,
-      DoubanImageProxyType,
-      DoubanImageProxy,
+      DoubanDataProxyMode,
+      DoubanDataProxyPresetId,
+      DoubanDataProxyCustomUrl,
+      DoubanDataProxyPresets,
+      DoubanImageProxyMode,
+      DoubanImageProxyPresetId,
+      DoubanImageProxyCustomUrl,
+      DoubanImageProxyPresets,
       DisableYellowFilter,
       FluidSearch,
       EnableRegistration,
@@ -39,10 +64,14 @@ export async function POST(request: NextRequest) {
       SearchDownstreamMaxPage: number;
       SiteInterfaceCacheTime: number;
       DoubanDataCacheTime: number;
-      DoubanProxyType: string;
-      DoubanProxy: string;
-      DoubanImageProxyType: string;
-      DoubanImageProxy: string;
+      DoubanDataProxyMode: 'server' | 'preset' | 'custom';
+      DoubanDataProxyPresetId: string;
+      DoubanDataProxyCustomUrl: string;
+      DoubanDataProxyPresets: { id: string; name: string; url: string }[];
+      DoubanImageProxyMode: 'server' | 'preset' | 'custom';
+      DoubanImageProxyPresetId: string;
+      DoubanImageProxyCustomUrl: string;
+      DoubanImageProxyPresets: { id: string; name: string; url: string }[];
       DisableYellowFilter: boolean;
       FluidSearch: boolean;
       EnableRegistration: boolean;
@@ -55,10 +84,14 @@ export async function POST(request: NextRequest) {
       typeof SearchDownstreamMaxPage !== 'number' ||
       typeof SiteInterfaceCacheTime !== 'number' ||
       typeof DoubanDataCacheTime !== 'number' ||
-      typeof DoubanProxyType !== 'string' ||
-      typeof DoubanProxy !== 'string' ||
-      typeof DoubanImageProxyType !== 'string' ||
-      typeof DoubanImageProxy !== 'string' ||
+      !isProxyMode(DoubanDataProxyMode) ||
+      typeof DoubanDataProxyPresetId !== 'string' ||
+      typeof DoubanDataProxyCustomUrl !== 'string' ||
+      !isProxyPresetArray(DoubanDataProxyPresets) ||
+      !isProxyMode(DoubanImageProxyMode) ||
+      typeof DoubanImageProxyPresetId !== 'string' ||
+      typeof DoubanImageProxyCustomUrl !== 'string' ||
+      !isProxyPresetArray(DoubanImageProxyPresets) ||
       typeof DisableYellowFilter !== 'boolean' ||
       typeof FluidSearch !== 'boolean' ||
       typeof EnableRegistration !== 'boolean' ||
@@ -74,10 +107,14 @@ export async function POST(request: NextRequest) {
       SearchDownstreamMaxPage,
       SiteInterfaceCacheTime,
       DoubanDataCacheTime,
-      DoubanProxyType,
-      DoubanProxy,
-      DoubanImageProxyType,
-      DoubanImageProxy,
+      DoubanDataProxyMode,
+      DoubanDataProxyPresetId,
+      DoubanDataProxyCustomUrl,
+      DoubanDataProxyPresets,
+      DoubanImageProxyMode,
+      DoubanImageProxyPresetId,
+      DoubanImageProxyCustomUrl,
+      DoubanImageProxyPresets,
       DisableYellowFilter,
       FluidSearch,
       EnableRegistration,

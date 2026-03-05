@@ -7,16 +7,28 @@ export interface DataSource {
   disabled?: boolean;
 }
 
+export type DoubanProxyMode = 'server' | 'preset' | 'custom';
+
+export interface DoubanProxyPreset {
+  id: string;
+  name: string;
+  url: string;
+}
+
 export interface SiteConfig {
   SiteName: string;
   Announcement: string;
   SearchDownstreamMaxPage: number;
   SiteInterfaceCacheTime: number;
   DoubanDataCacheTime: number;
-  DoubanProxyType: string;
-  DoubanProxy: string;
-  DoubanImageProxyType: string;
-  DoubanImageProxy: string;
+  DoubanDataProxyMode: DoubanProxyMode;
+  DoubanDataProxyPresetId: string;
+  DoubanDataProxyCustomUrl: string;
+  DoubanDataProxyPresets: DoubanProxyPreset[];
+  DoubanImageProxyMode: DoubanProxyMode;
+  DoubanImageProxyPresetId: string;
+  DoubanImageProxyCustomUrl: string;
+  DoubanImageProxyPresets: DoubanProxyPreset[];
   DisableYellowFilter: boolean;
   FluidSearch: boolean;
   EnableRegistration: boolean;
