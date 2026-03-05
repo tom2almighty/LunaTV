@@ -29,6 +29,22 @@ function parseResourceIdentityFromKey(key: string): {
 
 export async function GET(request: NextRequest) {
   console.log(request.url);
+  const expectedCronSecret = process.env.CRON_SECRET;
+  const providedCronSecret = request.headers.get('x-cron-secret');
+  if (
+    !expectedCronSecret ||
+    !providedCronSecret ||
+    providedCronSecret !== expectedCronSecret
+  ) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Unauthorized',
+      },
+      { status: 401 },
+    );
+  }
+
   try {
     console.log('Cron job triggered:', new Date().toISOString());
 

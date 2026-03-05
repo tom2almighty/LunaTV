@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console,@typescript-eslint/no-var-requires */
+/* eslint-disable no-console,@typescript-eslint/no-var-requires,@typescript-eslint/no-require-imports */
 const http = require('http');
-const path = require('path');
 
 // 直接在当前进程中启动 standalone Server（`server.js`）
 require('./server.js');
@@ -46,24 +45,33 @@ function executeCronJob() {
   const cronUrl = `http://${process.env.HOSTNAME || 'localhost'}:${
     process.env.PORT || 3000
   }/api/cron`;
+  const cronSecret = process.env.CRON_SECRET;
 
   console.log(`Executing cron job: ${cronUrl}`);
 
-  const req = http.get(cronUrl, (res) => {
-    let data = '';
+  const req = http.get(
+    cronUrl,
+    {
+      headers: {
+        'x-cron-secret': cronSecret || '',
+      },
+    },
+    (res) => {
+      let data = '';
 
-    res.on('data', (chunk) => {
-      data += chunk;
-    });
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
 
-    res.on('end', () => {
-      if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
-        console.log('Cron job executed successfully:', data);
-      } else {
-        console.error('Cron job failed:', res.statusCode, data);
-      }
-    });
-  });
+      res.on('end', () => {
+        if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+          console.log('Cron job executed successfully:', data);
+        } else {
+          console.error('Cron job failed:', res.statusCode, data);
+        }
+      });
+    },
+  );
 
   req.on('error', (err) => {
     console.error('Error executing cron job:', err);
