@@ -136,7 +136,7 @@ function reviveSession(payloadJson: string): PlaySession | null {
     }
 
     const sources: PlaySessionSource[] = parsed.sources
-      .map((item) => {
+      .map((item): PlaySessionSource | null => {
         if (!item || typeof item !== 'object') return null;
         const sourceItem = item as Partial<PlaySessionSource>;
         const source = String(sourceItem.source || '').trim();
@@ -159,13 +159,14 @@ function reviveSession(payloadJson: string): PlaySession | null {
             })
           : undefined;
 
-        return {
+        const restored: PlaySessionSource = {
           source,
           id,
           sourceName: String(sourceItem.sourceName || snapshot.source_name),
           snapshot,
           detail,
-        } satisfies PlaySessionSource;
+        };
+        return restored;
       })
       .filter((item): item is PlaySessionSource => item !== null);
 

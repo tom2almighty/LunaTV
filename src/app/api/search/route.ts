@@ -20,6 +20,7 @@ function buildSearchCacheHeaders(cacheTime: number) {
 }
 
 export async function GET(request: NextRequest) {
+  const startedAt = Date.now();
   return executeApiHandler(
     request,
     async ({ username }) => {
@@ -28,6 +29,10 @@ export async function GET(request: NextRequest) {
       const cacheTime = await getCacheTime();
 
       if (!query) {
+        console.info(
+          '[api.search] query=empty durationMs=%d',
+          Date.now() - startedAt,
+        );
         return NextResponse.json(
           { results: [] },
           {
@@ -39,6 +44,15 @@ export async function GET(request: NextRequest) {
       const flattenedResults = await searchAllSources(
         username as string,
         query,
+      );
+      const hitSources = new Set(flattenedResults.map((item) => item.source))
+        .size;
+      console.info(
+        '[api.search] query=%s results=%d hitSources=%d durationMs=%d',
+        query,
+        flattenedResults.length,
+        hitSources,
+        Date.now() - startedAt,
       );
       if (flattenedResults.length === 0) {
         return { results: [] };
