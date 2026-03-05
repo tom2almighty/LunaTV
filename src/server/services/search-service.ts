@@ -8,13 +8,26 @@ import { SearchResult } from '@/lib/types';
 import { yellowWords } from '@/lib/yellow';
 
 import { ApiBusinessError, ApiValidationError } from '@/server/api/handler';
+import { runWithConcurrencyLimit } from '@/server/services/source-search-scheduler';
 
 const SEARCH_SOURCE_TIMEOUT_MS = 9000;
+const DEFAULT_SEARCH_FANOUT_CONCURRENCY = 5;
 
 type PlayMode = 'group' | 'direct' | 'search';
 
 function normalize(str?: string) {
   return (str || '').replace(/\s+/g, '').trim().toLowerCase();
+}
+
+function getSearchFanoutConcurrency() {
+  const parsed = Number.parseInt(
+    process.env.SEARCH_FANOUT_CONCURRENCY || '',
+    10,
+  );
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return DEFAULT_SEARCH_FANOUT_CONCURRENCY;
+  }
+  return Math.min(20, parsed);
 }
 
 function parseType(value: unknown): 'movie' | 'tv' | undefined {
@@ -123,11 +136,14 @@ export async function searchAllSources(
 ): Promise<SearchResult[]> {
   const { apiSites, disableYellowFilter } =
     await resolveSearchContext(username);
-  const searchPromises = apiSites.map((site) =>
-    searchSiteWithTimeout(site, query, disableYellowFilter).catch(() => []),
+  const tasks = apiSites.map(
+    (site) => () => searchSiteWithTimeout(site, query, disableYellowFilter),
+  );
+  const results = await runWithConcurrencyLimit(
+    tasks,
+    getSearchFanoutConcurrency(),
   );
 
-  const results = await Promise.allSettled(searchPromises);
   return results
     .filter((result) => result.status === 'fulfilled')
     .map((result) => (result as PromiseFulfilledResult<SearchResult[]>).value)
@@ -235,19 +251,23 @@ async function searchCandidatesAcrossSources(
   const config = await getConfig();
   const apiSites = await getAvailableApiSites(username);
 
-  const searches = apiSites.map((site) =>
-    Promise.race([
-      searchFromApi(site, keyword),
-      new Promise<SearchResult[]>((_, reject) =>
-        setTimeout(
-          () => reject(new Error(`${site.name} timeout`)),
-          SEARCH_SOURCE_TIMEOUT_MS,
+  const tasks = apiSites.map(
+    (site) => () =>
+      Promise.race([
+        searchFromApi(site, keyword),
+        new Promise<SearchResult[]>((_, reject) =>
+          setTimeout(
+            () => reject(new Error(`${site.name} timeout`)),
+            SEARCH_SOURCE_TIMEOUT_MS,
+          ),
         ),
-      ),
-    ]).catch(() => []),
+      ]).catch(() => []),
   );
 
-  const settled = await Promise.allSettled(searches);
+  const settled = await runWithConcurrencyLimit(
+    tasks,
+    getSearchFanoutConcurrency(),
+  );
   const merged: SearchResult[] = settled
     .filter((item) => item.status === 'fulfilled')
     .flatMap((item) => (item as PromiseFulfilledResult<SearchResult[]>).value);
@@ -434,7 +454,7 @@ export async function createSearchStreamResponse(
       let completedSources = 0;
       const allResults: SearchResult[] = [];
 
-      const searchPromises = apiSites.map(async (site) => {
+      const tasks = apiSites.map((site) => async () => {
         try {
           const filteredResults = await searchSiteWithTimeout(
             site,
@@ -495,7 +515,7 @@ export async function createSearchStreamResponse(
         }
       });
 
-      await Promise.allSettled(searchPromises);
+      await runWithConcurrencyLimit(tasks, getSearchFanoutConcurrency());
     },
 
     cancel() {
