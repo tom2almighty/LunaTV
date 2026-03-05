@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any,no-console */
 import he from 'he';
 
+import { resolveDoubanImageProxy } from './douban-proxy-settings';
+
 function getDoubanImageProxyConfig(): {
   proxyType: 'server' | 'custom';
   proxyUrl: string;
@@ -8,18 +10,21 @@ function getDoubanImageProxyConfig(): {
   if (typeof window === 'undefined') {
     return { proxyType: 'server', proxyUrl: '' };
   }
-  const doubanImageProxyType =
-    localStorage.getItem('doubanImageProxyType') ||
-    (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY_TYPE ||
-    'server';
-  const doubanImageProxy =
-    localStorage.getItem('doubanImageProxyUrl') ||
-    (window as any).RUNTIME_CONFIG?.DOUBAN_IMAGE_PROXY ||
-    '';
-  return {
-    proxyType: doubanImageProxyType === 'custom' ? 'custom' : 'server',
-    proxyUrl: doubanImageProxy,
-  };
+
+  const runtimeConfig = (window as any).RUNTIME_CONFIG;
+  return resolveDoubanImageProxy({
+    runtime: {
+      mode: runtimeConfig?.DOUBAN_IMAGE_PROXY_MODE ?? 'server',
+      presetId: runtimeConfig?.DOUBAN_IMAGE_PROXY_PRESET_ID ?? '',
+      customUrl: runtimeConfig?.DOUBAN_IMAGE_PROXY_CUSTOM_URL ?? '',
+      presets: runtimeConfig?.DOUBAN_IMAGE_PROXY_PRESETS ?? [],
+    },
+    storage: {
+      mode: localStorage.getItem('doubanImageProxyMode'),
+      presetId: localStorage.getItem('doubanImageProxyPresetId'),
+      customUrl: localStorage.getItem('doubanImageProxyCustomUrl'),
+    },
+  });
 }
 
 /**

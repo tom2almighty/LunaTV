@@ -2,6 +2,7 @@
 
 import { DEFAULT_DOUBAN_PAGE_LIMIT } from '@/lib/douban.constants';
 
+import { resolveDoubanDataProxy } from './douban-proxy-settings';
 import { DoubanItem, DoubanResult } from './types';
 
 interface DoubanCategoriesParams {
@@ -61,19 +62,24 @@ function getDoubanProxyConfig(): {
   proxyType: 'server' | 'custom';
   proxyUrl: string;
 } {
-  const doubanProxyType =
-    localStorage.getItem('doubanDataSource') ||
-    (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY_TYPE ||
-    'server';
-  const doubanProxy =
-    localStorage.getItem('doubanProxyUrl') ||
-    (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY ||
-    '';
+  if (typeof window === 'undefined') {
+    return { proxyType: 'server', proxyUrl: '' };
+  }
 
-  return {
-    proxyType: doubanProxyType === 'custom' ? 'custom' : 'server',
-    proxyUrl: doubanProxy,
-  };
+  const runtimeConfig = (window as any).RUNTIME_CONFIG;
+  return resolveDoubanDataProxy({
+    runtime: {
+      mode: runtimeConfig?.DOUBAN_DATA_PROXY_MODE ?? 'server',
+      presetId: runtimeConfig?.DOUBAN_DATA_PROXY_PRESET_ID ?? '',
+      customUrl: runtimeConfig?.DOUBAN_DATA_PROXY_CUSTOM_URL ?? '',
+      presets: runtimeConfig?.DOUBAN_DATA_PROXY_PRESETS ?? [],
+    },
+    storage: {
+      mode: localStorage.getItem('doubanDataProxyMode'),
+      presetId: localStorage.getItem('doubanDataProxyPresetId'),
+      customUrl: localStorage.getItem('doubanDataProxyCustomUrl'),
+    },
+  });
 }
 
 export async function fetchDoubanCategories(
