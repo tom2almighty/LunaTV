@@ -5,6 +5,7 @@ import { getDetailFromApi } from '@/lib/downstream';
 import { SearchResult } from '@/lib/types';
 
 import { ApiBusinessError, ApiValidationError } from '@/server/api/handler';
+import { playSessionRepository } from '@/server/repositories/play-session-repository';
 
 const PLAY_SESSION_TTL_MS = 30 * 60 * 1000;
 const DEFAULT_MAX_PLAY_SESSION_COUNT = 300;
@@ -60,8 +61,6 @@ type CreatePlaySessionInput = {
   preferredId?: string;
 };
 
-const PLAY_SESSION_CACHE = new Map<string, PlaySession>();
-
 function normalizeYear(year?: string): string {
   if (!year) return 'unknown';
   const matched = year.match(/\d{4}/)?.[0];
@@ -96,12 +95,7 @@ function normalizeSearchResult(result: Partial<SearchResult>): SearchResult {
 }
 
 function cleanupExpiredSessions() {
-  const now = Date.now();
-  PLAY_SESSION_CACHE.forEach((session, id) => {
-    if (session.expiresAt <= now) {
-      PLAY_SESSION_CACHE.delete(id);
-    }
-  });
+  playSessionRepository.deleteExpired(Date.now());
 }
 
 function trimSessionSources(candidates: SearchResult[]) {
@@ -112,16 +106,103 @@ function trimSessionSources(candidates: SearchResult[]) {
 }
 
 function evictOverflowSessions() {
-  while (PLAY_SESSION_CACHE.size >= MAX_PLAY_SESSION_COUNT) {
-    const oldest = PLAY_SESSION_CACHE.keys().next().value as string | undefined;
-    if (!oldest) return;
-    PLAY_SESSION_CACHE.delete(oldest);
-  }
+  playSessionRepository.trimToLimit(MAX_PLAY_SESSION_COUNT);
 }
 
-function touchSession(sessionId: string, session: PlaySession) {
-  PLAY_SESSION_CACHE.delete(sessionId);
-  PLAY_SESSION_CACHE.set(sessionId, session);
+function persistSession(session: PlaySession) {
+  playSessionRepository.upsert({
+    sessionId: session.id,
+    username: session.username,
+    payloadJson: JSON.stringify(session),
+    expiresAt: session.expiresAt,
+    updatedAt: Date.now(),
+  });
+}
+
+function parsePlayType(value: unknown): PlayType {
+  return value === 'movie' ? 'movie' : 'tv';
+}
+
+function reviveSession(payloadJson: string): PlaySession | null {
+  try {
+    const parsed = JSON.parse(payloadJson) as Partial<PlaySession>;
+
+    if (
+      typeof parsed.id !== 'string' ||
+      typeof parsed.username !== 'string' ||
+      !Array.isArray(parsed.sources)
+    ) {
+      return null;
+    }
+
+    const sources: PlaySessionSource[] = parsed.sources
+      .map((item) => {
+        if (!item || typeof item !== 'object') return null;
+        const sourceItem = item as Partial<PlaySessionSource>;
+        const source = String(sourceItem.source || '').trim();
+        const id = String(sourceItem.id || '').trim();
+        if (!source || !id) return null;
+
+        const snapshot = normalizeSearchResult({
+          ...(sourceItem.snapshot || {}),
+          source,
+          id,
+          source_name: sourceItem.sourceName || source,
+        });
+
+        const detail = sourceItem.detail
+          ? normalizeSearchResult({
+              ...sourceItem.detail,
+              source,
+              id,
+              source_name: sourceItem.sourceName || snapshot.source_name,
+            })
+          : undefined;
+
+        return {
+          source,
+          id,
+          sourceName: String(sourceItem.sourceName || snapshot.source_name),
+          snapshot,
+          detail,
+        } satisfies PlaySessionSource;
+      })
+      .filter((item): item is PlaySessionSource => item !== null);
+
+    if (sources.length === 0) return null;
+
+    const fallbackCurrent = sources[0];
+    const hasCurrent = sources.some(
+      (item) =>
+        item.source === parsed.currentSource && item.id === parsed.currentId,
+    );
+
+    const now = Date.now();
+
+    return {
+      id: parsed.id,
+      username: parsed.username,
+      title: String(parsed.title || ''),
+      year: normalizeYear(String(parsed.year || 'unknown')),
+      type: parsePlayType(parsed.type),
+      query: String(parsed.query || ''),
+      currentSource: hasCurrent
+        ? String(parsed.currentSource)
+        : fallbackCurrent.source,
+      currentId: hasCurrent ? String(parsed.currentId) : fallbackCurrent.id,
+      sources,
+      createdAt:
+        typeof parsed.createdAt === 'number' && parsed.createdAt > 0
+          ? parsed.createdAt
+          : now,
+      expiresAt:
+        typeof parsed.expiresAt === 'number' && parsed.expiresAt > 0
+          ? parsed.expiresAt
+          : now + PLAY_SESSION_TTL_MS,
+    };
+  } catch {
+    return null;
+  }
 }
 
 function dedupeCandidates(candidates: SearchResult[]) {
@@ -203,8 +284,8 @@ export function createPlaySession({
     expiresAt: now + PLAY_SESSION_TTL_MS,
   };
 
+  persistSession(session);
   evictOverflowSessions();
-  PLAY_SESSION_CACHE.set(session.id, session);
   return session;
 }
 
@@ -213,11 +294,20 @@ export function getPlaySession(
   playSessionId: string,
 ): PlaySession | null {
   cleanupExpiredSessions();
-  const session = PLAY_SESSION_CACHE.get(playSessionId);
+
+  const record = playSessionRepository.getBySessionId(playSessionId);
+  if (!record) return null;
+  if (record.username !== username) return null;
+
+  const session = reviveSession(record.payloadJson);
   if (!session) return null;
-  if (session.username !== username) return null;
+  if (session.expiresAt <= Date.now()) {
+    cleanupExpiredSessions();
+    return null;
+  }
+
   session.expiresAt = Date.now() + PLAY_SESSION_TTL_MS;
-  touchSession(playSessionId, session);
+  persistSession(session);
   return session;
 }
 
@@ -248,7 +338,7 @@ export function setPlaySessionCurrent(
   session.currentSource = source;
   session.currentId = id;
   session.expiresAt = Date.now() + PLAY_SESSION_TTL_MS;
-  touchSession(session.id, session);
+  persistSession(session);
 }
 
 async function resolveSourceDetail(
@@ -288,6 +378,7 @@ export async function hydrateCurrentPlayDetail(
   const detail = await resolveSourceDetail(current, apiSites);
   if (!session.title) session.title = detail.title;
   if (!session.year || session.year === 'unknown') session.year = detail.year;
+  persistSession(session);
   return detail;
 }
 
