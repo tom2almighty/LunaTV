@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 
+import { assertSafeOutgoingUrl } from '@/lib/security/url-guard';
+
 export const runtime = 'nodejs';
+const IMAGE_PROXY_ALLOWED_HOSTS = ['doubanio.com'];
 
 // Image proxy endpoint
 export async function GET(request: Request) {
@@ -9,6 +12,15 @@ export async function GET(request: Request) {
 
   if (!imageUrl) {
     return NextResponse.json({ error: 'Missing image URL' }, { status: 400 });
+  }
+
+  try {
+    await assertSafeOutgoingUrl(imageUrl, {
+      allowedHosts: IMAGE_PROXY_ALLOWED_HOSTS,
+      allowedProtocols: ['https:'],
+    });
+  } catch {
+    return NextResponse.json({ error: 'Unsafe image URL' }, { status: 400 });
   }
 
   try {

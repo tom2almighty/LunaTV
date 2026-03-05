@@ -5,6 +5,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getConfig, refineConfig } from '@/lib/config';
 import * as db from '@/lib/db.server';
 import { fetchVideoDetail } from '@/lib/fetchVideoDetail';
+import {
+  assertSafeOutgoingUrl,
+  parseAllowedHostsFromEnv,
+} from '@/lib/security/url-guard';
 import { SearchResult } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -98,7 +102,15 @@ async function refreshConfig() {
     config.ConfigSubscribtion.AutoUpdate
   ) {
     try {
-      const response = await fetch(config.ConfigSubscribtion.URL);
+      const safeUrl = await assertSafeOutgoingUrl(
+        config.ConfigSubscribtion.URL,
+        {
+          allowedHosts: parseAllowedHostsFromEnv(
+            process.env.CONFIG_SUBSCRIPTION_ALLOWED_HOSTS,
+          ),
+        },
+      );
+      const response = await fetch(safeUrl);
 
       if (!response.ok) {
         throw new Error(`请求失败: ${response.status} ${response.statusText}`);

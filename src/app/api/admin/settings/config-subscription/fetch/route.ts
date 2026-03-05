@@ -2,6 +2,11 @@
 
 import { NextRequest } from 'next/server';
 
+import {
+  assertSafeOutgoingUrl,
+  parseAllowedHostsFromEnv,
+} from '@/lib/security/url-guard';
+
 import { executeAdminApiHandler } from '@/server/api/admin-handler';
 import { ApiBusinessError, ApiValidationError } from '@/server/api/handler';
 
@@ -22,6 +27,12 @@ export async function POST(request: NextRequest) {
       if (!url) {
         throw new ApiValidationError('缺少URL参数');
       }
+
+      await assertSafeOutgoingUrl(url, {
+        allowedHosts: parseAllowedHostsFromEnv(
+          process.env.CONFIG_SUBSCRIPTION_ALLOWED_HOSTS,
+        ),
+      });
 
       const response = await fetch(url);
       if (!response.ok) {
