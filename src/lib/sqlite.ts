@@ -122,6 +122,17 @@ function initTables(db: SQLiteDatabase): void {
     )
   `);
 
+  // 播放会话表（持久化播放上下文）
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS play_sessions (
+      session_id TEXT PRIMARY KEY,
+      username TEXT NOT NULL,
+      payload_json TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `);
+
   ensureDoubanCacheTable(db);
 
   // 创建索引
@@ -130,6 +141,9 @@ function initTables(db: SQLiteDatabase): void {
     CREATE INDEX IF NOT EXISTS idx_favorites_username ON favorites(username);
     CREATE INDEX IF NOT EXISTS idx_search_history_username_created_at ON search_history(username, created_at DESC, id DESC);
     CREATE INDEX IF NOT EXISTS idx_skip_configs_username ON skip_configs(username);
+    CREATE INDEX IF NOT EXISTS idx_play_sessions_username ON play_sessions(username);
+    CREATE INDEX IF NOT EXISTS idx_play_sessions_expires_at ON play_sessions(expires_at);
+    CREATE INDEX IF NOT EXISTS idx_play_sessions_updated_at ON play_sessions(updated_at);
   `);
 
   console.log('数据库表初始化完成');

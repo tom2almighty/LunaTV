@@ -335,6 +335,7 @@ export async function clearAllData(): Promise<void> {
   run(db, 'DELETE FROM favorites');
   run(db, 'DELETE FROM search_history');
   run(db, 'DELETE FROM skip_configs');
+  run(db, 'DELETE FROM play_sessions');
   run(db, 'DELETE FROM admin_config');
   run(db, 'DELETE FROM douban_cache');
   console.log('所有数据已清空');
