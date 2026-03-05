@@ -1,10 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, no-console, @typescript-eslint/no-non-null-assertion,react-hooks/exhaustive-deps */
+/* eslint-disable no-console, @typescript-eslint/no-non-null-assertion */
 'use client';
 
-import { Check, ChevronDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { AdminConfig, SiteConfig } from '@/lib/admin.types';
+import {
+  AdminConfig,
+  DoubanProxyMode,
+  DoubanProxyPreset,
+  SiteConfig,
+} from '@/lib/admin.types';
 
 import {
   AlertModal,
@@ -15,7 +19,45 @@ import {
 import { buttonStyles } from './buttonStyles';
 import { useLoadingState } from './LoadingSystem';
 
-// 新增站点配置组件
+const PROXY_MODE_OPTIONS: Array<{ value: DoubanProxyMode; label: string }> = [
+  { value: 'server', label: '服务端代理' },
+  { value: 'preset', label: '预设代理池' },
+  { value: 'custom', label: '自定义代理' },
+];
+
+const createPreset = (): DoubanProxyPreset => ({
+  id: `preset-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  name: '',
+  url: '',
+});
+
+const normalizeMode = (mode: unknown): DoubanProxyMode => {
+  if (mode === 'server' || mode === 'preset' || mode === 'custom') {
+    return mode;
+  }
+  return 'server';
+};
+
+const normalizePresets = (presets: unknown): DoubanProxyPreset[] => {
+  if (!Array.isArray(presets)) {
+    return [];
+  }
+  return presets
+    .filter(
+      (preset): preset is DoubanProxyPreset =>
+        typeof preset === 'object' &&
+        preset !== null &&
+        typeof preset.id === 'string' &&
+        typeof preset.name === 'string' &&
+        typeof preset.url === 'string',
+    )
+    .map((preset) => ({
+      id: preset.id || createPreset().id,
+      name: preset.name,
+      url: preset.url,
+    }));
+};
+
 export const SiteConfigComponent = ({
   config,
   refreshConfig,
@@ -25,108 +67,117 @@ export const SiteConfigComponent = ({
 }) => {
   const { alertModal, showAlert, hideAlert } = useAlertModal();
   const { isLoading, withLoading } = useLoadingState();
+
   const [siteSettings, setSiteSettings] = useState<SiteConfig>({
     SiteName: '',
     Announcement: '',
     SearchDownstreamMaxPage: 1,
     SiteInterfaceCacheTime: 7200,
     DoubanDataCacheTime: 7200,
-    DoubanProxyType: 'server',
-    DoubanProxy: '',
-    DoubanImageProxyType: 'server',
-    DoubanImageProxy: '',
+    DoubanDataProxyMode: 'server',
+    DoubanDataProxyPresetId: '',
+    DoubanDataProxyCustomUrl: '',
+    DoubanDataProxyPresets: [],
+    DoubanImageProxyMode: 'server',
+    DoubanImageProxyPresetId: '',
+    DoubanImageProxyCustomUrl: '',
+    DoubanImageProxyPresets: [],
     DisableYellowFilter: false,
     FluidSearch: true,
     EnableRegistration: false,
     M3U8AdFilterEnabled: true,
   });
 
-  // 豆瓣数据源相关状态
-  const [isDoubanDropdownOpen, setIsDoubanDropdownOpen] = useState(false);
-  const [isDoubanImageProxyDropdownOpen, setIsDoubanImageProxyDropdownOpen] =
-    useState(false);
-
-  // 豆瓣数据源选项（简化为服务端代理和自定义代理）
-  const doubanDataSourceOptions = [
-    { value: 'server', label: '服务端代理（服务器直接请求豆瓣）' },
-    { value: 'custom', label: '自定义代理' },
-  ];
-
-  // 豆瓣图片代理选项（简化为服务端代理和自定义代理）
-  const doubanImageProxyTypeOptions = [
-    { value: 'server', label: '服务器代理（由服务器代理请求豆瓣）' },
-    { value: 'custom', label: '自定义代理' },
-  ];
-
   useEffect(() => {
-    if (config?.SiteConfig) {
-      setSiteSettings({
-        ...config.SiteConfig,
-        DoubanProxyType: config.SiteConfig.DoubanProxyType || 'server',
-        DoubanProxy: config.SiteConfig.DoubanProxy || '',
-        DoubanImageProxyType:
-          config.SiteConfig.DoubanImageProxyType || 'server',
-        DoubanImageProxy: config.SiteConfig.DoubanImageProxy || '',
-        DisableYellowFilter: Boolean(config.SiteConfig.DisableYellowFilter),
-        FluidSearch: config.SiteConfig.FluidSearch !== false,
-        EnableRegistration: Boolean(config.SiteConfig.EnableRegistration),
-        M3U8AdFilterEnabled: config.SiteConfig.M3U8AdFilterEnabled !== false,
-      });
+    if (!config?.SiteConfig) {
+      return;
     }
+
+    setSiteSettings({
+      ...config.SiteConfig,
+      DoubanDataProxyMode: normalizeMode(config.SiteConfig.DoubanDataProxyMode),
+      DoubanDataProxyPresetId: config.SiteConfig.DoubanDataProxyPresetId || '',
+      DoubanDataProxyCustomUrl:
+        config.SiteConfig.DoubanDataProxyCustomUrl || '',
+      DoubanDataProxyPresets: normalizePresets(
+        config.SiteConfig.DoubanDataProxyPresets,
+      ),
+      DoubanImageProxyMode: normalizeMode(
+        config.SiteConfig.DoubanImageProxyMode,
+      ),
+      DoubanImageProxyPresetId:
+        config.SiteConfig.DoubanImageProxyPresetId || '',
+      DoubanImageProxyCustomUrl:
+        config.SiteConfig.DoubanImageProxyCustomUrl || '',
+      DoubanImageProxyPresets: normalizePresets(
+        config.SiteConfig.DoubanImageProxyPresets,
+      ),
+      DisableYellowFilter: Boolean(config.SiteConfig.DisableYellowFilter),
+      FluidSearch: config.SiteConfig.FluidSearch !== false,
+      EnableRegistration: Boolean(config.SiteConfig.EnableRegistration),
+      M3U8AdFilterEnabled: config.SiteConfig.M3U8AdFilterEnabled !== false,
+    });
   }, [config]);
 
-  // 点击外部区域关闭下拉框
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isDoubanDropdownOpen) {
-        const target = event.target as Element;
-        if (!target.closest('[data-dropdown="douban-datasource"]')) {
-          setIsDoubanDropdownOpen(false);
-        }
-      }
-    };
-
-    if (isDoubanDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () =>
-        document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isDoubanDropdownOpen]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isDoubanImageProxyDropdownOpen) {
-        const target = event.target as Element;
-        if (!target.closest('[data-dropdown="douban-image-proxy"]')) {
-          setIsDoubanImageProxyDropdownOpen(false);
-        }
-      }
-    };
-
-    if (isDoubanImageProxyDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () =>
-        document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isDoubanImageProxyDropdownOpen]);
-
-  // 处理豆瓣数据源变化
-  const handleDoubanDataSourceChange = (value: string) => {
+  const addDataPreset = () => {
     setSiteSettings((prev) => ({
       ...prev,
-      DoubanProxyType: value,
+      DoubanDataProxyPresets: [...prev.DoubanDataProxyPresets, createPreset()],
     }));
   };
 
-  // 处理豆瓣图片代理变化
-  const handleDoubanImageProxyChange = (value: string) => {
+  const addImagePreset = () => {
     setSiteSettings((prev) => ({
       ...prev,
-      DoubanImageProxyType: value,
+      DoubanImageProxyPresets: [
+        ...prev.DoubanImageProxyPresets,
+        createPreset(),
+      ],
     }));
   };
 
-  // 保存站点配置
+  const updateDataPreset = (
+    index: number,
+    patch: Partial<Pick<DoubanProxyPreset, 'name' | 'url'>>,
+  ) => {
+    setSiteSettings((prev) => ({
+      ...prev,
+      DoubanDataProxyPresets: prev.DoubanDataProxyPresets.map((preset, i) =>
+        i === index ? { ...preset, ...patch } : preset,
+      ),
+    }));
+  };
+
+  const updateImagePreset = (
+    index: number,
+    patch: Partial<Pick<DoubanProxyPreset, 'name' | 'url'>>,
+  ) => {
+    setSiteSettings((prev) => ({
+      ...prev,
+      DoubanImageProxyPresets: prev.DoubanImageProxyPresets.map((preset, i) =>
+        i === index ? { ...preset, ...patch } : preset,
+      ),
+    }));
+  };
+
+  const removeDataPreset = (index: number) => {
+    setSiteSettings((prev) => ({
+      ...prev,
+      DoubanDataProxyPresets: prev.DoubanDataProxyPresets.filter(
+        (_, i) => i !== index,
+      ),
+    }));
+  };
+
+  const removeImagePreset = (index: number) => {
+    setSiteSettings((prev) => ({
+      ...prev,
+      DoubanImageProxyPresets: prev.DoubanImageProxyPresets.filter(
+        (_, i) => i !== index,
+      ),
+    }));
+  };
+
   const handleSave = async () => {
     await withLoading('saveSiteConfig', async () => {
       try {
@@ -156,7 +207,6 @@ export const SiteConfigComponent = ({
 
   return (
     <div className='space-y-6'>
-      {/* 站点名称 */}
       <div>
         <label className='text-foreground mb-2 block text-sm font-medium'>
           站点名称
@@ -171,7 +221,6 @@ export const SiteConfigComponent = ({
         />
       </div>
 
-      {/* 站点公告 */}
       <div>
         <label className='text-foreground mb-2 block text-sm font-medium'>
           站点公告
@@ -189,184 +238,278 @@ export const SiteConfigComponent = ({
         />
       </div>
 
-      {/* 豆瓣数据源设置 */}
-      <div className='space-y-3'>
-        <div>
-          <label className='text-foreground mb-2 block text-sm font-medium'>
-            豆瓣数据代理
-          </label>
-          <div className='relative' data-dropdown='douban-datasource'>
-            {/* 自定义下拉选择框 */}
-            <button
-              type='button'
-              onClick={() => setIsDoubanDropdownOpen(!isDoubanDropdownOpen)}
-              className='border-border bg-card text-foreground hover:border-border/80 focus:border-primary focus:ring-primary w-full rounded-lg border px-3 py-2.5 pr-10 text-left text-sm shadow-sm transition-all duration-200 focus:outline-none focus:ring-2'
-            >
-              {
-                doubanDataSourceOptions.find(
-                  (option) => option.value === siteSettings.DoubanProxyType,
-                )?.label
-              }
-            </button>
+      <section className='space-y-3'>
+        <label
+          htmlFor='doubanDataProxyMode'
+          className='text-foreground block text-sm font-medium'
+        >
+          豆瓣数据代理模式
+        </label>
+        <select
+          id='doubanDataProxyMode'
+          value={siteSettings.DoubanDataProxyMode}
+          onChange={(e) =>
+            setSiteSettings((prev) => ({
+              ...prev,
+              DoubanDataProxyMode: normalizeMode(e.target.value),
+            }))
+          }
+          className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm focus:border-transparent focus:ring-2'
+        >
+          {PROXY_MODE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
 
-            {/* 下拉箭头 */}
-            <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3'>
-              <ChevronDown
-                className={`text-muted-foreground h-4 w-4 transition-transform duration-200 ${
-                  isDoubanDropdownOpen ? 'rotate-180' : ''
-                }`}
-              />
-            </div>
-
-            {/* 下拉选项列表 */}
-            {isDoubanDropdownOpen && (
-              <div className='bg-card border-border absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border shadow-lg'>
-                {doubanDataSourceOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    type='button'
-                    onClick={() => {
-                      handleDoubanDataSourceChange(option.value);
-                      setIsDoubanDropdownOpen(false);
-                    }}
-                    className={`hover:bg-muted flex w-full items-center justify-between px-3 py-2.5 text-left text-sm transition-colors duration-150 ${
-                      siteSettings.DoubanProxyType === option.value
-                        ? 'bg-success/10 text-success'
-                        : 'text-foreground'
-                    }`}
-                  >
-                    <span className='truncate'>{option.label}</span>
-                    {siteSettings.DoubanProxyType === option.value && (
-                      <Check className='text-success ml-2 h-4 w-4 shrink-0' />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <p className='text-muted-foreground mt-1 text-xs'>
-            选择获取豆瓣数据的方式
-          </p>
-        </div>
-
-        {/* 豆瓣代理地址设置 - 仅在选择自定义代理时显示 */}
-        {siteSettings.DoubanProxyType === 'custom' && (
+        {siteSettings.DoubanDataProxyMode === 'preset' && (
           <div>
-            <label className='text-foreground mb-2 block text-sm font-medium'>
-              豆瓣代理地址
+            <label
+              htmlFor='doubanDataProxyPresetId'
+              className='text-foreground mb-2 block text-sm font-medium'
+            >
+              豆瓣数据代理预设
             </label>
-            <input
-              type='text'
-              placeholder='例如: https://proxy.example.com/fetch?url='
-              value={siteSettings.DoubanProxy}
+            <select
+              id='doubanDataProxyPresetId'
+              value={siteSettings.DoubanDataProxyPresetId}
               onChange={(e) =>
                 setSiteSettings((prev) => ({
                   ...prev,
-                  DoubanProxy: e.target.value,
+                  DoubanDataProxyPresetId: e.target.value,
                 }))
               }
-              className='border-border bg-card text-foreground placeholder:text-muted-foreground hover:border-border/80 focus:border-primary focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm transition-all duration-200 focus:outline-none focus:ring-2'
-            />
-            <p className='text-muted-foreground mt-1 text-xs'>
-              自定义代理服务器地址
-            </p>
+              className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm focus:border-transparent focus:ring-2'
+            >
+              <option value=''>请选择预设</option>
+              {siteSettings.DoubanDataProxyPresets.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.name || preset.id}
+                </option>
+              ))}
+            </select>
           </div>
         )}
-      </div>
 
-      {/* 豆瓣图片代理设置 */}
-      <div className='space-y-3'>
-        <div>
-          <label className='text-foreground mb-2 block text-sm font-medium'>
-            豆瓣图片代理
-          </label>
-          <div className='relative' data-dropdown='douban-image-proxy'>
-            {/* 自定义下拉选择框 */}
-            <button
-              type='button'
-              onClick={() =>
-                setIsDoubanImageProxyDropdownOpen(
-                  !isDoubanImageProxyDropdownOpen,
-                )
-              }
-              className='border-border bg-card text-foreground hover:border-border/80 focus:border-primary focus:ring-primary w-full rounded-lg border px-3 py-2.5 pr-10 text-left text-sm shadow-sm transition-all duration-200 focus:outline-none focus:ring-2'
-            >
-              {
-                doubanImageProxyTypeOptions.find(
-                  (option) =>
-                    option.value === siteSettings.DoubanImageProxyType,
-                )?.label
-              }
-            </button>
-
-            {/* 下拉箭头 */}
-            <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3'>
-              <ChevronDown
-                className={`text-muted-foreground h-4 w-4 transition-transform duration-200 ${
-                  isDoubanImageProxyDropdownOpen ? 'rotate-180' : ''
-                }`}
-              />
-            </div>
-
-            {/* 下拉选项列表 */}
-            {isDoubanImageProxyDropdownOpen && (
-              <div className='bg-card border-border absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border shadow-lg'>
-                {doubanImageProxyTypeOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    type='button'
-                    onClick={() => {
-                      handleDoubanImageProxyChange(option.value);
-                      setIsDoubanImageProxyDropdownOpen(false);
-                    }}
-                    className={`hover:bg-muted flex w-full items-center justify-between px-3 py-2.5 text-left text-sm transition-colors duration-150 ${
-                      siteSettings.DoubanImageProxyType === option.value
-                        ? 'bg-success/10 text-success'
-                        : 'text-foreground'
-                    }`}
-                  >
-                    <span className='truncate'>{option.label}</span>
-                    {siteSettings.DoubanImageProxyType === option.value && (
-                      <Check className='text-success ml-2 h-4 w-4 shrink-0' />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <p className='text-muted-foreground mt-1 text-xs'>
-            选择获取豆瓣图片的方式
-          </p>
-        </div>
-
-        {/* 豆瓣代理地址设置 - 仅在选择自定义代理时显示 */}
-        {siteSettings.DoubanImageProxyType === 'custom' && (
+        {siteSettings.DoubanDataProxyMode === 'custom' && (
           <div>
-            <label className='text-foreground mb-2 block text-sm font-medium'>
-              豆瓣图片代理地址
+            <label
+              htmlFor='doubanDataProxyCustomUrl'
+              className='text-foreground mb-2 block text-sm font-medium'
+            >
+              豆瓣数据代理自定义地址
             </label>
             <input
+              id='doubanDataProxyCustomUrl'
               type='text'
-              placeholder='例如: https://proxy.example.com/fetch?url='
-              value={siteSettings.DoubanImageProxy}
+              value={siteSettings.DoubanDataProxyCustomUrl}
               onChange={(e) =>
                 setSiteSettings((prev) => ({
                   ...prev,
-                  DoubanImageProxy: e.target.value,
+                  DoubanDataProxyCustomUrl: e.target.value,
                 }))
               }
-              className='border-border bg-card text-foreground placeholder:text-muted-foreground hover:border-border/80 focus:border-primary focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm transition-all duration-200 focus:outline-none focus:ring-2'
+              placeholder='例如: https://proxy.example.com/fetch?url='
+              className='border-border bg-card text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm focus:border-transparent focus:ring-2'
             />
-            <p className='text-muted-foreground mt-1 text-xs'>
-              自定义图片代理服务器地址
-            </p>
           </div>
         )}
-      </div>
 
-      {/* 强调色设置 */}
+        <div className='border-border space-y-3 rounded-lg border p-3'>
+          <div className='flex items-center justify-between'>
+            <h4 className='text-sm font-medium'>数据代理预设池</h4>
+            <button
+              type='button'
+              className={buttonStyles.secondary}
+              onClick={addDataPreset}
+            >
+              新增数据预设
+            </button>
+          </div>
+          {siteSettings.DoubanDataProxyPresets.map((preset, index) => (
+            <div
+              key={preset.id}
+              className='bg-muted/30 border-border space-y-2 rounded-lg border p-3'
+            >
+              <label
+                htmlFor={`dataPresetName-${index}`}
+                className='text-foreground block text-sm font-medium'
+              >
+                {`数据预设名称-${index + 1}`}
+              </label>
+              <input
+                id={`dataPresetName-${index}`}
+                type='text'
+                value={preset.name}
+                onChange={(e) =>
+                  updateDataPreset(index, { name: e.target.value })
+                }
+                className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2'
+              />
+              <label
+                htmlFor={`dataPresetUrl-${index}`}
+                className='text-foreground block text-sm font-medium'
+              >
+                {`数据预设地址-${index + 1}`}
+              </label>
+              <input
+                id={`dataPresetUrl-${index}`}
+                type='text'
+                value={preset.url}
+                onChange={(e) =>
+                  updateDataPreset(index, { url: e.target.value })
+                }
+                className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2'
+              />
+              <button
+                type='button'
+                onClick={() => removeDataPreset(index)}
+                className={buttonStyles.danger}
+              >
+                {`删除数据预设-${index + 1}`}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {/* 搜索接口可拉取最大页数 */}
+      <section className='space-y-3'>
+        <label
+          htmlFor='doubanImageProxyMode'
+          className='text-foreground block text-sm font-medium'
+        >
+          豆瓣图片代理模式
+        </label>
+        <select
+          id='doubanImageProxyMode'
+          value={siteSettings.DoubanImageProxyMode}
+          onChange={(e) =>
+            setSiteSettings((prev) => ({
+              ...prev,
+              DoubanImageProxyMode: normalizeMode(e.target.value),
+            }))
+          }
+          className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm focus:border-transparent focus:ring-2'
+        >
+          {PROXY_MODE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+
+        {siteSettings.DoubanImageProxyMode === 'preset' && (
+          <div>
+            <label
+              htmlFor='doubanImageProxyPresetId'
+              className='text-foreground mb-2 block text-sm font-medium'
+            >
+              豆瓣图片代理预设
+            </label>
+            <select
+              id='doubanImageProxyPresetId'
+              value={siteSettings.DoubanImageProxyPresetId}
+              onChange={(e) =>
+                setSiteSettings((prev) => ({
+                  ...prev,
+                  DoubanImageProxyPresetId: e.target.value,
+                }))
+              }
+              className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm focus:border-transparent focus:ring-2'
+            >
+              <option value=''>请选择预设</option>
+              {siteSettings.DoubanImageProxyPresets.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.name || preset.id}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {siteSettings.DoubanImageProxyMode === 'custom' && (
+          <div>
+            <label
+              htmlFor='doubanImageProxyCustomUrl'
+              className='text-foreground mb-2 block text-sm font-medium'
+            >
+              豆瓣图片代理自定义地址
+            </label>
+            <input
+              id='doubanImageProxyCustomUrl'
+              type='text'
+              value={siteSettings.DoubanImageProxyCustomUrl}
+              onChange={(e) =>
+                setSiteSettings((prev) => ({
+                  ...prev,
+                  DoubanImageProxyCustomUrl: e.target.value,
+                }))
+              }
+              placeholder='例如: https://proxy.example.com/fetch?url='
+              className='border-border bg-card text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm focus:border-transparent focus:ring-2'
+            />
+          </div>
+        )}
+
+        <div className='border-border space-y-3 rounded-lg border p-3'>
+          <div className='flex items-center justify-between'>
+            <h4 className='text-sm font-medium'>图片代理预设池</h4>
+            <button
+              type='button'
+              className={buttonStyles.secondary}
+              onClick={addImagePreset}
+            >
+              新增图片预设
+            </button>
+          </div>
+          {siteSettings.DoubanImageProxyPresets.map((preset, index) => (
+            <div
+              key={preset.id}
+              className='bg-muted/30 border-border space-y-2 rounded-lg border p-3'
+            >
+              <label
+                htmlFor={`imagePresetName-${index}`}
+                className='text-foreground block text-sm font-medium'
+              >
+                {`图片预设名称-${index + 1}`}
+              </label>
+              <input
+                id={`imagePresetName-${index}`}
+                type='text'
+                value={preset.name}
+                onChange={(e) =>
+                  updateImagePreset(index, { name: e.target.value })
+                }
+                className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2'
+              />
+              <label
+                htmlFor={`imagePresetUrl-${index}`}
+                className='text-foreground block text-sm font-medium'
+              >
+                {`图片预设地址-${index + 1}`}
+              </label>
+              <input
+                id={`imagePresetUrl-${index}`}
+                type='text'
+                value={preset.url}
+                onChange={(e) =>
+                  updateImagePreset(index, { url: e.target.value })
+                }
+                className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2'
+              />
+              <button
+                type='button'
+                onClick={() => removeImagePreset(index)}
+                className={buttonStyles.danger}
+              >
+                {`删除图片预设-${index + 1}`}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <div>
         <label className='text-foreground mb-2 block text-sm font-medium'>
           搜索接口可拉取最大页数
@@ -385,7 +528,6 @@ export const SiteConfigComponent = ({
         />
       </div>
 
-      {/* 站点接口缓存时间 */}
       <div>
         <label className='text-foreground mb-2 block text-sm font-medium'>
           站点接口缓存时间（秒）
@@ -404,7 +546,6 @@ export const SiteConfigComponent = ({
         />
       </div>
 
-      {/* 豆瓣数据缓存时间 */}
       <div>
         <label className='text-foreground mb-2 block text-sm font-medium'>
           豆瓣数据缓存时间（秒）
@@ -423,7 +564,6 @@ export const SiteConfigComponent = ({
         />
       </div>
 
-      {/* 禁用黄色过滤器 */}
       <div>
         <div className='flex items-center justify-between'>
           <label className='text-foreground mb-2 block text-sm font-medium'>
@@ -452,12 +592,8 @@ export const SiteConfigComponent = ({
             />
           </button>
         </div>
-        <p className='text-muted-foreground mt-1 text-xs'>
-          禁用黄色内容的过滤功能，允许显示所有内容。
-        </p>
       </div>
 
-      {/* 流式搜索 */}
       <div>
         <div className='flex items-center justify-between'>
           <label className='text-foreground mb-2 block text-sm font-medium'>
@@ -486,12 +622,8 @@ export const SiteConfigComponent = ({
             />
           </button>
         </div>
-        <p className='text-muted-foreground mt-1 text-xs'>
-          启用后搜索结果将实时流式返回，提升用户体验。
-        </p>
       </div>
 
-      {/* m3u8 广告过滤 */}
       <div>
         <div className='flex items-center justify-between'>
           <label className='text-foreground mb-2 block text-sm font-medium'>
@@ -520,12 +652,8 @@ export const SiteConfigComponent = ({
             />
           </button>
         </div>
-        <p className='text-muted-foreground mt-1 text-xs'>
-          关闭后播放器将不再对 m3u8 清单执行广告分段过滤。
-        </p>
       </div>
 
-      {/* 操作按钮 */}
       <div className='flex justify-end'>
         <button
           onClick={handleSave}
@@ -540,7 +668,6 @@ export const SiteConfigComponent = ({
         </button>
       </div>
 
-      {/* 通用弹窗组件 */}
       <AlertModal
         isOpen={alertModal.isOpen}
         onClose={hideAlert}
