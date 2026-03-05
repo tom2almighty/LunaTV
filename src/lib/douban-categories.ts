@@ -1,3 +1,5 @@
+import { DEFAULT_DOUBAN_PAGE_LIMIT } from '@/lib/douban.constants';
+
 export type DoubanPageType = 'movie' | 'tv' | 'show';
 
 export interface SelectorOption {
@@ -59,7 +61,9 @@ export function normalizeDoubanPageType(value?: string | null): DoubanPageType {
   return 'movie';
 }
 
-export function getPrimaryOptionsByType(type: DoubanPageType): SelectorOption[] {
+export function getPrimaryOptionsByType(
+  type: DoubanPageType,
+): SelectorOption[] {
   if (type === 'tv') {
     return TV_PRIMARY_OPTIONS;
   }
@@ -104,12 +108,16 @@ export function buildRecentHotParams(input: {
     input;
 
   if (type === 'tv') {
-    const validSecondarySet = new Set(TV_SECONDARY_OPTIONS.map((it) => it.value));
+    const validSecondarySet = new Set(
+      TV_SECONDARY_OPTIONS.map((it) => it.value),
+    );
     return {
       kind: 'tv',
       category: 'tv',
-      type: validSecondarySet.has(secondarySelection) ? secondarySelection : 'tv',
-      pageLimit: pageLimit ?? 25,
+      type: validSecondarySet.has(secondarySelection)
+        ? secondarySelection
+        : 'tv',
+      pageLimit: pageLimit ?? DEFAULT_DOUBAN_PAGE_LIMIT,
       pageStart: pageStart ?? 0,
     };
   }
@@ -124,19 +132,23 @@ export function buildRecentHotParams(input: {
       type: validSecondarySet.has(secondarySelection)
         ? secondarySelection
         : 'show',
-      pageLimit: pageLimit ?? 25,
+      pageLimit: pageLimit ?? DEFAULT_DOUBAN_PAGE_LIMIT,
       pageStart: pageStart ?? 0,
     };
   }
 
   const validPrimarySet = new Set(MOVIE_PRIMARY_OPTIONS.map((it) => it.value));
-  const validSecondarySet = new Set(MOVIE_SECONDARY_OPTIONS.map((it) => it.value));
+  const validSecondarySet = new Set(
+    MOVIE_SECONDARY_OPTIONS.map((it) => it.value),
+  );
 
   return {
     kind: 'movie',
     category: validPrimarySet.has(primarySelection) ? primarySelection : '热门',
-    type: validSecondarySet.has(secondarySelection) ? secondarySelection : '全部',
-    pageLimit: pageLimit ?? 25,
+    type: validSecondarySet.has(secondarySelection)
+      ? secondarySelection
+      : '全部',
+    pageLimit: pageLimit ?? DEFAULT_DOUBAN_PAGE_LIMIT,
     pageStart: pageStart ?? 0,
   };
 }

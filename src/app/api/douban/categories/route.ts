@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { getDoubanCacheTime } from '@/lib/config';
 import { getDoubanCategoriesServer } from '@/lib/douban';
+import { DEFAULT_DOUBAN_PAGE_LIMIT } from '@/lib/douban.constants';
 
 export const runtime = 'nodejs';
 
@@ -12,7 +13,10 @@ export async function GET(request: Request) {
   const kind = searchParams.get('kind') || 'movie';
   const category = searchParams.get('category');
   const type = searchParams.get('type');
-  const pageLimit = parseInt(searchParams.get('limit') || '20');
+  const pageLimit = parseInt(
+    searchParams.get('limit') || String(DEFAULT_DOUBAN_PAGE_LIMIT),
+    10,
+  );
   const pageStart = parseInt(searchParams.get('start') || '0');
 
   // 验证参数
@@ -32,7 +36,7 @@ export async function GET(request: Request) {
 
   if (pageLimit < 1 || pageLimit > 100) {
     return NextResponse.json(
-      { error: 'pageSize 必须在 1-100 之间' },
+      { error: 'pageLimit 必须在 1-100 之间' },
       { status: 400 },
     );
   }

@@ -2,6 +2,7 @@
 
 import { getDoubanCacheTime } from './config';
 import { getDoubanCache, setDoubanCache } from './db.server';
+import { DEFAULT_DOUBAN_PAGE_LIMIT } from './douban.constants';
 import { DoubanItem, DoubanResult } from './types';
 
 interface DoubanCategoryApiResponse {
@@ -67,7 +68,13 @@ export async function getDoubanCategoriesServer(params: {
   pageLimit?: number;
   pageStart?: number;
 }): Promise<DoubanResult> {
-  const { kind, category, type, pageLimit = 20, pageStart = 0 } = params;
+  const {
+    kind,
+    category,
+    type,
+    pageLimit = DEFAULT_DOUBAN_PAGE_LIMIT,
+    pageStart = 0,
+  } = params;
 
   const cacheKey = {
     kind,
@@ -132,4 +139,3 @@ export async function getDoubanCategoriesServer(params: {
     };
   }
 }
-

@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { DEFAULT_DOUBAN_PAGE_LIMIT } from '@/lib/douban.constants';
+
 import { DoubanItem, DoubanResult } from './types';
 
 interface DoubanCategoriesParams {
@@ -78,7 +80,13 @@ export async function fetchDoubanCategories(
   params: DoubanCategoriesParams,
   proxyUrl: string,
 ): Promise<DoubanResult> {
-  const { kind, category, type, pageLimit = 20, pageStart = 0 } = params;
+  const {
+    kind,
+    category,
+    type,
+    pageLimit = DEFAULT_DOUBAN_PAGE_LIMIT,
+    pageStart = 0,
+  } = params;
 
   if (!['tv', 'movie'].includes(kind)) {
     throw new Error('kind 参数必须是 tv 或 movie');
@@ -134,7 +142,13 @@ export async function fetchDoubanCategories(
 export async function getDoubanCategories(
   params: DoubanCategoriesParams,
 ): Promise<DoubanResult> {
-  const { kind, category, type, pageLimit = 20, pageStart = 0 } = params;
+  const {
+    kind,
+    category,
+    type,
+    pageLimit = DEFAULT_DOUBAN_PAGE_LIMIT,
+    pageStart = 0,
+  } = params;
   const { proxyType, proxyUrl } = getDoubanProxyConfig();
 
   if (proxyType === 'custom' && proxyUrl) {

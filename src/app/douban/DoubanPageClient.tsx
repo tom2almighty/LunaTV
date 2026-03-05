@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { getDoubanCategories } from '@/lib/douban.client';
+import { DEFAULT_DOUBAN_PAGE_LIMIT } from '@/lib/douban.constants';
 import type { DoubanPageType } from '@/lib/douban-categories';
 import {
   buildRecentHotParams,
@@ -18,17 +19,17 @@ import DoubanCardSkeleton from '@/components/DoubanCardSkeleton';
 import DoubanSelector from '@/components/DoubanSelector';
 import VideoCard from '@/components/VideoCard';
 
-const PAGE_LIMIT = 25;
+const PAGE_LIMIT = DEFAULT_DOUBAN_PAGE_LIMIT;
 
 function DoubanPageClient() {
   const searchParams = useSearchParams();
   const currentType = normalizeDoubanPageType(searchParams.get('type'));
 
-  const [primarySelection, setPrimarySelection] = useState<string>(() =>
-    getDefaultSelection(currentType).primary,
+  const [primarySelection, setPrimarySelection] = useState<string>(
+    () => getDefaultSelection(currentType).primary,
   );
-  const [secondarySelection, setSecondarySelection] = useState<string>(() =>
-    getDefaultSelection(currentType).secondary,
+  const [secondarySelection, setSecondarySelection] = useState<string>(
+    () => getDefaultSelection(currentType).secondary,
   );
 
   const [doubanData, setDoubanData] = useState<DoubanItem[]>([]);
@@ -126,7 +127,12 @@ function DoubanPageClient() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !loading && !isLoadingMore && hasMore) {
+        if (
+          entries[0].isIntersecting &&
+          !loading &&
+          !isLoadingMore &&
+          hasMore
+        ) {
           setCurrentPage((prev) => prev + 1);
         }
       },

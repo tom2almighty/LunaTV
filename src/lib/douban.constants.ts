@@ -1,0 +1,1 @@
+export const DEFAULT_DOUBAN_PAGE_LIMIT = 20;

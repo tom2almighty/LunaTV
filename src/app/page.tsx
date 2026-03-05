@@ -3,6 +3,7 @@
 import { Suspense } from 'react';
 
 import { getDoubanCategoriesServer } from '@/lib/douban';
+import { DEFAULT_DOUBAN_PAGE_LIMIT } from '@/lib/douban.constants';
 
 import HomeContent from '@/components/HomeContent';
 import PageLayout from '@/components/PageLayout';
@@ -12,9 +13,24 @@ export const dynamic = 'force-dynamic';
 async function getHomeData() {
   try {
     const [moviesData, tvShowsData, varietyShowsData] = await Promise.all([
-      getDoubanCategoriesServer({ kind: 'movie', category: '热门', type: '全部' }),
-      getDoubanCategoriesServer({ kind: 'tv', category: 'tv', type: 'tv' }),
-      getDoubanCategoriesServer({ kind: 'tv', category: 'show', type: 'show' }),
+      getDoubanCategoriesServer({
+        kind: 'movie',
+        category: '热门',
+        type: '全部',
+        pageLimit: DEFAULT_DOUBAN_PAGE_LIMIT,
+      }),
+      getDoubanCategoriesServer({
+        kind: 'tv',
+        category: 'tv',
+        type: 'tv',
+        pageLimit: DEFAULT_DOUBAN_PAGE_LIMIT,
+      }),
+      getDoubanCategoriesServer({
+        kind: 'tv',
+        category: 'show',
+        type: 'show',
+        pageLimit: DEFAULT_DOUBAN_PAGE_LIMIT,
+      }),
     ]);
 
     return {
