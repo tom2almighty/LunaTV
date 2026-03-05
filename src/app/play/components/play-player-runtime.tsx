@@ -34,6 +34,10 @@ import {
   persistPlayProgress,
 } from '@/app/play/services/play-progress-service';
 import {
+  isPlayableEpisodeIndex,
+  shouldReuseExistingPlayer,
+} from '@/app/play/services/player-lifecycle';
+import {
   formatSkipDuration,
   isSkipConfigEmpty,
   loadSkipConfigForVideo,
@@ -152,6 +156,7 @@ export function PlayPlayerRuntime() {
   const currentSourceRef = useRef(currentSource);
   const currentIdRef = useRef(currentId);
   const videoTitleRef = useRef(videoTitle);
+  const videoCoverRef = useRef(videoCover);
   const videoYearRef = useRef(videoYear);
   const detailRef = useRef<SearchResult | null>(detail);
   const currentEpisodeIndexRef = useRef(currentEpisodeIndex);
@@ -163,6 +168,7 @@ export function PlayPlayerRuntime() {
     detailRef.current = detail;
     currentEpisodeIndexRef.current = currentEpisodeIndex;
     videoTitleRef.current = videoTitle;
+    videoCoverRef.current = videoCover;
     videoYearRef.current = videoYear;
   }, [
     currentSource,
@@ -170,6 +176,7 @@ export function PlayPlayerRuntime() {
     detail,
     currentEpisodeIndex,
     videoTitle,
+    videoCover,
     videoYear,
   ]);
 
@@ -798,12 +805,11 @@ export function PlayPlayerRuntime() {
     const CustomHlsJsLoader = createCustomHlsJsLoader(Hls);
 
     // 确保选集索引有效
-    if (
-      !detail ||
-      !detail.episodes ||
-      currentEpisodeIndex >= detail.episodes.length ||
-      currentEpisodeIndex < 0
-    ) {
+    if (!detail || !detail.episodes) {
+      setError(`选集索引无效，当前共 ${totalEpisodes} 集`);
+      return;
+    }
+    if (!isPlayableEpisodeIndex(currentEpisodeIndex, detail.episodes.length)) {
       setError(`选集索引无效，当前共 ${totalEpisodes} 集`);
       return;
     }
@@ -819,12 +825,17 @@ export function PlayPlayerRuntime() {
       typeof (window as any).webkitConvertPointFromNodeToPage === 'function';
 
     // 非WebKit浏览器且播放器已存在，使用switch方法切换
-    if (!isWebkit && artPlayerRef.current) {
+    if (
+      shouldReuseExistingPlayer({
+        hasPlayerInstance: Boolean(artPlayerRef.current),
+        isWebkit,
+      })
+    ) {
       artPlayerRef.current.switch = videoUrl;
-      artPlayerRef.current.title = `${videoTitle} - 第${
+      artPlayerRef.current.title = `${videoTitleRef.current} - 第${
         currentEpisodeIndex + 1
       }集`;
-      artPlayerRef.current.poster = videoCover;
+      artPlayerRef.current.poster = videoCoverRef.current;
       if (artPlayerRef.current?.video) {
         ensureVideoSource(
           artPlayerRef.current.video as HTMLVideoElement,
@@ -848,7 +859,7 @@ export function PlayPlayerRuntime() {
       artPlayerRef.current = new Artplayer({
         container: artRef.current,
         url: videoUrl,
-        poster: videoCover,
+        poster: videoCoverRef.current,
         volume: 0.7,
         muted: false,
         autoplay: true,
@@ -1193,9 +1204,16 @@ export function PlayPlayerRuntime() {
     currentEpisodeIndex,
     detail,
     totalEpisodes,
-    videoTitle,
-    videoCover,
   ]);
+
+  // 元数据更新与播放器重建解耦，避免仅标题/封面变化触发重建流程
+  useEffect(() => {
+    if (!artPlayerRef.current) return;
+    if (videoTitle) {
+      artPlayerRef.current.title = `${videoTitle} - 第${currentEpisodeIndex + 1}集`;
+    }
+    artPlayerRef.current.poster = videoCover;
+  }, [videoTitle, videoCover, currentEpisodeIndex]);
 
   // 当组件卸载时清理定时器、Wake Lock 和播放器资源
   useEffect(() => {

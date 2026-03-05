@@ -33,6 +33,30 @@ interface EpisodeSelectorProps {
   sourceSearchError?: string | null;
 }
 
+export function toHorizontalScrollDelta(deltaY: number) {
+  const scaled = deltaY * 2;
+  const maxAbs = 240;
+  if (scaled > maxAbs) return maxAbs;
+  if (scaled < -maxAbs) return -maxAbs;
+  return scaled;
+}
+
+export function sortSourcesWithCurrentFirst<
+  T extends Pick<SearchResult, 'source' | 'id'>,
+>(sources: T[], currentSource?: string, currentId?: string) {
+  return sources.slice().sort((a, b) => {
+    const aIsCurrent =
+      a.source?.toString() === currentSource?.toString() &&
+      a.id?.toString() === currentId?.toString();
+    const bIsCurrent =
+      b.source?.toString() === currentSource?.toString() &&
+      b.id?.toString() === currentId?.toString();
+    if (aIsCurrent && !bIsCurrent) return -1;
+    if (!aIsCurrent && bIsCurrent) return 1;
+    return 0;
+  });
+}
+
 /**
  * 选集组件，支持分页、自动滚动聚焦当前分页标签，以及换源功能。
  */
@@ -97,55 +121,22 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
   const categoryContainerRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  // 添加鼠标悬停状态管理
-  const [isCategoryHovered, setIsCategoryHovered] = useState(false);
+  const handleCategoryWheel = useCallback(
+    (event: React.WheelEvent<HTMLDivElement>) => {
+      if (!categoryContainerRef.current) return;
 
-  // 阻止页面竖向滚动
-  const preventPageScroll = useCallback(
-    (e: WheelEvent) => {
-      if (isCategoryHovered) {
-        e.preventDefault();
+      if (event.deltaY === 0) {
+        return;
       }
+
+      event.preventDefault();
+      categoryContainerRef.current.scrollBy({
+        left: toHorizontalScrollDelta(event.deltaY),
+        behavior: 'smooth',
+      });
     },
-    [isCategoryHovered],
+    [],
   );
-
-  // 处理滚轮事件，实现横向滚动
-  const handleWheel = useCallback(
-    (e: WheelEvent) => {
-      if (isCategoryHovered && categoryContainerRef.current) {
-        e.preventDefault(); // 阻止默认的竖向滚动
-
-        const container = categoryContainerRef.current;
-        const scrollAmount = e.deltaY * 2; // 调整滚动速度
-
-        // 根据滚轮方向进行横向滚动
-        container.scrollBy({
-          left: scrollAmount,
-          behavior: 'smooth',
-        });
-      }
-    },
-    [isCategoryHovered],
-  );
-
-  // 添加全局wheel事件监听器
-  useEffect(() => {
-    if (isCategoryHovered) {
-      // 鼠标悬停时阻止页面滚动
-      document.addEventListener('wheel', preventPageScroll, { passive: false });
-      document.addEventListener('wheel', handleWheel, { passive: false });
-    } else {
-      // 鼠标离开时恢复页面滚动
-      document.removeEventListener('wheel', preventPageScroll);
-      document.removeEventListener('wheel', handleWheel);
-    }
-
-    return () => {
-      document.removeEventListener('wheel', preventPageScroll);
-      document.removeEventListener('wheel', handleWheel);
-    };
-  }, [isCategoryHovered, preventPageScroll, handleWheel]);
 
   // 当分页切换时，将激活的分页标签滚动到视口中间
   useEffect(() => {
@@ -209,6 +200,11 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
     currentStart + episodesPerPage - 1,
     totalEpisodes,
   );
+  const sortedSources = useMemo(
+    () =>
+      sortSourcesWithCurrentFirst(availableSources, currentSource, currentId),
+    [availableSources, currentSource, currentId],
+  );
 
   return (
     <div className='border-border/70 bg-card/70 flex h-full flex-col overflow-hidden rounded-xl border p-0 shadow-sm backdrop-blur-sm md:ml-2'>
@@ -256,8 +252,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
             <div
               className='flex-1 overflow-x-auto'
               ref={categoryContainerRef}
-              onMouseEnter={() => setIsCategoryHovered(true)}
-              onMouseLeave={() => setIsCategoryHovered(false)}
+              onWheel={handleCategoryWheel}
             >
               <div className='flex min-w-max gap-2'>
                 {categories.map((label, idx) => {
@@ -388,50 +383,38 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
             !sourceSearchError &&
             availableSources.length > 0 && (
               <div className='flex-1 space-y-1.5 overflow-y-auto pb-16'>
-                {availableSources
-                  .sort((a, b) => {
-                    const aIsCurrent =
-                      a.source?.toString() === currentSource?.toString() &&
-                      a.id?.toString() === currentId?.toString();
-                    const bIsCurrent =
-                      b.source?.toString() === currentSource?.toString() &&
-                      b.id?.toString() === currentId?.toString();
-                    if (aIsCurrent && !bIsCurrent) return -1;
-                    if (!aIsCurrent && bIsCurrent) return 1;
-                    return 0;
-                  })
-                  .map((source, index) => {
-                    const isCurrentSource =
-                      source.source?.toString() === currentSource?.toString() &&
-                      source.id?.toString() === currentId?.toString();
-                    const episodeCount = source.episodes?.length || 0;
-                    return (
-                      <div
-                        key={`${source.source}-${source.id}`}
-                        onClick={() =>
-                          !isCurrentSource && handleSourceClick(source)
-                        }
-                        className={`relative flex min-h-12 select-none items-center justify-between gap-3 rounded-lg border px-3 py-2 transition-all duration-200
+                {sortedSources.map((source, index) => {
+                  const isCurrentSource =
+                    source.source?.toString() === currentSource?.toString() &&
+                    source.id?.toString() === currentId?.toString();
+                  const episodeCount = source.episodes?.length || 0;
+                  return (
+                    <div
+                      key={`${source.source}-${source.id}`}
+                      onClick={() =>
+                        !isCurrentSource && handleSourceClick(source)
+                      }
+                      className={`relative flex min-h-12 select-none items-center justify-between gap-3 rounded-lg border px-3 py-2 transition-all duration-200
                       ${
                         isCurrentSource
                           ? 'border-primary/35 bg-primary/12 shadow-sm'
-                          : 'border-border/60 bg-card/60 cursor-pointer hover:border-border hover:bg-muted/50'
+                          : 'border-border/60 bg-card/60 hover:border-border hover:bg-muted/50 cursor-pointer'
                       }`.trim()}
-                      >
-                        <div className='min-w-0 flex-1'>
-                          <div className='text-foreground truncate text-sm font-semibold leading-5'>
-                            {source.source_name || source.source}
-                          </div>
-                          <div className='text-muted-foreground mt-0.5 text-xs leading-4'>
-                            {episodeCount > 0 ? `${episodeCount} 集` : '待加载'}
-                          </div>
+                    >
+                      <div className='min-w-0 flex-1'>
+                        <div className='text-foreground truncate text-sm font-semibold leading-5'>
+                          {source.source_name || source.source}
                         </div>
-                        <div className='text-muted-foreground shrink-0 text-xs'>
-                          {isCurrentSource ? '当前源' : `源 ${index + 1}`}
+                        <div className='text-muted-foreground mt-0.5 text-xs leading-4'>
+                          {episodeCount > 0 ? `${episodeCount} 集` : '待加载'}
                         </div>
                       </div>
-                    );
-                  })}
+                      <div className='text-muted-foreground shrink-0 text-xs'>
+                        {isCurrentSource ? '当前源' : `源 ${index + 1}`}
+                      </div>
+                    </div>
+                  );
+                })}
                 <div className='border-border/60 mt-auto shrink-0 border-t pt-2'>
                   <button
                     onClick={() => {

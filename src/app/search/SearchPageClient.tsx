@@ -31,7 +31,8 @@ import {
 } from '@/app/search/_state/search-context-storage';
 
 function SearchPageClient() {
-  const MIN_SEARCH_LOADING_MS = 280;
+  const MIN_SEARCH_LOADING_MS = 120;
+  const loadingSkeletonItems = Array.from({ length: 12 }, (_, index) => index);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -457,8 +458,16 @@ function SearchPageClient() {
               </div>
               {searchResults.length === 0 ? (
                 isLoading ? (
-                  <div className='flex h-40 items-center justify-center'>
-                    <div className='border-primary h-8 w-8 animate-spin rounded-full border-b-2'></div>
+                  <div className='grid grid-cols-3 gap-x-2 gap-y-14 px-0 sm:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] sm:gap-x-8 sm:gap-y-20 sm:px-2'>
+                    {loadingSkeletonItems.map((item) => (
+                      <div key={item} className='w-full animate-pulse'>
+                        <div className='bg-muted aspect-2/3 w-full rounded-lg' />
+                        <div className='mt-2 space-y-2'>
+                          <div className='bg-muted h-4 w-4/5 rounded' />
+                          <div className='bg-muted h-3 w-2/5 rounded' />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className='text-muted-foreground py-8 text-center'>

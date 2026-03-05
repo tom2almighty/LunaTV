@@ -20,7 +20,7 @@ export function VideoCardView({
   return (
     <div
       data-testid={dataTestId}
-      className='group relative w-full cursor-pointer rounded-lg bg-transparent transition-all duration-300 ease-in-out hover:z-50 hover:scale-[1.05]'
+      className='group relative w-full cursor-pointer rounded-lg bg-transparent transition-transform duration-200 ease-out motion-reduce:transition-none [@media(hover:hover)]:hover:z-50 [@media(hover:hover)]:hover:scale-[1.03]'
       onClick={onClick}
       {...gestureProps}
       style={{

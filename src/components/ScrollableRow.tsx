@@ -1,9 +1,25 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface ScrollableRowProps {
   children: React.ReactNode;
   scrollDistance?: number;
+}
+
+export function computeScrollableRowState({
+  scrollWidth,
+  clientWidth,
+  scrollLeft,
+  threshold = 1,
+}: {
+  scrollWidth: number;
+  clientWidth: number;
+  scrollLeft: number;
+  threshold?: number;
+}) {
+  const canScrollRight = scrollWidth - (scrollLeft + clientWidth) > threshold;
+  const canScrollLeft = scrollLeft > threshold;
+  return { canScrollLeft, canScrollRight };
 }
 
 export default function ScrollableRow({
@@ -11,36 +27,39 @@ export default function ScrollableRow({
   scrollDistance = 1000,
 }: ScrollableRowProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const checkRafRef = useRef<number | null>(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const checkScroll = () => {
+  const checkScroll = useCallback(() => {
     if (containerRef.current) {
       const { scrollWidth, clientWidth, scrollLeft } = containerRef.current;
-
-      // 计算是否需要左右滚动按钮
-      const threshold = 1; // 容差值，避免浮点误差
-      const canScrollRight =
-        scrollWidth - (scrollLeft + clientWidth) > threshold;
-      const canScrollLeft = scrollLeft > threshold;
-
+      const { canScrollLeft, canScrollRight } = computeScrollableRowState({
+        scrollWidth,
+        clientWidth,
+        scrollLeft,
+      });
       setShowRightScroll(canScrollRight);
       setShowLeftScroll(canScrollLeft);
     }
-  };
+  }, []);
+
+  const scheduleCheckScroll = useCallback(() => {
+    if (checkRafRef.current !== null) return;
+    checkRafRef.current = window.requestAnimationFrame(() => {
+      checkRafRef.current = null;
+      checkScroll();
+    });
+  }, [checkScroll]);
 
   useEffect(() => {
-    // 多次延迟检查，确保内容已完全渲染
-    checkScroll();
+    scheduleCheckScroll();
 
-    // 监听窗口大小变化
-    window.addEventListener('resize', checkScroll);
+    window.addEventListener('resize', scheduleCheckScroll);
 
-    // 创建一个 ResizeObserver 来监听容器大小变化
     const resizeObserver = new ResizeObserver(() => {
-      // 延迟执行检查
-      checkScroll();
+      scheduleCheckScroll();
     });
 
     if (containerRef.current) {
@@ -48,29 +67,14 @@ export default function ScrollableRow({
     }
 
     return () => {
-      window.removeEventListener('resize', checkScroll);
+      window.removeEventListener('resize', scheduleCheckScroll);
       resizeObserver.disconnect();
+      if (checkRafRef.current !== null) {
+        window.cancelAnimationFrame(checkRafRef.current);
+        checkRafRef.current = null;
+      }
     };
-  }, [children]); // 依赖 children，当子组件变化时重新检查
-
-  // 添加一个额外的效果来监听子组件的变化
-  useEffect(() => {
-    if (containerRef.current) {
-      // 监听 DOM 变化
-      const observer = new MutationObserver(() => {
-        setTimeout(checkScroll, 100);
-      });
-
-      observer.observe(containerRef.current, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style', 'class'],
-      });
-
-      return () => observer.disconnect();
-    }
-  }, []);
+  }, [children, scheduleCheckScroll]);
 
   const handleScrollRightClick = () => {
     if (containerRef.current) {
@@ -95,15 +99,14 @@ export default function ScrollableRow({
       className='relative'
       onMouseEnter={() => {
         setIsHovered(true);
-        // 当鼠标进入时重新检查一次
-        checkScroll();
+        scheduleCheckScroll();
       }}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
         ref={containerRef}
         className='scrollbar-hide flex space-x-6 overflow-x-auto px-4 py-1 pb-12 sm:px-6 sm:py-2 sm:pb-14'
-        onScroll={checkScroll}
+        onScroll={scheduleCheckScroll}
       >
         {children}
       </div>
