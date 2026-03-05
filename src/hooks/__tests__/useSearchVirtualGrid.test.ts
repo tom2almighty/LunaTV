@@ -10,6 +10,12 @@ vi.mock('@tanstack/react-virtual', () => ({
 }));
 
 describe('useSearchVirtualGrid', () => {
+  type HookProps = {
+    showResults: boolean;
+    currentResultCount: number;
+    viewMode: 'agg' | 'all';
+  };
+
   let resizeObserverConstructCount = 0;
 
   beforeEach(() => {
@@ -41,15 +47,17 @@ describe('useSearchVirtualGrid', () => {
       configurable: true,
     });
 
+    const initialProps: HookProps = {
+      showResults: false,
+      currentResultCount: 12,
+      viewMode: 'agg',
+    };
+
     const { result, rerender } = renderHook(
-      ({ showResults, currentResultCount, viewMode }) =>
+      ({ showResults, currentResultCount, viewMode }: HookProps) =>
         useSearchVirtualGrid({ showResults, currentResultCount, viewMode }),
       {
-        initialProps: {
-          showResults: false,
-          currentResultCount: 12,
-          viewMode: 'agg' as const,
-        },
+        initialProps,
       },
     );
 
@@ -60,21 +68,21 @@ describe('useSearchVirtualGrid', () => {
     rerender({
       showResults: true,
       currentResultCount: 12,
-      viewMode: 'agg' as const,
+      viewMode: 'agg',
     });
     expect(resizeObserverConstructCount).toBe(1);
 
     rerender({
       showResults: true,
       currentResultCount: 36,
-      viewMode: 'agg' as const,
+      viewMode: 'agg',
     });
     expect(resizeObserverConstructCount).toBe(1);
 
     rerender({
       showResults: true,
       currentResultCount: 36,
-      viewMode: 'all' as const,
+      viewMode: 'all',
     });
     expect(resizeObserverConstructCount).toBe(2);
 

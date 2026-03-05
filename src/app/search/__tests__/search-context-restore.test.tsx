@@ -72,6 +72,16 @@ vi.mock('@/hooks/useSearchResultFilters', () => ({
     }),
     aggregatedResults: [['agg-0', searchResults]],
     aggregateGroupMap: new Map([['agg-0', searchResults]]),
+    groupStatsMap: new Map([
+      [
+        'agg-0',
+        {
+          episodes: 2,
+          source_names: ['测试源A', '测试源B'],
+          douban_id: 1001,
+        },
+      ],
+    ]),
     filterOptions: {
       categoriesAgg: [],
       categoriesAll: [],

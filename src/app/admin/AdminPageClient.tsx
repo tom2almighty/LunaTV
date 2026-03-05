@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { AdminConfig, AdminConfigResult } from '@/lib/admin.types';
+import { requestJson } from '@/lib/api/client';
 
 import {
   AlertModal,
@@ -95,12 +96,9 @@ function AdminPageClient() {
   const fetchConfig = useCallback(async (showLoading = false) => {
     try {
       if (showLoading) setLoading(true);
-      const response = await fetch('/api/admin/settings/overview');
-      if (!response.ok) {
-        const data = (await response.json()) as any;
-        throw new Error('获取配置失败: ' + data.error);
-      }
-      const data = (await response.json()) as AdminConfigResult;
+      const data = await requestJson<AdminConfigResult>(
+        '/api/admin/settings/overview',
+      );
       setConfig(data.Config);
       setRole(data.Role);
     } catch (err) {
@@ -123,10 +121,9 @@ function AdminPageClient() {
   const handleConfirmResetConfig = async () => {
     await withLoading('resetConfig', async () => {
       try {
-        const response = await fetch('/api/admin/system/reset', {
+        await requestJson('/api/admin/system/reset', {
           method: 'POST',
         });
-        if (!response.ok) throw new Error('重置失败: ' + response.status);
         showSuccess('重置成功，请刷新页面！', showAlert);
         await fetchConfig();
         setShowResetConfigModal(false);

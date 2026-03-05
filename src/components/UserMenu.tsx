@@ -14,6 +14,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { requestJson } from '@/lib/api/client';
 import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
 
 import { useUserSettings } from '@/components/user-menu/use-user-settings';
@@ -207,9 +208,8 @@ export const UserMenu: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/sessions/current', {
+      await requestJson('/api/auth/sessions/current', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
       });
     } catch (error) {
       console.error('注销请求失败:', error);
@@ -253,28 +253,18 @@ export const UserMenu: React.FC = () => {
     setPasswordLoading(true);
 
     try {
-      const response = await fetch('/api/users/current/password', {
+      await requestJson('/api/users/current/password', {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           newPassword,
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setPasswordError(data.error || '修改密码失败');
-        return;
-      }
-
       // 修改成功，关闭弹窗并登出
       setIsChangePasswordOpen(false);
       await handleLogout();
     } catch (error) {
-      setPasswordError('网络错误，请稍后重试');
+      setPasswordError(error instanceof Error ? error.message : '修改密码失败');
     } finally {
       setPasswordLoading(false);
     }
