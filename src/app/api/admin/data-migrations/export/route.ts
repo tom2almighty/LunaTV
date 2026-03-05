@@ -4,10 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
 import { SimpleCrypto } from '@/lib/crypto';
 import { getAdminConfig } from '@/lib/db.server';
 import { getDb } from '@/lib/sqlite';
+
+import { executeAdminApiHandler } from '@/server/api/admin-handler';
 
 export const runtime = 'nodejs';
 
@@ -59,148 +60,155 @@ function parseJsonSafe<T>(text: string, fallback: T): T {
   }
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const authInfo = getAuthInfoFromCookie(req);
-    if (!authInfo || !authInfo.username) {
-      return NextResponse.json({ error: '未登录' }, { status: 401 });
-    }
+export async function POST(request: NextRequest) {
+  return executeAdminApiHandler(
+    request,
+    async () => {
+      try {
+        const { password } = await request.json();
+        if (!password || typeof password !== 'string') {
+          return NextResponse.json(
+            { error: '请提供加密密码' },
+            { status: 400 },
+          );
+        }
 
-    if (authInfo.username !== process.env.APP_ADMIN_USERNAME) {
-      return NextResponse.json(
-        { error: '权限不足，只有站长可以导出数据' },
-        { status: 401 },
-      );
-    }
+        const adminConfig = await getAdminConfig();
+        if (!adminConfig) {
+          return NextResponse.json({ error: '无法获取配置' }, { status: 500 });
+        }
 
-    const { password } = await req.json();
-    if (!password || typeof password !== 'string') {
-      return NextResponse.json({ error: '请提供加密密码' }, { status: 400 });
-    }
+        const db = getDb();
+        const userRows = db
+          .prepare('SELECT username, password FROM users')
+          .all() as Array<{ username: string; password: string }>;
 
-    const adminConfig = await getAdminConfig();
-    if (!adminConfig) {
-      return NextResponse.json({ error: '无法获取配置' }, { status: 500 });
-    }
+        const owner = process.env.APP_ADMIN_USERNAME || '';
+        const ownerPassword = process.env.APP_ADMIN_PASSWORD || '';
+        if (owner && !userRows.some((u) => u.username === owner)) {
+          userRows.push({ username: owner, password: ownerPassword });
+        }
 
-    const db = getDb();
-    const userRows = db
-      .prepare('SELECT username, password FROM users')
-      .all() as Array<{ username: string; password: string }>;
+        const selectPlayRows = db.prepare(
+          'SELECT source, video_id, record_json, updated_at FROM play_records WHERE username = ?',
+        );
+        const selectFavoriteRows = db.prepare(
+          'SELECT source, video_id, favorite_json, created_at FROM favorites WHERE username = ?',
+        );
+        const selectSkipRows = db.prepare(
+          'SELECT source, video_id, config_json FROM skip_configs WHERE username = ?',
+        );
+        const selectHistoryRows = db.prepare(
+          'SELECT keyword, created_at FROM search_history WHERE username = ? ORDER BY created_at ASC, id ASC',
+        );
 
-    const owner = process.env.APP_ADMIN_USERNAME || '';
-    const ownerPassword = process.env.APP_ADMIN_PASSWORD || '';
-    if (owner && !userRows.some((u) => u.username === owner)) {
-      userRows.push({ username: owner, password: ownerPassword });
-    }
+        const users: BackupUserV2[] = userRows.map((user) => {
+          const playRows = selectPlayRows.all(user.username) as Array<{
+            source: string;
+            video_id: string;
+            record_json: string;
+            updated_at: number;
+          }>;
 
-    const selectPlayRows = db.prepare(
-      'SELECT source, video_id, record_json, updated_at FROM play_records WHERE username = ?',
-    );
-    const selectFavoriteRows = db.prepare(
-      'SELECT source, video_id, favorite_json, created_at FROM favorites WHERE username = ?',
-    );
-    const selectSkipRows = db.prepare(
-      'SELECT source, video_id, config_json FROM skip_configs WHERE username = ?',
-    );
-    const selectHistoryRows = db.prepare(
-      'SELECT keyword, created_at FROM search_history WHERE username = ? ORDER BY created_at ASC, id ASC',
-    );
+          const favRows = selectFavoriteRows.all(user.username) as Array<{
+            source: string;
+            video_id: string;
+            favorite_json: string;
+            created_at: number;
+          }>;
 
-    const users: BackupUserV2[] = userRows.map((user) => {
-      const playRows = selectPlayRows.all(user.username) as Array<{
-        source: string;
-        video_id: string;
-        record_json: string;
-        updated_at: number;
-      }>;
+          const skipRows = selectSkipRows.all(user.username) as Array<{
+            source: string;
+            video_id: string;
+            config_json: string;
+          }>;
 
-      const favRows = selectFavoriteRows.all(user.username) as Array<{
-        source: string;
-        video_id: string;
-        favorite_json: string;
-        created_at: number;
-      }>;
+          const historyRows = selectHistoryRows.all(user.username) as Array<{
+            keyword: string;
+            created_at: number;
+          }>;
 
-      const skipRows = selectSkipRows.all(user.username) as Array<{
-        source: string;
-        video_id: string;
-        config_json: string;
-      }>;
+          return {
+            username: user.username,
+            password:
+              user.username === owner && ownerPassword
+                ? ownerPassword
+                : user.password,
+            playRecords: playRows.map((row) => ({
+              source: row.source,
+              videoId: row.video_id,
+              record: parseJsonSafe<Record<string, unknown>>(
+                row.record_json,
+                {},
+              ),
+              updatedAt: Number(row.updated_at || 0),
+            })),
+            favorites: favRows.map((row) => ({
+              source: row.source,
+              videoId: row.video_id,
+              favorite: parseJsonSafe<Record<string, unknown>>(
+                row.favorite_json,
+                {},
+              ),
+              createdAt: Number(row.created_at || 0),
+            })),
+            skipConfigs: skipRows.map((row) => ({
+              source: row.source,
+              videoId: row.video_id,
+              config: parseJsonSafe<Record<string, unknown>>(
+                row.config_json,
+                {},
+              ),
+            })),
+            searchHistory: historyRows.map((row) => ({
+              keyword: row.keyword,
+              createdAt: Number(row.created_at || 0),
+            })),
+          };
+        });
 
-      const historyRows = selectHistoryRows.all(user.username) as Array<{
-        keyword: string;
-        created_at: number;
-      }>;
+        const exportData: BackupDataV2 = {
+          formatVersion: 2,
+          createdAt: new Date().toISOString(),
+          app: {
+            name: 'LunaTV',
+          },
+          payload: {
+            adminConfig,
+            users,
+          },
+        };
 
-      return {
-        username: user.username,
-        password:
-          user.username === owner && ownerPassword
-            ? ownerPassword
-            : user.password,
-        playRecords: playRows.map((row) => ({
-          source: row.source,
-          videoId: row.video_id,
-          record: parseJsonSafe<Record<string, unknown>>(row.record_json, {}),
-          updatedAt: Number(row.updated_at || 0),
-        })),
-        favorites: favRows.map((row) => ({
-          source: row.source,
-          videoId: row.video_id,
-          favorite: parseJsonSafe<Record<string, unknown>>(
-            row.favorite_json,
-            {},
-          ),
-          createdAt: Number(row.created_at || 0),
-        })),
-        skipConfigs: skipRows.map((row) => ({
-          source: row.source,
-          videoId: row.video_id,
-          config: parseJsonSafe<Record<string, unknown>>(row.config_json, {}),
-        })),
-        searchHistory: historyRows.map((row) => ({
-          keyword: row.keyword,
-          createdAt: Number(row.created_at || 0),
-        })),
-      };
-    });
+        const compressedData = await gzipAsync(JSON.stringify(exportData));
+        const encryptedData = SimpleCrypto.encrypt(
+          compressedData.toString('base64'),
+          password,
+        );
 
-    const exportData: BackupDataV2 = {
-      formatVersion: 2,
-      createdAt: new Date().toISOString(),
-      app: {
-        name: 'LunaTV',
-      },
-      payload: {
-        adminConfig,
-        users,
-      },
-    };
+        const now = new Date();
+        const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+        const filename = `lunatv-backup-v2-${timestamp}.dat`;
 
-    const compressedData = await gzipAsync(JSON.stringify(exportData));
-    const encryptedData = SimpleCrypto.encrypt(
-      compressedData.toString('base64'),
-      password,
-    );
-
-    const now = new Date();
-    const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
-    const filename = `lunatv-backup-v2-${timestamp}.dat`;
-
-    return new NextResponse(encryptedData, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        'Content-Disposition': `attachment; filename="${filename}"`,
-        'Content-Length': encryptedData.length.toString(),
-      },
-    });
-  } catch (error) {
-    console.error('数据导出失败:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : '导出失败' },
-      { status: 500 },
-    );
-  }
+        return new NextResponse(encryptedData, {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/octet-stream',
+            'Content-Disposition': `attachment; filename="${filename}"`,
+            'Content-Length': encryptedData.length.toString(),
+          },
+        });
+      } catch (error) {
+        console.error('数据导出失败:', error);
+        return NextResponse.json(
+          { error: error instanceof Error ? error.message : '导出失败' },
+          { status: 500 },
+        );
+      }
+    },
+    {
+      ownerOnly: true,
+      ownerOnlyMessage: '权限不足，只有站长可以导出数据',
+      forbiddenMessage: '权限不足，只有站长可以导出数据',
+    },
+  );
 }

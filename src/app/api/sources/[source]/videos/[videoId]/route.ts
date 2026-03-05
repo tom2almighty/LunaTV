@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getCacheTime } from '@/lib/config';
 
+import { ApiValidationError, executeApiHandler } from '@/server/api/handler';
 import { getVideoDetailBySource } from '@/server/services/search-service';
 
 export const runtime = 'nodejs';
@@ -12,41 +12,47 @@ type RouteContext = {
 };
 
 export async function GET(request: NextRequest, context: RouteContext) {
-  const authInfo = getAuthInfoFromCookie(request);
-  if (!authInfo || !authInfo.username) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   const { source, videoId } = await context.params;
-  const sourceCode = String(source || '').trim();
-  const id = String(videoId || '').trim();
-  if (!sourceCode || !id) {
-    return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
-  }
 
-  if (!/^[\w-]+$/.test(id)) {
-    return NextResponse.json({ error: '无效的视频ID格式' }, { status: 400 });
-  }
+  return executeApiHandler(
+    request,
+    async ({ username }) => {
+      const sourceCode = String(source || '').trim();
+      const id = String(videoId || '').trim();
+      if (!sourceCode || !id) {
+        throw new ApiValidationError('缺少必要参数');
+      }
+      if (!/^[\w-]+$/.test(id)) {
+        throw new ApiValidationError('无效的视频ID格式');
+      }
 
-  try {
-    const result = await getVideoDetailBySource(
-      sourceCode,
-      id,
-      authInfo.username,
-    );
-    const cacheTime = await getCacheTime();
+      const result = await getVideoDetailBySource(
+        sourceCode,
+        id,
+        username as string,
+      );
+      const cacheTime = await getCacheTime();
 
-    return NextResponse.json(result, {
-      headers: {
-        'Cache-Control': `public, max-age=${cacheTime}, s-maxage=${cacheTime}`,
-        'CDN-Cache-Control': `public, s-maxage=${cacheTime}`,
-        'Vercel-CDN-Cache-Control': `public, s-maxage=${cacheTime}`,
-        'Netlify-Vary': 'query',
+      return NextResponse.json(result, {
+        headers: {
+          'Cache-Control': `public, max-age=${cacheTime}, s-maxage=${cacheTime}`,
+          'CDN-Cache-Control': `public, s-maxage=${cacheTime}`,
+          'Vercel-CDN-Cache-Control': `public, s-maxage=${cacheTime}`,
+          'Netlify-Vary': 'query',
+        },
+      });
+    },
+    {
+      requireAuth: true,
+      responseShape: 'raw',
+      onError: (error, mappedError) => {
+        if (mappedError.status !== 500) {
+          return undefined;
+        }
+        const message =
+          error instanceof Error ? error.message : '获取视频详情失败';
+        return NextResponse.json({ error: message }, { status: 500 });
       },
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : '获取视频详情失败';
-    const status = message.includes('无效的API来源') ? 400 : 500;
-    return NextResponse.json({ error: message }, { status });
-  }
+    },
+  );
 }
