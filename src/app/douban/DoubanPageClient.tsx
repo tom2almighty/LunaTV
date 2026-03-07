@@ -179,10 +179,10 @@ function DoubanPageClient() {
   };
 
   return (
-    <div className='overflow-visible px-4 py-4 sm:px-10 sm:py-8'>
+    <div className='app-page overflow-visible'>
       <div className='mb-6 space-y-4 sm:mb-8 sm:space-y-6'>
         <div>
-          <h1 className='text-foreground mb-1 text-2xl font-bold sm:mb-2 sm:text-3xl'>
+          <h1 className='app-section-title text-foreground mb-1 text-2xl font-semibold tracking-[0.08em] sm:mb-2 sm:text-3xl'>
             {getPageTitle(currentType)}
           </h1>
           <p className='text-muted-foreground text-sm sm:text-base'>
@@ -190,7 +190,7 @@ function DoubanPageClient() {
           </p>
         </div>
 
-        <div className='bg-card/60 border-border/30 rounded-2xl border p-4 backdrop-blur-sm sm:p-6'>
+        <div className='app-panel rounded-[1.75rem] p-4 sm:p-6'>
           <DoubanSelector
             type={currentType}
             primarySelection={primarySelection}
@@ -201,7 +201,7 @@ function DoubanPageClient() {
         </div>
       </div>
 
-      <div className='mx-auto mt-8 max-w-[95%] overflow-visible'>
+      <div className='mt-6 overflow-visible'>
         <div className='grid grid-cols-3 justify-start gap-x-2 gap-y-12 px-0 sm:grid-cols-[repeat(auto-fill,minmax(160px,1fr))] sm:gap-x-8 sm:gap-y-20 sm:px-2'>
           {loading
             ? skeletonData.map((index) => <DoubanCardSkeleton key={index} />)

@@ -70,7 +70,11 @@ export default async function RootLayout({
       >
         <SerwistProviderClient>
           <ThemeProvider>
-            <SiteProvider siteName={siteName} announcement={announcement}>
+            <SiteProvider
+              siteName={siteName}
+              announcement={announcement}
+              runtimeConfig={runtimeConfig}
+            >
               {children}
               <GlobalErrorIndicator />
             </SiteProvider>

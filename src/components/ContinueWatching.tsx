@@ -91,9 +91,13 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
   };
 
   return (
-    <section className={`mb-8 ${className || ''}`}>
-      <div className='mb-4 flex items-center justify-between'>
-        <h2 className='text-foreground text-xl font-bold'>继续观看</h2>
+    <section
+      className={`app-panel mb-8 rounded-[1.75rem] p-5 sm:p-6 ${className || ''}`}
+    >
+      <div className='mb-5 flex items-center justify-between gap-4'>
+        <h2 className='app-section-title text-foreground text-lg font-semibold tracking-[0.08em] sm:text-xl'>
+          继续观看
+        </h2>
         {!loading && playRecords.length > 0 && (
           <button
             className='text-muted-foreground hover:text-foreground text-sm'
@@ -110,15 +114,12 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
         {loading
           ? // 加载状态显示灰色占位数据
             Array.from({ length: 6 }).map((_, index) => (
-              <div
-                key={index}
-                className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
-              >
-                <div className='bg-card aspect-2/3 relative w-full animate-pulse overflow-hidden rounded-lg'>
-                  <div className='bg-card absolute inset-0'></div>
+              <div key={index} className='sm:min-w-45 w-24 min-w-24 sm:w-44'>
+                <div className='app-control aspect-2/3 relative w-full animate-pulse overflow-hidden rounded-[1.25rem]'>
+                  <div className='bg-white/2 absolute inset-0'></div>
                 </div>
-                <div className='bg-card mt-2 h-4 animate-pulse rounded'></div>
-                <div className='bg-card mt-1 h-3 animate-pulse rounded'></div>
+                <div className='app-control mt-2 h-4 animate-pulse rounded-full'></div>
+                <div className='app-control mt-1 h-3 animate-pulse rounded-full'></div>
               </div>
             ))
           : // 显示真实数据
@@ -127,7 +128,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
               return (
                 <div
                   key={record.key}
-                  className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
+                  className='sm:min-w-45 w-24 min-w-24 sm:w-44'
                 >
                   <VideoCard
                     id={id}
@@ -155,4 +156,3 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
     </section>
   );
 }
-

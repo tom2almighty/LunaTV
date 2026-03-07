@@ -30,6 +30,20 @@ interface AlertModalProps {
   timer?: number;
 }
 
+const overlayClass =
+  'fixed inset-0 z-50 flex items-center justify-center bg-[color:var(--overlay)]/92 p-4 backdrop-blur-md';
+const modalPanelClass =
+  'app-panel w-full max-w-md rounded-[1.75rem] transition-all duration-200';
+const secondaryActionClass =
+  'app-control rounded-2xl px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-white/10';
+const primaryActionClass =
+  'rounded-2xl bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-black transition-opacity hover:opacity-92';
+const migrationInputClass =
+  'app-control w-full rounded-2xl border px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-[var(--accent)] focus:ring-0';
+const exportCardClass = 'app-panel flex flex-col rounded-[1.5rem] p-6';
+const iconTileClass =
+  'flex h-10 w-10 items-center justify-center rounded-2xl border border-[var(--accent)]/20 bg-[var(--accent)]/10';
+
 const AlertModal = ({
   isOpen,
   onClose,
@@ -88,11 +102,11 @@ const AlertModal = ({
 
   return createPortal(
     <div
-      className={`bg-background fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 p-4 transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      className={`${overlayClass} transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
       onClick={onClose}
     >
       <div
-        className={`bg-card w-full max-w-md rounded-lg border shadow-xl ${getBgColor()} transition-all duration-200 ${isVisible ? 'scale-100' : 'scale-95'}`}
+        className={`${modalPanelClass} ${getBgColor()} ${isVisible ? 'scale-100' : 'scale-95'}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className='p-6 text-center'>
@@ -111,13 +125,10 @@ const AlertModal = ({
             />
           )}
 
-          <div className='flex justify-center space-x-3'>
+          <div className='flex justify-center gap-3'>
             {showConfirm && onConfirm ? (
               <>
-                <button
-                  onClick={onClose}
-                  className='text-foreground bg-card hover:bg-muted rounded-lg px-4 py-2 text-sm font-medium transition-colors'
-                >
+                <button onClick={onClose} className={secondaryActionClass}>
                   取消
                 </button>
                 <button
@@ -125,16 +136,13 @@ const AlertModal = ({
                     onConfirm();
                     onClose();
                   }}
-                  className='bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium transition-colors'
+                  className={primaryActionClass}
                 >
                   {confirmText}
                 </button>
               </>
             ) : (
-              <button
-                onClick={onClose}
-                className='bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium transition-colors'
-              >
+              <button onClick={onClose} className={primaryActionClass}>
                 确定
               </button>
             )}
@@ -341,7 +349,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
     <>
       <div className='mx-auto max-w-6xl space-y-6'>
         {/* 简洁警告提示 */}
-        <div className='border-warning/30 bg-warning/10 flex items-center gap-3 rounded-lg border p-4'>
+        <div className='border-warning/20 bg-warning/10 flex items-center gap-3 rounded-[1.25rem] border p-4'>
           <AlertTriangle className='text-warning h-5 w-5 shrink-0' />
           <p className='text-warning text-sm'>
             数据迁移操作请谨慎，确保已备份重要数据
@@ -351,10 +359,10 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
         {/* 主要操作区域 - 响应式布局 */}
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
           {/* 数据导出 */}
-          <div className='border-border bg-card flex flex-col rounded-lg border p-6 transition-shadow hover:shadow-sm'>
+          <div className={exportCardClass}>
             <div className='mb-6 flex items-center gap-3'>
-              <div className='bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg'>
-                <Download className='text-primary h-4 w-4' />
+              <div className={iconTileClass}>
+                <Download className='text-(--accent) h-4 w-4' />
               </div>
               <div>
                 <h3 className='text-foreground font-semibold'>数据导出</h3>
@@ -377,7 +385,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                     value={exportPassword}
                     onChange={(e) => setExportPassword(e.target.value)}
                     placeholder='设置强密码保护备份文件'
-                    className='border-border bg-card text-foreground focus:ring-primary focus:border-primary w-full rounded-lg border px-3 py-2.5 transition-colors focus:ring-2'
+                    className={migrationInputClass}
                     disabled={isExporting}
                   />
                   <p className='text-muted-foreground mt-1 text-xs'>
@@ -401,10 +409,10 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
               <button
                 onClick={handleExport}
                 disabled={isExporting || !exportPassword.trim()}
-                className={`mt-10 w-full rounded-lg px-4 py-2.5 font-medium transition-colors ${
+                className={`mt-10 w-full rounded-2xl px-4 py-2.5 font-medium transition-opacity ${
                   isExporting || !exportPassword.trim()
-                    ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                    : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                    ? 'bg-white/6 text-muted-foreground cursor-not-allowed'
+                    : 'hover:opacity-92 bg-(--accent) text-black'
                 }`}
               >
                 {isExporting ? (
@@ -423,10 +431,10 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
           </div>
 
           {/* 数据导入 */}
-          <div className='border-border bg-card flex flex-col rounded-lg border p-6 transition-shadow hover:shadow-sm'>
+          <div className={exportCardClass}>
             <div className='mb-6 flex items-center gap-3'>
-              <div className='bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg'>
-                <Upload className='text-primary h-4 w-4' />
+              <div className={iconTileClass}>
+                <Upload className='text-(--accent) h-4 w-4' />
               </div>
               <div>
                 <h3 className='text-foreground font-semibold'>数据导入</h3>
@@ -453,7 +461,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                     type='file'
                     accept='.dat'
                     onChange={handleFileSelect}
-                    className='border-border bg-card text-foreground file:bg-card file:text-foreground hover:file:bg-muted focus:border-primary focus:ring-primary w-full rounded-lg border px-3 py-2.5 transition-colors file:mr-3 file:rounded file:border-0 file:px-3 file:py-1.5 file:text-sm file:font-medium focus:ring-2'
+                    className='app-control text-foreground file:text-foreground hover:file:bg-white/14 focus:border-(--accent) w-full rounded-2xl border px-3 py-2.5 outline-none transition-colors file:mr-3 file:rounded-xl file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-sm file:font-medium focus:ring-0'
                     disabled={isImporting}
                   />
                 </div>
@@ -469,7 +477,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                     value={importPassword}
                     onChange={(e) => setImportPassword(e.target.value)}
                     placeholder='输入导出时的加密密码'
-                    className='border-border bg-card text-foreground focus:border-primary focus:ring-primary w-full rounded-lg border px-3 py-2.5 transition-colors focus:ring-2'
+                    className={migrationInputClass}
                     disabled={isImporting}
                   />
                 </div>
@@ -481,10 +489,10 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                 disabled={
                   isImporting || !selectedFile || !importPassword.trim()
                 }
-                className={`mt-10 w-full rounded-lg px-4 py-2.5 font-medium transition-colors ${
+                className={`mt-10 w-full rounded-2xl px-4 py-2.5 font-medium transition-opacity ${
                   isImporting || !selectedFile || !importPassword.trim()
-                    ? 'bg-card text-muted-foreground cursor-not-allowed'
-                    : 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
+                    ? 'bg-white/6 text-muted-foreground cursor-not-allowed'
+                    : 'bg-destructive text-destructive-foreground hover:opacity-92'
                 }`}
               >
                 {isImporting ? (

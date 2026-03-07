@@ -6,7 +6,7 @@ type UserTablePanelProps = {
 
 export function UserTablePanel({ children }: UserTablePanelProps) {
   return (
-    <div className='border-border relative max-h-96 overflow-x-auto overflow-y-auto rounded-lg border'>
+    <div className='app-panel relative max-h-96 overflow-x-auto overflow-y-auto rounded-[1.25rem] border-white/10 p-1'>
       {children}
     </div>
   );

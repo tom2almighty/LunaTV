@@ -141,7 +141,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
       case 'danger':
         return 'text-destructive';
       case 'primary':
-        return 'text-primary';
+        return 'text-[var(--accent)]';
       default:
         return 'text-foreground';
     }
@@ -150,11 +150,11 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
   const getActionHoverColor = (color: ActionItem['color']) => {
     switch (color) {
       case 'danger':
-        return 'hover:bg-destructive/10';
+        return 'hover:bg-destructive/12';
       case 'primary':
-        return 'hover:bg-primary/10';
+        return 'hover:bg-[var(--accent)]/12';
       default:
-        return 'hover:bg-muted/50 hover:bg-card/20';
+        return 'hover:bg-white/8';
     }
   };
 
@@ -172,7 +172,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
     >
       {/* 背景遮罩 */}
       <div
-        className={`bg-background/50 absolute inset-0 transition-opacity duration-200 ease-out ${
+        className={`absolute inset-0 bg-black/55 backdrop-blur-xl transition-opacity duration-200 ease-out ${
           isAnimating ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={onClose}
@@ -193,7 +193,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
 
       {/* 操作表单 */}
       <div
-        className='bg-card relative mx-4 mb-4 w-full max-w-lg rounded-2xl shadow-2xl transition-all duration-200 ease-out'
+        className='bg-black/88 relative mx-4 mb-4 w-full max-w-lg rounded-[1.75rem] border border-white/10 shadow-[0_28px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl transition-all duration-200 ease-out'
         onTouchMove={(e) => {
           // 允许操作表单内部滚动，阻止事件冒泡到外层
           e.stopPropagation();
@@ -210,10 +210,10 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
         }}
       >
         {/* 头部 */}
-        <div className='border-border flex items-center justify-between border-b p-4'>
+        <div className='border-white/8 flex items-center justify-between border-b p-4'>
           <div className='flex min-w-0 flex-1 items-center gap-3'>
             {poster && (
-              <div className='bg-muted relative h-16 w-12 shrink-0 overflow-hidden rounded-lg'>
+              <div className='bg-white/6 relative h-16 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10'>
                 <Image
                   src={poster}
                   alt={title}
@@ -229,7 +229,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
                   {title}
                 </h3>
                 {sourceName && (
-                  <span className='border-border text-muted-foreground bg-card shrink-0 rounded border px-2 py-1 text-xs'>
+                  <span className='bg-white/6 text-muted-foreground shrink-0 rounded-full border border-white/10 px-2.5 py-1 text-[0.68rem] tracking-[0.12em]'>
                     {sourceName}
                   </span>
                 )}
@@ -240,7 +240,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
 
           <button
             onClick={onClose}
-            className='hover:bg-muted dark:hover:bg-card rounded-full p-2 transition-colors duration-150'
+            className='text-muted-foreground hover:text-foreground rounded-full border border-white/10 bg-white/5 p-2 transition-colors duration-150 hover:bg-white/10'
           >
             <X size={20} className='text-muted-foreground' />
           </button>
@@ -257,7 +257,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
                 }}
                 disabled={action.disabled}
                 className={`
-                  flex w-full items-center gap-4 px-2 py-4 transition-all duration-150 ease-out
+                  flex w-full items-center gap-4 rounded-2xl px-3 py-4 transition-all duration-150 ease-out
                   ${
                     action.disabled
                       ? 'cursor-not-allowed opacity-50'
@@ -303,7 +303,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
 
               {/* 分割线 - 最后一项不显示 */}
               {index < actions.length - 1 && (
-                <div className='border-border ml-10 border-b'></div>
+                <div className='border-white/6 ml-12 border-b'></div>
               )}
             </div>
           ))}
@@ -311,7 +311,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
 
         {/* 播放源信息展示区域 */}
         {isAggregate && sources && sources.length > 0 && (
-          <div className='border-border border-t px-4 py-3'>
+          <div className='border-white/8 border-t px-4 py-3'>
             {/* 标题区域 */}
             <div className='mb-3'>
               <h4 className='text-foreground mb-1 text-sm font-medium'>
@@ -328,9 +328,9 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
                 {sources.map((source, index) => (
                   <div
                     key={index}
-                    className='border-border bg-card/30 flex items-center gap-2 rounded-lg border px-3 py-2'
+                    className='bg-white/6 flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2'
                   >
-                    <div className='bg-muted h-1 w-1 shrink-0 rounded-full' />
+                    <div className='bg-(--accent)/70 h-1.5 w-1.5 shrink-0 rounded-full' />
                     <span className='text-muted-foreground truncate text-xs'>
                       {source}
                     </span>

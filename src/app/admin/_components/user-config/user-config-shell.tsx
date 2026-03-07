@@ -29,6 +29,25 @@ export interface UserConfigShellProps {
   refreshConfig: () => Promise<void>;
 }
 
+const modalOverlayClass =
+  'fixed inset-0 z-50 flex items-center justify-center bg-[color:var(--overlay)]/92 p-4 backdrop-blur-md';
+const modalPanelBaseClass =
+  'app-panel w-full rounded-[1.75rem] shadow-[0_24px_80px_rgba(0,0,0,0.45)]';
+const modalPanelWideClass = `${modalPanelBaseClass} max-h-[80vh] max-w-4xl overflow-y-auto`;
+const modalPanelNarrowClass = `${modalPanelBaseClass} max-w-2xl`;
+const closeButtonClass =
+  'app-control flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-(--accent)';
+const infoPanelClass =
+  'rounded-[1.25rem] border border-[var(--accent)]/20 bg-[var(--accent)]/10 p-4';
+const dangerPanelClass =
+  'rounded-[1.25rem] border border-destructive/20 bg-destructive/10 p-4';
+const warningPanelClass =
+  'rounded-[1.25rem] border border-warning/20 bg-warning/10 p-4';
+const successPanelClass =
+  'rounded-[1.25rem] border border-[var(--accent)]/20 bg-[var(--accent)]/10 p-4';
+const selectionCardClass =
+  'app-control flex cursor-pointer items-center space-x-3 rounded-[1.1rem] p-3 transition-colors hover:bg-white/10';
+
 export const UserConfigShell = ({
   config,
   role,
@@ -521,11 +540,11 @@ export const UserConfigShell = ({
             <h4 className='text-foreground mb-3 text-sm font-medium'>
               用户统计
             </h4>
-            <div className='bg-primary/10 border-primary/20 rounded-lg border p-4'>
-              <div className='text-primary text-2xl font-bold'>
+            <div className={infoPanelClass}>
+              <div className='text-(--accent) text-2xl font-bold'>
                 {config.UserConfig.Users.length}
               </div>
-              <div className='text-primary text-sm'>总用户数</div>
+              <div className='text-(--accent) text-sm'>总用户数</div>
             </div>
           </div>
 
@@ -534,7 +553,7 @@ export const UserConfigShell = ({
             <h4 className='text-foreground mb-3 text-sm font-medium'>
               注册设置
             </h4>
-            <div className='bg-card border-border rounded-lg border p-4'>
+            <div className='app-panel rounded-[1.25rem] p-4'>
               <div className='flex items-center justify-between'>
                 <div>
                   <div className='text-foreground text-sm font-medium'>
@@ -572,7 +591,9 @@ export const UserConfigShell = ({
                     }}
                     className='peer sr-only'
                   />
-                  <div className="bg-muted peer-focus:ring-primary/20 after:border-border peer-checked:bg-primary peer h-6 w-11 rounded-full after:absolute after:start-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 rtl:peer-checked:after:-translate-x-full"></div>
+                  <div
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors after:absolute after:start-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-white/10 after:bg-white after:transition-transform after:content-[''] ${config.SiteConfig.EnableRegistration ? `${buttonStyles.toggleOn} after:translate-x-5` : `${buttonStyles.toggleOff} after:translate-x-0`}`}
+                  ></div>
                 </label>
               </div>
             </div>
@@ -602,9 +623,9 @@ export const UserConfigShell = ({
           </div>
 
           {/* 用户组列表 */}
-          <div className='border-border relative max-h-80 overflow-x-auto overflow-y-auto rounded-lg border'>
+          <div className='app-panel relative max-h-80 overflow-x-auto overflow-y-auto rounded-[1.25rem]'>
             <table className='divide-border min-w-full divide-y'>
-              <thead className='bg-muted sticky top-0 z-10'>
+              <thead className='sticky top-0 z-10 bg-black/35 backdrop-blur'>
                 <tr>
                   <th className='text-muted-foreground px-6 py-3 text-left text-xs font-medium uppercase tracking-wider'>
                     用户组名称
@@ -621,13 +642,13 @@ export const UserConfigShell = ({
                 {userGroups.map((group) => (
                   <tr
                     key={group.name}
-                    className='hover:bg-muted transition-colors'
+                    className='hover:bg-white/4 transition-colors'
                   >
                     <td className='text-foreground whitespace-nowrap px-6 py-4 text-sm font-medium'>
                       {group.name}
                     </td>
                     <td className='whitespace-nowrap px-6 py-4'>
-                      <div className='flex items-center space-x-2'>
+                      <div className='flex items-center gap-2'>
                         <span className='text-foreground text-sm'>
                           {group.enabledApis && group.enabledApis.length > 0
                             ? `${group.enabledApis.length} 个源`
@@ -671,11 +692,11 @@ export const UserConfigShell = ({
         <div>
           <div className='mb-3 flex items-center justify-between'>
             <h4 className='text-foreground text-sm font-medium'>用户列表</h4>
-            <div className='flex items-center space-x-2'>
+            <div className='flex items-center gap-2'>
               {/* 批量操作按钮 */}
               {selectedUsers.size > 0 && (
                 <>
-                  <div className='flex items-center space-x-3'>
+                  <div className='flex items-center gap-3'>
                     <span className='text-muted-foreground text-sm'>
                       已选择 {selectedUsers.size} 个用户
                     </span>
@@ -710,7 +731,7 @@ export const UserConfigShell = ({
 
           {/* 添加用户表单 */}
           {showAddUserForm && (
-            <div className='bg-muted border-border mb-4 rounded-lg border p-4'>
+            <div className='app-panel mb-4 rounded-[1.25rem] p-4'>
               <div className='space-y-4'>
                 <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
                   <input
@@ -789,8 +810,8 @@ export const UserConfigShell = ({
 
           {/* 修改密码表单 */}
           {showChangePasswordForm && (
-            <div className='bg-primary/10 border-primary/20 mb-4 rounded-lg border p-4'>
-              <h5 className='text-primary mb-3 text-sm font-medium'>
+            <div className={`${infoPanelClass} mb-4`}>
+              <h5 className='text-(--accent) mb-3 text-sm font-medium'>
                 修改用户密码
               </h5>
               <div className='flex flex-col gap-4 sm:flex-row sm:gap-3'>
@@ -799,7 +820,7 @@ export const UserConfigShell = ({
                   placeholder='用户名'
                   value={changePasswordUser.username}
                   disabled
-                  className='border-border bg-muted text-foreground flex-1 cursor-not-allowed rounded-lg border px-3 py-2'
+                  className='app-control text-foreground flex-1 cursor-not-allowed rounded-2xl px-3 py-2.5 opacity-60'
                 />
                 <input
                   type='password'
@@ -840,11 +861,11 @@ export const UserConfigShell = ({
 
           {/* 用户列表 */}
           <div
-            className='border-border max-h-112 relative overflow-x-auto overflow-y-auto rounded-lg border'
+            className='app-panel max-h-112 relative overflow-x-auto overflow-y-auto rounded-[1.25rem]'
             data-table='user-list'
           >
             <table className='divide-border min-w-full divide-y'>
-              <thead className='bg-muted sticky top-0 z-10'>
+              <thead className='sticky top-0 z-10 bg-black/35 backdrop-blur'>
                 <tr>
                   <th className='w-4' />
                   <th className='w-10 px-1 py-3 text-center'>
@@ -949,7 +970,7 @@ export const UserConfigShell = ({
                       return (
                         <tr
                           key={`${user.username}-${index}`}
-                          className='hover:bg-muted transition-colors'
+                          className='hover:bg-white/4 transition-colors'
                         >
                           <td className='w-4' />
                           <td className='w-10 px-1 py-3 text-center'>
@@ -977,12 +998,12 @@ export const UserConfigShell = ({
                           </td>
                           <td className='whitespace-nowrap px-6 py-4'>
                             <span
-                              className={`rounded-full px-2 py-1 text-xs ${
+                              className={`rounded-full border px-2.5 py-1 text-xs ${
                                 user.role === 'owner'
-                                  ? 'bg-warning/10 text-warning'
+                                  ? 'border-warning/20 bg-warning/10 text-warning'
                                   : user.role === 'admin'
-                                    ? 'bg-accent/10 text-accent'
-                                    : 'bg-muted text-foreground'
+                                    ? 'border-(--accent)/20 bg-(--accent)/10 text-(--accent)'
+                                    : 'bg-white/6 text-foreground border-white/10'
                               }`}
                             >
                               {user.role === 'owner'
@@ -994,17 +1015,17 @@ export const UserConfigShell = ({
                           </td>
                           <td className='whitespace-nowrap px-6 py-4'>
                             <span
-                              className={`rounded-full px-2 py-1 text-xs ${
+                              className={`rounded-full border px-2.5 py-1 text-xs ${
                                 !user.banned
-                                  ? 'bg-primary/10 text-primary'
-                                  : 'bg-destructive/10 text-destructive'
+                                  ? 'border-(--accent)/20 bg-(--accent)/10 text-(--accent)'
+                                  : 'border-destructive/20 bg-destructive/10 text-destructive'
                               }`}
                             >
                               {!user.banned ? '正常' : '已封禁'}
                             </span>
                           </td>
                           <td className='whitespace-nowrap px-6 py-4'>
-                            <div className='flex items-center space-x-2'>
+                            <div className='flex items-center gap-2'>
                               <span className='text-foreground text-sm'>
                                 {user.tags && user.tags.length > 0
                                   ? user.tags.join(', ')
@@ -1025,7 +1046,7 @@ export const UserConfigShell = ({
                             </div>
                           </td>
                           <td className='whitespace-nowrap px-6 py-4'>
-                            <div className='flex items-center space-x-2'>
+                            <div className='flex items-center gap-2'>
                               <span className='text-foreground text-sm'>
                                 {user.enabledApis && user.enabledApis.length > 0
                                   ? `${user.enabledApis.length} 个源`
@@ -1139,7 +1160,7 @@ export const UserConfigShell = ({
           selectedUser &&
           createPortal(
             <div
-              className='bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4'
+              className={modalOverlayClass}
               onClick={() => {
                 setShowConfigureApisModal(false);
                 setSelectedUser(null);
@@ -1147,7 +1168,7 @@ export const UserConfigShell = ({
               }}
             >
               <div
-                className='bg-card max-h-[80vh] w-full max-w-4xl overflow-y-auto rounded-lg shadow-xl'
+                className={modalPanelWideClass}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className='p-6'>
@@ -1161,7 +1182,7 @@ export const UserConfigShell = ({
                         setSelectedUser(null);
                         setSelectedApis([]);
                       }}
-                      className='text-muted-foreground hover:text-foreground transition-colors'
+                      className={closeButtonClass}
                     >
                       <svg
                         className='h-6 w-6'
@@ -1180,10 +1201,10 @@ export const UserConfigShell = ({
                   </div>
 
                   <div className='mb-6'>
-                    <div className='bg-primary/10 border-primary/20 rounded-lg border p-4'>
+                    <div className={infoPanelClass}>
                       <div className='mb-2 flex items-center space-x-2'>
                         <svg
-                          className='text-primary h-5 w-5'
+                          className='text-(--accent) h-5 w-5'
                           fill='none'
                           stroke='currentColor'
                           viewBox='0 0 24 24'
@@ -1195,11 +1216,11 @@ export const UserConfigShell = ({
                             d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
                           />
                         </svg>
-                        <span className='text-primary text-sm font-medium'>
+                        <span className='text-(--accent) text-sm font-medium'>
                           配置说明
                         </span>
                       </div>
-                      <p className='text-primary mt-1 text-sm'>
+                      <p className='text-(--accent) mt-1 text-sm'>
                         提示：全不选为无限制，选中的采集源将限制用户只能访问这些源
                       </p>
                     </div>
@@ -1212,10 +1233,7 @@ export const UserConfigShell = ({
                     </h4>
                     <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
                       {config?.SourceConfig?.map((source) => (
-                        <label
-                          key={source.key}
-                          className='border-border hover:bg-muted flex cursor-pointer items-center space-x-3 rounded-lg border p-3 transition-colors'
-                        >
+                        <label key={source.key} className={selectionCardClass}>
                           <input
                             type='checkbox'
                             checked={selectedApis.includes(source.key)}
@@ -1248,8 +1266,8 @@ export const UserConfigShell = ({
                   </div>
 
                   {/* 快速操作按钮 */}
-                  <div className='bg-muted mb-6 flex flex-wrap items-center justify-between rounded-lg p-4'>
-                    <div className='flex space-x-2'>
+                  <div className='app-control mb-6 flex flex-wrap items-center justify-between gap-3 rounded-[1.25rem] p-4'>
+                    <div className='flex gap-2'>
                       <button
                         onClick={() => setSelectedApis([])}
                         className={buttonStyles.quickAction}
@@ -1271,7 +1289,7 @@ export const UserConfigShell = ({
                     </div>
                     <div className='text-muted-foreground text-sm'>
                       已选择：
-                      <span className='text-primary font-medium'>
+                      <span className='text-(--accent) font-medium'>
                         {selectedApis.length > 0
                           ? `${selectedApis.length} 个源`
                           : '无限制'}
@@ -1280,7 +1298,7 @@ export const UserConfigShell = ({
                   </div>
 
                   {/* 操作按钮 */}
-                  <div className='flex justify-end space-x-3'>
+                  <div className='flex justify-end gap-3'>
                     <button
                       onClick={() => {
                         setShowConfigureApisModal(false);
@@ -1313,14 +1331,14 @@ export const UserConfigShell = ({
         {showAddUserGroupForm &&
           createPortal(
             <div
-              className='bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4'
+              className={modalOverlayClass}
               onClick={() => {
                 setShowAddUserGroupForm(false);
                 setNewUserGroup({ name: '', enabledApis: [] });
               }}
             >
               <div
-                className='bg-card max-h-[80vh] w-full max-w-4xl overflow-y-auto rounded-lg shadow-xl'
+                className={modalPanelWideClass}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className='p-6'>
@@ -1333,7 +1351,7 @@ export const UserConfigShell = ({
                         setShowAddUserGroupForm(false);
                         setNewUserGroup({ name: '', enabledApis: [] });
                       }}
-                      className='text-muted-foreground hover:text-foreground transition-colors'
+                      className={closeButtonClass}
                     >
                       <svg
                         className='h-6 w-6'
@@ -1380,7 +1398,7 @@ export const UserConfigShell = ({
                         {config?.SourceConfig?.map((source) => (
                           <label
                             key={source.key}
-                            className='border-border hover:bg-muted flex cursor-pointer items-center space-x-3 rounded-lg border p-3 transition-colors'
+                            className={selectionCardClass}
                           >
                             <input
                               type='checkbox'
@@ -1453,7 +1471,7 @@ export const UserConfigShell = ({
                     </div>
 
                     {/* 操作按钮 */}
-                    <div className='border-border flex justify-end space-x-3 border-t pt-4'>
+                    <div className='border-white/8 mt-2 flex justify-end gap-3 border-t pt-4'>
                       <button
                         onClick={() => {
                           setShowAddUserGroupForm(false);
@@ -1488,14 +1506,14 @@ export const UserConfigShell = ({
           editingUserGroup &&
           createPortal(
             <div
-              className='bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4'
+              className={modalOverlayClass}
               onClick={() => {
                 setShowEditUserGroupForm(false);
                 setEditingUserGroup(null);
               }}
             >
               <div
-                className='bg-card max-h-[80vh] w-full max-w-4xl overflow-y-auto rounded-lg shadow-xl'
+                className={modalPanelWideClass}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className='p-6'>
@@ -1508,7 +1526,7 @@ export const UserConfigShell = ({
                         setShowEditUserGroupForm(false);
                         setEditingUserGroup(null);
                       }}
-                      className='text-muted-foreground hover:text-foreground transition-colors'
+                      className={closeButtonClass}
                     >
                       <svg
                         className='h-6 w-6'
@@ -1536,7 +1554,7 @@ export const UserConfigShell = ({
                         {config?.SourceConfig?.map((source) => (
                           <label
                             key={source.key}
-                            className='border-border hover:bg-muted flex cursor-pointer items-center space-x-3 rounded-lg border p-3 transition-colors'
+                            className={selectionCardClass}
                           >
                             <input
                               type='checkbox'
@@ -1615,7 +1633,7 @@ export const UserConfigShell = ({
                     </div>
 
                     {/* 操作按钮 */}
-                    <div className='border-border flex justify-end space-x-3 border-t pt-4'>
+                    <div className='border-white/8 mt-2 flex justify-end gap-3 border-t pt-4'>
                       <button
                         onClick={() => {
                           setShowEditUserGroupForm(false);
@@ -1649,7 +1667,7 @@ export const UserConfigShell = ({
           selectedUserForGroup &&
           createPortal(
             <div
-              className='bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4'
+              className={modalOverlayClass}
               onClick={() => {
                 setShowConfigureUserGroupModal(false);
                 setSelectedUserForGroup(null);
@@ -1657,7 +1675,7 @@ export const UserConfigShell = ({
               }}
             >
               <div
-                className='bg-card max-h-[80vh] w-full max-w-4xl overflow-y-auto rounded-lg shadow-xl'
+                className={modalPanelWideClass}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className='p-6'>
@@ -1671,7 +1689,7 @@ export const UserConfigShell = ({
                         setSelectedUserForGroup(null);
                         setSelectedUserGroups([]);
                       }}
-                      className='text-muted-foreground hover:text-foreground transition-colors'
+                      className={closeButtonClass}
                     >
                       <svg
                         className='h-6 w-6'
@@ -1690,10 +1708,10 @@ export const UserConfigShell = ({
                   </div>
 
                   <div className='mb-6'>
-                    <div className='bg-primary/10 border-primary/20 rounded-lg border p-4'>
+                    <div className={infoPanelClass}>
                       <div className='mb-2 flex items-center space-x-2'>
                         <svg
-                          className='text-primary h-5 w-5'
+                          className='text-(--accent) h-5 w-5'
                           fill='none'
                           stroke='currentColor'
                           viewBox='0 0 24 24'
@@ -1705,11 +1723,11 @@ export const UserConfigShell = ({
                             d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
                           />
                         </svg>
-                        <span className='text-primary text-sm font-medium'>
+                        <span className='text-(--accent) text-sm font-medium'>
                           配置说明
                         </span>
                       </div>
-                      <p className='text-primary mt-1 text-sm'>
+                      <p className='text-(--accent) mt-1 text-sm'>
                         提示：选择"无用户组"为无限制，选择特定用户组将限制用户只能访问该用户组允许的采集源
                       </p>
                     </div>
@@ -1748,7 +1766,7 @@ export const UserConfigShell = ({
                   </div>
 
                   {/* 操作按钮 */}
-                  <div className='flex justify-end space-x-3'>
+                  <div className='flex justify-end gap-3'>
                     <button
                       onClick={() => {
                         setShowConfigureUserGroupModal(false);
@@ -1784,14 +1802,14 @@ export const UserConfigShell = ({
           deletingUserGroup &&
           createPortal(
             <div
-              className='bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4'
+              className={modalOverlayClass}
               onClick={() => {
                 setShowDeleteUserGroupModal(false);
                 setDeletingUserGroup(null);
               }}
             >
               <div
-                className='bg-card w-full max-w-2xl rounded-lg shadow-xl'
+                className={modalPanelNarrowClass}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className='p-6'>
@@ -1804,7 +1822,7 @@ export const UserConfigShell = ({
                         setShowDeleteUserGroupModal(false);
                         setDeletingUserGroup(null);
                       }}
-                      className='text-muted-foreground hover:text-foreground transition-colors'
+                      className={closeButtonClass}
                     >
                       <svg
                         className='h-6 w-6'
@@ -1823,7 +1841,7 @@ export const UserConfigShell = ({
                   </div>
 
                   <div className='mb-6'>
-                    <div className='bg-destructive/10 border-destructive/20 mb-4 rounded-lg border p-4'>
+                    <div className={`${dangerPanelClass} mb-4`}>
                       <div className='mb-2 flex items-center space-x-2'>
                         <svg
                           className='text-destructive h-5 w-5'
@@ -1849,7 +1867,7 @@ export const UserConfigShell = ({
                     </div>
 
                     {deletingUserGroup.affectedUsers.length > 0 ? (
-                      <div className='bg-warning/10 border-warning/20 rounded-lg border p-4'>
+                      <div className={warningPanelClass}>
                         <div className='mb-2 flex items-center space-x-2'>
                           <svg
                             className='text-warning h-5 w-5'
@@ -1883,8 +1901,8 @@ export const UserConfigShell = ({
                         </p>
                       </div>
                     ) : (
-                      <div className='bg-success/10 border-success/20 rounded-lg border p-4'>
-                        <div className='flex items-center space-x-2'>
+                      <div className={successPanelClass}>
+                        <div className='flex items-center gap-2'>
                           <svg
                             className='text-success h-5 w-5'
                             fill='none'
@@ -1907,7 +1925,7 @@ export const UserConfigShell = ({
                   </div>
 
                   {/* 操作按钮 */}
-                  <div className='flex justify-end space-x-3'>
+                  <div className='flex justify-end gap-3'>
                     <button
                       onClick={() => {
                         setShowDeleteUserGroupModal(false);
@@ -1940,14 +1958,14 @@ export const UserConfigShell = ({
           deletingUser &&
           createPortal(
             <div
-              className='bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4'
+              className={modalOverlayClass}
               onClick={() => {
                 setShowDeleteUserModal(false);
                 setDeletingUser(null);
               }}
             >
               <div
-                className='bg-card w-full max-w-2xl rounded-lg shadow-xl'
+                className={modalPanelNarrowClass}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className='p-6'>
@@ -1960,7 +1978,7 @@ export const UserConfigShell = ({
                         setShowDeleteUserModal(false);
                         setDeletingUser(null);
                       }}
-                      className='text-muted-foreground hover:text-foreground transition-colors'
+                      className={closeButtonClass}
                     >
                       <svg
                         className='h-6 w-6'
@@ -1979,7 +1997,7 @@ export const UserConfigShell = ({
                   </div>
 
                   <div className='mb-6'>
-                    <div className='bg-destructive/10 border-destructive/20 mb-4 rounded-lg border p-4'>
+                    <div className={`${dangerPanelClass} mb-4`}>
                       <div className='mb-2 flex items-center space-x-2'>
                         <svg
                           className='text-destructive h-5 w-5'
@@ -2005,7 +2023,7 @@ export const UserConfigShell = ({
                     </div>
 
                     {/* 操作按钮 */}
-                    <div className='flex justify-end space-x-3'>
+                    <div className='flex justify-end gap-3'>
                       <button
                         onClick={() => {
                           setShowDeleteUserModal(false);
@@ -2033,14 +2051,14 @@ export const UserConfigShell = ({
         {showBatchUserGroupModal &&
           createPortal(
             <div
-              className='bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4'
+              className={modalOverlayClass}
               onClick={() => {
                 setShowBatchUserGroupModal(false);
                 setSelectedUserGroup('');
               }}
             >
               <div
-                className='bg-card w-full max-w-2xl rounded-lg shadow-xl'
+                className={modalPanelNarrowClass}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className='p-6'>
@@ -2053,7 +2071,7 @@ export const UserConfigShell = ({
                         setShowBatchUserGroupModal(false);
                         setSelectedUserGroup('');
                       }}
-                      className='text-muted-foreground hover:text-foreground transition-colors'
+                      className={closeButtonClass}
                     >
                       <svg
                         className='h-6 w-6'
@@ -2072,10 +2090,10 @@ export const UserConfigShell = ({
                   </div>
 
                   <div className='mb-6'>
-                    <div className='bg-primary/10 border-primary/20 mb-4 rounded-lg border p-4'>
+                    <div className={`${infoPanelClass} mb-4`}>
                       <div className='mb-2 flex items-center space-x-2'>
                         <svg
-                          className='text-primary h-5 w-5'
+                          className='text-(--accent) h-5 w-5'
                           fill='none'
                           stroke='currentColor'
                           viewBox='0 0 24 24'
@@ -2087,11 +2105,11 @@ export const UserConfigShell = ({
                             d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
                           />
                         </svg>
-                        <span className='text-primary text-sm font-medium'>
+                        <span className='text-(--accent) text-sm font-medium'>
                           批量操作说明
                         </span>
                       </div>
-                      <p className='text-primary text-sm'>
+                      <p className='text-(--accent) text-sm'>
                         将为选中的 <strong>{selectedUsers.size} 个用户</strong>{' '}
                         设置用户组，选择"无用户组"为无限制
                       </p>
@@ -2123,7 +2141,7 @@ export const UserConfigShell = ({
                   </div>
 
                   {/* 操作按钮 */}
-                  <div className='flex justify-end space-x-3'>
+                  <div className='flex justify-end gap-3'>
                     <button
                       onClick={() => {
                         setShowBatchUserGroupModal(false);

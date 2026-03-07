@@ -21,9 +21,9 @@ import { useLoadingState } from './_components/LoadingSystem';
 
 const AdminTabLoadingFallback = () => (
   <div className='space-y-3'>
-    <div className='bg-muted h-8 animate-pulse rounded-md' />
-    <div className='bg-muted h-8 animate-pulse rounded-md' />
-    <div className='bg-muted h-8 animate-pulse rounded-md' />
+    <div className='app-control h-8 animate-pulse rounded-xl' />
+    <div className='app-control h-8 animate-pulse rounded-xl' />
+    <div className='app-control h-8 animate-pulse rounded-xl' />
   </div>
 );
 
@@ -137,8 +137,8 @@ function AdminPageClient() {
   if (loading) {
     return (
       <>
-        <div className='px-2 py-4 sm:px-10 sm:py-8'>
-          <div className='mx-auto max-w-[95%]'>
+        <div className='app-page'>
+          <div className='space-y-5'>
             <h1 className='text-foreground mb-8 text-2xl font-bold'>
               管理员设置
             </h1>
@@ -146,7 +146,7 @@ function AdminPageClient() {
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className='bg-muted h-20 animate-pulse rounded-lg'
+                  className='app-panel h-24 animate-pulse rounded-[1.5rem]'
                 />
               ))}
             </div>
@@ -160,15 +160,17 @@ function AdminPageClient() {
 
   return (
     <>
-      <div className='px-2 py-4 sm:px-10 sm:py-8'>
-        <div className='mx-auto max-w-[95%]'>
-          <div className='mb-8 flex items-center gap-2'>
-            <h1 className='text-foreground text-2xl font-bold'>管理员设置</h1>
+      <div className='app-page'>
+        <div className='space-y-5'>
+          <div className='app-panel mb-8 flex flex-col gap-4 rounded-[1.75rem] p-5 sm:flex-row sm:items-center sm:justify-between'>
+            <h1 className='app-section-title text-foreground text-2xl font-semibold tracking-[0.08em] sm:text-3xl'>
+              管理员设置
+            </h1>
             {config && role === 'owner' && (
               <button
                 onClick={() => setShowResetConfigModal(true)}
                 className={
-                  'rounded-md px-3 py-1 text-xs transition-colors ' +
+                  'px-3 py-1 text-xs transition-colors ' +
                   buttonStyles.dangerSmall
                 }
               >
@@ -250,11 +252,11 @@ function AdminPageClient() {
       {showResetConfigModal &&
         createPortal(
           <div
-            className='bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4'
+            className='fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-xl'
             onClick={() => setShowResetConfigModal(false)}
           >
             <div
-              className='bg-card w-full max-w-2xl rounded-lg shadow-xl'
+              className='app-panel w-full max-w-2xl rounded-[1.75rem] shadow-[0_28px_80px_rgba(0,0,0,0.45)]'
               onClick={(e) => e.stopPropagation()}
             >
               <div className='p-6'>
@@ -264,7 +266,7 @@ function AdminPageClient() {
                   </h3>
                   <button
                     onClick={() => setShowResetConfigModal(false)}
-                    className='text-muted-foreground hover:text-foreground transition-colors'
+                    className='app-control text-muted-foreground flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:text-[var(--accent)]'
                   >
                     <svg
                       className='h-6 w-6'
@@ -282,13 +284,13 @@ function AdminPageClient() {
                   </button>
                 </div>
                 <div className='mb-6'>
-                  <div className='bg-warning/10 border-warning/20 mb-4 rounded-lg border p-4'>
+                  <div className='border-warning/20 bg-warning/10 mb-4 rounded-[1.25rem] border p-4'>
                     <p className='text-warning text-sm'>
                       此操作将重置用户封禁和管理员设置、自定义视频源，站点配置将重置为默认值，是否继续？
                     </p>
                   </div>
                 </div>
-                <div className='flex justify-end space-x-3'>
+                <div className='flex justify-end gap-3'>
                   <button
                     onClick={() => setShowResetConfigModal(false)}
                     className={

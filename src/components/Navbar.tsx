@@ -10,22 +10,29 @@ import { useSite } from '@/context/SiteContext';
 import { ThemeToggle } from './ThemeToggle';
 import { UserMenu } from './UserMenu';
 
-/* ── Logo ── */
 const Logo = () => {
   const { siteName } = useSite();
   return (
     <Link
       href='/'
-      className='flex select-none items-center transition-opacity duration-200 hover:opacity-75'
+      aria-label={siteName}
+      className='flex min-w-0 select-none items-center gap-3 rounded-full px-1 py-1 transition-opacity duration-200 hover:opacity-85'
     >
-      <span className='text-primary text-xl font-bold tracking-tight'>
-        {siteName}
+      <span className='bg-white/6 text-(--accent) flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-[0.65rem] font-semibold uppercase tracking-[0.24em] shadow-[0_10px_30px_rgba(0,0,0,0.22)]'>
+        LT
+      </span>
+      <span className='min-w-0'>
+        <span className='text-foreground block truncate text-[1.05rem] font-semibold tracking-[0.12em]'>
+          {siteName}
+        </span>
+        <span className='text-muted-foreground hidden text-[0.65rem] uppercase tracking-[0.22em] md:block'>
+          Moonlit Premium
+        </span>
       </span>
     </Link>
   );
 };
 
-/* ── Desktop Nav Links ── */
 const NavLinks = ({
   items,
   isActive,
@@ -33,24 +40,26 @@ const NavLinks = ({
   items: { label: string; href: string }[];
   isActive: (href: string) => boolean;
 }) => (
-  <div className='flex items-center gap-0.5'>
-    {items.map((item) => (
-      <Link
-        key={item.href}
-        href={item.href}
-        className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-150 ${
-          isActive(item.href)
-            ? 'bg-primary/10 text-primary'
-            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-        }`}
-      >
-        {item.label}
-      </Link>
-    ))}
+  <div className='hidden items-center gap-1 xl:flex'>
+    {items.map((item) => {
+      const active = isActive(item.href);
+      return (
+        <Link
+          key={item.href}
+          href={item.href}
+          className={`rounded-full px-3.5 py-2 text-sm font-medium tracking-wide transition-all duration-200 ${
+            active
+              ? 'border-white/12 text-foreground border bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
+              : 'text-muted-foreground hover:bg-white/6 hover:text-foreground'
+          }`}
+        >
+          {item.label}
+        </Link>
+      );
+    })}
   </div>
 );
 
-/* ── Mobile Nav Dropdown ── */
 const MobileNavDropdown = ({
   items,
   isActive,
@@ -60,56 +69,64 @@ const MobileNavDropdown = ({
 }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const activeItem = items.find((i) => isActive(i.href));
+  const activeItem = items.find((item) => isActive(item.href));
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node))
+    const handlePointerDown = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
         setOpen(false);
+      }
     };
-    if (open) document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+
+    if (open) {
+      document.addEventListener('mousedown', handlePointerDown);
+    }
+
+    return () => document.removeEventListener('mousedown', handlePointerDown);
   }, [open]);
 
   return (
-    <div ref={ref} className='relative'>
+    <div ref={ref} className='relative xl:hidden'>
       <button
-        onClick={() => setOpen((v) => !v)}
-        className='text-foreground flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium transition-colors'
+        type='button'
+        onClick={() => setOpen((value) => !value)}
+        className='bg-white/6 text-foreground flex h-10 items-center gap-2 rounded-full border border-white/10 px-3 text-sm shadow-[0_10px_30px_rgba(0,0,0,0.2)] transition-all duration-200 hover:bg-white/10'
         aria-label='导航菜单'
       >
         <Menu className='h-4 w-4' />
-        <span className='max-w-20 truncate text-xs'>
+        <span className='text-muted-foreground max-w-20 truncate text-xs uppercase tracking-[0.14em]'>
           {activeItem?.label ?? '导航'}
         </span>
         <ChevronDown
-          className={`h-3.5 w-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`text-muted-foreground h-3.5 w-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
       {open && (
-        <div className='bg-popover border-border absolute left-0 top-full z-50 mt-1 w-36 overflow-hidden rounded-lg border shadow-lg'>
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className={`block px-3 py-2 text-sm transition-colors ${
-                isActive(item.href)
-                  ? 'bg-primary/10 text-primary font-medium'
-                  : 'text-foreground hover:bg-muted'
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+        <div className='absolute left-0 top-[calc(100%+0.75rem)] z-50 min-w-40 overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/80 p-1.5 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl'>
+          {items.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className={`block rounded-[0.9rem] px-3 py-2.5 text-sm transition-colors ${
+                  active
+                    ? 'text-foreground bg-white/10'
+                    : 'text-muted-foreground hover:bg-white/6 hover:text-foreground'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
   );
 };
 
-/* ── Inner (needs useSearchParams) ── */
 const NavbarInner = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -133,34 +150,25 @@ const NavbarInner = () => {
   };
 
   return (
-    <>
-      <nav className='bg-background/95 border-border/60 fixed top-0 z-40 w-full border-b backdrop-blur-md'>
-        <div className='flex h-14 items-center px-4 md:px-8 lg:px-12'>
-          {/* 左：Logo + 移动端下拉 / 桌面端路由链接 */}
-          <div className='flex min-w-0 flex-1 items-center gap-2'>
+    <nav className='fixed inset-x-0 top-0 z-50 pt-[max(env(safe-area-inset-top),0.75rem)] backdrop-blur-xl'>
+      <div className='app-shell'>
+        <div className='flex h-16 items-center justify-between gap-3 rounded-[1.4rem] border border-white/10 bg-black/45 px-3 shadow-[0_24px_80px_rgba(0,0,0,0.4)] ring-1 ring-white/5 backdrop-blur-2xl md:px-4'>
+          <div className='flex min-w-0 flex-1 items-center gap-2 md:gap-3'>
             <Logo />
-            {/* 移动端：下拉菜单 */}
-            <div className='md:hidden'>
-              <MobileNavDropdown items={menuItems} isActive={isActive} />
-            </div>
-            {/* 桌面端：横排链接 */}
-            <div className='ml-2 hidden md:flex'>
-              <NavLinks items={menuItems} isActive={isActive} />
-            </div>
+            <MobileNavDropdown items={menuItems} isActive={isActive} />
+            <NavLinks items={menuItems} isActive={isActive} />
           </div>
 
-          {/* 右：固定宽度，防止被挤压 */}
-          <div className='flex shrink-0 items-center gap-1'>
+          <div className='flex shrink-0 items-center gap-2'>
             <ThemeToggle />
             <UserMenu />
           </div>
         </div>
-      </nav>
-    </>
+      </div>
+    </nav>
   );
 };
 
-/* ── Export ── */
 export const Navbar = () => (
   <Suspense fallback={null}>
     <NavbarInner />

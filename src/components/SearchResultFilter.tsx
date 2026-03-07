@@ -172,7 +172,7 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({
 
   return (
     <>
-      <div className='relative inline-flex gap-1 rounded-full bg-transparent p-0.5 sm:gap-2 sm:p-1'>
+      <div className='relative inline-flex flex-wrap gap-2 rounded-[1.25rem] border border-white/10 bg-black/20 p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.22)] backdrop-blur-xl'>
         {categories.map((category) => (
           <div
             key={category.key}
@@ -183,14 +183,14 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({
           >
             <button
               onClick={() => handleCategoryClick(category.key)}
-              className={`relative z-10 whitespace-nowrap rounded-full px-1.5 py-0.5 text-xs font-medium transition-all duration-200 sm:px-2 sm:py-1 sm:text-sm md:px-4 md:py-2 ${
+              className={`app-control relative z-10 whitespace-nowrap rounded-full px-2.5 py-1.5 text-xs font-medium tracking-[0.12em] backdrop-blur-xl transition-all duration-200 sm:px-3 sm:text-sm md:px-4 md:py-2 ${
                 activeCategory === category.key
                   ? isDefaultValue(category.key)
                     ? 'text-foreground cursor-default'
-                    : 'text-primary cursor-default'
+                    : 'text-(--accent) cursor-default'
                   : isDefaultValue(category.key)
                     ? 'text-muted-foreground hover:text-foreground cursor-pointer'
-                    : 'text-primary hover:text-primary/80 cursor-pointer'
+                    : 'text-(--accent) cursor-pointer hover:opacity-80'
               }`}
             >
               <span>{getDisplayText(category.key)}</span>
@@ -230,10 +230,10 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({
               }
               onChange({ ...mergedValues, yearOrder: next });
             }}
-            className={`relative z-10 whitespace-nowrap rounded-full px-1.5 py-0.5 text-xs font-medium transition-all duration-200 sm:px-2 sm:py-1 sm:text-sm md:px-4 md:py-2 ${
+            className={`app-control relative z-10 whitespace-nowrap rounded-full px-2.5 py-1.5 text-xs font-medium tracking-[0.12em] backdrop-blur-xl transition-all duration-200 sm:px-3 sm:text-sm md:px-4 md:py-2 ${
               mergedValues.yearOrder === 'none'
                 ? 'text-muted-foreground hover:text-foreground cursor-pointer'
-                : 'text-primary hover:text-primary/80 cursor-pointer'
+                : 'text-(--accent) cursor-pointer hover:opacity-80'
             }`}
             aria-label={`按年份${mergedValues.yearOrder === 'none' ? '排序' : mergedValues.yearOrder === 'desc' ? '降序' : '升序'}排序`}
           >
@@ -253,7 +253,7 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({
         createPortal(
           <div
             ref={dropdownRef}
-            className='bg-card/95 border-border/50 fixed z-[9999] flex max-h-[50vh] flex-col rounded-xl border backdrop-blur-sm'
+            className='bg-black/88 z-9999 fixed flex max-h-[50vh] flex-col rounded-3xl border border-white/10 shadow-[0_28px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl'
             style={{
               left: `${dropdownPosition.x}px`,
               top: `${dropdownPosition.y}px`,
@@ -276,10 +276,10 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({
                       onClick={() =>
                         handleOptionSelect(activeCategory, option.value)
                       }
-                      className={`rounded-lg px-2 py-1.5 text-left text-xs transition-all duration-200 sm:px-3 sm:py-2 sm:text-sm ${
+                      className={`rounded-xl border px-2.5 py-2 text-left text-xs transition-all duration-200 sm:px-3 sm:py-2.5 sm:text-sm ${
                         isOptionSelected(activeCategory, option.value)
-                          ? 'bg-primary/10 text-primary border-primary/20 border'
-                          : 'text-foreground hover:bg-muted'
+                          ? 'border-(--accent)/30 text-(--accent) bg-white/10'
+                          : 'text-foreground hover:bg-white/8 border-transparent'
                       }`}
                     >
                       {option.label}

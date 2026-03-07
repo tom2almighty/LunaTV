@@ -7,11 +7,11 @@ export const metadata: Metadata = {
 
 export default function WarningPage() {
   return (
-    <div className='bg-background flex min-h-screen items-center justify-center p-4'>
-      <div className='bg-card border-border w-full max-w-2xl rounded-2xl border p-4 shadow-2xl sm:p-8'>
+    <div className='bg-background flex min-h-screen items-center justify-center p-4 sm:p-6'>
+      <div className='app-panel rounded-4xl w-full max-w-2xl p-5 sm:p-8'>
         {/* 警告图标 */}
         <div className='mb-4 flex justify-center sm:mb-6'>
-          <div className='bg-destructive/10 flex h-16 w-16 items-center justify-center rounded-full sm:h-20 sm:w-20'>
+          <div className='border-destructive/20 bg-destructive/10 flex h-16 w-16 items-center justify-center rounded-full border sm:h-20 sm:w-20'>
             <svg
               className='text-destructive h-10 w-10 sm:h-12 sm:w-12'
               fill='none'
@@ -33,12 +33,12 @@ export default function WarningPage() {
           <h1 className='text-foreground mb-2 text-2xl font-bold sm:text-3xl'>
             安全合规配置警告
           </h1>
-          <div className='bg-primary mx-auto h-1 w-12 rounded-full sm:w-16'></div>
+          <div className='bg-(--accent) mx-auto h-1 w-12 rounded-full sm:w-16'></div>
         </div>
 
         {/* 警告内容 */}
         <div className='text-foreground space-y-4 sm:space-y-6'>
-          <div className='border-destructive bg-destructive/10 rounded-r-lg border-l-4 p-3 sm:p-4'>
+          <div className='border-destructive/20 bg-destructive/10 rounded-[1.25rem] border p-3 sm:p-4'>
             <p className='text-destructive mb-2 text-base font-semibold sm:text-lg'>
               ⚠️ 安全风险提示
             </p>
@@ -53,35 +53,35 @@ export default function WarningPage() {
             </h2>
             <ul className='text-muted-foreground space-y-2 text-sm sm:space-y-3 sm:text-base'>
               <li className='flex items-start'>
-                <span className='text-primary mr-2 mt-0.5'>•</span>
+                <span className='text-(--accent) mr-2 mt-0.5'>•</span>
                 <span>未经授权的访问可能导致内容被恶意传播</span>
               </li>
               <li className='flex items-start'>
-                <span className='text-primary mr-2 mt-0.5'>•</span>
+                <span className='text-(--accent) mr-2 mt-0.5'>•</span>
                 <span>服务器资源可能被滥用，影响正常服务</span>
               </li>
               <li className='flex items-start'>
-                <span className='text-primary mr-2 mt-0.5'>•</span>
+                <span className='text-(--accent) mr-2 mt-0.5'>•</span>
                 <span>可能收到相关权利方的法律通知</span>
               </li>
               <li className='flex items-start'>
-                <span className='text-primary mr-2 mt-0.5'>•</span>
+                <span className='text-(--accent) mr-2 mt-0.5'>•</span>
                 <span>服务提供商可能因合规问题终止服务</span>
               </li>
             </ul>
           </div>
 
-          <div className='border-warning/30 bg-warning/10 rounded-lg border p-3 sm:p-4'>
+          <div className='border-warning/20 bg-warning/10 rounded-[1.25rem] border p-3 sm:p-4'>
             <h3 className='text-warning mb-2 text-base font-semibold sm:text-lg'>
               🔒 安全配置建议
             </h3>
             <p className='text-warning/80 text-sm sm:text-base'>
               请立即配置{' '}
-              <code className='bg-warning/20 text-warning rounded px-1.5 py-0.5 font-mono text-xs sm:text-sm'>
+              <code className='bg-warning/15 text-warning rounded-full px-2 py-0.5 font-mono text-xs sm:text-sm'>
                 APP_ADMIN_USERNAME
               </code>{' '}
               和{' '}
-              <code className='bg-warning/20 text-warning rounded px-1.5 py-0.5 font-mono text-xs sm:text-sm'>
+              <code className='bg-warning/15 text-warning rounded-full px-2 py-0.5 font-mono text-xs sm:text-sm'>
                 APP_ADMIN_PASSWORD
               </code>{' '}
               环境变量以启用访问控制。
@@ -90,7 +90,7 @@ export default function WarningPage() {
         </div>
 
         {/* 底部装饰 */}
-        <div className='border-border mt-6 border-t pt-4 sm:mt-8 sm:pt-6'>
+        <div className='border-white/8 mt-6 border-t pt-4 sm:mt-8 sm:pt-6'>
           <div className='text-muted-foreground text-center text-xs sm:text-sm'>
             <p>为确保系统安全性和合规性，请及时完成安全配置</p>
           </div>

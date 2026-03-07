@@ -45,7 +45,7 @@ export default function HomeContent({
 }: HomeContentProps) {
   const [activeTab, setActiveTab] = useState<'home' | 'favorites'>('home');
   const [favoriteItems, setFavoriteItems] = useState<FavoriteItem[]>([]);
-  const { announcement } = useSite();
+  const { announcement, siteName } = useSite();
   const [showAnnouncement, setShowAnnouncement] = useState(false);
 
   // 检查公告弹窗状态
@@ -135,24 +135,44 @@ export default function HomeContent({
 
   return (
     <>
-      <div className='overflow-visible px-2 py-4 sm:px-10 sm:py-8'>
-        {/* 顶部 Tab 切换 */}
-        <div className='mb-8 flex justify-center'>
-          <CapsuleSwitch
-            options={[
-              { label: '首页', value: 'home' },
-              { label: '收藏夹', value: 'favorites' },
-            ]}
-            active={activeTab}
-            onChange={(value) => setActiveTab(value as 'home' | 'favorites')}
-          />
-        </div>
+      <div className='app-page overflow-visible'>
+        <section className='app-panel mb-8 overflow-hidden rounded-[1.75rem] p-5 sm:p-7'>
+          <div className='flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between'>
+            <div className='max-w-2xl space-y-3'>
+              <p className='text-(--accent) text-[0.72rem] font-medium uppercase tracking-[0.32em]'>
+                Moonlit Premium
+              </p>
+              <div className='space-y-2'>
+                <h1 className='text-foreground text-3xl font-semibold tracking-[0.08em] sm:text-4xl'>
+                  {siteName}
+                </h1>
+                <p className='text-muted-foreground max-w-xl text-sm leading-6 sm:text-base'>
+                  聚合搜索、沉浸播放与收藏同步统一在一套更安静、更高级的观影界面里。
+                </p>
+              </div>
+            </div>
+            <div className='flex justify-start lg:justify-end'>
+              <CapsuleSwitch
+                options={[
+                  { label: '首页', value: 'home' },
+                  { label: '收藏夹', value: 'favorites' },
+                ]}
+                active={activeTab}
+                onChange={(value) =>
+                  setActiveTab(value as 'home' | 'favorites')
+                }
+              />
+            </div>
+          </div>
+        </section>
 
-        <div className='mx-auto max-w-[95%]'>
+        <div className='space-y-8'>
           {activeTab === 'favorites' ? (
-            <section className='mb-8'>
-              <div className='mb-4 flex items-center justify-between'>
-                <h2 className='text-foreground text-xl font-bold'>我的收藏</h2>
+            <section className='app-panel rounded-[1.75rem] p-5 sm:p-6'>
+              <div className='mb-5 flex items-center justify-between gap-4'>
+                <h2 className='app-section-title text-foreground text-lg font-semibold tracking-[0.08em] sm:text-xl'>
+                  我的收藏
+                </h2>
                 {favoriteItems.length > 0 && (
                   <button
                     className='text-muted-foreground hover:text-foreground text-sm'
@@ -189,14 +209,14 @@ export default function HomeContent({
               <ContinueWatching />
 
               {/* 热门电影 */}
-              <section className='mb-8'>
-                <div className='mb-4 flex items-center justify-between'>
-                  <h2 className='text-foreground text-xl font-bold'>
+              <section className='app-panel rounded-[1.75rem] p-5 sm:p-6'>
+                <div className='mb-5 flex items-center justify-between gap-4'>
+                  <h2 className='app-section-title text-foreground text-lg font-semibold tracking-[0.08em] sm:text-xl'>
                     热门电影
                   </h2>
                   <Link
                     href='/douban?type=movie'
-                    className='text-muted-foreground hover:text-foreground flex items-center text-sm'
+                    className='text-muted-foreground hover:text-foreground inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm transition-colors hover:bg-white/10'
                   >
                     查看更多
                     <ChevronRight className='ml-1 h-4 w-4' />
@@ -206,14 +226,14 @@ export default function HomeContent({
               </section>
 
               {/* 热门剧集 */}
-              <section className='mb-8'>
-                <div className='mb-4 flex items-center justify-between'>
-                  <h2 className='text-foreground text-xl font-bold'>
+              <section className='app-panel rounded-[1.75rem] p-5 sm:p-6'>
+                <div className='mb-5 flex items-center justify-between gap-4'>
+                  <h2 className='app-section-title text-foreground text-lg font-semibold tracking-[0.08em] sm:text-xl'>
                     热门剧集
                   </h2>
                   <Link
                     href='/douban?type=tv'
-                    className='text-muted-foreground hover:text-foreground flex items-center text-sm'
+                    className='text-muted-foreground hover:text-foreground inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm transition-colors hover:bg-white/10'
                   >
                     查看更多
                     <ChevronRight className='ml-1 h-4 w-4' />
@@ -223,14 +243,14 @@ export default function HomeContent({
               </section>
 
               {/* 热门综艺 */}
-              <section className='mb-8'>
-                <div className='mb-4 flex items-center justify-between'>
-                  <h2 className='text-foreground text-xl font-bold'>
+              <section className='app-panel rounded-[1.75rem] p-5 sm:p-6'>
+                <div className='mb-5 flex items-center justify-between gap-4'>
+                  <h2 className='app-section-title text-foreground text-lg font-semibold tracking-[0.08em] sm:text-xl'>
                     热门综艺
                   </h2>
                   <Link
                     href='/douban?type=show'
-                    className='text-muted-foreground hover:text-foreground flex items-center text-sm'
+                    className='text-muted-foreground hover:text-foreground inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm transition-colors hover:bg-white/10'
                   >
                     查看更多
                     <ChevronRight className='ml-1 h-4 w-4' />
@@ -246,21 +266,21 @@ export default function HomeContent({
       {/* 公告弹窗 */}
       {announcement && showAnnouncement && (
         <div
-          className='bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm'
+          className='fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-xl'
           style={{ touchAction: 'none' }}
         >
           <div
-            className='bg-card text-card-foreground border-border w-full max-w-md rounded-xl border p-6 shadow-xl'
+            className='app-panel text-card-foreground w-full max-w-md rounded-[1.75rem] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.45)]'
             style={{ touchAction: 'auto' }}
           >
             <div className='mb-4 flex items-start justify-between'>
-              <h3 className='text-foreground border-primary border-b pb-1 text-2xl font-bold tracking-tight'>
+              <h3 className='text-foreground border-(--accent) border-b pb-1 text-2xl font-bold tracking-tight'>
                 提示
               </h3>
             </div>
             <div className='mb-6'>
-              <div className='bg-primary/10 dark:bg-primary/15 relative mb-4 overflow-hidden rounded-lg'>
-                <div className='bg-primary dark:bg-primary/70 absolute inset-y-0 left-0 w-1.5'></div>
+              <div className='border-(--accent)/16 bg-(--accent)/10 relative mb-4 overflow-hidden rounded-[1.25rem] border'>
+                <div className='bg-(--accent)/85 absolute inset-y-0 left-0 w-1.5'></div>
                 <p className='text-muted-foreground ml-4 leading-relaxed'>
                   {announcement}
                 </p>
@@ -268,7 +288,7 @@ export default function HomeContent({
             </div>
             <button
               onClick={() => handleCloseAnnouncement(announcement)}
-              className='bg-primary hover:bg-primary/90 text-primary-foreground w-full rounded-lg px-4 py-3 font-medium shadow-md'
+              className='hover:opacity-92 bg-(--accent) w-full rounded-2xl px-4 py-3 font-medium text-black shadow-[0_18px_40px_rgba(0,0,0,0.28)] transition-opacity'
             >
               我知道了
             </button>
@@ -278,4 +298,3 @@ export default function HomeContent({
     </>
   );
 }
-

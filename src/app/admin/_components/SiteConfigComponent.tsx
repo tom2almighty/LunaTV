@@ -16,7 +16,7 @@ import {
   showSuccess,
   useAlertModal,
 } from './AlertModal';
-import { buttonStyles } from './buttonStyles';
+import { buttonStyles, inputStyles } from './buttonStyles';
 import { useLoadingState } from './LoadingSystem';
 
 const PROXY_MODE_OPTIONS: Array<{ value: DoubanProxyMode; label: string }> = [
@@ -217,7 +217,7 @@ export const SiteConfigComponent = ({
           onChange={(e) =>
             setSiteSettings((prev) => ({ ...prev, SiteName: e.target.value }))
           }
-          className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2'
+          className={inputStyles.base}
         />
       </div>
 
@@ -234,7 +234,7 @@ export const SiteConfigComponent = ({
             }))
           }
           rows={3}
-          className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2'
+          className={inputStyles.base}
         />
       </div>
 
@@ -254,7 +254,7 @@ export const SiteConfigComponent = ({
               DoubanDataProxyMode: normalizeMode(e.target.value),
             }))
           }
-          className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm focus:border-transparent focus:ring-2'
+          className={inputStyles.select}
         >
           {PROXY_MODE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -280,7 +280,7 @@ export const SiteConfigComponent = ({
                   DoubanDataProxyPresetId: e.target.value,
                 }))
               }
-              className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm focus:border-transparent focus:ring-2'
+              className={inputStyles.select}
             >
               <option value=''>请选择预设</option>
               {siteSettings.DoubanDataProxyPresets.map((preset) => (
@@ -311,12 +311,12 @@ export const SiteConfigComponent = ({
                 }))
               }
               placeholder='例如: https://proxy.example.com/fetch?url='
-              className='border-border bg-card text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm focus:border-transparent focus:ring-2'
+              className={inputStyles.base}
             />
           </div>
         )}
 
-        <div className='border-border space-y-3 rounded-lg border p-3'>
+        <div className='app-panel space-y-3 rounded-[1.25rem] p-3'>
           <div className='flex items-center justify-between'>
             <h4 className='text-sm font-medium'>数据代理预设池</h4>
             <button
@@ -330,7 +330,7 @@ export const SiteConfigComponent = ({
           {siteSettings.DoubanDataProxyPresets.map((preset, index) => (
             <div
               key={preset.id}
-              className='bg-muted/30 border-border space-y-2 rounded-lg border p-3'
+              className='app-panel space-y-2 rounded-[1.25rem] p-3'
             >
               <label
                 htmlFor={`dataPresetName-${index}`}
@@ -345,7 +345,7 @@ export const SiteConfigComponent = ({
                 onChange={(e) =>
                   updateDataPreset(index, { name: e.target.value })
                 }
-                className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2'
+                className={inputStyles.base}
               />
               <label
                 htmlFor={`dataPresetUrl-${index}`}
@@ -360,7 +360,7 @@ export const SiteConfigComponent = ({
                 onChange={(e) =>
                   updateDataPreset(index, { url: e.target.value })
                 }
-                className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2'
+                className={inputStyles.base}
               />
               <button
                 type='button'
@@ -390,7 +390,7 @@ export const SiteConfigComponent = ({
               DoubanImageProxyMode: normalizeMode(e.target.value),
             }))
           }
-          className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm focus:border-transparent focus:ring-2'
+          className={inputStyles.select}
         >
           {PROXY_MODE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -416,7 +416,7 @@ export const SiteConfigComponent = ({
                   DoubanImageProxyPresetId: e.target.value,
                 }))
               }
-              className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm focus:border-transparent focus:ring-2'
+              className={inputStyles.select}
             >
               <option value=''>请选择预设</option>
               {siteSettings.DoubanImageProxyPresets.map((preset) => (
@@ -447,12 +447,12 @@ export const SiteConfigComponent = ({
                 }))
               }
               placeholder='例如: https://proxy.example.com/fetch?url='
-              className='border-border bg-card text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-lg border px-3 py-2.5 text-sm focus:border-transparent focus:ring-2'
+              className={inputStyles.base}
             />
           </div>
         )}
 
-        <div className='border-border space-y-3 rounded-lg border p-3'>
+        <div className='app-panel space-y-3 rounded-[1.25rem] p-3'>
           <div className='flex items-center justify-between'>
             <h4 className='text-sm font-medium'>图片代理预设池</h4>
             <button
@@ -466,7 +466,7 @@ export const SiteConfigComponent = ({
           {siteSettings.DoubanImageProxyPresets.map((preset, index) => (
             <div
               key={preset.id}
-              className='bg-muted/30 border-border space-y-2 rounded-lg border p-3'
+              className='app-panel space-y-2 rounded-[1.25rem] p-3'
             >
               <label
                 htmlFor={`imagePresetName-${index}`}
@@ -481,7 +481,7 @@ export const SiteConfigComponent = ({
                 onChange={(e) =>
                   updateImagePreset(index, { name: e.target.value })
                 }
-                className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2'
+                className={inputStyles.base}
               />
               <label
                 htmlFor={`imagePresetUrl-${index}`}
@@ -496,7 +496,7 @@ export const SiteConfigComponent = ({
                 onChange={(e) =>
                   updateImagePreset(index, { url: e.target.value })
                 }
-                className='border-border bg-card text-foreground focus:ring-primary w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2'
+                className={inputStyles.base}
               />
               <button
                 type='button'
@@ -524,7 +524,7 @@ export const SiteConfigComponent = ({
               SearchDownstreamMaxPage: Number(e.target.value),
             }))
           }
-          className='border-border bg-card text-foreground focus:border-primary focus:ring-primary w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2'
+          className={inputStyles.base}
         />
       </div>
 
@@ -542,7 +542,7 @@ export const SiteConfigComponent = ({
               SiteInterfaceCacheTime: Number(e.target.value),
             }))
           }
-          className='border-border bg-card text-foreground focus:border-primary focus:ring-primary w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2'
+          className={inputStyles.base}
         />
       </div>
 
@@ -560,7 +560,7 @@ export const SiteConfigComponent = ({
               DoubanDataCacheTime: Number(e.target.value),
             }))
           }
-          className='border-border bg-card text-foreground focus:border-primary focus:ring-primary w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2'
+          className={inputStyles.base}
         />
       </div>
 
@@ -577,7 +577,7 @@ export const SiteConfigComponent = ({
                 DisableYellowFilter: !prev.DisableYellowFilter,
               }))
             }
-            className={`focus:ring-primary relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
               siteSettings.DisableYellowFilter
                 ? buttonStyles.toggleOn
                 : buttonStyles.toggleOff
@@ -607,7 +607,7 @@ export const SiteConfigComponent = ({
                 FluidSearch: !prev.FluidSearch,
               }))
             }
-            className={`focus:ring-primary relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
               siteSettings.FluidSearch
                 ? buttonStyles.toggleOn
                 : buttonStyles.toggleOff
@@ -637,7 +637,7 @@ export const SiteConfigComponent = ({
                 M3U8AdFilterEnabled: !prev.M3U8AdFilterEnabled,
               }))
             }
-            className={`focus:ring-primary relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
               siteSettings.M3U8AdFilterEnabled
                 ? buttonStyles.toggleOn
                 : buttonStyles.toggleOff
@@ -662,7 +662,7 @@ export const SiteConfigComponent = ({
             isLoading('saveSiteConfig')
               ? buttonStyles.disabled
               : buttonStyles.primary
-          } rounded-lg transition-colors`}
+          }`}
         >
           {isLoading('saveSiteConfig') ? '保存中…' : '保存'}
         </button>

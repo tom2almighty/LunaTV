@@ -7,7 +7,9 @@ interface PageLayoutProps {
 const PageLayout = ({ children }: PageLayoutProps) => (
   <div className='bg-background text-foreground min-h-screen w-full'>
     <Navbar />
-    <main className='relative min-w-0 flex-1 pt-14'>{children}</main>
+    <main className='relative min-h-screen min-w-0 pt-20 md:pt-24'>
+      {children}
+    </main>
   </div>
 );
 

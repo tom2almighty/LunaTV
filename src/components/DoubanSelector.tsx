@@ -1,8 +1,8 @@
-'use client';
+/* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useEffect, useRef, useState } from 'react';
 
-import type { DoubanPageType } from '@/lib/douban-categories';
+import { DoubanPageType } from '@/lib/douban-categories';
 import {
   getPrimaryOptionsByType,
   getSecondaryOptionsByType,
@@ -129,11 +129,11 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
     return (
       <div
         ref={containerRef}
-        className='bg-muted/60 relative inline-flex rounded-full p-0.5 backdrop-blur-sm sm:p-1'
+        className='relative inline-flex rounded-[1.15rem] border border-white/10 bg-black/30 p-1 shadow-[0_14px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl'
       >
         {indicatorStyle.width > 0 && (
           <div
-            className='bg-card absolute bottom-0.5 top-0.5 rounded-full shadow-sm transition-all duration-300 ease-out sm:bottom-1 sm:top-1'
+            className='absolute inset-y-1 rounded-[0.95rem] border border-white/10 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-all duration-300 ease-out'
             style={{
               left: `${indicatorStyle.left}px`,
               width: `${indicatorStyle.width}px`,
@@ -149,8 +149,9 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
               ref={(el) => {
                 buttonRefs.current[index] = el;
               }}
+              type='button'
               onClick={() => onChange(option.value)}
-              className={`relative z-10 whitespace-nowrap rounded-full px-2 py-1 text-xs font-medium transition-all duration-200 sm:px-4 sm:py-2 sm:text-sm ${
+              className={`relative z-10 whitespace-nowrap rounded-[0.95rem] px-3 py-2 text-xs font-medium tracking-[0.14em] transition-all duration-200 sm:px-4 sm:text-sm ${
                 isActive
                   ? 'text-foreground cursor-default'
                   : 'text-muted-foreground hover:text-foreground cursor-pointer'
@@ -165,14 +166,14 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
   };
 
   return (
-    <div className='space-y-4 sm:space-y-6'>
-      <div className='space-y-3 sm:space-y-4'>
+    <div className='space-y-5'>
+      <div className='space-y-4'>
         {primaryOptions.length > 1 && (
-          <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-            <span className='text-muted-foreground min-w-12 text-xs font-medium sm:text-sm'>
+          <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4'>
+            <span className='text-muted-foreground min-w-14 text-[0.68rem] font-medium uppercase tracking-[0.22em] sm:text-[0.72rem]'>
               分类
             </span>
-            <div className='overflow-x-auto'>
+            <div className='overflow-x-auto pb-1'>
               {renderCapsuleSelector(
                 primaryOptions,
                 primarySelection || primaryOptions[0]?.value,
@@ -183,11 +184,11 @@ const DoubanSelector: React.FC<DoubanSelectorProps> = ({
           </div>
         )}
 
-        <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
-          <span className='text-muted-foreground min-w-12 text-xs font-medium sm:text-sm'>
+        <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4'>
+          <span className='text-muted-foreground min-w-14 text-[0.68rem] font-medium uppercase tracking-[0.22em] sm:text-[0.72rem]'>
             {secondaryLabel}
           </span>
-          <div className='overflow-x-auto'>
+          <div className='overflow-x-auto pb-1'>
             {renderCapsuleSelector(
               secondaryOptions,
               secondarySelection || secondaryOptions[0]?.value,

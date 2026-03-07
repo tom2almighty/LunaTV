@@ -6,8 +6,6 @@ type PlayPageContainerProps = {
 
 export function PlayPageContainer({ children }: PlayPageContainerProps) {
   return (
-    <div className='flex flex-col gap-4 px-5 py-4 lg:px-12 2xl:px-20'>
-      {children}
-    </div>
+    <div className='app-page flex flex-col gap-5 pt-2 md:pt-4'>{children}</div>
   );
 }

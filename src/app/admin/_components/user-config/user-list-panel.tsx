@@ -7,8 +7,10 @@ type UserListPanelProps = {
 
 export function UserListPanel({ title, children }: UserListPanelProps) {
   return (
-    <section className='space-y-4'>
-      <h3 className='text-foreground text-base font-semibold'>{title}</h3>
+    <section className='app-panel space-y-4 rounded-3xl p-5'>
+      <h3 className='app-section-title text-foreground text-base font-semibold tracking-[0.08em]'>
+        {title}
+      </h3>
       {children}
     </section>
   );

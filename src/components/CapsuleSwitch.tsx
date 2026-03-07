@@ -24,7 +24,6 @@ const CapsuleSwitch: React.FC<CapsuleSwitchProps> = ({
 
   const activeIndex = options.findIndex((opt) => opt.value === active);
 
-  // 更新指示器位置
   const updateIndicatorPosition = () => {
     if (
       activeIndex >= 0 &&
@@ -47,29 +46,26 @@ const CapsuleSwitch: React.FC<CapsuleSwitchProps> = ({
     }
   };
 
-  // 组件挂载时立即计算初始位置
   useEffect(() => {
     const timeoutId = setTimeout(updateIndicatorPosition, 0);
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // 监听选中项变化
   useEffect(() => {
     const timeoutId = setTimeout(updateIndicatorPosition, 0);
     return () => clearTimeout(timeoutId);
-  }, [activeIndex]);
+  }, [activeIndex, options.length]);
 
   return (
     <div
       ref={containerRef}
-      className={`bg-muted relative inline-flex rounded-full p-1 ${
+      className={`relative inline-flex rounded-[1.2rem] border border-white/10 bg-black/35 p-1 shadow-[0_18px_40px_rgba(0,0,0,0.26)] backdrop-blur-xl ${
         className || ''
       }`}
     >
-      {/* 滑动的白色背景指示器 */}
       {indicatorStyle.width > 0 && (
         <div
-          className='bg-card absolute bottom-1 top-1 rounded-full shadow-sm transition-all duration-300 ease-out'
+          className='absolute inset-y-1 rounded-[0.95rem] border border-white/10 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-all duration-300 ease-out'
           style={{
             left: `${indicatorStyle.left}px`,
             width: `${indicatorStyle.width}px`,
@@ -85,8 +81,9 @@ const CapsuleSwitch: React.FC<CapsuleSwitchProps> = ({
             ref={(el) => {
               buttonRefs.current[index] = el;
             }}
+            type='button'
             onClick={() => onChange(opt.value)}
-            className={`relative z-10 w-16 cursor-pointer rounded-full px-3 py-1 text-xs font-medium transition-all duration-200 sm:w-20 sm:py-2 sm:text-sm ${
+            className={`relative z-10 min-w-16 cursor-pointer rounded-[0.95rem] px-3 py-2 text-xs font-medium tracking-[0.14em] transition-all duration-200 sm:min-w-20 sm:px-4 sm:text-sm ${
               isActive
                 ? 'text-foreground'
                 : 'text-muted-foreground hover:text-foreground'
