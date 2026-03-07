@@ -43,6 +43,8 @@ import {
 import { useVideoCardState } from '@/components/video-card/use-video-card-state';
 import { VideoCardView } from '@/components/video-card/video-card-view';
 
+import { useSite } from '@/context/SiteContext';
+
 export interface VideoCardProps {
   id?: string;
   source?: string;
@@ -99,6 +101,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
     ref,
   ) {
     const router = useRouter();
+    const { runtimeConfig } = useSite();
     const { executePlayAction } = useVideoCardActions(800);
     const [favorited, setFavorited] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -143,6 +146,19 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
       : type;
     const previewKey = `${actualSource || 'agg'}-${actualId || actualTitle}`;
     const previewTitle = actualTitle || '未命名';
+    const [hasHydrated, setHasHydrated] = useState(false);
+    const resolvedPoster = useMemo(
+      () =>
+        processImageUrl(actualPoster, {
+          includeStorage: hasHydrated,
+          runtimeConfig,
+        }),
+      [actualPoster, hasHydrated, runtimeConfig],
+    );
+
+    useEffect(() => {
+      setHasHydrated(true);
+    }, []);
 
     // 获取收藏状态（搜索结果页面不检查）
     useEffect(() => {
@@ -619,12 +635,12 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           }}
         >
           {/* 海报容器 */}
-          <div className='aspect-2/3 relative overflow-hidden rounded-[1.2rem] bg-white/5'>
+          <div className='aspect-2/3 border-white/8 relative overflow-hidden rounded-[1.2rem] border bg-white/5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'>
             {/* 骨架屏 */}
             {!isLoading && <ImagePlaceholder aspectRatio='aspect-2/3' />}
             {/* 图片 */}
             <Image
-              src={processImageUrl(actualPoster)}
+              src={resolvedPoster}
               alt={actualTitle}
               fill
               className='pointer-events-none object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]'
@@ -637,7 +653,9 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                 if (!img.dataset.retried) {
                   img.dataset.retried = 'true';
                   setTimeout(() => {
-                    img.src = processImageUrl(actualPoster);
+                    img.src = processImageUrl(actualPoster, {
+                      runtimeConfig,
+                    });
                   }, 2000);
                 }
               }}
@@ -845,7 +863,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           )}
 
           {/* 标题与来源 */}
-          <div className='mt-3 space-y-2 px-1 text-left'>
+          <div className='mt-3 space-y-2.5 px-1.5 pb-1.5 text-left'>
             <div className='relative'>
               <span className='text-foreground peer block truncate text-sm font-semibold leading-6 tracking-[0.02em] transition-colors duration-300 ease-in-out group-hover:text-[var(--accent)] sm:text-[0.95rem]'>
                 {actualTitle}
@@ -871,7 +889,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           isOpen={showMobileActions}
           onClose={() => setShowMobileActions(false)}
           title={actualTitle}
-          poster={processImageUrl(actualPoster)}
+          poster={resolvedPoster}
           actions={mobileActions}
           sources={
             isAggregate && dynamicSourceNames

@@ -196,23 +196,35 @@
 
 /* ─── Base Styles ─── */
 
+.app-shell,
 .app-page {
   margin-inline: auto;
   width: min(100%, 88rem);
   padding-inline: 0.75rem;
+}
+
+.app-page {
   padding-block: 0.75rem 2rem;
 }
 
 @media (min-width: 768px) {
+  .app-shell,
   .app-page {
     padding-inline: 1.5rem;
+  }
+
+  .app-page {
     padding-block: 1rem 2.5rem;
   }
 }
 
 @media (min-width: 1280px) {
+  .app-shell,
   .app-page {
     padding-inline: 2rem;
+  }
+
+  .app-page {
     padding-block: 1.25rem 3rem;
   }
 }

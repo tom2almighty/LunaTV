@@ -2,16 +2,49 @@
 import he from 'he';
 
 import { resolveDoubanImageProxy } from './douban-proxy-settings';
+import type { RuntimeConfig } from './runtime-config';
 
-function getDoubanImageProxyConfig(): {
+type ProcessImageUrlOptions = {
+  includeStorage?: boolean;
+  runtimeConfig?: Partial<RuntimeConfig> | null;
+  storage?: {
+    mode?: string | null;
+    presetId?: string | null;
+    customUrl?: string | null;
+  };
+};
+
+function getRuntimeConfig(
+  runtimeConfig?: Partial<RuntimeConfig> | null,
+): Partial<RuntimeConfig> | undefined {
+  if (runtimeConfig) {
+    return runtimeConfig;
+  }
+
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  return (window as any).RUNTIME_CONFIG;
+}
+
+function getDoubanImageProxyConfig(options: ProcessImageUrlOptions = {}): {
   proxyType: 'server' | 'custom';
   proxyUrl: string;
 } {
-  if (typeof window === 'undefined') {
-    return { proxyType: 'server', proxyUrl: '' };
-  }
+  const runtimeConfig = getRuntimeConfig(options.runtimeConfig);
+  const storage =
+    options.includeStorage === false
+      ? undefined
+      : (options.storage ??
+        (typeof window === 'undefined'
+          ? undefined
+          : {
+              mode: localStorage.getItem('doubanImageProxyMode'),
+              presetId: localStorage.getItem('doubanImageProxyPresetId'),
+              customUrl: localStorage.getItem('doubanImageProxyCustomUrl'),
+            }));
 
-  const runtimeConfig = (window as any).RUNTIME_CONFIG;
   return resolveDoubanImageProxy({
     runtime: {
       mode: runtimeConfig?.DOUBAN_IMAGE_PROXY_MODE ?? 'server',
@@ -19,18 +52,17 @@ function getDoubanImageProxyConfig(): {
       customUrl: runtimeConfig?.DOUBAN_IMAGE_PROXY_CUSTOM_URL ?? '',
       presets: runtimeConfig?.DOUBAN_IMAGE_PROXY_PRESETS ?? [],
     },
-    storage: {
-      mode: localStorage.getItem('doubanImageProxyMode'),
-      presetId: localStorage.getItem('doubanImageProxyPresetId'),
-      customUrl: localStorage.getItem('doubanImageProxyCustomUrl'),
-    },
+    storage,
   });
 }
 
 /**
  * 处理图片 URL，如果设置了图片代理则使用代理
  */
-export function processImageUrl(originalUrl: string): string {
+export function processImageUrl(
+  originalUrl: string,
+  options?: ProcessImageUrlOptions,
+): string {
   if (!originalUrl) return originalUrl;
 
   // 仅处理豆瓣图片代理
@@ -38,7 +70,7 @@ export function processImageUrl(originalUrl: string): string {
     return originalUrl;
   }
 
-  const { proxyType, proxyUrl } = getDoubanImageProxyConfig();
+  const { proxyType, proxyUrl } = getDoubanImageProxyConfig(options);
   switch (proxyType) {
     case 'custom':
       return proxyUrl

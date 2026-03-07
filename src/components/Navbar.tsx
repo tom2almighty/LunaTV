@@ -150,17 +150,19 @@ const NavbarInner = () => {
   };
 
   return (
-    <nav className='fixed inset-x-0 top-0 z-50 px-3 pt-[max(env(safe-area-inset-top),0.75rem)] backdrop-blur-xl md:px-6'>
-      <div className='mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 rounded-[1.4rem] border border-white/10 bg-black/45 px-3 shadow-[0_24px_80px_rgba(0,0,0,0.4)] ring-1 ring-white/5 backdrop-blur-2xl md:px-4'>
-        <div className='flex min-w-0 flex-1 items-center gap-2 md:gap-3'>
-          <Logo />
-          <MobileNavDropdown items={menuItems} isActive={isActive} />
-          <NavLinks items={menuItems} isActive={isActive} />
-        </div>
+    <nav className='fixed inset-x-0 top-0 z-50 pt-[max(env(safe-area-inset-top),0.75rem)] backdrop-blur-xl'>
+      <div className='app-shell'>
+        <div className='flex h-16 items-center justify-between gap-3 rounded-[1.4rem] border border-white/10 bg-black/45 px-3 shadow-[0_24px_80px_rgba(0,0,0,0.4)] ring-1 ring-white/5 backdrop-blur-2xl md:px-4'>
+          <div className='flex min-w-0 flex-1 items-center gap-2 md:gap-3'>
+            <Logo />
+            <MobileNavDropdown items={menuItems} isActive={isActive} />
+            <NavLinks items={menuItems} isActive={isActive} />
+          </div>
 
-        <div className='flex shrink-0 items-center gap-2'>
-          <ThemeToggle />
-          <UserMenu />
+          <div className='flex shrink-0 items-center gap-2'>
+            <ThemeToggle />
+            <UserMenu />
+          </div>
         </div>
       </div>
     </nav>
