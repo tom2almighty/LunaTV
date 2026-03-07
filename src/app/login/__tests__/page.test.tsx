@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import LoginPage from '@/app/login/page';
 
@@ -13,7 +13,15 @@ vi.mock('next/navigation', () => ({
 }));
 
 describe('LoginPage API routes', () => {
-  it('fetches public site config from RESTful endpoint and uses the premium shell', async () => {
+  beforeEach(() => {
+    replaceMock.mockReset();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('fetches public site config and hides register entry when registration is disabled', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ EnableRegistration: false }),
@@ -26,15 +34,30 @@ describe('LoginPage API routes', () => {
       expect(fetchMock).toHaveBeenCalledWith('/api/public/site');
     });
 
+    expect(screen.getByRole('heading', { name: 'Sign In' })).toBeVisible();
+    expect(screen.getByPlaceholderText('输入用户名')).toBeVisible();
+    expect(screen.getByRole('button', { name: '登录' })).toBeEnabled();
     expect(
-      screen
-        .getByRole('heading', { name: 'Sign In' })
-        .closest('div[class*="app-panel"]'),
-    ).toHaveClass('app-panel');
-    expect(screen.getByPlaceholderText('输入用户名')).toHaveClass(
-      'app-control',
-    );
-    expect(screen.getByText('MoonTV')).toHaveClass('text-[var(--accent)]');
+      screen.queryByRole('button', { name: '没有账号？去注册' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('switches to register mode when registration is enabled', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ EnableRegistration: true }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<LoginPage />);
+
+    const switchButton = await screen.findByRole('button', {
+      name: '没有账号？去注册',
+    });
+    fireEvent.click(switchButton);
+
+    expect(screen.getByRole('heading', { name: 'Sign Up' })).toBeVisible();
+    expect(screen.getByPlaceholderText('确认密码')).toBeVisible();
   });
 
   it('submits login with RESTful auth session endpoint', async () => {
