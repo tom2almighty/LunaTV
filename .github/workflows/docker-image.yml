@@ -1,4 +1,4 @@
-name: Build & Push Docker image
+name: CI & Docker
 
 on:
   workflow_dispatch:
@@ -32,7 +32,20 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  business-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:business
+
   build:
+    needs: business-tests
     strategy:
       fail-fast: false
       matrix:
@@ -89,11 +102,9 @@ jobs:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ env.REGISTRY }}/${{ steps.lowercase.outputs.owner }}/lunatv:${{ github.event.inputs.tag || 'latest' }}
-          # 启用 BuildKit 缓存
           cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.platform }}
           cache-to: type=gha,mode=max,scope=${{ github.workflow }}-${{ matrix.platform }}
           outputs: type=image,name=${{ env.REGISTRY }}/${{ steps.lowercase.outputs.owner }}/lunatv,name-canonical=true,push=true
-          # 启用 BuildKit 特性
           build-args: |
             BUILDKIT_INLINE_CACHE=1
 
@@ -111,7 +122,6 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      # 新增:镜像大小报告
       - name: Image size report
         if: always()
         run: |
@@ -168,7 +178,6 @@ jobs:
           retain_days: 7
           keep_minimum_runs: 5
 
-      # 清理旧的容器镜像
       - name: Delete old container images
         uses: actions/delete-package-versions@v5
         continue-on-error: true

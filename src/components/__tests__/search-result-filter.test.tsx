@@ -1,10 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import SearchResultFilter from '@/components/SearchResultFilter';
 
 describe('SearchResultFilter', () => {
-  it('renders premium filter triggers and opens the selected menu', () => {
+  it('opens source options and applies the selected source filter', () => {
+    const onChange = vi.fn();
+
     render(
       <SearchResultFilter
         categories={[
@@ -18,16 +20,39 @@ describe('SearchResultFilter', () => {
           },
         ]}
         values={{ source: 'demo', yearOrder: 'desc' }}
-        onChange={() => {}}
+        onChange={onChange}
       />,
     );
 
-    const sourceButton = screen.getByRole('button', { name: /测试源/i });
-    expect(sourceButton).toHaveClass('backdrop-blur-xl');
-    expect(sourceButton).toHaveClass('text-[var(--accent)]');
-    fireEvent.click(sourceButton);
-    const sourceOptions = screen.getAllByRole('button', { name: '测试源' });
-    expect(sourceOptions.at(-1)).toBeVisible();
-    expect(sourceOptions.at(-1)).toHaveClass('rounded-xl');
+    fireEvent.click(screen.getByRole('button', { name: /测试源/i }));
+    fireEvent.click(screen.getByRole('button', { name: '全部来源' }));
+
+    expect(onChange).toHaveBeenCalledWith({
+      source: 'all',
+      title: 'all',
+      year: 'all',
+      yearOrder: 'desc',
+    });
+  });
+
+  it('cycles year ordering for aggregate search results', () => {
+    const onChange = vi.fn();
+
+    render(
+      <SearchResultFilter
+        categories={[]}
+        values={{ source: 'demo', yearOrder: 'desc' }}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '按年份降序排序' }));
+
+    expect(onChange).toHaveBeenCalledWith({
+      source: 'demo',
+      title: 'all',
+      year: 'all',
+      yearOrder: 'asc',
+    });
   });
 });
