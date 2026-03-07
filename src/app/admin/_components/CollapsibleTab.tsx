@@ -29,14 +29,16 @@ export const CollapsibleTab = ({
   const shouldRenderContent = isExpanded || hasExpanded;
 
   return (
-    <div className='bg-card/80 ring-border mb-4 overflow-hidden rounded-xl shadow-sm ring-1 backdrop-blur-md'>
+    <div className='app-panel mb-4 overflow-hidden rounded-[1.6rem]'>
       <button
         onClick={onToggle}
-        className='bg-muted/70 hover:bg-muted flex w-full items-center justify-between px-6 py-4 transition-colors'
+        className='border-white/6 flex w-full items-center justify-between gap-4 border-b bg-white/[0.035] px-6 py-4 backdrop-blur-xl transition-colors hover:bg-white/[0.06]'
       >
         <div className='flex items-center gap-3'>
           {icon}
-          <h3 className='text-foreground text-lg font-medium'>{title}</h3>
+          <h3 className='app-section-title text-foreground text-base font-semibold tracking-[0.08em] sm:text-lg'>
+            {title}
+          </h3>
         </div>
         <div className='text-muted-foreground'>
           {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -44,7 +46,7 @@ export const CollapsibleTab = ({
       </button>
       {shouldRenderContent && (
         <div
-          className={'px-6 py-4' + (isExpanded ? '' : ' hidden')}
+          className={'px-6 py-5' + (isExpanded ? '' : ' hidden')}
           aria-hidden={!isExpanded}
         >
           {children}

@@ -42,13 +42,23 @@ describe('UserMenu douban proxy settings', () => {
     };
   });
 
-  it('uses runtime default on first load and localStorage overrides at runtime', async () => {
+  it('uses runtime default on first load and renders the premium settings shell', async () => {
     const first = render(<UserMenu />);
     await waitFor(() => {
       expect(
         (screen.getByLabelText('豆瓣数据代理模式') as HTMLSelectElement).value,
       ).toBe('preset');
     });
+
+    expect(
+      screen.getByText('本地设置').closest('div[class*="app-panel"]'),
+    ).toHaveClass('app-panel');
+    expect(screen.getByLabelText('豆瓣数据代理模式')).toHaveClass(
+      'app-control',
+    );
+    expect(
+      screen.getByText('这些设置保存在本地浏览器中').parentElement,
+    ).toHaveClass('border-white/8');
 
     localStorage.setItem('doubanDataProxyMode', 'custom');
     localStorage.setItem('doubanDataProxyCustomUrl', 'https://local/?url=');

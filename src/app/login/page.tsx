@@ -90,9 +90,9 @@ function LoginPageClient() {
 
   return (
     <div className='relative flex min-h-screen items-center justify-center overflow-hidden px-4'>
-      <div className='bg-card/80 border-border w-full max-w-md transform rounded-2xl border p-8 shadow-2xl backdrop-blur-md transition-all duration-300 hover:scale-[1.01]'>
+      <div className='app-panel w-full max-w-md rounded-[1.9rem] p-8 transition-transform duration-300 hover:scale-[1.01]'>
         <div className='mb-6 flex justify-center'>
-          <span className='text-primary text-5xl font-bold tracking-tighter drop-shadow-md'>
+          <span className='text-5xl font-bold tracking-tighter text-[var(--accent)] drop-shadow-md'>
             {siteName}
           </span>
         </div>
@@ -109,7 +109,7 @@ function LoginPageClient() {
               id='username'
               type='text'
               autoComplete='username'
-              className='text-foreground ring-border placeholder:text-muted-foreground focus:ring-primary bg-input/60 block w-full rounded-lg border-0 px-4 py-3 shadow-sm ring-1 backdrop-blur focus:outline-none focus:ring-2 sm:text-base'
+              className='app-control text-foreground placeholder:text-muted-foreground block w-full rounded-2xl border px-4 py-3 text-sm outline-none transition-colors focus:border-[var(--accent)] focus:ring-0 sm:text-base'
               placeholder='输入用户名'
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -126,7 +126,7 @@ function LoginPageClient() {
               autoComplete={
                 isRegisterMode ? 'new-password' : 'current-password'
               }
-              className='text-foreground ring-border placeholder:text-muted-foreground focus:ring-primary bg-input/60 block w-full rounded-lg border-0 px-4 py-3 shadow-sm ring-1 backdrop-blur focus:outline-none focus:ring-2 sm:text-base'
+              className='app-control text-foreground placeholder:text-muted-foreground block w-full rounded-2xl border px-4 py-3 text-sm outline-none transition-colors focus:border-[var(--accent)] focus:ring-0 sm:text-base'
               placeholder={
                 isRegisterMode ? '设置密码 (至少6位)' : '输入访问密码'
               }
@@ -144,7 +144,7 @@ function LoginPageClient() {
                 id='confirmPassword'
                 type='password'
                 autoComplete='new-password'
-                className='text-foreground ring-border placeholder:text-muted-foreground focus:ring-primary bg-input/60 block w-full rounded-lg border-0 px-4 py-3 shadow-sm ring-1 backdrop-blur focus:outline-none focus:ring-2 sm:text-base'
+                className='app-control text-foreground placeholder:text-muted-foreground block w-full rounded-2xl border px-4 py-3 text-sm outline-none transition-colors focus:border-[var(--accent)] focus:ring-0 sm:text-base'
                 placeholder='确认密码'
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -152,13 +152,17 @@ function LoginPageClient() {
             </div>
           )}
 
-          {error && <p className='text-destructive text-sm'>{error}</p>}
+          {error && (
+            <p className='border-destructive/20 bg-destructive/10 text-destructive rounded-[1.1rem] border px-3 py-2 text-sm'>
+              {error}
+            </p>
+          )}
 
           {/* 提交按钮 */}
           <button
             type='submit'
             disabled={loading}
-            className='bg-primary text-primary-foreground inline-flex w-full justify-center rounded-lg py-3 text-base font-semibold shadow-lg transition-all duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50'
+            className='hover:opacity-92 inline-flex w-full justify-center rounded-2xl bg-[var(--accent)] py-3 text-base font-semibold text-black transition-opacity duration-200 disabled:cursor-not-allowed disabled:opacity-50'
           >
             {loading
               ? isRegisterMode
@@ -180,7 +184,7 @@ function LoginPageClient() {
                   setPassword('');
                   setConfirmPassword('');
                 }}
-                className='text-muted-foreground hover:text-primary text-sm transition-colors'
+                className='text-muted-foreground text-sm transition-colors hover:text-[var(--accent)]'
               >
                 {isRegisterMode ? '已有账号？去登录' : '没有账号？去注册'}
               </button>

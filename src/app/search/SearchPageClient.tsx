@@ -360,10 +360,13 @@ function SearchPageClient() {
 
   return (
     <>
-      <div className='mb-10 overflow-visible px-4 py-4 sm:px-10 sm:py-8'>
+      <div className='app-page mb-10 overflow-visible'>
         {/* 搜索框 */}
         <div className='mb-8'>
-          <form onSubmit={handleSearch} className='mx-auto max-w-2xl'>
+          <form
+            onSubmit={handleSearch}
+            className='app-panel mx-auto max-w-3xl rounded-[1.75rem] p-3 sm:p-4'
+          >
             <div className='relative'>
               <Search className='text-muted-foreground absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2' />
               <input
@@ -373,7 +376,7 @@ function SearchPageClient() {
                 onChange={handleInputChange}
                 placeholder='搜索电影、电视剧...'
                 autoComplete='off'
-                className='bg-card text-foreground border-border placeholder:text-muted-foreground focus:border-primary focus:ring-primary h-12 w-full rounded-lg border py-3 pl-10 pr-12 text-sm shadow-sm focus:outline-none focus:ring-2'
+                className='app-control text-foreground placeholder:text-muted-foreground h-14 w-full rounded-2xl border py-3 pl-11 pr-12 text-sm shadow-none outline-none transition-colors focus:border-[var(--accent)] focus:ring-0'
               />
 
               {/* 清除按钮 */}
@@ -395,12 +398,12 @@ function SearchPageClient() {
         </div>
 
         {/* 搜索结果或搜索历史 */}
-        <div className='mx-auto mt-12 max-w-[95%] overflow-visible'>
+        <div className='mt-8 overflow-visible'>
           {showResults ? (
             <section className='mb-12'>
               {/* 标题 */}
               <div className='mb-4'>
-                <h2 className='text-foreground text-xl font-bold'>
+                <h2 className='app-section-title text-foreground text-xl font-semibold tracking-[0.08em] sm:text-2xl'>
                   搜索结果
                   {totalSources > 0 && useFluidSearch && (
                     <span className='text-muted-foreground ml-2 text-sm font-normal'>
@@ -409,13 +412,13 @@ function SearchPageClient() {
                   )}
                   {isLoading && useFluidSearch && (
                     <span className='ml-2 inline-block align-middle'>
-                      <span className='border-border border-t-primary inline-block h-3 w-3 animate-spin rounded-full border-2'></span>
+                      <span className='inline-block h-3 w-3 animate-spin rounded-full border-2 border-white/20 border-t-[var(--accent)]'></span>
                     </span>
                   )}
                 </h2>
               </div>
               {/* 筛选器 + 聚合开关 同行 */}
-              <div className='mb-8 flex items-center justify-between gap-3'>
+              <div className='app-panel mb-8 flex flex-col gap-4 rounded-[1.5rem] p-4 sm:flex-row sm:items-center sm:justify-between'>
                 <div className='min-w-0 flex-1'>
                   {viewMode === 'agg' ? (
                     <SearchResultFilter
@@ -445,8 +448,8 @@ function SearchPageClient() {
                         setViewMode(viewMode === 'agg' ? 'all' : 'agg')
                       }
                     />
-                    <div className='peer-checked:bg-primary bg-muted h-5 w-9 rounded-full transition-colors'></div>
-                    <div className='bg-card absolute left-0.5 top-0.5 h-4 w-4 rounded-full transition-transform peer-checked:translate-x-4'></div>
+                    <div className='peer-checked:bg-[var(--accent)]/55 h-5 w-9 rounded-full bg-white/10 transition-colors'></div>
+                    <div className='absolute left-0.5 top-0.5 h-4 w-4 rounded-full border border-white/10 bg-white transition-transform peer-checked:translate-x-4'></div>
                   </div>
                 </label>
               </div>
@@ -455,10 +458,10 @@ function SearchPageClient() {
                   <div className='grid grid-cols-3 gap-x-2 gap-y-14 px-0 sm:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] sm:gap-x-8 sm:gap-y-20 sm:px-2'>
                     {loadingSkeletonItems.map((item) => (
                       <div key={item} className='w-full animate-pulse'>
-                        <div className='bg-muted aspect-2/3 w-full rounded-lg' />
+                        <div className='app-control aspect-2/3 w-full rounded-[1.25rem]' />
                         <div className='mt-2 space-y-2'>
-                          <div className='bg-muted h-4 w-4/5 rounded' />
-                          <div className='bg-muted h-3 w-2/5 rounded' />
+                          <div className='app-control h-4 w-4/5 rounded-full' />
+                          <div className='app-control h-3 w-2/5 rounded-full' />
                         </div>
                       </div>
                     ))}
@@ -576,7 +579,7 @@ function SearchPageClient() {
                     onClick={() => {
                       clearSearchHistory(); // 事件监听会自动更新界面
                     }}
-                    className='text-muted-foreground hover:text-primary ml-3 text-sm transition-colors'
+                    className='text-muted-foreground ml-3 text-sm transition-colors hover:text-[var(--accent)]'
                   >
                     清空
                   </button>
@@ -593,7 +596,7 @@ function SearchPageClient() {
                             `/search?q=${encodeURIComponent(item.trim())}`,
                           );
                         }}
-                        className='bg-card text-foreground hover:bg-muted rounded-full px-4 py-2 text-sm transition-colors duration-200'
+                        className='app-control text-foreground rounded-full px-4 py-2 text-sm transition-colors duration-200 hover:bg-white/10'
                       >
                         {item}
                       </button>
@@ -605,7 +608,7 @@ function SearchPageClient() {
                           e.preventDefault();
                           deleteSearchHistory(item); // 事件监听会自动更新界面
                         }}
-                        className='bg-muted-foreground text-card hover:bg-destructive absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] opacity-0 transition-colors group-hover:opacity-100'
+                        className='hover:bg-destructive absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-white/85 text-[10px] text-black opacity-0 transition-colors hover:text-white group-hover:opacity-100'
                       >
                         <X className='h-3 w-3' />
                       </button>

@@ -56,37 +56,25 @@ export const AlertModal = ({
     }
   };
 
-  const getBgColor = () => {
-    switch (type) {
-      case 'success':
-        return 'bg-card border-card';
-      case 'error':
-        return 'bg-card border-card';
-      case 'warning':
-        return 'bg-card border-card';
-      default:
-        return 'bg-card border-card';
-    }
-  };
-
   return createPortal(
     <div
-      className={`bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-xl transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
     >
       <div
-        className={`bg-card w-full max-w-sm rounded-lg border shadow-xl ${getBgColor()} transition-all duration-200 ${isVisible ? 'scale-100' : 'scale-95'}`}
+        className={`app-panel w-full max-w-sm rounded-[1.75rem] transition-all duration-200 ${isVisible ? 'scale-100' : 'scale-95'}`}
       >
         <div className='p-6 text-center'>
-          <div className='mb-4 flex justify-center'>{getIcon()}</div>
+          <div className='mb-4 flex justify-center'>
+            <div className='bg-white/6 flex h-14 w-14 items-center justify-center rounded-full border border-white/10'>
+              {getIcon()}
+            </div>
+          </div>
           <h3 className='text-foreground mb-2 text-lg font-semibold'>
             {title}
           </h3>
           {message && <p className='text-muted-foreground mb-4'>{message}</p>}
           {showConfirm && (
-            <button
-              onClick={onClose}
-              className={`px-4 py-2 text-sm font-medium ${buttonStyles.primary}`}
-            >
+            <button onClick={onClose} className={buttonStyles.primary}>
               确定
             </button>
           )}
@@ -127,10 +115,7 @@ export const useAlertModal = () => {
   return { alertModal, showAlert, hideAlert };
 };
 
-export const showError = (
-  message: string,
-  showAlert?: ShowAlert,
-) => {
+export const showError = (message: string, showAlert?: ShowAlert) => {
   if (showAlert) {
     showAlert({ type: 'error', title: '错误', message, showConfirm: true });
   } else {
@@ -138,10 +123,7 @@ export const showError = (
   }
 };
 
-export const showSuccess = (
-  message: string,
-  showAlert?: ShowAlert,
-) => {
+export const showSuccess = (message: string, showAlert?: ShowAlert) => {
   if (showAlert) {
     showAlert({ type: 'success', title: '成功', message, timer: 2000 });
   } else {

@@ -11,12 +11,13 @@ export function UserStatCard({
 }: UserStatCardProps) {
   const wrapperClass =
     tone === 'primary'
-      ? 'bg-primary/10 border-primary/20'
-      : 'bg-card border-border';
-  const textClass = tone === 'primary' ? 'text-primary' : 'text-foreground';
+      ? 'border-[var(--accent)]/20 bg-[var(--accent)]/10'
+      : 'border-white/10 bg-white/6';
+  const textClass =
+    tone === 'primary' ? 'text-[var(--accent)]' : 'text-foreground';
 
   return (
-    <div className={`rounded-lg border p-4 ${wrapperClass}`}>
+    <div className={`rounded-[1.25rem] border p-4 ${wrapperClass}`}>
       <div className={`text-2xl font-bold ${textClass}`}>{value}</div>
       <div className={`text-sm ${textClass}`}>{label}</div>
     </div>

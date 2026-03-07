@@ -103,6 +103,8 @@ export default function ScrollableRow({
       }}
       onMouseLeave={() => setIsHovered(false)}
     >
+      <div className='bg-linear-to-r pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-16 from-black/30 to-transparent sm:block' />
+      <div className='bg-linear-to-l pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-16 from-black/30 to-transparent sm:block' />
       <div
         ref={containerRef}
         className='scrollbar-hide flex space-x-6 overflow-x-auto px-4 py-1 pb-12 sm:px-6 sm:py-2 sm:pb-14'
@@ -117,7 +119,7 @@ export default function ScrollableRow({
           }`}
           style={{
             background: 'transparent',
-            pointerEvents: 'none', // 允许点击穿透
+            pointerEvents: 'none',
           }}
         >
           <div
@@ -131,9 +133,9 @@ export default function ScrollableRow({
           >
             <button
               onClick={handleScrollLeftClick}
-              className='bg-card/95 hover:bg-card border-border bg-card/90 dark:hover:bg-muted border-border flex h-12 w-12 items-center justify-center rounded-full border shadow-lg transition-transform hover:scale-105'
+              className='text-foreground flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/70 shadow-[0_20px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-all hover:scale-105 hover:bg-black/80'
             >
-              <ChevronLeft className='text-muted-foreground text-foreground h-6 w-6' />
+              <ChevronLeft className='h-5 w-5 text-[var(--accent)]' />
             </button>
           </div>
         </div>
@@ -146,7 +148,7 @@ export default function ScrollableRow({
           }`}
           style={{
             background: 'transparent',
-            pointerEvents: 'none', // 允许点击穿透
+            pointerEvents: 'none',
           }}
         >
           <div
@@ -160,9 +162,9 @@ export default function ScrollableRow({
           >
             <button
               onClick={handleScrollRightClick}
-              className='bg-card/95 hover:bg-card border-border bg-card/90 dark:hover:bg-muted border-border flex h-12 w-12 items-center justify-center rounded-full border shadow-lg transition-transform hover:scale-105'
+              className='text-foreground flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/70 shadow-[0_20px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-all hover:scale-105 hover:bg-black/80'
             >
-              <ChevronRight className='text-muted-foreground text-foreground h-6 w-6' />
+              <ChevronRight className='h-5 w-5 text-[var(--accent)]' />
             </button>
           </div>
         </div>

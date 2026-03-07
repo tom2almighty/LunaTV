@@ -30,7 +30,7 @@ export function UserMenuContainer({
       <div className='relative'>
         <button
           onClick={onToggleMenu}
-          className='text-muted-foreground hover:bg-muted/50 flex h-10 w-10 items-center justify-center rounded-full p-2 transition-colors'
+          className='app-control text-muted-foreground flex h-10 w-10 items-center justify-center rounded-full p-2 transition-colors hover:text-[var(--accent)]'
           aria-label='User Menu'
         >
           <User className='h-full w-full' />

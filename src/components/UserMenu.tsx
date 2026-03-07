@@ -57,6 +57,24 @@ const normalizePresets = (presets: unknown): RuntimeProxyPreset[] => {
   );
 };
 
+const menuSurfaceClass =
+  'app-panel fixed right-4 top-14 z-50 w-56 select-none overflow-hidden rounded-[1.5rem]';
+const modalOverlayClass =
+  'fixed inset-0 z-50 bg-[color:var(--overlay)]/92 backdrop-blur-md';
+const settingsPanelClass =
+  'app-panel fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-full max-w-xl -translate-x-1/2 -translate-y-1/2 flex-col rounded-[1.75rem]';
+const passwordPanelClass =
+  'app-panel z-[1001] fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.75rem]';
+const iconButtonClass =
+  'app-control text-muted-foreground flex h-9 w-9 items-center justify-center rounded-full p-1 transition-colors hover:text-[var(--accent)]';
+const inputClass =
+  'app-control text-foreground placeholder:text-muted-foreground w-full rounded-2xl border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--accent)] focus:ring-0';
+const dividerClass = 'border-t border-white/8';
+const toggleTrackClass =
+  'h-6 w-11 rounded-full bg-white/10 transition-colors peer-checked:bg-[var(--accent)]/55';
+const toggleThumbClass =
+  'absolute left-0.5 top-0.5 h-5 w-5 rounded-full border border-white/10 bg-white transition-transform peer-checked:translate-x-5';
+
 export const UserMenu: React.FC = () => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -440,9 +458,9 @@ export const UserMenu: React.FC = () => {
       />
 
       {/* 菜单面板 */}
-      <div className='bg-popover text-popover-foreground border-border/50 fixed right-4 top-14 z-50 w-56 select-none overflow-hidden rounded-lg border shadow-xl'>
+      <div className={menuSurfaceClass}>
         {/* 用户信息区域 */}
-        <div className='border-border bg-muted/50 border-b px-3 py-2.5'>
+        <div className='border-white/8 border-b bg-white/[0.05] px-3 py-2.5'>
           <div className='space-y-1'>
             <div className='flex items-center justify-between'>
               <span className='text-muted-foreground text-xs font-medium uppercase tracking-wider'>
@@ -451,10 +469,10 @@ export const UserMenu: React.FC = () => {
               <span
                 className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium ${
                   (authInfo?.role || 'user') === 'owner'
-                    ? 'bg-accent/10 text-accent'
+                    ? 'border-warning/20 bg-warning/10 text-warning border'
                     : (authInfo?.role || 'user') === 'admin'
-                      ? 'bg-primary/10 text-primary'
-                      : 'bg-secondary text-secondary-foreground'
+                      ? 'border-[var(--accent)]/20 bg-[var(--accent)]/10 border text-[var(--accent)]'
+                      : 'bg-white/6 text-foreground border border-white/10'
                 }`}
               >
                 {getRoleText(authInfo?.role || 'user')}
@@ -476,7 +494,7 @@ export const UserMenu: React.FC = () => {
           {/* 设置按钮 */}
           <button
             onClick={handleSettings}
-            className='text-foreground hover:bg-muted flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors'
+            className='text-foreground hover:bg-white/8 flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors'
           >
             <Settings className='text-muted-foreground h-4 w-4' />
             <span className='font-medium'>设置</span>
@@ -486,7 +504,7 @@ export const UserMenu: React.FC = () => {
           {showAdminPanel && (
             <button
               onClick={handleAdminPanel}
-              className='text-foreground hover:bg-muted flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors'
+              className='text-foreground hover:bg-white/8 flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors'
             >
               <Shield className='text-muted-foreground h-4 w-4' />
               <span className='font-medium'>管理面板</span>
@@ -497,7 +515,7 @@ export const UserMenu: React.FC = () => {
           {showChangePassword && (
             <button
               onClick={handleChangePassword}
-              className='text-foreground hover:bg-muted flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors'
+              className='text-foreground hover:bg-white/8 flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors'
             >
               <KeyRound className='text-muted-foreground h-4 w-4' />
               <span className='font-medium'>修改密码</span>
@@ -505,7 +523,7 @@ export const UserMenu: React.FC = () => {
           )}
 
           {/* 分割线 */}
-          <div className='border-border my-1 border-t'></div>
+          <div className='border-white/8 my-1 border-t'></div>
 
           {/* 登出按钮 */}
           <button
@@ -525,7 +543,7 @@ export const UserMenu: React.FC = () => {
     <>
       {/* 背景遮罩 */}
       <div
-        className='bg-background/50 fixed inset-0 z-50 backdrop-blur-sm'
+        className={modalOverlayClass}
         onClick={handleCloseSettings}
         onTouchMove={(e) => {
           // 只阻止滚动，允许其他触摸事件
@@ -541,7 +559,7 @@ export const UserMenu: React.FC = () => {
       />
 
       {/* 设置面板 */}
-      <div className='bg-popover text-popover-foreground border-border fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-full max-w-xl -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl shadow-xl'>
+      <div className={settingsPanelClass}>
         {/* 内容容器 - 独立的滚动区域 */}
         <div
           className='flex-1 overflow-y-auto p-6'
@@ -557,7 +575,7 @@ export const UserMenu: React.FC = () => {
               <h3 className='text-foreground text-xl font-bold'>本地设置</h3>
               <button
                 onClick={handleResetSettings}
-                className='text-destructive hover:text-destructive/80 border-destructive/20 hover:border-destructive/30 hover:bg-destructive/10 rounded border px-2 py-1 text-xs transition-colors'
+                className='border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/14 rounded-full border px-2.5 py-1 text-xs transition-colors'
                 title='重置为默认设置'
               >
                 恢复默认
@@ -565,7 +583,7 @@ export const UserMenu: React.FC = () => {
             </div>
             <button
               onClick={handleCloseSettings}
-              className='text-muted-foreground hover:bg-muted flex h-8 w-8 items-center justify-center rounded-full p-1 transition-colors'
+              className={iconButtonClass}
               aria-label='Close'
             >
               <X className='h-full w-full' />
@@ -588,7 +606,7 @@ export const UserMenu: React.FC = () => {
               </div>
               <select
                 id='usermenu-douban-data-mode'
-                className='border-border focus:ring-primary focus:border-primary bg-card text-foreground w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2'
+                className={inputClass}
                 value={doubanDataProxyMode}
                 onChange={(e) =>
                   handleDoubanDataProxyModeChange(
@@ -604,7 +622,7 @@ export const UserMenu: React.FC = () => {
               {doubanDataProxyMode === 'preset' && (
                 <select
                   id='usermenu-douban-data-preset'
-                  className='border-border focus:ring-primary focus:border-primary bg-card text-foreground w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2'
+                  className={inputClass}
                   value={doubanDataProxyPresetId}
                   onChange={(e) =>
                     handleDoubanDataProxyPresetIdChange(e.target.value)
@@ -623,7 +641,7 @@ export const UserMenu: React.FC = () => {
                 <input
                   id='usermenu-douban-data-custom-url'
                   type='text'
-                  className='border-border focus:ring-primary focus:border-primary bg-card text-foreground placeholder:text-muted-foreground w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2'
+                  className={inputClass}
                   placeholder='例如: https://proxy.example.com/fetch?url='
                   value={doubanDataProxyCustomUrl}
                   onChange={(e) =>
@@ -633,7 +651,7 @@ export const UserMenu: React.FC = () => {
               )}
             </div>
 
-            <div className='border-border border-t'></div>
+            <div className={dividerClass}></div>
 
             <div className='space-y-3'>
               <div>
@@ -649,7 +667,7 @@ export const UserMenu: React.FC = () => {
               </div>
               <select
                 id='usermenu-douban-image-mode'
-                className='border-border focus:ring-primary focus:border-primary bg-card text-foreground w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2'
+                className={inputClass}
                 value={doubanImageProxyMode}
                 onChange={(e) =>
                   handleDoubanImageProxyModeChange(
@@ -665,7 +683,7 @@ export const UserMenu: React.FC = () => {
               {doubanImageProxyMode === 'preset' && (
                 <select
                   id='usermenu-douban-image-preset'
-                  className='border-border focus:ring-primary focus:border-primary bg-card text-foreground w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2'
+                  className={inputClass}
                   value={doubanImageProxyPresetId}
                   onChange={(e) =>
                     handleDoubanImageProxyPresetIdChange(e.target.value)
@@ -684,7 +702,7 @@ export const UserMenu: React.FC = () => {
                 <input
                   id='usermenu-douban-image-custom-url'
                   type='text'
-                  className='border-border focus:ring-primary focus:border-primary bg-card text-foreground placeholder:text-muted-foreground w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2'
+                  className={inputClass}
                   placeholder='例如: https://proxy.example.com/fetch?url='
                   value={doubanImageProxyCustomUrl}
                   onChange={(e) =>
@@ -695,7 +713,7 @@ export const UserMenu: React.FC = () => {
             </div>
 
             {/* 分割线 */}
-            <div className='border-border border-t'></div>
+            <div className={dividerClass}></div>
 
             {/* 默认聚合搜索结果 */}
             <div className='flex items-center justify-between'>
@@ -715,8 +733,8 @@ export const UserMenu: React.FC = () => {
                     checked={defaultAggregateSearch}
                     onChange={(e) => handleAggregateToggle(e.target.checked)}
                   />
-                  <div className='bg-muted peer-checked:bg-primary h-6 w-11 rounded-full transition-colors'></div>
-                  <div className='bg-card absolute left-0.5 top-0.5 h-5 w-5 rounded-full transition-transform peer-checked:translate-x-5'></div>
+                  <div className={toggleTrackClass}></div>
+                  <div className={toggleThumbClass}></div>
                 </div>
               </label>
             </div>
@@ -739,15 +757,15 @@ export const UserMenu: React.FC = () => {
                     checked={fluidSearch}
                     onChange={(e) => handleFluidSearchToggle(e.target.checked)}
                   />
-                  <div className='bg-muted peer-checked:bg-primary h-6 w-11 rounded-full transition-colors'></div>
-                  <div className='bg-card absolute left-0.5 top-0.5 h-5 w-5 rounded-full transition-transform peer-checked:translate-x-5'></div>
+                  <div className={toggleTrackClass}></div>
+                  <div className={toggleThumbClass}></div>
                 </div>
               </label>
             </div>
           </div>
 
           {/* 底部说明 */}
-          <div className='border-border mt-6 border-t pt-4'>
+          <div className='border-white/8 mt-6 border-t pt-4'>
             <p className='text-muted-foreground text-center text-xs'>
               这些设置保存在本地浏览器中
             </p>
@@ -762,7 +780,7 @@ export const UserMenu: React.FC = () => {
     <>
       {/* 背景遮罩 */}
       <div
-        className='bg-background/50 z-1000 fixed inset-0 backdrop-blur-sm'
+        className='bg-[color:var(--overlay)]/92 fixed inset-0 z-[1000] backdrop-blur-md'
         onClick={handleCloseChangePassword}
         onTouchMove={(e) => {
           // 只阻止滚动，允许其他触摸事件
@@ -778,7 +796,7 @@ export const UserMenu: React.FC = () => {
       />
 
       {/* 修改密码面板 */}
-      <div className='bg-popover text-popover-foreground border-border z-1001 fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl shadow-xl'>
+      <div className={passwordPanelClass}>
         {/* 内容容器 - 独立的滚动区域 */}
         <div
           className='h-full p-6'
@@ -796,7 +814,7 @@ export const UserMenu: React.FC = () => {
             <h3 className='text-foreground text-xl font-bold'>修改密码</h3>
             <button
               onClick={handleCloseChangePassword}
-              className='text-muted-foreground hover:bg-muted flex h-8 w-8 items-center justify-center rounded-full p-1 transition-colors'
+              className={iconButtonClass}
               aria-label='Close'
             >
               <X className='h-full w-full' />
@@ -812,7 +830,7 @@ export const UserMenu: React.FC = () => {
               </label>
               <input
                 type='password'
-                className='border-border focus:ring-primary bg-card text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-2 text-sm transition-colors focus:border-transparent focus:outline-none focus:ring-2'
+                className={inputClass}
                 placeholder='请输入新密码'
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -827,7 +845,7 @@ export const UserMenu: React.FC = () => {
               </label>
               <input
                 type='password'
-                className='border-border focus:ring-primary bg-card text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-2 text-sm transition-colors focus:border-transparent focus:outline-none focus:ring-2'
+                className={inputClass}
                 placeholder='请再次输入新密码'
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -837,24 +855,24 @@ export const UserMenu: React.FC = () => {
 
             {/* 错误信息 */}
             {passwordError && (
-              <div className='border-destructive/30 bg-destructive/10 text-destructive rounded-md border p-3 text-sm'>
+              <div className='border-destructive/20 bg-destructive/10 text-destructive rounded-[1.1rem] border p-3 text-sm'>
                 {passwordError}
               </div>
             )}
           </div>
 
           {/* 操作按钮 */}
-          <div className='border-border mt-6 flex gap-3 border-t pt-4'>
+          <div className='border-white/8 mt-6 flex gap-3 border-t pt-4'>
             <button
               onClick={handleCloseChangePassword}
-              className='text-foreground bg-muted hover:bg-muted/80 flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors'
+              className='app-control text-foreground flex-1 rounded-2xl px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/10'
               disabled={passwordLoading}
             >
               取消
             </button>
             <button
               onClick={handleSubmitChangePassword}
-              className='text-primary-foreground bg-primary hover:bg-primary/90 flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50'
+              className='hover:opacity-92 flex-1 rounded-2xl bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-black transition-opacity disabled:cursor-not-allowed disabled:opacity-50'
               disabled={passwordLoading || !newPassword || !confirmPassword}
             >
               {passwordLoading ? '修改中...' : '确认修改'}
@@ -862,7 +880,7 @@ export const UserMenu: React.FC = () => {
           </div>
 
           {/* 底部说明 */}
-          <div className='border-border mt-4 border-t pt-4'>
+          <div className='border-white/8 mt-4 border-t pt-4'>
             <p className='text-muted-foreground text-center text-xs'>
               修改密码后需要重新登录
             </p>

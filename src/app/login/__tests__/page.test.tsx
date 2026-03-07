@@ -1,4 +1,4 @@
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import LoginPage from '@/app/login/page';
@@ -13,7 +13,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 describe('LoginPage API routes', () => {
-  it('fetches public site config from RESTful endpoint', async () => {
+  it('fetches public site config from RESTful endpoint and uses the premium shell', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ EnableRegistration: false }),
@@ -25,6 +25,16 @@ describe('LoginPage API routes', () => {
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith('/api/public/site');
     });
+
+    expect(
+      screen
+        .getByRole('heading', { name: 'Sign In' })
+        .closest('div[class*="app-panel"]'),
+    ).toHaveClass('app-panel');
+    expect(screen.getByPlaceholderText('输入用户名')).toHaveClass(
+      'app-control',
+    );
+    expect(screen.getByText('MoonTV')).toHaveClass('text-[var(--accent)]');
   });
 
   it('submits login with RESTful auth session endpoint', async () => {

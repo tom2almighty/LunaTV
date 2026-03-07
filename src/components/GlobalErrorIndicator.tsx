@@ -62,10 +62,10 @@ export function GlobalErrorIndicator() {
     <div className='z-2000 fixed right-4 top-4'>
       {/* 错误卡片 */}
       <div
-        className={`flex min-w-[300px] max-w-[400px] items-center justify-between rounded-lg px-4 py-3 text-destructive-foreground shadow-lg transition-all duration-300 ${
+        className={`app-panel border-destructive/20 text-destructive-foreground flex min-w-[300px] max-w-[400px] items-center justify-between rounded-[1.25rem] border px-4 py-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] transition-all duration-300 ${
           isReplacing
             ? 'bg-destructive/80 scale-105'
-            : 'bg-destructive scale-100'
+            : 'bg-destructive/95 scale-100'
         } animate-fade-in`}
       >
         <span className='mr-3 flex-1 text-sm font-medium'>
@@ -73,7 +73,7 @@ export function GlobalErrorIndicator() {
         </span>
         <button
           onClick={handleClose}
-          className='text-destructive-foreground shrink-0 transition-colors hover:opacity-80'
+          className='app-control text-destructive-foreground shrink-0 rounded-full p-1.5 transition-opacity hover:opacity-80'
           aria-label='关闭错误提示'
         >
           <svg

@@ -116,10 +116,10 @@ export const ConfigFileComponent = ({
   return (
     <div className='space-y-4'>
       {/* 配置订阅区域 */}
-      <div className='bg-card border-border rounded-lg border p-6 shadow-sm'>
+      <div className='app-panel rounded-[1.5rem] p-6'>
         <div className='mb-6 flex items-center justify-between'>
           <h3 className='text-foreground text-xl font-semibold'>配置订阅</h3>
-          <div className='text-muted-foreground rounded-full px-3 py-1.5 text-sm'>
+          <div className='app-control text-muted-foreground rounded-full px-3 py-1.5 text-sm'>
             最后更新:{' '}
             {lastCheckTime
               ? new Date(lastCheckTime).toLocaleString('zh-CN')
@@ -139,9 +139,7 @@ export const ConfigFileComponent = ({
               onChange={(e) => setSubscriptionUrl(e.target.value)}
               placeholder='https://example.com/config.json'
               disabled={false}
-              className={
-                inputStyles.base + ' hover:border-border/80 px-4 py-3 shadow-sm'
-              }
+              className={inputStyles.base + ' px-4 py-3'}
             />
             <p className='text-muted-foreground mt-2 text-xs'>
               输入配置文件的订阅地址，要求 JSON 格式，且使用 Base58 编码
@@ -153,10 +151,10 @@ export const ConfigFileComponent = ({
             <button
               onClick={handleFetchConfig}
               disabled={isLoading('fetchConfig') || !subscriptionUrl.trim()}
-              className={`bg-primary hover:bg-primary/80 text-primary-foreground w-full rounded-lg px-6 py-3 font-medium transition-all duration-200 ${
+              className={`w-full rounded-2xl px-6 py-3 font-medium transition-opacity duration-200 ${
                 isLoading('fetchConfig') || !subscriptionUrl.trim()
                   ? buttonStyles.disabled
-                  : ''
+                  : 'hover:opacity-92 bg-[var(--accent)] text-black'
               }`}
             >
               {isLoading('fetchConfig') ? (
@@ -184,7 +182,7 @@ export const ConfigFileComponent = ({
               type='button'
               onClick={() => setAutoUpdate(!autoUpdate)}
               disabled={false}
-              className={`focus:ring-primary relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                 autoUpdate ? buttonStyles.toggleOn : buttonStyles.toggleOff
               }`}
             >
@@ -211,7 +209,7 @@ export const ConfigFileComponent = ({
             disabled={false}
             className={
               inputStyles.textareaBase +
-              ' hover:border-border/80 px-4 py-3 font-mono text-sm leading-relaxed shadow-sm'
+              ' px-4 py-3 font-mono text-sm leading-relaxed'
             }
             style={{
               fontFamily:
@@ -229,7 +227,7 @@ export const ConfigFileComponent = ({
           <button
             onClick={handleSave}
             disabled={isLoading('saveConfig')}
-            className={`rounded-lg px-4 py-2 transition-colors ${
+            className={`rounded-2xl px-4 py-2.5 transition-opacity ${
               isLoading('saveConfig')
                 ? buttonStyles.disabled
                 : buttonStyles.primary

@@ -12,7 +12,7 @@ export function GroupManagementPanel({
   return (
     <section className='space-y-3'>
       {header}
-      <div className='border-border relative max-h-80 overflow-x-auto overflow-y-auto rounded-lg border'>
+      <div className='app-panel relative max-h-80 overflow-x-auto overflow-y-auto rounded-[1.25rem] border-white/10 p-1'>
         {body}
       </div>
     </section>

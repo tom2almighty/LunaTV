@@ -30,6 +30,17 @@ import { AlertModal, showError, useAlertModal } from './AlertModal';
 import { buttonStyles, inputStyles } from './buttonStyles';
 import { useLoadingState } from './LoadingSystem';
 
+const modalOverlayClass =
+  'fixed inset-0 z-50 flex items-center justify-center bg-[color:var(--overlay)]/92 p-4 backdrop-blur-md';
+const modalPanelClass =
+  'app-panel w-full max-w-md rounded-[1.75rem] shadow-[0_24px_80px_rgba(0,0,0,0.45)]';
+const closeButtonClass =
+  'app-control flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-[var(--accent)]';
+const sourceStatusClass =
+  'rounded-full border border-[var(--accent)]/20 bg-[var(--accent)]/10 px-2.5 py-1 text-xs text-[var(--accent)]';
+const sourceMutedStatusClass =
+  'rounded-full border border-white/10 bg-white/6 px-2.5 py-1 text-xs text-muted-foreground';
+
 // 视频源配置组件
 export const VideoSourceConfig = ({
   config,
@@ -396,7 +407,7 @@ export const VideoSourceConfig = ({
       case 'validating':
         return {
           text: '检测中',
-          className: 'bg-primary/10 text-primary',
+          className: sourceStatusClass,
           icon: '⟳',
           message: result.message,
         };
@@ -440,7 +451,7 @@ export const VideoSourceConfig = ({
       <tr
         ref={setNodeRef}
         style={style}
-        className='hover:bg-muted select-none transition-colors'
+        className='select-none transition-colors hover:bg-white/[0.04]'
       >
         <td
           className='text-muted-foreground cursor-grab px-2 py-4'
@@ -491,11 +502,7 @@ export const VideoSourceConfig = ({
           {(() => {
             const status = getValidationStatus(source.key);
             if (!status) {
-              return (
-                <span className='bg-muted text-muted-foreground rounded-full px-2 py-1 text-xs'>
-                  未检测
-                </span>
-              );
+              return <span className={sourceMutedStatusClass}>未检测</span>;
             }
             return (
               <span
@@ -691,7 +698,7 @@ export const VideoSourceConfig = ({
             <button
               onClick={() => setShowValidationModal(true)}
               disabled={isValidating}
-              className={`flex items-center space-x-1 rounded-lg px-3 py-1 text-sm transition-colors ${
+              className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm transition-colors ${
                 isValidating ? buttonStyles.disabled : buttonStyles.primary
               }`}
             >
@@ -717,7 +724,7 @@ export const VideoSourceConfig = ({
       </div>
 
       {showAddForm && (
-        <div className='bg-muted border-border space-y-4 rounded-lg border p-4'>
+        <div className='app-panel space-y-4 rounded-[1.5rem] p-4'>
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
             <input
               type='text'
@@ -726,7 +733,7 @@ export const VideoSourceConfig = ({
               onChange={(e) =>
                 setNewSource((prev) => ({ ...prev, name: e.target.value }))
               }
-              className='border-border bg-card text-foreground rounded-lg border px-3 py-2'
+              className={inputStyles.base}
             />
             <input
               type='text'
@@ -735,7 +742,7 @@ export const VideoSourceConfig = ({
               onChange={(e) =>
                 setNewSource((prev) => ({ ...prev, key: e.target.value }))
               }
-              className='border-border bg-card text-foreground rounded-lg border px-3 py-2'
+              className={inputStyles.base}
             />
             <input
               type='text'
@@ -744,7 +751,7 @@ export const VideoSourceConfig = ({
               onChange={(e) =>
                 setNewSource((prev) => ({ ...prev, api: e.target.value }))
               }
-              className='border-border bg-card text-foreground rounded-lg border px-3 py-2'
+              className={inputStyles.base}
             />
             <input
               type='text'
@@ -753,7 +760,7 @@ export const VideoSourceConfig = ({
               onChange={(e) =>
                 setNewSource((prev) => ({ ...prev, detail: e.target.value }))
               }
-              className='border-border bg-card text-foreground rounded-lg border px-3 py-2'
+              className={inputStyles.base}
             />
           </div>
           <div className='flex justify-end'>
@@ -775,7 +782,7 @@ export const VideoSourceConfig = ({
 
       {/* 视频源表格 */}
       <div
-        className='border-border max-h-112 relative overflow-x-auto overflow-y-auto rounded-lg border'
+        className='app-panel max-h-112 relative overflow-x-auto overflow-y-auto rounded-[1.25rem]'
         data-table='source-list'
       >
         <DndContext
@@ -786,7 +793,7 @@ export const VideoSourceConfig = ({
           modifiers={[restrictToVerticalAxis, restrictToParentElement]}
         >
           <table className='divide-border min-w-full divide-y'>
-            <thead className='bg-muted sticky top-0 z-10'>
+            <thead className='sticky top-0 z-10 bg-black/35 backdrop-blur'>
               <tr>
                 <th className='w-8' />
                 <th className='w-12 px-2 py-3 text-center'>
@@ -851,11 +858,11 @@ export const VideoSourceConfig = ({
       {showValidationModal &&
         createPortal(
           <div
-            className='bg-background/50 fixed inset-0 z-50 flex items-center justify-center'
+            className={modalOverlayClass}
             onClick={() => setShowValidationModal(false)}
           >
             <div
-              className='bg-card mx-4 w-full max-w-md rounded-lg p-6'
+              className={`${modalPanelClass} mx-4 p-6`}
               onClick={(e) => e.stopPropagation()}
             >
               <h3 className='text-foreground mb-4 text-lg font-medium'>
@@ -870,15 +877,15 @@ export const VideoSourceConfig = ({
                   placeholder='请输入搜索关键词'
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
-                  className='border-border bg-card text-foreground w-full rounded-lg border px-3 py-2'
+                  className={inputStyles.base}
                   onKeyDown={(e) =>
                     e.key === 'Enter' && handleValidateSources()
                   }
                 />
-                <div className='flex justify-end space-x-3'>
+                <div className='flex justify-end gap-3'>
                   <button
                     onClick={() => setShowValidationModal(false)}
-                    className='text-muted-foreground hover:text-foreground px-4 py-2 transition-colors'
+                    className='app-control text-foreground rounded-2xl px-4 py-2.5 text-sm transition-colors hover:bg-white/10'
                   >
                     取消
                   </button>
@@ -910,12 +917,9 @@ export const VideoSourceConfig = ({
       {/* 批量操作确认弹窗 */}
       {confirmModal.isOpen &&
         createPortal(
-          <div
-            className='bg-background/50 fixed inset-0 z-50 flex items-center justify-center p-4'
-            onClick={confirmModal.onCancel}
-          >
+          <div className={modalOverlayClass} onClick={confirmModal.onCancel}>
             <div
-              className='bg-card w-full max-w-md rounded-lg shadow-xl'
+              className={modalPanelClass}
               onClick={(e) => e.stopPropagation()}
             >
               <div className='p-6'>
@@ -925,7 +929,7 @@ export const VideoSourceConfig = ({
                   </h3>
                   <button
                     onClick={confirmModal.onCancel}
-                    className='text-muted-foreground hover:text-foreground transition-colors'
+                    className={closeButtonClass}
                   >
                     <svg
                       className='h-5 w-5'
@@ -950,7 +954,7 @@ export const VideoSourceConfig = ({
                 </div>
 
                 {/* 操作按钮 */}
-                <div className='flex justify-end space-x-3'>
+                <div className='flex justify-end gap-3'>
                   <button
                     onClick={confirmModal.onCancel}
                     className={`px-4 py-2 text-sm font-medium ${buttonStyles.secondary}`}
