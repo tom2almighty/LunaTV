@@ -74,11 +74,6 @@ function getDoubanProxyConfig(): {
       customUrl: runtimeConfig?.DOUBAN_DATA_PROXY_CUSTOM_URL ?? '',
       presets: runtimeConfig?.DOUBAN_DATA_PROXY_PRESETS ?? [],
     },
-    storage: {
-      mode: localStorage.getItem('doubanDataProxyMode'),
-      presetId: localStorage.getItem('doubanDataProxyPresetId'),
-      customUrl: localStorage.getItem('doubanDataProxyCustomUrl'),
-    },
   });
 }
 

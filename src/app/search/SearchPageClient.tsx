@@ -120,20 +120,7 @@ function SearchPageClient() {
     yearOrder: 'none',
   });
 
-  // 获取默认聚合设置：只读取用户本地设置，默认为 true
-  const getDefaultAggregate = () => {
-    if (typeof window !== 'undefined') {
-      const userSetting = localStorage.getItem('defaultAggregateSearch');
-      if (userSetting !== null) {
-        return JSON.parse(userSetting);
-      }
-    }
-    return true; // 默认启用聚合
-  };
-
-  const [viewMode, setViewMode] = useState<'agg' | 'all'>(() => {
-    return getDefaultAggregate() ? 'agg' : 'all';
-  });
+  const [viewMode, setViewMode] = useState<'agg' | 'all'>('agg');
   const hasRestoredContextRef = useRef(false);
 
   // 在“无排序”场景用于每个源批次的预排序：完全匹配标题优先，其次年份倒序，未知年份最后
@@ -376,7 +363,7 @@ function SearchPageClient() {
                 onChange={handleInputChange}
                 placeholder='搜索电影、电视剧...'
                 autoComplete='off'
-                className='app-control text-foreground placeholder:text-muted-foreground h-14 w-full rounded-2xl border py-3 pl-11 pr-12 text-sm shadow-none outline-none transition-colors focus:border-[var(--accent)] focus:ring-0'
+                className='app-control text-foreground placeholder:text-muted-foreground focus:border-(--accent) h-14 w-full rounded-2xl border py-3 pl-11 pr-12 text-sm shadow-none outline-none transition-colors focus:ring-0'
               />
 
               {/* 清除按钮 */}
@@ -412,13 +399,13 @@ function SearchPageClient() {
                   )}
                   {isLoading && useFluidSearch && (
                     <span className='ml-2 inline-block align-middle'>
-                      <span className='inline-block h-3 w-3 animate-spin rounded-full border-2 border-white/20 border-t-[var(--accent)]'></span>
+                      <span className='border-t-(--accent) inline-block h-3 w-3 animate-spin rounded-full border-2 border-white/20'></span>
                     </span>
                   )}
                 </h2>
               </div>
               {/* 筛选器 + 聚合开关 同行 */}
-              <div className='app-panel mb-8 flex flex-col gap-4 rounded-[1.5rem] p-4 sm:flex-row sm:items-center sm:justify-between'>
+              <div className='app-panel mb-8 flex flex-col gap-4 rounded-3xl p-4 sm:flex-row sm:items-center sm:justify-between'>
                 <div className='min-w-0 flex-1'>
                   {viewMode === 'agg' ? (
                     <SearchResultFilter
@@ -448,7 +435,7 @@ function SearchPageClient() {
                         setViewMode(viewMode === 'agg' ? 'all' : 'agg')
                       }
                     />
-                    <div className='peer-checked:bg-[var(--accent)]/55 h-5 w-9 rounded-full bg-white/10 transition-colors'></div>
+                    <div className='peer-checked:bg-(--accent)/55 h-5 w-9 rounded-full bg-white/10 transition-colors'></div>
                     <div className='absolute left-0.5 top-0.5 h-4 w-4 rounded-full border border-white/10 bg-white transition-transform peer-checked:translate-x-4'></div>
                   </div>
                 </label>
@@ -579,7 +566,7 @@ function SearchPageClient() {
                     onClick={() => {
                       clearSearchHistory(); // 事件监听会自动更新界面
                     }}
-                    className='text-muted-foreground ml-3 text-sm transition-colors hover:text-[var(--accent)]'
+                    className='text-muted-foreground hover:text-(--accent) ml-3 text-sm transition-colors'
                   >
                     清空
                   </button>

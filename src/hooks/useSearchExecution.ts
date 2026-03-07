@@ -45,6 +45,18 @@ type UseSearchExecutionParams = {
   totalSources: number;
 };
 
+function getRuntimeFluidSearchEnabled(): boolean {
+  if (typeof window === 'undefined') {
+    return true;
+  }
+
+  const runtimeConfig = (
+    window as Window & { RUNTIME_CONFIG?: { FLUID_SEARCH?: boolean } }
+  ).RUNTIME_CONFIG;
+
+  return runtimeConfig?.FLUID_SEARCH !== false;
+}
+
 export function useSearchExecution({
   searchParams,
   useFluidSearch,
@@ -112,19 +124,7 @@ export function useSearchExecution({
         return;
       }
 
-      // 每次搜索时重新读取设置，确保使用最新的配置
-      let currentFluidSearch = useFluidSearch;
-      if (typeof window !== 'undefined') {
-        const savedFluidSearch = localStorage.getItem('fluidSearch');
-        if (savedFluidSearch !== null) {
-          currentFluidSearch = JSON.parse(savedFluidSearch);
-        } else {
-          const runtimeConfig = (
-            window as Window & { RUNTIME_CONFIG?: { FLUID_SEARCH?: boolean } }
-          ).RUNTIME_CONFIG;
-          currentFluidSearch = runtimeConfig?.FLUID_SEARCH !== false;
-        }
-      }
+      const currentFluidSearch = getRuntimeFluidSearchEnabled();
 
       // 如果读取的配置与当前状态不同，更新状态
       if (currentFluidSearch !== useFluidSearch) {

@@ -24,7 +24,7 @@ export function PlayErrorView({
         <div className='space-y-3'>
           <button
             onClick={onBack}
-            className='hover:opacity-92 w-full rounded-2xl bg-[var(--accent)] px-6 py-3 font-medium text-black transition-opacity'
+            className='hover:opacity-92 bg-(--accent) w-full rounded-2xl px-6 py-3 font-medium text-black transition-opacity'
           >
             {videoTitle ? '🔍 返回搜索' : '← 返回上页'}
           </button>

@@ -5,13 +5,7 @@ import { resolveDoubanImageProxy } from './douban-proxy-settings';
 import type { RuntimeConfig } from './runtime-config';
 
 type ProcessImageUrlOptions = {
-  includeStorage?: boolean;
   runtimeConfig?: Partial<RuntimeConfig> | null;
-  storage?: {
-    mode?: string | null;
-    presetId?: string | null;
-    customUrl?: string | null;
-  };
 };
 
 function getRuntimeConfig(
@@ -33,17 +27,6 @@ function getDoubanImageProxyConfig(options: ProcessImageUrlOptions = {}): {
   proxyUrl: string;
 } {
   const runtimeConfig = getRuntimeConfig(options.runtimeConfig);
-  const storage =
-    options.includeStorage === false
-      ? undefined
-      : (options.storage ??
-        (typeof window === 'undefined'
-          ? undefined
-          : {
-              mode: localStorage.getItem('doubanImageProxyMode'),
-              presetId: localStorage.getItem('doubanImageProxyPresetId'),
-              customUrl: localStorage.getItem('doubanImageProxyCustomUrl'),
-            }));
 
   return resolveDoubanImageProxy({
     runtime: {
@@ -52,7 +35,6 @@ function getDoubanImageProxyConfig(options: ProcessImageUrlOptions = {}): {
       customUrl: runtimeConfig?.DOUBAN_IMAGE_PROXY_CUSTOM_URL ?? '',
       presets: runtimeConfig?.DOUBAN_IMAGE_PROXY_PRESETS ?? [],
     },
-    storage,
   });
 }
 

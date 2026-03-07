@@ -9,16 +9,20 @@ type UseSearchPageInitParams = {
   setUseFluidSearch: Dispatch<SetStateAction<boolean>>;
 };
 
-function parseBooleanSetting(value: string | null): boolean | null {
-  if (value === null) {
+function getRuntimeFluidSearchDefault(): boolean | null {
+  if (typeof window === 'undefined') {
     return null;
   }
 
-  try {
-    return JSON.parse(value) as boolean;
-  } catch {
+  const defaultFluidSearch = (
+    window as Window & { RUNTIME_CONFIG?: { FLUID_SEARCH?: boolean } }
+  ).RUNTIME_CONFIG?.FLUID_SEARCH;
+
+  if (defaultFluidSearch === undefined) {
     return null;
   }
+
+  return defaultFluidSearch !== false;
 }
 
 export function useSearchPageInit({
@@ -34,18 +38,9 @@ export function useSearchPageInit({
 
     getSearchHistory().then(setSearchHistory);
 
-    if (typeof window !== 'undefined') {
-      const savedFluidSearch = parseBooleanSetting(
-        localStorage.getItem('fluidSearch'),
-      );
-      const defaultFluidSearch = (
-        window as Window & { RUNTIME_CONFIG?: { FLUID_SEARCH?: boolean } }
-      ).RUNTIME_CONFIG?.FLUID_SEARCH;
-      if (savedFluidSearch !== null) {
-        setUseFluidSearch(savedFluidSearch);
-      } else if (defaultFluidSearch !== undefined) {
-        setUseFluidSearch(defaultFluidSearch !== false);
-      }
+    const runtimeFluidSearch = getRuntimeFluidSearchDefault();
+    if (runtimeFluidSearch !== null) {
+      setUseFluidSearch(runtimeFluidSearch);
     }
 
     const unsubscribe = subscribeToDataUpdates(

@@ -18,7 +18,7 @@ const Logo = () => {
       aria-label={siteName}
       className='flex min-w-0 select-none items-center gap-3 rounded-full px-1 py-1 transition-opacity duration-200 hover:opacity-85'
     >
-      <span className='bg-white/6 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-[var(--accent)] shadow-[0_10px_30px_rgba(0,0,0,0.22)]'>
+      <span className='bg-white/6 text-(--accent) flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-[0.65rem] font-semibold uppercase tracking-[0.24em] shadow-[0_10px_30px_rgba(0,0,0,0.22)]'>
         LT
       </span>
       <span className='min-w-0'>

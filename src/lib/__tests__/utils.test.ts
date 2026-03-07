@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import type { RuntimeConfig } from '@/lib/runtime-config';
 import { processImageUrl } from '@/lib/utils';
@@ -23,14 +23,13 @@ describe('processImageUrl', () => {
   const doubanPoster =
     'https://img3.doubanio.com/view/photo/s_ratio_poster/public/p123.webp';
 
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it('uses runtime proxy during the stable first render', () => {
     const result = processImageUrl(doubanPoster, {
-      includeStorage: false,
       runtimeConfig: baseRuntimeConfig,
-      storage: {
-        mode: 'custom',
-        customUrl: 'https://local-img/?url=',
-      },
     });
 
     expect(result).toBe(
@@ -38,17 +37,19 @@ describe('processImageUrl', () => {
     );
   });
 
-  it('applies local storage override after hydration', () => {
+  it('keeps using runtime proxy even if stale local overrides exist', () => {
+    localStorage.setItem('doubanImageProxyMode', 'custom');
+    localStorage.setItem(
+      'doubanImageProxyCustomUrl',
+      'https://local-img/?url=',
+    );
+
     const result = processImageUrl(doubanPoster, {
       runtimeConfig: baseRuntimeConfig,
-      storage: {
-        mode: 'custom',
-        customUrl: 'https://local-img/?url=',
-      },
     });
 
     expect(result).toBe(
-      `https://local-img/?url=${encodeURIComponent(doubanPoster)}`,
+      `https://img-a/?url=${encodeURIComponent(doubanPoster)}`,
     );
   });
 });

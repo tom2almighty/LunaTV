@@ -362,7 +362,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
           <div className={exportCardClass}>
             <div className='mb-6 flex items-center gap-3'>
               <div className={iconTileClass}>
-                <Download className='h-4 w-4 text-[var(--accent)]' />
+                <Download className='text-(--accent) h-4 w-4' />
               </div>
               <div>
                 <h3 className='text-foreground font-semibold'>数据导出</h3>
@@ -412,7 +412,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                 className={`mt-10 w-full rounded-2xl px-4 py-2.5 font-medium transition-opacity ${
                   isExporting || !exportPassword.trim()
                     ? 'bg-white/6 text-muted-foreground cursor-not-allowed'
-                    : 'hover:opacity-92 bg-[var(--accent)] text-black'
+                    : 'hover:opacity-92 bg-(--accent) text-black'
                 }`}
               >
                 {isExporting ? (
@@ -434,7 +434,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
           <div className={exportCardClass}>
             <div className='mb-6 flex items-center gap-3'>
               <div className={iconTileClass}>
-                <Upload className='h-4 w-4 text-[var(--accent)]' />
+                <Upload className='text-(--accent) h-4 w-4' />
               </div>
               <div>
                 <h3 className='text-foreground font-semibold'>数据导入</h3>
@@ -461,7 +461,7 @@ const DataMigration = ({ onRefreshConfig }: DataMigrationProps) => {
                     type='file'
                     accept='.dat'
                     onChange={handleFileSelect}
-                    className='app-control text-foreground file:text-foreground hover:file:bg-white/14 w-full rounded-2xl border px-3 py-2.5 outline-none transition-colors file:mr-3 file:rounded-xl file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-sm file:font-medium focus:border-[var(--accent)] focus:ring-0'
+                    className='app-control text-foreground file:text-foreground hover:file:bg-white/14 focus:border-(--accent) w-full rounded-2xl border px-3 py-2.5 outline-none transition-colors file:mr-3 file:rounded-xl file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-sm file:font-medium focus:ring-0'
                     disabled={isImporting}
                   />
                 </div>

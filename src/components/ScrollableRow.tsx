@@ -114,7 +114,7 @@ export default function ScrollableRow({
       </div>
       {showLeftScroll && (
         <div
-          className={`absolute bottom-0 left-0 top-0 z-[600] hidden w-16 items-center justify-center transition-opacity duration-200 sm:flex ${
+          className={`z-600 absolute bottom-0 left-0 top-0 hidden w-16 items-center justify-center transition-opacity duration-200 sm:flex ${
             isHovered ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
@@ -135,7 +135,7 @@ export default function ScrollableRow({
               onClick={handleScrollLeftClick}
               className='text-foreground flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/70 shadow-[0_20px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-all hover:scale-105 hover:bg-black/80'
             >
-              <ChevronLeft className='h-5 w-5 text-[var(--accent)]' />
+              <ChevronLeft className='text-(--accent) h-5 w-5' />
             </button>
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function ScrollableRow({
 
       {showRightScroll && (
         <div
-          className={`absolute bottom-0 right-0 top-0 z-[600] hidden w-16 items-center justify-center transition-opacity duration-200 sm:flex ${
+          className={`z-600 absolute bottom-0 right-0 top-0 hidden w-16 items-center justify-center transition-opacity duration-200 sm:flex ${
             isHovered ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
@@ -164,7 +164,7 @@ export default function ScrollableRow({
               onClick={handleScrollRightClick}
               className='text-foreground flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/70 shadow-[0_20px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-all hover:scale-105 hover:bg-black/80'
             >
-              <ChevronRight className='h-5 w-5 text-[var(--accent)]' />
+              <ChevronRight className='text-(--accent) h-5 w-5' />
             </button>
           </div>
         </div>

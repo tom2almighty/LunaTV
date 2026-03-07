@@ -146,19 +146,13 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
       : type;
     const previewKey = `${actualSource || 'agg'}-${actualId || actualTitle}`;
     const previewTitle = actualTitle || '未命名';
-    const [hasHydrated, setHasHydrated] = useState(false);
     const resolvedPoster = useMemo(
       () =>
         processImageUrl(actualPoster, {
-          includeStorage: hasHydrated,
           runtimeConfig,
         }),
-      [actualPoster, hasHydrated, runtimeConfig],
+      [actualPoster, runtimeConfig],
     );
-
-    useEffect(() => {
-      setHasHydrated(true);
-    }, []);
 
     // 获取收藏状态（搜索结果页面不检查）
     useEffect(() => {
@@ -686,7 +680,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                 <PlayCircleIcon
                   size={50}
                   strokeWidth={0.8}
-                  className='text-foreground fill-transparent opacity-90 drop-shadow-[0_10px_35px_rgba(0,0,0,0.45)] transition-all duration-300 ease-out hover:scale-[1.08] hover:text-[var(--accent)]'
+                  className='text-foreground hover:text-(--accent) fill-transparent opacity-90 drop-shadow-[0_10px_35px_rgba(0,0,0,0.45)] transition-all duration-300 ease-out hover:scale-[1.08]'
                 />
               </div>
             )}
@@ -730,7 +724,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
 
             {/* 徽章 */}
             {config.showRating && rate && (
-              <div className='absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-[var(--accent)] text-[0.7rem] font-semibold text-black shadow-[0_14px_30px_rgba(0,0,0,0.32)] transition-all duration-300 ease-out group-hover:scale-105'>
+              <div className='bg-(--accent) absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-[0.7rem] font-semibold text-black shadow-[0_14px_30px_rgba(0,0,0,0.32)] transition-all duration-300 ease-out group-hover:scale-105'>
                 {rate}
               </div>
             )}
@@ -818,7 +812,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
                                     key={index}
                                     className='flex items-center gap-1 sm:gap-1.5'
                                   >
-                                    <div className='bg-[var(--accent)]/70 h-0.5 w-0.5 shrink-0 rounded-full sm:h-1 sm:w-1'></div>
+                                    <div className='bg-(--accent)/70 h-0.5 w-0.5 shrink-0 rounded-full sm:h-1 sm:w-1'></div>
                                     <span
                                       className='truncate text-[10px] leading-tight sm:text-xs'
                                       title={sourceName}
@@ -856,7 +850,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           {config.showProgress && progress !== undefined && (
             <div className='bg-white/8 mt-3 h-1.5 w-full overflow-hidden rounded-full'>
               <div
-                className='h-full rounded-full bg-[var(--accent)] transition-all duration-500 ease-out'
+                className='bg-(--accent) h-full rounded-full transition-all duration-500 ease-out'
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -865,7 +859,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
           {/* 标题与来源 */}
           <div className='mt-3 space-y-2.5 px-1.5 pb-1.5 text-left'>
             <div className='relative'>
-              <span className='text-foreground peer block truncate text-sm font-semibold leading-6 tracking-[0.02em] transition-colors duration-300 ease-in-out group-hover:text-[var(--accent)] sm:text-[0.95rem]'>
+              <span className='text-foreground group-hover:text-(--accent) peer block truncate text-sm font-semibold leading-6 tracking-[0.02em] transition-colors duration-300 ease-in-out sm:text-[0.95rem]'>
                 {actualTitle}
               </span>
               {/* 自定义 tooltip */}
@@ -876,7 +870,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(
             </div>
             {config.showSourceName && source_name && (
               <span className='text-muted-foreground mt-1 block text-xs'>
-                <span className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.12em] transition-all duration-300 ease-in-out group-hover:border-white/20 group-hover:text-[var(--accent)]'>
+                <span className='group-hover:text-(--accent) inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.12em] transition-all duration-300 ease-in-out group-hover:border-white/20'>
                   {source_name}
                 </span>
               </span>

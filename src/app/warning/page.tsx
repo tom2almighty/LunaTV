@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function WarningPage() {
   return (
     <div className='bg-background flex min-h-screen items-center justify-center p-4 sm:p-6'>
-      <div className='app-panel w-full max-w-2xl rounded-[2rem] p-5 sm:p-8'>
+      <div className='app-panel rounded-4xl w-full max-w-2xl p-5 sm:p-8'>
         {/* 警告图标 */}
         <div className='mb-4 flex justify-center sm:mb-6'>
           <div className='border-destructive/20 bg-destructive/10 flex h-16 w-16 items-center justify-center rounded-full border sm:h-20 sm:w-20'>
@@ -33,7 +33,7 @@ export default function WarningPage() {
           <h1 className='text-foreground mb-2 text-2xl font-bold sm:text-3xl'>
             安全合规配置警告
           </h1>
-          <div className='mx-auto h-1 w-12 rounded-full bg-[var(--accent)] sm:w-16'></div>
+          <div className='bg-(--accent) mx-auto h-1 w-12 rounded-full sm:w-16'></div>
         </div>
 
         {/* 警告内容 */}
@@ -53,19 +53,19 @@ export default function WarningPage() {
             </h2>
             <ul className='text-muted-foreground space-y-2 text-sm sm:space-y-3 sm:text-base'>
               <li className='flex items-start'>
-                <span className='mr-2 mt-0.5 text-[var(--accent)]'>•</span>
+                <span className='text-(--accent) mr-2 mt-0.5'>•</span>
                 <span>未经授权的访问可能导致内容被恶意传播</span>
               </li>
               <li className='flex items-start'>
-                <span className='mr-2 mt-0.5 text-[var(--accent)]'>•</span>
+                <span className='text-(--accent) mr-2 mt-0.5'>•</span>
                 <span>服务器资源可能被滥用，影响正常服务</span>
               </li>
               <li className='flex items-start'>
-                <span className='mr-2 mt-0.5 text-[var(--accent)]'>•</span>
+                <span className='text-(--accent) mr-2 mt-0.5'>•</span>
                 <span>可能收到相关权利方的法律通知</span>
               </li>
               <li className='flex items-start'>
-                <span className='mr-2 mt-0.5 text-[var(--accent)]'>•</span>
+                <span className='text-(--accent) mr-2 mt-0.5'>•</span>
                 <span>服务提供商可能因合规问题终止服务</span>
               </li>
             </ul>

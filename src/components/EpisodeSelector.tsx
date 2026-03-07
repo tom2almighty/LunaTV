@@ -207,9 +207,9 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
   );
 
   return (
-    <div className='app-panel flex h-full flex-col overflow-hidden rounded-[1.5rem] border-white/10 p-0 md:ml-2'>
+    <div className='app-panel flex h-full flex-col overflow-hidden rounded-3xl border-white/10 p-0 md:ml-2'>
       {/* 主要的 Tab 切换 */}
-      <div className='border-white/8 mb-0 flex shrink-0 border-b bg-white/[0.04]'>
+      <div className='border-white/8 bg-white/4 mb-0 flex shrink-0 border-b'>
         {totalEpisodes > 1 && (
           <div
             onClick={() => setActiveTab('episodes')}
@@ -223,7 +223,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
           >
             选集
             {activeTab === 'episodes' && (
-              <div className='absolute bottom-0 left-4 right-4 h-0.5 rounded-full bg-[var(--accent)]' />
+              <div className='bg-(--accent) absolute bottom-0 left-4 right-4 h-0.5 rounded-full' />
             )}
           </div>
         )}
@@ -232,14 +232,14 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
           className={`relative flex-1 cursor-pointer px-4 py-3 text-center text-sm font-medium transition-all duration-200
             ${
               activeTab === 'sources'
-                ? 'bg-[var(--accent)]/10 text-foreground'
+                ? 'bg-(--accent)/10 text-foreground'
                 : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
             }
           `.trim()}
         >
           换源
           {activeTab === 'sources' && (
-            <div className='absolute bottom-0 left-4 right-4 h-0.5 rounded-full bg-[var(--accent)]' />
+            <div className='bg-(--accent) absolute bottom-0 left-4 right-4 h-0.5 rounded-full' />
           )}
         </div>
       </div>
@@ -267,7 +267,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                       className={`relative w-20 shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-center text-sm font-medium transition-colors
                         ${
                           isActive
-                            ? 'border-[var(--accent)]/20 bg-[var(--accent)]/12 border text-[var(--accent)]'
+                            ? 'border-(--accent)/20 bg-(--accent)/12 text-(--accent) border'
                             : 'text-muted-foreground hover:bg-white/6 hover:text-foreground border border-transparent'
                         }
                       `.trim()}
@@ -283,7 +283,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
             </div>
             {/* 向上/向下按钮 */}
             <button
-              className='app-control text-muted-foreground flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors hover:text-[var(--accent)]'
+              className='app-control text-muted-foreground hover:text-(--accent) flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors'
               onClick={() => {
                 // 切换集数排序（正序/倒序）
                 setDescending((prev) => !prev);
@@ -322,7 +322,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                   className={`flex h-10 min-w-10 items-center justify-center whitespace-nowrap rounded-lg border px-3 py-2 font-mono text-sm font-medium transition-all duration-200
                     ${
                       isActive
-                        ? 'border-[var(--accent)]/25 bg-[var(--accent)] text-black shadow-[0_12px_30px_rgba(0,0,0,0.28)]'
+                        ? 'border-(--accent)/25 bg-(--accent) text-black shadow-[0_12px_30px_rgba(0,0,0,0.28)]'
                         : 'text-foreground border-white/10 bg-white/5 hover:bg-white/10'
                     }`.trim()}
                 >
@@ -397,7 +397,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                       className={`relative flex min-h-12 select-none items-center justify-between gap-3 rounded-2xl border px-3.5 py-3 transition-all duration-200
                       ${
                         isCurrentSource
-                          ? 'border-[var(--accent)]/25 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.2)]'
+                          ? 'border-(--accent)/25 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.2)]'
                           : 'hover:bg-white/8 cursor-pointer border-white/10 bg-white/5 hover:border-white/20'
                       }`.trim()}
                     >
@@ -424,7 +424,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                         );
                       }
                     }}
-                    className='text-muted-foreground w-full rounded-2xl border border-white/10 bg-white/5 py-2.5 text-center text-xs tracking-[0.12em] transition-colors hover:bg-white/10 hover:text-[var(--accent)]'
+                    className='text-muted-foreground hover:text-(--accent) w-full rounded-2xl border border-white/10 bg-white/5 py-2.5 text-center text-xs tracking-[0.12em] transition-colors hover:bg-white/10'
                   >
                     影片匹配有误？点击去搜索
                   </button>

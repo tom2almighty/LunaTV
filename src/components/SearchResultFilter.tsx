@@ -187,10 +187,10 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({
                 activeCategory === category.key
                   ? isDefaultValue(category.key)
                     ? 'text-foreground cursor-default'
-                    : 'cursor-default text-[var(--accent)]'
+                    : 'text-(--accent) cursor-default'
                   : isDefaultValue(category.key)
                     ? 'text-muted-foreground hover:text-foreground cursor-pointer'
-                    : 'cursor-pointer text-[var(--accent)] hover:opacity-80'
+                    : 'text-(--accent) cursor-pointer hover:opacity-80'
               }`}
             >
               <span>{getDisplayText(category.key)}</span>
@@ -233,7 +233,7 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({
             className={`app-control relative z-10 whitespace-nowrap rounded-full px-2.5 py-1.5 text-xs font-medium tracking-[0.12em] backdrop-blur-xl transition-all duration-200 sm:px-3 sm:text-sm md:px-4 md:py-2 ${
               mergedValues.yearOrder === 'none'
                 ? 'text-muted-foreground hover:text-foreground cursor-pointer'
-                : 'cursor-pointer text-[var(--accent)] hover:opacity-80'
+                : 'text-(--accent) cursor-pointer hover:opacity-80'
             }`}
             aria-label={`按年份${mergedValues.yearOrder === 'none' ? '排序' : mergedValues.yearOrder === 'desc' ? '降序' : '升序'}排序`}
           >
@@ -253,7 +253,7 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({
         createPortal(
           <div
             ref={dropdownRef}
-            className='bg-black/88 fixed z-[9999] flex max-h-[50vh] flex-col rounded-[1.5rem] border border-white/10 shadow-[0_28px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl'
+            className='bg-black/88 z-9999 fixed flex max-h-[50vh] flex-col rounded-3xl border border-white/10 shadow-[0_28px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl'
             style={{
               left: `${dropdownPosition.x}px`,
               top: `${dropdownPosition.y}px`,
@@ -278,7 +278,7 @@ const SearchResultFilter: React.FC<SearchResultFilterProps> = ({
                       }
                       className={`rounded-xl border px-2.5 py-2 text-left text-xs transition-all duration-200 sm:px-3 sm:py-2.5 sm:text-sm ${
                         isOptionSelected(activeCategory, option.value)
-                          ? 'border-[var(--accent)]/30 bg-white/10 text-[var(--accent)]'
+                          ? 'border-(--accent)/30 text-(--accent) bg-white/10'
                           : 'text-foreground hover:bg-white/8 border-transparent'
                       }`}
                     >

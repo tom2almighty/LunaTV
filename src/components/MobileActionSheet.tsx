@@ -330,7 +330,7 @@ const MobileActionSheet: React.FC<MobileActionSheetProps> = ({
                     key={index}
                     className='bg-white/6 flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2'
                   >
-                    <div className='bg-[var(--accent)]/70 h-1.5 w-1.5 shrink-0 rounded-full' />
+                    <div className='bg-(--accent)/70 h-1.5 w-1.5 shrink-0 rounded-full' />
                     <span className='text-muted-foreground truncate text-xs'>
                       {source}
                     </span>

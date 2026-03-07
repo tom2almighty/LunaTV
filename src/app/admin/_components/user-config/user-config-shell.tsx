@@ -36,7 +36,7 @@ const modalPanelBaseClass =
 const modalPanelWideClass = `${modalPanelBaseClass} max-h-[80vh] max-w-4xl overflow-y-auto`;
 const modalPanelNarrowClass = `${modalPanelBaseClass} max-w-2xl`;
 const closeButtonClass =
-  'app-control flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-[var(--accent)]';
+  'app-control flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-(--accent)';
 const infoPanelClass =
   'rounded-[1.25rem] border border-[var(--accent)]/20 bg-[var(--accent)]/10 p-4';
 const dangerPanelClass =
@@ -541,10 +541,10 @@ export const UserConfigShell = ({
               用户统计
             </h4>
             <div className={infoPanelClass}>
-              <div className='text-2xl font-bold text-[var(--accent)]'>
+              <div className='text-(--accent) text-2xl font-bold'>
                 {config.UserConfig.Users.length}
               </div>
-              <div className='text-sm text-[var(--accent)]'>总用户数</div>
+              <div className='text-(--accent) text-sm'>总用户数</div>
             </div>
           </div>
 
@@ -642,7 +642,7 @@ export const UserConfigShell = ({
                 {userGroups.map((group) => (
                   <tr
                     key={group.name}
-                    className='transition-colors hover:bg-white/[0.04]'
+                    className='hover:bg-white/4 transition-colors'
                   >
                     <td className='text-foreground whitespace-nowrap px-6 py-4 text-sm font-medium'>
                       {group.name}
@@ -811,7 +811,7 @@ export const UserConfigShell = ({
           {/* 修改密码表单 */}
           {showChangePasswordForm && (
             <div className={`${infoPanelClass} mb-4`}>
-              <h5 className='mb-3 text-sm font-medium text-[var(--accent)]'>
+              <h5 className='text-(--accent) mb-3 text-sm font-medium'>
                 修改用户密码
               </h5>
               <div className='flex flex-col gap-4 sm:flex-row sm:gap-3'>
@@ -970,7 +970,7 @@ export const UserConfigShell = ({
                       return (
                         <tr
                           key={`${user.username}-${index}`}
-                          className='transition-colors hover:bg-white/[0.04]'
+                          className='hover:bg-white/4 transition-colors'
                         >
                           <td className='w-4' />
                           <td className='w-10 px-1 py-3 text-center'>
@@ -1002,7 +1002,7 @@ export const UserConfigShell = ({
                                 user.role === 'owner'
                                   ? 'border-warning/20 bg-warning/10 text-warning'
                                   : user.role === 'admin'
-                                    ? 'border-[var(--accent)]/20 bg-[var(--accent)]/10 text-[var(--accent)]'
+                                    ? 'border-(--accent)/20 bg-(--accent)/10 text-(--accent)'
                                     : 'bg-white/6 text-foreground border-white/10'
                               }`}
                             >
@@ -1017,7 +1017,7 @@ export const UserConfigShell = ({
                             <span
                               className={`rounded-full border px-2.5 py-1 text-xs ${
                                 !user.banned
-                                  ? 'border-[var(--accent)]/20 bg-[var(--accent)]/10 text-[var(--accent)]'
+                                  ? 'border-(--accent)/20 bg-(--accent)/10 text-(--accent)'
                                   : 'border-destructive/20 bg-destructive/10 text-destructive'
                               }`}
                             >
@@ -1204,7 +1204,7 @@ export const UserConfigShell = ({
                     <div className={infoPanelClass}>
                       <div className='mb-2 flex items-center space-x-2'>
                         <svg
-                          className='h-5 w-5 text-[var(--accent)]'
+                          className='text-(--accent) h-5 w-5'
                           fill='none'
                           stroke='currentColor'
                           viewBox='0 0 24 24'
@@ -1216,11 +1216,11 @@ export const UserConfigShell = ({
                             d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
                           />
                         </svg>
-                        <span className='text-sm font-medium text-[var(--accent)]'>
+                        <span className='text-(--accent) text-sm font-medium'>
                           配置说明
                         </span>
                       </div>
-                      <p className='mt-1 text-sm text-[var(--accent)]'>
+                      <p className='text-(--accent) mt-1 text-sm'>
                         提示：全不选为无限制，选中的采集源将限制用户只能访问这些源
                       </p>
                     </div>
@@ -1289,7 +1289,7 @@ export const UserConfigShell = ({
                     </div>
                     <div className='text-muted-foreground text-sm'>
                       已选择：
-                      <span className='font-medium text-[var(--accent)]'>
+                      <span className='text-(--accent) font-medium'>
                         {selectedApis.length > 0
                           ? `${selectedApis.length} 个源`
                           : '无限制'}
@@ -1711,7 +1711,7 @@ export const UserConfigShell = ({
                     <div className={infoPanelClass}>
                       <div className='mb-2 flex items-center space-x-2'>
                         <svg
-                          className='h-5 w-5 text-[var(--accent)]'
+                          className='text-(--accent) h-5 w-5'
                           fill='none'
                           stroke='currentColor'
                           viewBox='0 0 24 24'
@@ -1723,11 +1723,11 @@ export const UserConfigShell = ({
                             d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
                           />
                         </svg>
-                        <span className='text-sm font-medium text-[var(--accent)]'>
+                        <span className='text-(--accent) text-sm font-medium'>
                           配置说明
                         </span>
                       </div>
-                      <p className='mt-1 text-sm text-[var(--accent)]'>
+                      <p className='text-(--accent) mt-1 text-sm'>
                         提示：选择"无用户组"为无限制，选择特定用户组将限制用户只能访问该用户组允许的采集源
                       </p>
                     </div>
@@ -2093,7 +2093,7 @@ export const UserConfigShell = ({
                     <div className={`${infoPanelClass} mb-4`}>
                       <div className='mb-2 flex items-center space-x-2'>
                         <svg
-                          className='h-5 w-5 text-[var(--accent)]'
+                          className='text-(--accent) h-5 w-5'
                           fill='none'
                           stroke='currentColor'
                           viewBox='0 0 24 24'
@@ -2105,11 +2105,11 @@ export const UserConfigShell = ({
                             d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
                           />
                         </svg>
-                        <span className='text-sm font-medium text-[var(--accent)]'>
+                        <span className='text-(--accent) text-sm font-medium'>
                           批量操作说明
                         </span>
                       </div>
-                      <p className='text-sm text-[var(--accent)]'>
+                      <p className='text-(--accent) text-sm'>
                         将为选中的 <strong>{selectedUsers.size} 个用户</strong>{' '}
                         设置用户组，选择"无用户组"为无限制
                       </p>

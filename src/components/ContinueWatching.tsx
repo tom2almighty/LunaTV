@@ -114,12 +114,9 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
         {loading
           ? // 加载状态显示灰色占位数据
             Array.from({ length: 6 }).map((_, index) => (
-              <div
-                key={index}
-                className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
-              >
+              <div key={index} className='sm:min-w-45 w-24 min-w-24 sm:w-44'>
                 <div className='app-control aspect-2/3 relative w-full animate-pulse overflow-hidden rounded-[1.25rem]'>
-                  <div className='absolute inset-0 bg-white/[0.02]'></div>
+                  <div className='bg-white/2 absolute inset-0'></div>
                 </div>
                 <div className='app-control mt-2 h-4 animate-pulse rounded-full'></div>
                 <div className='app-control mt-1 h-3 animate-pulse rounded-full'></div>
@@ -131,7 +128,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
               return (
                 <div
                   key={record.key}
-                  className='w-24 min-w-[96px] sm:w-44 sm:min-w-[180px]'
+                  className='sm:min-w-45 w-24 min-w-24 sm:w-44'
                 >
                   <VideoCard
                     id={id}

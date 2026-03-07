@@ -1262,7 +1262,7 @@ export function PlayPlayerRuntime() {
           <button
             type='button'
             onClick={returnToSearch}
-            className='app-control text-foreground rounded-full px-3.5 py-2 text-sm font-medium transition-colors hover:text-[var(--accent)]'
+            className='app-control text-foreground hover:text-(--accent) rounded-full px-3.5 py-2 text-sm font-medium transition-colors'
           >
             返回搜索
           </button>
@@ -1276,7 +1276,7 @@ export function PlayPlayerRuntime() {
             onClick={() =>
               setIsEpisodeSelectorCollapsed(!isEpisodeSelectorCollapsed)
             }
-            className='app-control text-foreground group relative flex items-center space-x-1.5 rounded-full px-3.5 py-2 text-xs font-medium transition-all duration-200 hover:text-[var(--accent)]'
+            className='app-control text-foreground hover:text-(--accent) group relative flex items-center space-x-1.5 rounded-full px-3.5 py-2 text-xs font-medium transition-all duration-200'
             title={isEpisodeSelectorCollapsed ? '显示选集面板' : '隐藏选集面板'}
           >
             <svg
@@ -1303,7 +1303,7 @@ export function PlayPlayerRuntime() {
               className={`absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full transition-all duration-200 ${
                 isEpisodeSelectorCollapsed
                   ? 'bg-warning animate-pulse'
-                  : 'bg-[var(--accent)]'
+                  : 'bg-(--accent)'
               }`}
             ></div>
           </button>
@@ -1330,7 +1330,7 @@ export function PlayPlayerRuntime() {
 
               {/* 换源加载蒙层 */}
               {isVideoLoading && (
-                <div className='z-500 bg-[color:var(--overlay-heavy)]/95 absolute inset-0 flex items-center justify-center rounded-[1.75rem] backdrop-blur-xl transition-all duration-300'>
+                <div className='z-500 bg-(--overlay-heavy)/95 absolute inset-0 flex items-center justify-center rounded-[1.75rem] backdrop-blur-xl transition-all duration-300'>
                   <div className='mx-auto max-w-md px-6 text-center'>
                     {/* 动画影院图标 */}
                     <div className='relative mb-8'>
@@ -1417,7 +1417,7 @@ export function PlayPlayerRuntime() {
             </span>
           )}
           {detail?.class && (
-            <span className='border-[var(--accent)]/20 bg-[var(--accent)]/12 rounded-full border px-3 py-1 font-medium text-[var(--accent)]'>
+            <span className='border-(--accent)/20 bg-(--accent)/12 text-(--accent) rounded-full border px-3 py-1 font-medium'>
               {detail.class}
             </span>
           )}
@@ -1482,7 +1482,7 @@ export function PlayPlayerRuntime() {
         {/* 剧情简介 */}
         {detail?.desc && (
           <div
-            className='scrollbar-hide app-control text-foreground mt-1 min-h-0 flex-1 overflow-y-auto rounded-[1.5rem] px-4 py-4 pr-3 text-sm leading-7 md:text-base'
+            className='scrollbar-hide app-control text-foreground mt-1 min-h-0 flex-1 overflow-y-auto rounded-3xl px-4 py-4 pr-3 text-sm leading-7 md:text-base'
             style={{ whiteSpace: 'pre-line' }}
           >
             {detail.desc}

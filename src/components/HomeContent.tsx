@@ -139,7 +139,7 @@ export default function HomeContent({
         <section className='app-panel mb-8 overflow-hidden rounded-[1.75rem] p-5 sm:p-7'>
           <div className='flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between'>
             <div className='max-w-2xl space-y-3'>
-              <p className='text-[0.72rem] font-medium uppercase tracking-[0.32em] text-[var(--accent)]'>
+              <p className='text-(--accent) text-[0.72rem] font-medium uppercase tracking-[0.32em]'>
                 Moonlit Premium
               </p>
               <div className='space-y-2'>
@@ -274,13 +274,13 @@ export default function HomeContent({
             style={{ touchAction: 'auto' }}
           >
             <div className='mb-4 flex items-start justify-between'>
-              <h3 className='text-foreground border-b border-[var(--accent)] pb-1 text-2xl font-bold tracking-tight'>
+              <h3 className='text-foreground border-(--accent) border-b pb-1 text-2xl font-bold tracking-tight'>
                 提示
               </h3>
             </div>
             <div className='mb-6'>
-              <div className='border-[var(--accent)]/16 bg-[var(--accent)]/10 relative mb-4 overflow-hidden rounded-[1.25rem] border'>
-                <div className='bg-[var(--accent)]/85 absolute inset-y-0 left-0 w-1.5'></div>
+              <div className='border-(--accent)/16 bg-(--accent)/10 relative mb-4 overflow-hidden rounded-[1.25rem] border'>
+                <div className='bg-(--accent)/85 absolute inset-y-0 left-0 w-1.5'></div>
                 <p className='text-muted-foreground ml-4 leading-relaxed'>
                   {announcement}
                 </p>
@@ -288,7 +288,7 @@ export default function HomeContent({
             </div>
             <button
               onClick={() => handleCloseAnnouncement(announcement)}
-              className='hover:opacity-92 w-full rounded-2xl bg-[var(--accent)] px-4 py-3 font-medium text-black shadow-[0_18px_40px_rgba(0,0,0,0.28)] transition-opacity'
+              className='hover:opacity-92 bg-(--accent) w-full rounded-2xl px-4 py-3 font-medium text-black shadow-[0_18px_40px_rgba(0,0,0,0.28)] transition-opacity'
             >
               我知道了
             </button>
