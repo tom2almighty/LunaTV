@@ -528,7 +528,7 @@ async function handleImageProxy(url) {
       headers.set(key, value);
     });
     headers.set('Access-Control-Allow-Origin', '*');
-    headers.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+    headers.set('Cache-Control', 'public, max-age=15552000, s-maxage=15552000, immutable');
     return new Response(resp.body, { status: resp.status, headers });
   } catch {
     return text('', { status: 502 });
@@ -604,7 +604,7 @@ export async function handleApiRequest(request, env = {}) {
       ]);
       return json(
         { movies: moviesData.items, tvShows: tvData.items, varietyShows: varietyData.items },
-        { headers: { 'Cache-Control': 'public, max-age=3600, s-maxage=3600' } },
+        { headers: { 'Cache-Control': 'public, max-age=604800, s-maxage=604800' } },
       );
     }
 
