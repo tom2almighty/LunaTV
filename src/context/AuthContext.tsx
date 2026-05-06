@@ -1,6 +1,5 @@
-import { createContext, useCallback, useContext, useState } from 'react';
-
-const SESSION_KEY = 'vodhub_auth';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { authFetch, clearAuthToken, getAuthToken, setAuthToken } from '../lib/auth-token';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -19,41 +18,45 @@ export function useAuth() {
 }
 
 function readInitialAuth(): boolean {
-  if (typeof window === 'undefined') return false;
-  try {
-    const session = sessionStorage.getItem(SESSION_KEY);
-    if (!session) return false;
-    const data = JSON.parse(session);
-    if (data.expires > Date.now()) return true;
-    sessionStorage.removeItem(SESSION_KEY);
-    return false;
-  } catch {
-    sessionStorage.removeItem(SESSION_KEY);
-    return false;
-  }
+  return !!getAuthToken();
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // Read synchronously on first render so we don't briefly redirect to /login
-  // on a fresh page load with a valid session.
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(readInitialAuth);
 
   const login = useCallback(async (password: string): Promise<boolean> => {
-    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || '';
-    if (!adminPassword || password !== adminPassword) return false;
-
-    sessionStorage.setItem(
-      SESSION_KEY,
-      JSON.stringify({ expires: Date.now() + 7 * 24 * 60 * 60 * 1000 }),
-    );
-    setIsAuthenticated(true);
-    return true;
+    try {
+      const resp = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      if (!resp.ok) return false;
+      const data = await resp.json() as { token?: string };
+      if (!data.token) return false;
+      setAuthToken(data.token);
+      setIsAuthenticated(true);
+      return true;
+    } catch {
+      return false;
+    }
   }, []);
 
   const logout = useCallback(() => {
-    sessionStorage.removeItem(SESSION_KEY);
+    clearAuthToken();
     setIsAuthenticated(false);
   }, []);
+
+  // Best-effort verification for restored sessions. Pages remain responsive on
+  // transient network failures; protected APIs still enforce token validity.
+  useEffect(() => {
+    if (!getAuthToken()) return;
+    authFetch('/api/auth/verify')
+      .then((resp) => {
+        if (!resp.ok) logout();
+      })
+      .catch(() => {});
+  }, [logout]);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, logout }}>

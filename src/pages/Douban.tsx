@@ -1,35 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { apiFetch } from '../lib/api-client';
 import type { RecommendationItem } from '../lib/types';
 import VideoCard from '../components/VideoCard';
 
-interface DoubanResponse {
-  total: number;
-  items: Array<{
-    id: string;
-    title: string;
-    card_subtitle: string;
-    pic: { large: string; normal: string };
-    rating: { value: number };
-  }>;
-}
-
 async function fetchCategory(kind: string, category: string, type: string, start: number): Promise<{ items: RecommendationItem[]; total: number }> {
-  const resp = await fetch(
-    `/api/douban/rexxar/api/v2/subject/recent_hot/${kind}?start=${start}&limit=18&category=${category}&type=${type}`,
-  );
-  const data: DoubanResponse = await resp.json();
-  return {
-    total: data.total,
-    items: data.items.map((item) => ({
-      id: item.id,
-      title: item.title,
-      poster: item.pic?.normal || item.pic?.large || '',
-      rating: item.rating?.value ? item.rating.value.toFixed(1) : '',
-      year: item.card_subtitle?.match(/(\d{4})/)?.[1] || '',
-      externalUrl: `https://movie.douban.com/subject/${item.id}`,
-    })),
-  };
+  const params = new URLSearchParams({
+    kind,
+    start: String(start),
+    limit: '18',
+    category,
+    type,
+  });
+  const resp = await apiFetch(`/api/douban/category?${params.toString()}`);
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  return resp.json();
 }
 
 const CONFIG: Record<string, { label: string; kind: string; category: string; type: string }> = {

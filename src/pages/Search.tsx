@@ -70,15 +70,20 @@ export default function SearchPage() {
     addSearchHistory(trimmed);
     getSearchHistory().then(setHistory);
 
-    await searchStream(trimmed, {
-      onStart: (total) => setTotalSources(total),
-      onResult: (items) => setResults((prev) => [...prev, ...items]),
-      onProgress: (completed) => setCompletedSources(completed),
-      onComplete: (_total, completed) => {
-        setCompletedSources(completed);
-        setLoading(false);
-      },
-    });
+    try {
+      await searchStream(trimmed, {
+        onStart: (total) => setTotalSources(total),
+        onResult: (items) => setResults((prev) => [...prev, ...items]),
+        onProgress: (completed) => setCompletedSources(completed),
+        onComplete: (_total, completed) => {
+          setCompletedSources(completed);
+          setLoading(false);
+        },
+      });
+    } catch (err) {
+      console.error('搜索失败:', err);
+      setLoading(false);
+    }
   }, [loading, results.length]);
 
   useEffect(() => {

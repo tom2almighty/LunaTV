@@ -1,11 +1,12 @@
 services:
-  moontv-core:
-    image: ghcr.io/tom2almighty/lunatv:latest
-    container_name: moontv-core
-    restart: on-failure
+  vodhub:
+    build: .
     ports:
       - '3000:3000'
     environment:
-      - VITE_ADMIN_PASSWORD=your_password
-      # - VITE_CONFIG_SUBSCRIPTION_URL=https://example.com/subscribe
+      - ADMIN_PASSWORD=your_password
+      - AUTH_SECRET=change_me_to_a_long_random_string
+      # - CONFIG_SUBSCRIPTION_URL=https://example.com/subscribe
+      # - CONFIG_FILE=[]
+      # - SEARCH_CONCURRENCY=5
       # - VITE_SITE_NAME=VODHUB
