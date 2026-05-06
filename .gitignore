@@ -1,50 +1,39 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Dependencies
+node_modules
+.pnpm-store
 
-# testing
-/coverage
+# Build output
+dist
+*.tsbuildinfo
 
-# next.js
-/.next/
-/out/
+# Local env files
+.env
+.env.*.local
+.env.local
 
-# production
-/build
+# Editor / IDE
+.vscode
+.idea
+*.swp
 
-# misc
+# OS
 .DS_Store
-*.pem
+Thumbs.db
 
-# debug
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# local env files
-.env
-.env*.local
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# next-sitemap
-sitemap.xml
-sitemap-*.xml
-
-# generated files
-src/lib/runtime.ts
-public/sw.js
-public/workbox-*.js
-public/worker-*.js
-data/
-.worktrees/
+# Worktrees / scratch
+.worktrees
 _tmp_*
+
+# Agent
+.claude
+.agent
+.codex

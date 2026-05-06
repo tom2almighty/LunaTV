@@ -1,79 +1,29 @@
-/* eslint-disable @typescript-eslint/no-explicit-any,no-console */
-import he from 'he';
-
-import { resolveDoubanImageProxy } from './douban-proxy-settings';
-import type { RuntimeConfig } from './runtime-config';
-
-type ProcessImageUrlOptions = {
-  runtimeConfig?: Partial<RuntimeConfig> | null;
-};
-
-function getRuntimeConfig(
-  runtimeConfig?: Partial<RuntimeConfig> | null,
-): Partial<RuntimeConfig> | undefined {
-  if (runtimeConfig) {
-    return runtimeConfig;
-  }
-
-  if (typeof window === 'undefined') {
-    return undefined;
-  }
-
-  return (window as any).RUNTIME_CONFIG;
-}
-
-function getDoubanImageProxyConfig(options: ProcessImageUrlOptions = {}): {
-  proxyType: 'server' | 'custom';
-  proxyUrl: string;
-} {
-  const runtimeConfig = getRuntimeConfig(options.runtimeConfig);
-
-  return resolveDoubanImageProxy({
-    runtime: {
-      mode: runtimeConfig?.DOUBAN_IMAGE_PROXY_MODE ?? 'server',
-      presetId: runtimeConfig?.DOUBAN_IMAGE_PROXY_PRESET_ID ?? '',
-      customUrl: runtimeConfig?.DOUBAN_IMAGE_PROXY_CUSTOM_URL ?? '',
-      presets: runtimeConfig?.DOUBAN_IMAGE_PROXY_PRESETS ?? [],
-    },
-  });
-}
-
-/**
- * 处理图片 URL，如果设置了图片代理则使用代理
- */
-export function processImageUrl(
-  originalUrl: string,
-  options?: ProcessImageUrlOptions,
-): string {
+export function processImageUrl(originalUrl: string): string {
   if (!originalUrl) return originalUrl;
-
-  // 仅处理豆瓣图片代理
-  if (!originalUrl.includes('doubanio.com')) {
-    return originalUrl;
+  // Douban images are referer-locked. Always serve them through the
+  // server-side image proxy which sets the correct referer.
+  if (originalUrl.includes('doubanio.com') || originalUrl.includes('douban.com')) {
+    return `/api/image?url=${encodeURIComponent(originalUrl)}`;
   }
-
-  const { proxyType, proxyUrl } = getDoubanImageProxyConfig(options);
-  switch (proxyType) {
-    case 'custom':
-      return proxyUrl
-        ? `${proxyUrl}${encodeURIComponent(originalUrl)}`
-        : `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`;
-    case 'server':
-    default:
-      return `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`;
-  }
+  return originalUrl;
 }
 
-export function cleanHtmlTags(text: string): string {
+// Source descriptions sometimes contain <p>, <br>, or HTML entities used
+// as field separators. Convert those to newlines and strip remaining tags.
+// Render the result with `whitespace-pre-line` to preserve paragraphs.
+export function stripDescriptionHtml(text: string): string {
   if (!text) return '';
-
-  const cleanedText = text
-    .replace(/<[^>]+>/g, '\n') // 将 HTML 标签替换为换行
-    .replace(/\n+/g, '\n') // 将多个连续换行合并为一个
-    .replace(/[ \t]+/g, ' ') // 将多个连续空格和制表符合并为一个空格，但保留换行符
-    .replace(/^\n+|\n+$/g, '') // 去掉首尾换行
-    .trim(); // 去掉首尾空格
-
-  // 使用 he 库解码 HTML 实体
-  return he.decode(cleanedText);
+  return text
+    .replace(/<\s*\/p\s*>/gi, '\n\n')
+    .replace(/<\s*br\s*\/?\s*>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
