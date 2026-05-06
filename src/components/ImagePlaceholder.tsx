@@ -1,13 +1,9 @@
-// 图片占位符组件 - 骨架屏效果，使用全局 CSS 变量 --skeleton / --skeleton-highlight
-const ImagePlaceholder = ({ aspectRatio }: { aspectRatio: string }) => (
-  <div
-    className={`app-control w-full ${aspectRatio} animate-shimmer rounded-[1.25rem] border-0`}
-    style={{
-      background:
-        'linear-gradient(90deg, var(--skeleton) 25%, var(--skeleton-highlight) 50%, var(--skeleton) 75%)',
-      backgroundSize: '200% 100%',
-    }}
-  />
-);
+import { ImageIcon } from 'lucide-react';
 
-export { ImagePlaceholder };
+export default function ImagePlaceholder() {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(135deg,var(--color-surface),var(--color-surface-2))]">
+      <ImageIcon className="h-7 w-7 text-[--color-border-strong]" strokeWidth={1} />
+    </div>
+  );
+}

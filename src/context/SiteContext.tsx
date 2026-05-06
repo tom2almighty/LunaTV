@@ -1,34 +1,29 @@
-'use client';
+import { createContext, useContext, useEffect } from 'react';
 
-import { createContext, ReactNode, useContext } from 'react';
-
-import type { RuntimeConfig } from '@/lib/runtime-config';
-
-const SiteContext = createContext<{
+interface SiteContextValue {
   siteName: string;
-  announcement?: string;
-  runtimeConfig?: RuntimeConfig;
-}>({
-  siteName: 'MoonTV',
-  announcement:
-    '本网站仅提供影视信息搜索服务，所有内容均来自第三方网站。本站不存储任何视频资源，不对任何内容的准确性、合法性、完整性负责。',
+}
+
+const SiteContext = createContext<SiteContextValue>({
+  siteName: 'vodhub',
 });
 
-export const useSite = () => useContext(SiteContext);
+export function useSite() {
+  return useContext(SiteContext);
+}
 
-export function SiteProvider({
-  children,
-  siteName,
-  announcement,
-  runtimeConfig,
-}: {
-  children: ReactNode;
-  siteName: string;
-  announcement?: string;
-  runtimeConfig?: RuntimeConfig;
-}) {
+export function SiteProvider({ children }: { children: React.ReactNode }) {
+  const siteName = import.meta.env.VITE_SITE_NAME || 'vodhub';
+
+  // Keep the document title in sync with the configured site name.
+  useEffect(() => {
+    if (typeof document !== 'undefined' && siteName) {
+      document.title = siteName;
+    }
+  }, [siteName]);
+
   return (
-    <SiteContext.Provider value={{ siteName, announcement, runtimeConfig }}>
+    <SiteContext.Provider value={{ siteName }}>
       {children}
     </SiteContext.Provider>
   );

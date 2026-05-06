@@ -6,8 +6,6 @@ services:
     ports:
       - '3000:3000'
     environment:
-      - APP_ADMIN_USERNAME=admin
-      - APP_ADMIN_PASSWORD=your_password
-      - CRON_SECRET=strong_secret
-    volumes:
-      - ./data:/app/data
+      - VITE_ADMIN_PASSWORD=your_password
+      # - VITE_CONFIG_SUBSCRIPTION_URL=https://example.com/subscribe
+      # - VITE_SITE_NAME=VODHUB
