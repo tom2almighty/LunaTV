@@ -375,8 +375,13 @@ export default function Play() {
           )}
         </div>
 
-        {/* Combined tabbed picker (episodes + sources in one card) */}
-        <aside className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-7rem)]">
+        {/* Combined tabbed picker (episodes + sources in one card).
+            On lg+, self-stretch makes this cell match the row height —
+            which equals the player height (driven by 16:9 aspect-ratio).
+            min-h-0 lets the inner scroll area kick in when content
+            (episodes / sources) exceeds the available height.
+            max-h via 100vh-7rem keeps it sane on short viewports. */}
+        <aside className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-7rem)] lg:min-h-0 lg:self-stretch">
           <PlaybackPanel
             totalEpisodes={detail?.episodes?.length || 0}
             episodes_titles={detail?.episodes_titles || []}
