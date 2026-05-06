@@ -18,6 +18,7 @@
 
 | 变量 | 说明 |
 | ---- | ---- |
+| `SITE_NAME` | 站点名称 |
 | `ADMIN_PASSWORD` | 站点登录密码 |
 | `AUTH_SECRET` | 登录 token 签名密钥 |
 | `AUTH_TOKEN_TTL_SECONDS` | token 有效期（秒） |
@@ -25,16 +26,11 @@
 | `CONFIG_FILE` | 视频源 JSON 配置 |
 | `SEARCH_CONCURRENCY` | CMS 聚合搜索并发数 |
 
-### 构建时环境变量
-
-| 变量 | 说明 |
-| ---- | ---- |
-| `VITE_SITE_NAME` | 站点名称 |
-
 ## 功能接口
 
 - `/api/auth/login`
 - `/api/auth/verify`
+- `/api/site-config`
 - `/api/search-stream`
 - `/api/search`
 - `/api/detail`

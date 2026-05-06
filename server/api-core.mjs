@@ -146,6 +146,16 @@ async function handleAuthLogin(request, env = {}) {
   return json({ token });
 }
 
+
+function getSiteConfig(env = {}) {
+  const siteName = envValue(env, 'SITE_NAME') || 'vodhub';
+  return { siteName };
+}
+
+async function handleSiteConfig(env = {}) {
+  return json(getSiteConfig(env), { headers: { 'Cache-Control': 'public, max-age=300, s-maxage=300' } });
+}
+
 function isHttpUrl(value) {
   try {
     const u = new URL(value);
@@ -547,6 +557,10 @@ export async function handleApiRequest(request, env = {}) {
 
     if (path === '/api/auth/verify' && request.method === 'GET') {
       return (await requireAuth(request, env)) ? json({ ok: true }) : errorJson('未登录或登录已过期', 401);
+    }
+
+    if (path === '/api/site-config' && request.method === 'GET') {
+      return handleSiteConfig(env);
     }
 
     if (path.startsWith('/api/') && !(await requireAuth(request, env))) {

@@ -4,9 +4,9 @@ services:
     ports:
       - '3000:3000'
     environment:
+      - SITE_NAME=VODHUB
       - ADMIN_PASSWORD=your_password
       - AUTH_SECRET=change_me_to_a_long_random_string
       # - CONFIG_SUBSCRIPTION_URL=https://example.com/subscribe
       # - CONFIG_FILE=[]
       # - SEARCH_CONCURRENCY=5
-      # - VITE_SITE_NAME=VODHUB
