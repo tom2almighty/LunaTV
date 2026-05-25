@@ -1,6 +1,6 @@
-import { ChevronDown, Clock, LogOut, Menu, Search, User } from 'lucide-react';
+import { Clock, LogOut, Search, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,38 +17,20 @@ import { cn } from '@/lib/utils';
 interface NavLink {
   label: string;
   href: string;
+  match: (pathname: string) => boolean;
 }
 
 const LINKS: NavLink[] = [
-  { label: '首页', href: '/' },
-  { label: '搜索', href: '/search' },
-  { label: '电影', href: '/douban?type=movie' },
-  { label: '剧集', href: '/douban?type=tv' },
-  { label: '综艺', href: '/douban?type=show' },
+  { label: '首页', href: '/', match: (p) => p === '/' },
+  { label: '搜索', href: '/search', match: (p) => p === '/search' },
+  { label: '分类', href: '/douban', match: (p) => p === '/douban' },
 ];
 
-function isLinkActive(href: string, pathname: string, typeParam: string | null): boolean {
-  if (href === '/') return pathname === '/';
-  if (href === '/search') return pathname === '/search';
-  if (href.startsWith('/douban')) {
-    if (pathname !== '/douban') return false;
-    const hType = new URLSearchParams(href.split('?')[1]).get('type');
-    return typeParam === hType;
-  }
-  return false;
-}
-
-function DesktopLinks({
-  pathname,
-  typeParam,
-}: {
-  pathname: string;
-  typeParam: string | null;
-}) {
+function NavLinks({ pathname }: { pathname: string }) {
   return (
-    <div className="hidden items-center gap-1 xl:flex">
+    <div className="flex items-center gap-1">
       {LINKS.map((l) => {
-        const active = isLinkActive(l.href, pathname, typeParam);
+        const active = l.match(pathname);
         return (
           <Link
             key={l.href}
@@ -65,39 +47,6 @@ function DesktopLinks({
         );
       })}
     </div>
-  );
-}
-
-function MobileMenu({
-  pathname,
-  typeParam,
-}: {
-  pathname: string;
-  typeParam: string | null;
-}) {
-  const active = LINKS.find((l) => isLinkActive(l.href, pathname, typeParam));
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="xl:hidden gap-2 px-3" size="sm">
-          <Menu className="h-4 w-4" />
-          <span className="text-sm font-medium">{active?.label ?? '菜单'}</span>
-          <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-[10rem]">
-        {LINKS.map((l) => {
-          const isActive = isLinkActive(l.href, pathname, typeParam);
-          return (
-            <DropdownMenuItem key={l.href} asChild>
-              <Link to={l.href} data-active={isActive}>
-                {l.label}
-              </Link>
-            </DropdownMenuItem>
-          );
-        })}
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }
 
@@ -129,8 +78,6 @@ function UserMenu() {
 
 export function Navbar() {
   const location = useLocation();
-  const [searchParams] = useSearchParams();
-  const typeParam = searchParams.get('type');
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -153,8 +100,7 @@ export function Navbar() {
       <div className="mx-auto flex h-14 w-full max-w-[88rem] items-center gap-3 px-4 md:px-10 lg:px-14">
         <div className="flex min-w-0 flex-1 items-center gap-5">
           <BrandMark />
-          <MobileMenu pathname={location.pathname} typeParam={typeParam} />
-          <DesktopLinks pathname={location.pathname} typeParam={typeParam} />
+          <NavLinks pathname={location.pathname} />
         </div>
         <div className="flex items-center gap-1">
           <Button

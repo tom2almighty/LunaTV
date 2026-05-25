@@ -7,7 +7,7 @@ import { queryKeys } from '@/lib/query/keys';
 
 interface AuthContextValue {
   isAuthenticated: boolean;
-  setAuthenticated: (next: boolean, token?: string) => void;
+  setAuthenticated: (next: boolean, token?: string, persist?: boolean) => void;
   logout: () => void;
 }
 
@@ -42,8 +42,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [verifyOk, isAuthenticated]);
 
-  const setAuthenticated = useCallback((next: boolean, token?: string) => {
-    if (next && token) setAuthToken(token);
+  const setAuthenticated = useCallback((next: boolean, token?: string, persist?: boolean) => {
+    if (next && token) setAuthToken(token, !!persist);
     if (!next) clearAuthToken();
     setIsAuthenticated(next);
     if (!next) queryClient.clear();

@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { wasPersisted } from '@/lib/auth';
 import { useLogin } from '../hooks/useLogin';
 import { useSite } from '@/lib/hooks/useSite';
 
 export default function LoginPage() {
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(() => wasPersisted());
   const { siteName } = useSite();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -19,12 +21,15 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!password) return;
-    loginMutation.mutate(password, {
-      onSuccess: () => {
-        const redirect = searchParams.get('redirect') || '/';
-        navigate(redirect, { replace: true });
+    loginMutation.mutate(
+      { password, remember },
+      {
+        onSuccess: () => {
+          const redirect = searchParams.get('redirect') || '/';
+          navigate(redirect, { replace: true });
+        },
       },
-    });
+    );
   };
 
   return (
@@ -63,6 +68,20 @@ export default function LoginPage() {
                   />
                 </div>
               </div>
+
+              <label
+                htmlFor="remember"
+                className="flex cursor-pointer select-none items-center gap-2 text-sm text-muted-foreground"
+              >
+                <input
+                  id="remember"
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                  className="h-4 w-4 rounded border-border accent-primary"
+                />
+                记住密码
+              </label>
 
               {loginMutation.isError && (
                 <p className="text-center text-xs text-destructive" role="alert">
