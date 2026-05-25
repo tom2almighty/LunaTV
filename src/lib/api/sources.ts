@@ -1,13 +1,37 @@
 import type { SearchResult } from '@/lib/types';
-import { apiFetch } from './client';
+import { apiFetch, apiJson } from './client';
 
-export async function searchAllSources(query: string, signal?: AbortSignal): Promise<SearchResult[]> {
-  const trimmed = query.trim();
-  if (!trimmed) return [];
-  const resp = await apiFetch(`/api/search?q=${encodeURIComponent(trimmed)}`, { signal });
-  if (!resp.ok) throw new Error(`搜索失败: HTTP ${resp.status}`);
-  const data = (await resp.json()) as { items?: SearchResult[] };
-  return data.items || [];
+// ===== types =====
+
+export type PlaySessionMode = 'direct' | 'group' | 'search';
+
+export interface PlaySessionPayload {
+  mode: PlaySessionMode;
+  source?: string;
+  id?: string;
+  title?: string;
+  year?: string;
+  poster?: string;
+  source_name?: string;
+  type?: 'movie' | 'tv';
+  query?: string;
+  preferredSource?: string;
+  preferredId?: string;
+  candidates?: SearchResult[];
+  keyword?: string;
+  expectedTitle?: string;
+  expectedYear?: string;
+}
+
+export interface PlaySessionResponse {
+  detail: SearchResult;
+  available_sources: SearchResult[];
+  search_title: string;
+  current_source: string;
+  current_id: string;
+  title: string;
+  year: string;
+  type: 'movie' | 'tv';
 }
 
 export interface SearchStreamCallbacks {
@@ -17,18 +41,28 @@ export interface SearchStreamCallbacks {
   onComplete(totalResults: number, completedSources: number): void;
 }
 
+// ===== search =====
+
+export async function searchAllSources(query: string, signal?: AbortSignal): Promise<SearchResult[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+  const data = await apiJson<{ items?: SearchResult[] }>(
+    `/api/search?q=${encodeURIComponent(trimmed)}`,
+    { signal },
+  );
+  return data.items || [];
+}
+
 async function searchWithJsonFallback(
   query: string,
   cb: SearchStreamCallbacks,
   signal?: AbortSignal,
 ): Promise<void> {
-  const resp = await apiFetch(`/api/search?q=${encodeURIComponent(query)}`, { signal });
-  if (!resp.ok) throw new Error(`搜索失败: HTTP ${resp.status}`);
-  const data = (await resp.json()) as {
+  const data = await apiJson<{
     items?: SearchResult[];
     totalSources?: number;
     completedSources?: number;
-  };
+  }>(`/api/search?q=${encodeURIComponent(query)}`, { signal });
   const total = data.totalSources || 0;
   const completed = data.completedSources || total;
   cb.onStart(total);
@@ -110,4 +144,29 @@ export async function searchStream(
     if ((err as Error)?.name === 'AbortError') return;
     throw err;
   }
+}
+
+// ===== detail + play session =====
+
+export async function fetchSourceDetail(
+  source: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<SearchResult> {
+  return apiJson<SearchResult>(
+    `/api/detail?source=${encodeURIComponent(source)}&id=${encodeURIComponent(id)}`,
+    { signal },
+  );
+}
+
+export async function createPlaySession(
+  payload: PlaySessionPayload,
+  signal?: AbortSignal,
+): Promise<PlaySessionResponse> {
+  return apiJson<PlaySessionResponse>('/api/play-session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    signal,
+  });
 }

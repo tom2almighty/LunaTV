@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { clearSearchHistory, deleteSearchHistory } from '@/lib/db/search-history';
+import { clearSearchHistory, deleteSearchHistory } from '@/lib/db';
 import { useSearchHistory } from '../hooks/useSearchHistory';
 
 interface SearchHistoryChipsProps {

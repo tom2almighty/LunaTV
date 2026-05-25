@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { useSearchHistory } from '../hooks/useSearchHistory';
-import { deleteSearchHistory } from '@/lib/db/search-history';
+import { deleteSearchHistory } from '@/lib/db';
 
 interface SearchBarProps {
   value: string;

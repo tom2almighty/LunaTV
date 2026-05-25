@@ -1,11 +1,10 @@
 import { useMemo } from 'react';
 import { motion } from 'motion/react';
 import type { PlayRecord } from '@/lib/types';
-import { parseStorageKey } from '@/lib/db/keys';
+import { clearAllPlayRecords, parseStorageKey } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { PosterCard } from '@/components/media/PosterCard';
 import { PosterGrid } from '@/components/media/PosterGrid';
-import { clearAllPlayRecords } from '@/lib/db/play-records';
 
 interface HistorySectionProps {
   records: Record<string, PlayRecord>;

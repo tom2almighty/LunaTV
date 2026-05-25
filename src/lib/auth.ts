@@ -1,4 +1,4 @@
-export const AUTH_TOKEN_KEY = 'vodhub_auth_token';
+const AUTH_TOKEN_KEY = 'vodhub_auth_token';
 
 export function getAuthToken(): string {
   if (typeof window === 'undefined') return '';
@@ -19,7 +19,7 @@ export function clearAuthToken(): void {
   sessionStorage.removeItem(AUTH_TOKEN_KEY);
 }
 
-export function authHeaders(headers: HeadersInit = {}): Headers {
+function authHeaders(headers: HeadersInit = {}): Headers {
   const merged = new Headers(headers);
   const token = getAuthToken();
   if (token) merged.set('Authorization', `Bearer ${token}`);

@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import { getCachedRecommendations } from '@/lib/db/recommendations-cache';
+import { getCachedRecommendations } from '@/lib/db';
 import { queryKeys } from './keys';
 
 export const queryClient = new QueryClient({

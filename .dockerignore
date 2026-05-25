@@ -1,66 +1,58 @@
-# 环境变量文件
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build output
+dist
+*.tsbuildinfo
+
+# Env
 .env
 .env*.local
-.env.development
-.env.test
-
-# 构建输出
-.next
-out
-build
-dist
-.turbo
-
-# 依赖
-node_modules
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
 
 # Git
 .git
 .gitignore
 .gitattributes
 
-# IDE
+# CI / GitHub
+.github
+
+# Editor / IDE
 .vscode
 .idea
 *.swp
 *.swo
-*~
 
-# 测试
-coverage
-.nyc_output
-*.test.js
-*.spec.js
-__tests__
-__mocks__
-
-# 文档
-README.md
-CHANGELOG.md
-LICENSE
-*.md
-
-# CI/CD
-.github
-.gitlab-ci.yml
-.travis.yml
-
-# 系统文件
+# OS
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# Docker
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Docs not needed in image
+README.md
+LICENSE
+CHANGELOG.md
+*.md
+
+# Docker meta
 Dockerfile*
+compose.yaml
 docker-compose*.yml
 .dockerignore
 
-# 其他
-*.log
-.cache
-.temp
-tmp
+# Platform-specific function entrypoints (not used by Docker)
+api
+functions
+netlify
+
+# Agent / scratch
+.claude
+.agent
+.codex
+.worktrees
+_tmp_*

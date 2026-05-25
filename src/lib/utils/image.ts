@@ -1,4 +1,4 @@
-import { getAuthToken } from '@/lib/auth/token';
+import { getAuthToken } from '@/lib/auth';
 
 export function processImageUrl(originalUrl: string): string {
   if (!originalUrl) return originalUrl;

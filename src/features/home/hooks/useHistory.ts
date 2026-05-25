@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { PlayRecord } from '@/lib/types';
-import { subscribeToDataUpdates } from '@/lib/db/events';
+import { subscribeToDataUpdates } from '@/lib/db';
 import { playRecordsOptions } from '@/lib/query/options';
 import { queryKeys } from '@/lib/query/keys';
 

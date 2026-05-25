@@ -1,3 +1,3 @@
-import { handleApiRequest } from '../../../server/api-core.mjs';
+import { handleApiRequest } from '../../server/router.mjs';
 
 export const onRequest = ({ request, env }) => handleApiRequest(request, env);

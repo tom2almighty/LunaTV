@@ -1,4 +1,8 @@
-import { apiFetch } from './client';
+import { apiFetch, apiJson } from './client';
+
+export interface SiteConfig {
+  siteName: string;
+}
 
 export async function login(password: string): Promise<string | null> {
   const resp = await fetch('/api/auth/login', {
@@ -17,5 +21,14 @@ export async function verify(): Promise<boolean> {
     return resp.ok;
   } catch {
     return false;
+  }
+}
+
+export async function fetchSiteConfig(): Promise<SiteConfig> {
+  try {
+    const data = await apiJson<Partial<SiteConfig>>('/api/site-config');
+    return { siteName: data?.siteName || 'vodhub' };
+  } catch {
+    return { siteName: 'vodhub' };
   }
 }

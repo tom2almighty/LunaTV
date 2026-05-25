@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleApiRequest } from './server/api-core.mjs';
+import { handleApiRequest } from './server/router.mjs';
 
 const app = express();
 
@@ -24,8 +24,9 @@ async function sendWebResponse(webResp, res) {
   }
 }
 
-// Development/legacy convenience only. Static SaaS deployments should use the
-// platform functions in api/, functions/ or netlify/functions/.
+// Used by Docker / Node self-hosted deployments. Edge platforms instead
+// use api/[...path].mjs (Vercel), functions/api/[[path]].js (Cloudflare Pages),
+// or netlify/functions/api.mjs (Netlify).
 app.use('/api', (req, res) => {
   const origin = `${req.protocol}://${req.headers.host || 'localhost'}`;
   const chunks = [];

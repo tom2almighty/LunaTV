@@ -2,8 +2,8 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore — JS module shared by dev middleware and serverless functions
-import { handleApiRequest } from './server/api-core.mjs';
+// @ts-ignore — shared between vite dev middleware and platform functions
+import { handleApiRequest } from './server/router.mjs';
 
 async function sendWebResponse(webResp: Response, res: import('http').ServerResponse) {
   res.statusCode = webResp.status;

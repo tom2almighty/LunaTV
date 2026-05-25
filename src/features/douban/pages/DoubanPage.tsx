@@ -4,20 +4,19 @@ import type { RecommendationItem } from '@/lib/types';
 import { PosterCard } from '@/components/media/PosterCard';
 import { PosterGrid } from '@/components/media/PosterGrid';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CategoryTabs, useDoubanType, type DoubanType } from '../components/CategoryTabs';
-import { useDoubanCategory, type DoubanCategoryKey } from '../hooks/useDoubanCategory';
-
-const CONFIG: Record<DoubanType, DoubanCategoryKey> = {
-  movie: { kind: 'movie', category: '热门', type: '全部' },
-  tv: { kind: 'tv', category: 'tv', type: 'tv' },
-  show: { kind: 'tv', category: 'show', type: 'show' },
-};
+import { CategoryTabs, SubcategoryChips, useDoubanType } from '../components/CategoryTabs';
+import { useDoubanCategory } from '../hooks/useDoubanCategory';
+import { useDoubanCategories } from '../hooks/useDoubanCategories';
 
 export default function DoubanPage() {
-  const { value: type, setValue: setType } = useDoubanType();
+  const { kind, setKind, type, setType } = useDoubanType();
+  const categories = useDoubanCategories();
   const loaderRef = useRef<HTMLDivElement>(null);
 
-  const query = useDoubanCategory(CONFIG[type]);
+  const options = categories[kind] || [];
+  const activeType = options.includes(type) ? type : options[0] || '';
+
+  const query = useDoubanCategory({ kind, type: activeType });
   const items = useMemo<RecommendationItem[]>(
     () => query.data?.pages.flatMap((p) => p.items) ?? [],
     [query.data],
@@ -41,10 +40,16 @@ export default function DoubanPage() {
 
   return (
     <div className="app-page">
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-4 flex items-center justify-between gap-4">
         <h1 className="text-xl font-semibold tracking-tight md:text-2xl">分类</h1>
-        <CategoryTabs value={type} onChange={setType} />
+        <CategoryTabs value={kind} onChange={setKind} />
       </div>
+
+      {options.length > 1 && (
+        <div className="mb-6">
+          <SubcategoryChips options={options} value={activeType} onChange={setType} />
+        </div>
+      )}
 
       {isInitialLoading ? (
         <PosterGrid>
@@ -68,7 +73,7 @@ export default function DoubanPage() {
                 year={item.year}
                 rating={item.rating}
                 doubanId={Number(item.id)}
-                doubanType={type}
+                doubanType={kind}
               />
             </motion.div>
           ))}

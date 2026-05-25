@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { addSearchHistory } from '@/lib/db/search-history';
+import { addSearchHistory } from '@/lib/db';
 import { SearchBar } from '../components/SearchBar';
 import { SearchProgress } from '../components/SearchProgress';
 import { SearchResultsGrid } from '../components/SearchResultsGrid';

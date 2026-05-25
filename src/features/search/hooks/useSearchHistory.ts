@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
-import { getSearchHistory } from '@/lib/db/search-history';
-import { subscribeToDataUpdates } from '@/lib/db/events';
+import { getSearchHistory, subscribeToDataUpdates } from '@/lib/db';
 import { queryKeys } from '@/lib/query/keys';
 
 export function useSearchHistory(): UseQueryResult<string[], Error> {

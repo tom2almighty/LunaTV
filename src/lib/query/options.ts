@@ -1,13 +1,17 @@
 import { queryOptions } from '@tanstack/react-query';
-import { fetchSiteConfig } from '@/lib/api/site';
-import { fetchSourceDetail } from '@/lib/api/detail';
-import { fetchDoubanCategory, type DoubanCategoryParams } from '@/lib/api/douban';
-import { getAllPlayRecords } from '@/lib/db/play-records';
-import { getSearchHistory } from '@/lib/db/search-history';
+import { fetchSiteConfig } from '@/lib/api/auth';
+import { fetchSourceDetail } from '@/lib/api/sources';
+import {
+  fetchDoubanCategories,
+  fetchDoubanCategory,
+  type DoubanCategoryParams,
+} from '@/lib/api/douban';
+import { getAllPlayRecords, getSearchHistory } from '@/lib/db';
 import { queryKeys } from './keys';
 
 const THIRTY_MINUTES = 30 * 60 * 1000;
 const FIVE_MINUTES = 5 * 60 * 1000;
+const ONE_DAY = 24 * 60 * 60 * 1000;
 
 export const siteOptions = () =>
   queryOptions({
@@ -25,13 +29,16 @@ export const detailOptions = (source: string, id: string) =>
 
 export const doubanCategoryOptions = (params: DoubanCategoryParams) =>
   queryOptions({
-    queryKey: queryKeys.douban({
-      kind: params.kind,
-      category: params.category,
-      type: params.type,
-    }),
+    queryKey: queryKeys.douban({ kind: params.kind, type: params.type }),
     queryFn: ({ signal }) => fetchDoubanCategory(params, signal),
     staleTime: THIRTY_MINUTES,
+  });
+
+export const doubanCategoriesOptions = () =>
+  queryOptions({
+    queryKey: queryKeys.doubanCategories,
+    queryFn: ({ signal }) => fetchDoubanCategories(signal),
+    staleTime: ONE_DAY,
   });
 
 export const playRecordsOptions = () =>

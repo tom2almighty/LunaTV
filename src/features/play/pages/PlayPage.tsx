@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import type { MediaTimeUpdateEventDetail } from '@vidstack/react';
 import { Button } from '@/components/ui/button';
 import type { SearchResult } from '@/lib/types';
-import { fetchSourceDetail, type PlaySessionResponse } from '@/lib/api/detail';
+import { fetchSourceDetail, type PlaySessionResponse } from '@/lib/api/sources';
 import {
   generateStorageKey,
   getAllPlayRecords,
@@ -256,7 +256,7 @@ export default function PlayPage() {
 
   return (
     <div className="app-page">
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div
           className="relative overflow-hidden rounded-2xl border border-border bg-black shadow-lg"
           style={{ aspectRatio: '16 / 9' }}
@@ -287,19 +287,23 @@ export default function PlayPage() {
           )}
         </div>
 
-        {/* On mobile, panel stacks below player; no Drawer/Sheet. */}
-        <aside className="min-h-0 lg:sticky lg:top-20 lg:max-h-[calc(100vh-7rem)] lg:self-stretch">
-          <PlaybackPanel
-            totalEpisodes={detail?.episodes?.length || 0}
-            episodesTitles={detail?.episodes_titles || []}
-            episodeValue={episodeIndex + 1}
-            onEpisodeChange={handleEpisodeChange}
-            currentSource={currentSource}
-            currentId={currentId}
-            availableSources={availableSources}
-            onSourceChange={handleSourceChange}
-          />
-        </aside>
+        {/* lg+: wrapper is positioned, panel fills via absolute so the grid row */}
+        {/* height is governed entirely by the player's aspect-ratio.            */}
+        {/* mobile: panel stacks below in normal flow.                            */}
+        <div className="lg:relative">
+          <aside className="min-h-0 lg:absolute lg:inset-0">
+            <PlaybackPanel
+              totalEpisodes={detail?.episodes?.length || 0}
+              episodesTitles={detail?.episodes_titles || []}
+              episodeValue={episodeIndex + 1}
+              onEpisodeChange={handleEpisodeChange}
+              currentSource={currentSource}
+              currentId={currentId}
+              availableSources={availableSources}
+              onSourceChange={handleSourceChange}
+            />
+          </aside>
+        </div>
       </div>
 
       <DetailMeta
