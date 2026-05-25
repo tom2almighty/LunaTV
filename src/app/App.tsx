@@ -7,6 +7,7 @@ import { Navbar } from '@/components/shell/Navbar';
 import { BackToTop } from '@/components/shell/BackToTop';
 
 const HomePage = lazy(() => import('@/features/home/pages/HomePage'));
+const HistoryPage = lazy(() => import('@/features/home/pages/HistoryPage'));
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'));
 const SearchPage = lazy(() => import('@/features/search/pages/SearchPage'));
 const DoubanPage = lazy(() => import('@/features/douban/pages/DoubanPage'));
@@ -36,6 +37,7 @@ function AnimatedRoutes() {
             <Route path="/" element={<HomePage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/douban" element={<DoubanPage />} />
+            <Route path="/history" element={<HistoryPage />} />
             <Route path="/play" element={<PlayPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

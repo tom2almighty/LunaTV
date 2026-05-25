@@ -81,7 +81,8 @@ jobs:
         id: img
         run: |
           owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
-          echo "name=${{ env.REGISTRY }}/${owner}/lunatv" >> "$GITHUB_OUTPUT"
+          repo="$(echo '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')"
+          echo "name=${{ env.REGISTRY }}/${owner}/${repo}" >> "$GITHUB_OUTPUT"
 
       - name: Extract metadata
         id: meta

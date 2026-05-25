@@ -1,15 +1,8 @@
-import { Clock, Compass, Home as HomeIcon, LogOut, Search, User } from 'lucide-react';
+import { Clock, Compass, Home as HomeIcon, LogOut, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { BrandMark } from './BrandMark';
 import { useAuth } from '@/features/auth/AuthContext';
@@ -26,12 +19,12 @@ const LINKS: NavLink[] = [
   { label: '首页', href: '/', icon: HomeIcon, match: (p) => p === '/' },
   { label: '搜索', href: '/search', icon: Search, match: (p) => p === '/search' },
   { label: '分类', href: '/douban', icon: Compass, match: (p) => p === '/douban' },
+  { label: '历史', href: '/history', icon: Clock, match: (p) => p === '/history' },
 ];
 
 /**
- * Segmented pill nav, modeled after the shadcn Tabs trigger style used on
- * the home page. Labels collapse to icons on small screens to keep things
- * tidy on phones.
+ * Segmented pill nav, modeled after the shadcn Tabs trigger style. Labels
+ * collapse to icons on small screens to keep things tidy on phones.
  */
 function NavLinks({ pathname }: { pathname: string }) {
   return (
@@ -60,29 +53,18 @@ function NavLinks({ pathname }: { pathname: string }) {
   );
 }
 
-function UserMenu() {
+function LogoutButton() {
   const { logout } = useAuth();
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="账户">
-          <User className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[10rem]">
-        <DropdownMenuItem asChild>
-          <Link to="/?tab=history">
-            <Clock className="mr-2 h-4 w-4" />
-            历史记录
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive">
-          <LogOut className="mr-2 h-4 w-4" />
-          退出登录
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label="退出登录"
+      title="退出登录"
+      onClick={logout}
+    >
+      <LogOut className="h-4 w-4" />
+    </Button>
   );
 }
 
@@ -114,7 +96,7 @@ export function Navbar() {
         </div>
         <div className="flex items-center gap-1">
           <ThemeToggle />
-          <UserMenu />
+          <LogoutButton />
         </div>
       </div>
     </nav>

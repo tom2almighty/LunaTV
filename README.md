@@ -2,6 +2,15 @@
 
 Mac CMS 聚合，基于 React + Vite + [@ouonnki/cms-core](https://www.npmjs.com/package/@ouonnki/cms-core)，支持 Vercel、Cloudflare Pages、Netlify 与 Docker 部署。
 
+## 部署
+
+| 平台             | 入口                          | 说明                       |
+| ---------------- | ----------------------------- | -------------------------- |
+| Vercel           | `api/[...path].mjs`           | 自动识别 Edge Functions    |
+| Cloudflare Pages | `functions/api/[[path]].js`   | Pages Functions            |
+| Netlify          | `netlify/functions/api.mjs`   | `netlify.toml` 已配置      |
+| Docker           | `Dockerfile` + `compose.yaml` | `pnpm prod` 走 `server.js` |
+
 ## 环境变量
 
 | 变量                 | 必填   | 说明                                       |
