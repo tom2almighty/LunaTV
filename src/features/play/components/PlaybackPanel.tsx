@@ -1,4 +1,3 @@
-import { Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -101,7 +100,7 @@ export function PlaybackPanel({
         <TabsContent value="sources" className="m-0 flex-1 overflow-hidden">
           {availableSources.length > 0 ? (
             <ScrollArea className="h-full">
-              <div className="space-y-0.5 p-2">
+              <div className="grid grid-cols-2 gap-1.5 p-3 sm:grid-cols-3 lg:grid-cols-3">
                 {availableSources.map((src) => {
                   const key = `${src.source}+${src.id}`;
                   const isActive = activeKey === key;
@@ -112,25 +111,20 @@ export function PlaybackPanel({
                       type="button"
                       onClick={() => handleSourceClick(src)}
                       disabled={isLoading}
+                      title={src.source_name}
                       data-active={isActive}
                       className={cn(
-                        'flex w-full min-h-11 items-center gap-2.5 rounded-md border border-transparent px-3 py-2 text-left text-sm transition-colors disabled:cursor-wait',
-                        'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                        'flex h-10 min-w-0 items-center justify-center rounded-md border border-transparent px-2',
+                        'text-xs font-medium transition-colors disabled:cursor-wait',
+                        'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground',
                         'data-[active=true]:border-primary/30 data-[active=true]:bg-primary/15 data-[active=true]:text-foreground',
                       )}
                     >
-                      <span
-                        className={cn(
-                          'h-1.5 w-1.5 shrink-0 rounded-full transition-colors',
-                          isActive ? 'bg-primary' : 'bg-muted-foreground/40',
-                        )}
-                      />
-                      <span className="flex-1 truncate">{src.source_name}</span>
                       {isLoading ? (
-                        <span className="inline-block h-3 w-3 shrink-0 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground" />
-                      ) : isActive ? (
-                        <Check className="h-3.5 w-3.5 shrink-0 text-primary" strokeWidth={2.5} />
-                      ) : null}
+                        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground" />
+                      ) : (
+                        <span className="block truncate">{src.source_name}</span>
+                      )}
                     </button>
                   );
                 })}

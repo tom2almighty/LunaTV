@@ -1,6 +1,7 @@
-import { Clock, LogOut, Search, User } from 'lucide-react';
+import { Clock, Compass, Home as HomeIcon, LogOut, Search, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,32 +18,41 @@ import { cn } from '@/lib/utils';
 interface NavLink {
   label: string;
   href: string;
+  icon: LucideIcon;
   match: (pathname: string) => boolean;
 }
 
 const LINKS: NavLink[] = [
-  { label: '首页', href: '/', match: (p) => p === '/' },
-  { label: '搜索', href: '/search', match: (p) => p === '/search' },
-  { label: '分类', href: '/douban', match: (p) => p === '/douban' },
+  { label: '首页', href: '/', icon: HomeIcon, match: (p) => p === '/' },
+  { label: '搜索', href: '/search', icon: Search, match: (p) => p === '/search' },
+  { label: '分类', href: '/douban', icon: Compass, match: (p) => p === '/douban' },
 ];
 
+/**
+ * Segmented pill nav, modeled after the shadcn Tabs trigger style used on
+ * the home page. Labels collapse to icons on small screens to keep things
+ * tidy on phones.
+ */
 function NavLinks({ pathname }: { pathname: string }) {
   return (
-    <div className="flex items-center gap-1">
+    <div className="inline-flex h-9 items-center rounded-md bg-muted p-1 text-muted-foreground">
       {LINKS.map((l) => {
+        const Icon = l.icon;
         const active = l.match(pathname);
         return (
           <Link
             key={l.href}
             to={l.href}
             data-active={active}
+            aria-label={l.label}
             className={cn(
-              'relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-              'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-              'data-[active=true]:bg-secondary data-[active=true]:text-secondary-foreground',
+              'inline-flex h-7 items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 text-sm font-medium transition-all sm:px-5',
+              'hover:text-foreground',
+              'data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm',
             )}
           >
-            {l.label}
+            <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+            <span className="hidden sm:inline">{l.label}</span>
           </Link>
         );
       })}
@@ -103,18 +113,6 @@ export function Navbar() {
           <NavLinks pathname={location.pathname} />
         </div>
         <div className="flex items-center gap-1">
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
-            aria-label="搜索"
-            data-active={location.pathname === '/search'}
-            className="data-[active=true]:bg-secondary"
-          >
-            <Link to="/search">
-              <Search className="h-4 w-4" />
-            </Link>
-          </Button>
           <ThemeToggle />
           <UserMenu />
         </div>
