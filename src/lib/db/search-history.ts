@@ -1,4 +1,5 @@
 import { cacheManager } from './cache-manager';
+import { dispatchDataUpdate } from './events';
 
 const SEARCH_HISTORY_LIMIT = 20;
 
@@ -13,16 +14,18 @@ export async function addSearchHistory(keyword: string): Promise<void> {
   const history = cacheManager.getCachedSearchHistory() || [];
   const next = [trimmed, ...history.filter((k) => k !== trimmed)].slice(0, SEARCH_HISTORY_LIMIT);
   cacheManager.cacheSearchHistory(next);
-  window.dispatchEvent(new CustomEvent('searchHistoryUpdated', { detail: next }));
+  dispatchDataUpdate('searchHistoryUpdated', next);
 }
 
 export async function deleteSearchHistory(keyword: string): Promise<void> {
-  const next = (cacheManager.getCachedSearchHistory() || []).filter((k) => k !== keyword.trim());
+  const next = (cacheManager.getCachedSearchHistory() || []).filter(
+    (k) => k !== keyword.trim(),
+  );
   cacheManager.cacheSearchHistory(next);
-  window.dispatchEvent(new CustomEvent('searchHistoryUpdated', { detail: next }));
+  dispatchDataUpdate('searchHistoryUpdated', next);
 }
 
 export async function clearSearchHistory(): Promise<void> {
   cacheManager.cacheSearchHistory([]);
-  window.dispatchEvent(new CustomEvent('searchHistoryUpdated', { detail: [] }));
+  dispatchDataUpdate('searchHistoryUpdated', []);
 }
