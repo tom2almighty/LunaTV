@@ -1,6 +1,10 @@
 services:
   vodhub:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/tom2almighty/vodhub:latest
+    container_name: vodhub
     ports:
       - '3000:3000'
     environment:

@@ -1,21 +1,20 @@
-import { json, errorJson, text } from '../lib/response.mjs';
 import { loadSources } from '../lib/sources.mjs';
 import { createClient, mapItem } from '../lib/cms.mjs';
 
-export async function search(request, env) {
-  const url = new URL(request.url);
-  const query = (url.searchParams.get('q') || '').trim();
-  if (!query) return errorJson('缺少搜索关键词', 400);
-  return json(await aggregate(query, env));
+export async function search(c) {
+  const query = (c.req.query('q') || '').trim();
+  if (!query) return c.json({ error: '缺少搜索关键词' }, 400);
+  return c.json(await aggregate(query, c.env));
 }
 
-export async function searchStream(request, env) {
-  const url = new URL(request.url);
-  const query = (url.searchParams.get('q') || '').trim();
-  if (!query) return errorJson('缺少搜索关键词', 400);
+export function searchStream(c) {
+  const env = c.env;
+  const query = (c.req.query('q') || '').trim();
+  if (!query) return c.json({ error: '缺少搜索关键词' }, 400);
 
+  const signal = c.req.raw.signal;
   const encoder = new TextEncoder();
-  const stream = new ReadableStream({
+  const body = new ReadableStream({
     async start(controller) {
       let closed = false;
       const send = (event) => {
@@ -54,7 +53,7 @@ export async function searchStream(request, env) {
         });
 
         try {
-          await cms.aggregatedSearch(query, sources, 1, request.signal);
+          await cms.aggregatedSearch(query, sources, 1, signal);
         } finally {
           unsubResult();
           unsubProgress();
@@ -68,11 +67,10 @@ export async function searchStream(request, env) {
     },
   });
 
-  return new Response(stream, {
+  return new Response(body, {
     headers: {
       'Content-Type': 'application/x-ndjson; charset=utf-8',
       'Cache-Control': 'no-store',
-      'Access-Control-Allow-Origin': '*',
     },
   });
 }
@@ -90,6 +88,3 @@ export async function aggregate(query, env) {
     completedSources: sources.length,
   };
 }
-
-// re-export text so router can import from a single place if needed
-export { text };

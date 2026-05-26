@@ -2,6 +2,10 @@
   command = "pnpm build"
   publish = "dist"
 
+[[edge_functions]]
+  function = "api"
+  path = "/api/*"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

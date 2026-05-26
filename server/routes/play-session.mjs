@@ -1,4 +1,3 @@
-import { json, errorJson } from '../lib/response.mjs';
 import { findSource } from '../lib/sources.mjs';
 import { normalizeYear } from '../lib/cms.mjs';
 import { fetchDetail } from './detail.mjs';
@@ -33,7 +32,7 @@ async function resolveCandidates(payload, env) {
 
   if (mode === 'group') {
     const list = Array.isArray(payload.candidates) ? payload.candidates : [];
-    const filtered = list.filter((c) => c?.source && c?.id);
+    const filtered = list.filter((cand) => cand?.source && cand?.id);
     if (filtered.length === 0) throw new Error('缺少候选播放源');
     return filtered;
   }
@@ -64,15 +63,16 @@ async function resolveCandidates(payload, env) {
   throw new Error('无效的模式');
 }
 
-export async function playSession(request, env) {
-  const payload = await request.json().catch(() => null);
-  if (!payload) return errorJson('请求体格式无效', 400);
+export async function playSession(c) {
+  const env = c.env;
+  const payload = await c.req.json().catch(() => null);
+  if (!payload) return c.json({ error: '请求体格式无效' }, 400);
 
   let candidates;
   try {
     candidates = await resolveCandidates(payload, env);
   } catch (err) {
-    return errorJson(err instanceof Error ? err.message : '加载播放源失败', 400);
+    return c.json({ error: err instanceof Error ? err.message : '加载播放源失败' }, 400);
   }
 
   const preferredSource = payload.preferredSource ? String(payload.preferredSource) : '';
@@ -81,11 +81,9 @@ export async function playSession(request, env) {
   const currentSource = useChoice ? preferredSource : candidates[0].source;
   const currentId = useChoice ? preferredId : candidates[0].id;
 
-  const chosen = candidates.find((c) => c.source === currentSource && c.id === currentId)
+  const chosen = candidates.find((cand) => cand.source === currentSource && cand.id === currentId)
     || candidates[0];
 
-  // If the candidate already has episodes (parsed from search), use it as-is.
-  // Otherwise fetch detail to obtain playable URLs.
   let detail;
   if (chosen.episodes?.length) {
     detail = chosen;
@@ -98,7 +96,7 @@ export async function playSession(request, env) {
   const year = normalizeYear(payload.year || detail.year);
   const type = detail.episodes?.length > 1 ? 'tv' : 'movie';
 
-  return json({
+  return c.json({
     detail,
     available_sources: candidates,
     search_title: String(payload.query || ''),

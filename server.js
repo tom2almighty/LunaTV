@@ -1,57 +1,21 @@
-import express from 'express';
-import compression from 'compression';
-import { handleApiRequest } from './server/router.mjs';
+import { serve } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
+import { Hono } from 'hono';
+import { compress } from 'hono/compress';
+import apiApp from './server/app.mjs';
 
-const app = express();
+const app = new Hono();
 
-app.use(compression());
+app.use('*', compress());
 
-async function sendWebResponse(webResp, res) {
-  res.status(webResp.status);
-  webResp.headers.forEach((value, key) => res.setHeader(key, value));
-  if (!webResp.body) {
-    res.end();
-    return;
-  }
-  const reader = webResp.body.getReader();
-  try {
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      if (value) res.write(Buffer.from(value));
-    }
-    res.end();
-  } catch {
-    if (!res.headersSent) res.status(500);
-    res.end('api error');
-  }
-}
+app.route('/', apiApp);
 
-// Used by Docker / Node self-hosted deployments. Edge platforms instead
-// use api/[...path].mjs (Vercel), functions/api/[[path]].js (Cloudflare Pages),
-// or netlify/functions/api.mjs (Netlify).
-app.use('/api', (req, res) => {
-  const origin = `${req.protocol}://${req.headers.host || 'localhost'}`;
-  const chunks = [];
-  req.on('data', (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
-  req.on('end', () => {
-    const body = chunks.length ? Buffer.concat(chunks) : undefined;
-    const request = new Request(new URL(req.originalUrl || req.url || '/', origin), {
-      method: req.method,
-      headers: req.headers,
-      body,
-      duplex: body ? 'half' : undefined,
-    });
-    handleApiRequest(request).then((webResp) => sendWebResponse(webResp, res));
-  });
-});
+app.use('/assets/*', serveStatic({ root: './dist' }));
+app.use('*', serveStatic({ root: './dist' }));
 
-app.use(express.static('dist'));
+// SPA fallback for client-side routes
+app.get('*', serveStatic({ path: './dist/index.html' }));
 
-app.use((_req, res) => {
-  res.sendFile('dist/index.html', { root: process.cwd() });
-});
-
-app.listen(Number(process.env.PORT) || 3000, '0.0.0.0', () => {
-  console.log(`vodhub running on port ${process.env.PORT || 3000}`);
-});
+const port = Number(process.env.PORT) || 3000;
+serve({ fetch: app.fetch, port, hostname: '0.0.0.0' });
+console.log(`vodhub running on port ${port}`);
