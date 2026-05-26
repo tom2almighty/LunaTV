@@ -10,9 +10,69 @@ import {
 import {
   DefaultVideoLayout,
   defaultLayoutIcons,
+  type DefaultLayoutTranslations,
 } from '@vidstack/react/player/layouts/default';
 import '@vidstack/react/player/styles/default/theme.css';
 import '@vidstack/react/player/styles/default/layouts/video.css';
+
+const ZH_CN: DefaultLayoutTranslations = {
+  'Caption Styles': '字幕样式',
+  'Captions look like this': '字幕显示效果如下',
+  'Closed-Captions Off': '已关闭字幕',
+  'Closed-Captions On': '已开启字幕',
+  'Display Background': '显示背景',
+  'Enter Fullscreen': '进入全屏',
+  'Enter PiP': '进入画中画',
+  'Exit Fullscreen': '退出全屏',
+  'Exit PiP': '退出画中画',
+  'Google Cast': 'Google 投屏',
+  'Keyboard Animations': '键盘动画',
+  'Seek Backward': '后退',
+  'Seek Forward': '快进',
+  'Skip To Live': '跳到直播',
+  'Text Background': '文字背景',
+  Accessibility: '辅助功能',
+  AirPlay: 'AirPlay 投屏',
+  Announcements: '播报',
+  Audio: '音轨',
+  Auto: '自动',
+  Boost: '音量增强',
+  Captions: '字幕',
+  Chapters: '章节',
+  Color: '颜色',
+  Connected: '已连接',
+  Connecting: '连接中',
+  Continue: '继续播放',
+  Default: '默认',
+  Disabled: '已禁用',
+  Disconnected: '已断开',
+  Download: '下载',
+  Family: '字体',
+  Font: '字形',
+  Fullscreen: '全屏',
+  LIVE: '直播',
+  Loop: '循环',
+  Mute: '静音',
+  Normal: '标准',
+  Off: '关闭',
+  Opacity: '不透明度',
+  Pause: '暂停',
+  PiP: '画中画',
+  Play: '播放',
+  Playback: '播放',
+  Quality: '画质',
+  Replay: '重新播放',
+  Reset: '重置',
+  Seek: '进度',
+  Settings: '设置',
+  Shadow: '阴影',
+  Size: '大小',
+  Speed: '倍速',
+  Text: '文字',
+  Track: '轨道',
+  Unmute: '取消静音',
+  Volume: '音量',
+};
 
 export interface VidstackPlayerProps {
   src: string;
@@ -95,7 +155,7 @@ export function VidstackPlayer({
       <MediaProvider>
         {poster && <Poster src={poster} alt={title ?? ''} className="vds-poster" />}
       </MediaProvider>
-      <DefaultVideoLayout icons={defaultLayoutIcons} />
+      <DefaultVideoLayout icons={defaultLayoutIcons} translations={ZH_CN} />
     </MediaPlayer>
   );
 }
