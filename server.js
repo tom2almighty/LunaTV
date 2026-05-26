@@ -1,7 +1,10 @@
 import express from 'express';
+import compression from 'compression';
 import { handleApiRequest } from './server/router.mjs';
 
 const app = express();
+
+app.use(compression());
 
 async function sendWebResponse(webResp, res) {
   res.status(webResp.status);

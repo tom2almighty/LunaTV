@@ -61,6 +61,31 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       port: 3000,
     },
+    build: {
+      chunkSizeWarningLimit: 800,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            radix: [
+              '@radix-ui/react-dialog',
+              '@radix-ui/react-dropdown-menu',
+              '@radix-ui/react-label',
+              '@radix-ui/react-navigation-menu',
+              '@radix-ui/react-popover',
+              '@radix-ui/react-progress',
+              '@radix-ui/react-scroll-area',
+              '@radix-ui/react-separator',
+              '@radix-ui/react-slot',
+              '@radix-ui/react-tabs',
+              '@radix-ui/react-tooltip',
+            ],
+            motion: ['motion'],
+            query: ['@tanstack/react-query'],
+          },
+        },
+      },
+    },
     resolve: {
       alias: {
         '@': '/src',
