@@ -64,6 +64,7 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: {
             'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            hls: ['hls.js'],
             radix: [
               '@radix-ui/react-dialog',
               '@radix-ui/react-dropdown-menu',
@@ -87,9 +88,12 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': '/src',
         '~': '/public',
-        // @ouonnki/cms-core has a broken "development" export pointing to non-existent src/
-        '@ouonnki/cms-core': '/node_modules/@ouonnki/cms-core/dist/index.js',
+        // @ouonnki/cms-core has a broken "development" export pointing to non-existent src/.
+        // The /m3u8 subpath must precede the bare alias — vite matches alias keys in order
+        // and the bare key is a prefix of the subpath, so it would otherwise win and produce
+        // `dist/index.js/m3u8`.
         '@ouonnki/cms-core/m3u8': '/node_modules/@ouonnki/cms-core/dist/m3u8/index.js',
+        '@ouonnki/cms-core': '/node_modules/@ouonnki/cms-core/dist/index.js',
       },
       conditions: ['import', 'module', 'browser', 'default'],
     },
