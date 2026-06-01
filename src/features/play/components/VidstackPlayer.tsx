@@ -10,13 +10,14 @@ import {
   type MediaTimeUpdateEventDetail,
 } from '@vidstack/react';
 import {
+  DefaultMenuCheckbox,
+  DefaultMenuSection,
   DefaultVideoLayout,
   defaultLayoutIcons,
   type DefaultLayoutTranslations,
 } from '@vidstack/react/player/layouts/default';
 import { createHlsLoaderClass, createM3u8Processor } from '@ouonnki/cms-core/m3u8';
-import { ShieldBan } from 'lucide-react';
-import { cn, processImageUrl } from '@/lib/utils';
+import { processImageUrl } from '@/lib/utils';
 import '@vidstack/react/player/styles/default/theme.css';
 import '@vidstack/react/player/styles/default/layouts/video.css';
 
@@ -85,22 +86,6 @@ const ZH_CN: DefaultLayoutTranslations = {
 // to the provider below.
 const adProcessor = createM3u8Processor({ filterAds: true });
 const AdFilterLoader = createHlsLoaderClass({ m3u8Processor: adProcessor, Hls });
-
-function AdFilterButton({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
-  return (
-    <button
-      type="button"
-      className="vds-button"
-      data-active={enabled}
-      aria-pressed={enabled}
-      aria-label={enabled ? '去广告：已开启' : '去广告：已关闭'}
-      title={enabled ? '去广告：已开启（点击关闭）' : '去广告：已关闭（点击开启）'}
-      onClick={onToggle}
-    >
-      <ShieldBan className={cn('vds-icon', !enabled && 'opacity-50')} />
-    </button>
-  );
-}
 
 export interface VidstackPlayerProps {
   src: string;
@@ -244,7 +229,17 @@ export function VidstackPlayer({
         translations={ZH_CN}
         slots={
           onToggleAdFilter
-            ? { beforeFullscreenButton: <AdFilterButton enabled={adFilterEnabled} onToggle={onToggleAdFilter} /> }
+            ? {
+                settingsMenuItemsEnd: (
+                  <DefaultMenuSection>
+                    <DefaultMenuCheckbox
+                      label="去广告"
+                      checked={adFilterEnabled}
+                      onChange={() => onToggleAdFilter()}
+                    />
+                  </DefaultMenuSection>
+                ),
+              }
             : undefined
         }
       />
