@@ -13,7 +13,6 @@ import {
 } from '@/lib/db';
 import { VidstackPlayer } from '../components/VidstackPlayer';
 import { PlaybackPanel } from '../components/PlaybackPanel';
-import { DetailMeta } from '../components/DetailMeta';
 
 const SESSION_KEY = 'vodhub_play_session';
 const PROGRESS_SAVE_INTERVAL_MS = 5000;
@@ -312,21 +311,20 @@ export default function PlayPage() {
               currentId={currentId}
               availableSources={availableSources}
               onSourceChange={handleSourceChange}
+              info={{
+                title,
+                year: detail?.year || year,
+                currentEpisodeTitle: detail?.episodes_titles?.[episodeIndex],
+                typeName: detail?.type_name,
+                area: detail?.area,
+                remark: detail?.remark,
+                sourceName: detail?.source_name,
+                desc: detail?.desc,
+              }}
             />
           </aside>
         </div>
       </div>
-
-      <DetailMeta
-        title={title}
-        year={detail?.year || year}
-        currentEpisodeTitle={detail?.episodes_titles?.[episodeIndex]}
-        typeName={detail?.type_name}
-        area={detail?.area}
-        remark={detail?.remark}
-        sourceName={detail?.source_name}
-        desc={detail?.desc}
-      />
     </div>
   );
 }

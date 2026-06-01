@@ -24,15 +24,15 @@ export function DetailMeta({
 }: DetailMetaProps) {
   const cleanDesc = desc ? stripDescriptionHtml(desc) : '';
   return (
-    <section className="mt-8 rounded-2xl border border-border bg-card p-5 sm:p-7">
-      <h1 className="text-2xl font-bold tracking-tight sm:text-[1.75rem]">{title}</h1>
+    <div>
+      <h1 className="text-xl font-bold tracking-tight">{title}</h1>
       {currentEpisodeTitle && (
         <p className="mt-1.5 text-sm text-muted-foreground">
           正在播放 · {currentEpisodeTitle}
         </p>
       )}
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-2">
         {typeName && <Badge variant="default">{typeName}</Badge>}
         {year && <Badge variant="secondary">{year}</Badge>}
         {area && <Badge variant="secondary">{area}</Badge>}
@@ -42,7 +42,7 @@ export function DetailMeta({
 
       {cleanDesc && (
         <>
-          <div className="mt-6 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="mt-5 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             简介
           </div>
           <p className="whitespace-pre-line text-sm leading-7 text-foreground/90">
@@ -50,6 +50,6 @@ export function DetailMeta({
           </p>
         </>
       )}
-    </section>
+    </div>
   );
 }
