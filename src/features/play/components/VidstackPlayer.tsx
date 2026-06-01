@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
+import { ShieldBan } from 'lucide-react';
 import {
   MediaPlayer,
   MediaProvider,
+  Menu,
   isHLSProvider,
   type MediaCanPlayDetail,
   type MediaPlayerInstance,
@@ -10,7 +12,9 @@ import {
   type MediaTimeUpdateEventDetail,
 } from '@vidstack/react';
 import {
+  DefaultMenuButton,
   DefaultMenuCheckbox,
+  DefaultMenuItem,
   DefaultMenuSection,
   DefaultVideoLayout,
   defaultLayoutIcons,
@@ -86,6 +90,8 @@ const ZH_CN: DefaultLayoutTranslations = {
 // to the provider below.
 const adProcessor = createM3u8Processor({ filterAds: true });
 const AdFilterLoader = createHlsLoaderClass({ m3u8Processor: adProcessor, Hls });
+const AD_FILTER_DESCRIPTION =
+  '过滤 m3u8 中以 #EXT-X-DISCONTINUITY 标记的广告切片。个别源可能无效，或导致片段跳过。';
 
 export interface VidstackPlayerProps {
   src: string;
@@ -231,18 +237,56 @@ export function VidstackPlayer({
           onToggleAdFilter
             ? {
                 settingsMenuItemsEnd: (
-                  <DefaultMenuSection>
-                    <DefaultMenuCheckbox
-                      label="去广告"
-                      checked={adFilterEnabled}
-                      onChange={() => onToggleAdFilter()}
-                    />
-                  </DefaultMenuSection>
+                  <AdFilterMenu enabled={adFilterEnabled} onToggle={onToggleAdFilter} />
                 ),
               }
             : undefined
         }
       />
     </MediaPlayer>
+  );
+}
+
+interface AdFilterMenuProps {
+  enabled: boolean;
+  onToggle: () => void;
+}
+
+function AdFilterMenu({ enabled, onToggle }: AdFilterMenuProps) {
+  const ignoredInitialChange = useRef(false);
+
+  const handleChange = (checked: boolean) => {
+    if (!ignoredInitialChange.current) {
+      ignoredInitialChange.current = true;
+      return;
+    }
+    if (checked !== enabled) onToggle();
+  };
+
+  return (
+    <Menu.Root className="vds-ad-filter-menu vds-menu">
+      <DefaultMenuButton label="去广告" hint={enabled ? '已开启' : '已关闭'} Icon={ShieldBan} />
+      <Menu.Items className="vds-menu-items">
+        <DefaultMenuSection>
+          <div
+            style={{
+              color: 'var(--text-hint-color)',
+              fontSize: 'var(--media-menu-hint-font-size, 13px)',
+              lineHeight: 1.5,
+              padding: '8px 10px 6px',
+            }}
+          >
+            {AD_FILTER_DESCRIPTION}
+          </div>
+          <DefaultMenuItem label="过滤广告切片">
+            <DefaultMenuCheckbox
+              label="过滤广告切片"
+              checked={enabled}
+              onChange={handleChange}
+            />
+          </DefaultMenuItem>
+        </DefaultMenuSection>
+      </Menu.Items>
+    </Menu.Root>
   );
 }

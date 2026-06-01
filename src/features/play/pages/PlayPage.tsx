@@ -38,6 +38,7 @@ export default function PlayPage() {
   const [episodeIndex, setEpisodeIndex] = useState(0);
   const [availableSources, setAvailableSources] = useState<SearchResult[]>([]);
   const [switching, setSwitching] = useState(false);
+  const [switchingText, setSwitchingText] = useState('切换中');
   const [startTime, setStartTime] = useState(0);
   const [adFilter, setAdFilter] = useState(false);
 
@@ -183,6 +184,7 @@ export default function PlayPage() {
   const handleEpisodeChange = useCallback(
     (ep: number) => {
       persistProgress(true);
+      setSwitching(false);
       setStartTime(0);
       setEpisodeIndex(ep - 1);
     },
@@ -194,6 +196,8 @@ export default function PlayPage() {
   const handleToggleAdFilter = useCallback(() => {
     persistProgress(true);
     setStartTime(snapshotRef.current.time || 0);
+    setSwitchingText('重新加载中');
+    setSwitching(true);
     setAdFilter((v) => !v);
   }, [persistProgress]);
 
@@ -202,6 +206,7 @@ export default function PlayPage() {
       if (newSource === currentSource && newId === currentId) return;
       persistProgress(true);
       const carryOverTime = snapshotRef.current.time;
+      setSwitchingText('切换中');
       setSwitching(true);
       try {
         const nd = await fetchSourceDetail(newSource, newId);
@@ -291,7 +296,7 @@ export default function PlayPage() {
             <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
               <div className="flex items-center gap-2 text-sm text-foreground">
                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                切换中
+                {switchingText}
               </div>
             </div>
           )}
