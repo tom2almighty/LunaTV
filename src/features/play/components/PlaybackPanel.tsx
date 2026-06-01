@@ -81,7 +81,7 @@ export function PlaybackPanel({
                       data-active={active}
                       className={cn(
                         'flex h-9 min-w-0 items-center justify-center rounded-md border border-transparent px-1',
-                        'text-xs font-medium tabular-nums transition-colors',
+                        'cursor-pointer text-xs font-medium tabular-nums transition-colors',
                         'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground',
                         'data-[active=true]:border-primary/30 data-[active=true]:bg-primary/15 data-[active=true]:text-foreground',
                       )}
@@ -115,7 +115,7 @@ export function PlaybackPanel({
                       data-active={isActive}
                       className={cn(
                         'flex h-10 min-w-0 items-center justify-center rounded-md border border-transparent px-2',
-                        'text-xs font-medium transition-colors disabled:cursor-wait',
+                        'cursor-pointer text-xs font-medium transition-colors disabled:cursor-wait',
                         'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground',
                         'data-[active=true]:border-primary/30 data-[active=true]:bg-primary/15 data-[active=true]:text-foreground',
                       )}

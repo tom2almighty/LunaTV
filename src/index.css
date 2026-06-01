@@ -129,7 +129,8 @@
   max-width: 88rem;
   padding-inline: 1rem;
   padding-top: 5rem;
-  padding-bottom: 4rem;
+  /* Extra bottom space on mobile clears the fixed BottomTabBar + safe area. */
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 @media (min-width: 768px) {
   .app-page {
