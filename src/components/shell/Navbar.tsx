@@ -1,35 +1,21 @@
-import { Clock, Compass, Home as HomeIcon, LogOut, Search } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { BrandMark } from './BrandMark';
+import { NAV_LINKS } from './navLinks';
 import { useAuth } from '@/features/auth/AuthContext';
 import { cn } from '@/lib/utils';
 
-interface NavLink {
-  label: string;
-  href: string;
-  icon: LucideIcon;
-  match: (pathname: string) => boolean;
-}
-
-const LINKS: NavLink[] = [
-  { label: '首页', href: '/', icon: HomeIcon, match: (p) => p === '/' },
-  { label: '搜索', href: '/search', icon: Search, match: (p) => p === '/search' },
-  { label: '分类', href: '/douban', icon: Compass, match: (p) => p === '/douban' },
-  { label: '历史', href: '/history', icon: Clock, match: (p) => p === '/history' },
-];
-
 /**
- * Segmented pill nav, modeled after the shadcn Tabs trigger style. Labels
- * collapse to icons on small screens to keep things tidy on phones.
+ * Segmented pill nav, modeled after the shadcn Tabs trigger style. Hidden on
+ * small screens, where the bottom tab bar (BottomTabBar) takes over.
  */
 function NavLinks({ pathname }: { pathname: string }) {
   return (
-    <div className="inline-flex h-9 items-center rounded-md bg-muted p-1 text-muted-foreground">
-      {LINKS.map((l) => {
+    <div className="hidden h-9 items-center rounded-md bg-muted p-1 text-muted-foreground md:inline-flex">
+      {NAV_LINKS.map((l) => {
         const Icon = l.icon;
         const active = l.match(pathname);
         return (
@@ -40,12 +26,12 @@ function NavLinks({ pathname }: { pathname: string }) {
             aria-label={l.label}
             className={cn(
               'inline-flex h-7 items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 text-sm font-medium transition-all sm:px-5',
-              'hover:text-foreground',
+              'cursor-pointer hover:text-foreground',
               'data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm',
             )}
           >
             <Icon className="h-3.5 w-3.5" strokeWidth={2} />
-            <span className="hidden sm:inline">{l.label}</span>
+            <span>{l.label}</span>
           </Link>
         );
       })}

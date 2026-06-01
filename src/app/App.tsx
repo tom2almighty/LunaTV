@@ -4,6 +4,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { BareLayout } from './layouts/BareLayout';
 import { ProtectedLayout } from './layouts/ProtectedLayout';
 import { Navbar } from '@/components/shell/Navbar';
+import { BottomTabBar } from '@/components/shell/BottomTabBar';
 import { BackToTop } from '@/components/shell/BackToTop';
 
 const HomePage = lazy(() => import('@/features/home/pages/HomePage'));
@@ -57,6 +58,7 @@ function ProtectedShell() {
         </Suspense>
       </main>
       <BackToTop />
+      <BottomTabBar />
     </>
   );
 }

@@ -27,7 +27,7 @@ export function BackToTop() {
       onClick={handleClick}
       data-visible={visible}
       className={cn(
-        'fixed bottom-6 right-6 z-50 h-10 w-10 rounded-full shadow-lg backdrop-blur',
+        'fixed bottom-20 right-6 z-50 h-10 w-10 rounded-full shadow-lg backdrop-blur md:bottom-6',
         'transition-all duration-200',
         'data-[visible=false]:pointer-events-none data-[visible=false]:translate-y-2 data-[visible=false]:opacity-0',
         'data-[visible=true]:translate-y-0 data-[visible=true]:opacity-100',
