@@ -1,10 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Hls from 'hls.js';
 import {
   MediaPlayer,
   MediaProvider,
-  Poster,
+  isHLSProvider,
   type MediaCanPlayDetail,
   type MediaPlayerInstance,
+  type MediaProviderAdapter,
   type MediaTimeUpdateEventDetail,
 } from '@vidstack/react';
 import {
@@ -12,6 +14,9 @@ import {
   defaultLayoutIcons,
   type DefaultLayoutTranslations,
 } from '@vidstack/react/player/layouts/default';
+import { createHlsLoaderClass, createM3u8Processor } from '@ouonnki/cms-core/m3u8';
+import { ShieldBan } from 'lucide-react';
+import { cn, processImageUrl } from '@/lib/utils';
 import '@vidstack/react/player/styles/default/theme.css';
 import '@vidstack/react/player/styles/default/layouts/video.css';
 
@@ -74,6 +79,29 @@ const ZH_CN: DefaultLayoutTranslations = {
   Volume: '音量',
 };
 
+// HLS ad filter — strips `#EXT-X-DISCONTINUITY` markers (a common ad delimiter)
+// from the manifest before hls.js parses it. Reuses cms-core's m3u8 utilities.
+// Built once at module scope so the custom loader extends the same Hls we feed
+// to the provider below.
+const adProcessor = createM3u8Processor({ filterAds: true });
+const AdFilterLoader = createHlsLoaderClass({ m3u8Processor: adProcessor, Hls });
+
+function AdFilterButton({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      className="vds-button"
+      data-active={enabled}
+      aria-pressed={enabled}
+      aria-label={enabled ? '去广告：已开启' : '去广告：已关闭'}
+      title={enabled ? '去广告：已开启（点击关闭）' : '去广告：已关闭（点击开启）'}
+      onClick={onToggle}
+    >
+      <ShieldBan className={cn('vds-icon', !enabled && 'opacity-50')} />
+    </button>
+  );
+}
+
 export interface VidstackPlayerProps {
   src: string;
   poster?: string;
@@ -81,6 +109,8 @@ export interface VidstackPlayerProps {
   title?: string;
   mirror?: boolean;
   aspectRatio?: string;
+  adFilterEnabled?: boolean;
+  onToggleAdFilter?: () => void;
   onTimeUpdate?: (detail: MediaTimeUpdateEventDetail) => void;
   onEnded?: () => void;
   onCanPlay?: (detail: MediaCanPlayDetail) => void;
@@ -95,6 +125,8 @@ export function VidstackPlayer({
   title,
   mirror,
   aspectRatio,
+  adFilterEnabled = false,
+  onToggleAdFilter,
   onTimeUpdate,
   onEnded,
   onCanPlay,
@@ -103,6 +135,9 @@ export function VidstackPlayer({
 }: VidstackPlayerProps) {
   const ref = useRef<MediaPlayerInstance>(null);
   const startTimeRef = useRef(startTime ?? 0);
+  // Shown while the player is loading/buffering; hidden once playback begins.
+  // The player remounts on src change (PlayPage keys it), resetting this.
+  const [posterVisible, setPosterVisible] = useState(true);
 
   // Keep the latest startTime so canplay handler can use it
   useEffect(() => {
@@ -119,17 +154,28 @@ export function VidstackPlayer({
     }
   }, [mirror, src]);
 
+  // Use the bundled hls.js (avoids vidstack's CDN fetch) and, when enabled,
+  // route manifests through the ad-filtering loader.
+  const handleProviderChange = (provider: MediaProviderAdapter | null) => {
+    if (isHLSProvider(provider)) {
+      provider.library = Hls;
+      if (adFilterEnabled) provider.config = { loader: AdFilterLoader };
+    }
+  };
+
+  const posterUrl = poster ? processImageUrl(poster) : '';
+
   return (
     <MediaPlayer
       ref={ref}
       src={src}
-      poster={poster}
       title={title}
       autoPlay
       playsInline
       crossOrigin
       volume={0.7}
       aspectRatio={aspectRatio}
+      onProviderChange={handleProviderChange}
       onCanPlay={(detail) => {
         const target = startTimeRef.current;
         if (target > 5) {
@@ -144,6 +190,7 @@ export function VidstackPlayer({
         }
         onCanPlay?.(detail);
       }}
+      onPlaying={() => setPosterVisible(false)}
       onTimeUpdate={(detail) => {
         onTimeUpdate?.(detail);
       }}
@@ -153,9 +200,54 @@ export function VidstackPlayer({
       className="h-full w-full"
     >
       <MediaProvider>
-        {poster && <Poster src={poster} alt={title ?? ''} className="vds-poster" />}
+        {/* Loading poster: blurred backdrop fills the 16:9 frame, the full */}
+        {/* cover sits centered on top (contain). Falls back to the title.   */}
+        {posterUrl ? (
+          <div
+            data-visible={posterVisible}
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-[1] overflow-hidden bg-black transition-opacity duration-300 data-[visible=false]:opacity-0"
+          >
+            <img
+              src={posterUrl}
+              alt=""
+              aria-hidden
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                e.currentTarget.style.visibility = 'hidden';
+              }}
+              className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
+            />
+            <div className="absolute inset-0 bg-black/30" />
+            <img
+              src={posterUrl}
+              alt={title ?? ''}
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                e.currentTarget.style.visibility = 'hidden';
+              }}
+              className="absolute inset-0 h-full w-full object-contain"
+            />
+          </div>
+        ) : (
+          <div
+            data-visible={posterVisible}
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center bg-background px-6 text-center transition-opacity duration-300 data-[visible=false]:opacity-0"
+          >
+            <span className="text-base font-medium text-foreground sm:text-lg">{title}</span>
+          </div>
+        )}
       </MediaProvider>
-      <DefaultVideoLayout icons={defaultLayoutIcons} translations={ZH_CN} />
+      <DefaultVideoLayout
+        icons={defaultLayoutIcons}
+        translations={ZH_CN}
+        slots={
+          onToggleAdFilter
+            ? { beforeFullscreenButton: <AdFilterButton enabled={adFilterEnabled} onToggle={onToggleAdFilter} /> }
+            : undefined
+        }
+      />
     </MediaPlayer>
   );
 }

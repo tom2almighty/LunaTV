@@ -40,6 +40,7 @@ export default function PlayPage() {
   const [availableSources, setAvailableSources] = useState<SearchResult[]>([]);
   const [switching, setSwitching] = useState(false);
   const [startTime, setStartTime] = useState(0);
+  const [adFilter, setAdFilter] = useState(false);
 
   const initialized = useRef(false);
   const snapshotRef = useRef<SnapshotState>({ source: '', id: '', index: 0, time: 0, total: 0 });
@@ -189,6 +190,14 @@ export default function PlayPage() {
     [persistProgress],
   );
 
+  // Toggling the ad filter rebuilds the hls instance (via playerKey), so carry
+  // the current playback time over and resume from it.
+  const handleToggleAdFilter = useCallback(() => {
+    persistProgress(true);
+    setStartTime(snapshotRef.current.time || 0);
+    setAdFilter((v) => !v);
+  }, [persistProgress]);
+
   const handleSourceChange = useCallback(
     async (newSource: string, newId: string, _newTitle: string) => {
       if (newSource === currentSource && newId === currentId) return;
@@ -252,7 +261,7 @@ export default function PlayPage() {
     );
   }
 
-  const playerKey = `${currentSource}+${currentId}+${episodeIndex}`;
+  const playerKey = `${currentSource}+${currentId}+${episodeIndex}+${adFilter}`;
 
   return (
     <div className="app-page">
@@ -269,6 +278,8 @@ export default function PlayPage() {
                 poster={cover}
                 startTime={startTime}
                 title={title}
+                adFilterEnabled={adFilter}
+                onToggleAdFilter={handleToggleAdFilter}
                 onTimeUpdate={handleTimeUpdate}
                 onEnded={handleEnded}
                 onCanPlay={handleCanPlay}
