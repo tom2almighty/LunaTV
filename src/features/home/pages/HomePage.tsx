@@ -1,5 +1,6 @@
 import { useRecommendations } from '../hooks/useRecommendations';
 import { RecommendationSection } from '../components/RecommendationSection';
+import { Announcement } from '../components/Announcement';
 
 export default function HomePage() {
   const recQuery = useRecommendations();
@@ -10,6 +11,7 @@ export default function HomePage() {
 
   return (
     <div className="app-page space-y-10">
+      <Announcement />
       <RecommendationSection
         label="热门电影"
         items={movies}

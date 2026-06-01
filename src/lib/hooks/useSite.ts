@@ -12,5 +12,9 @@ export function useSite() {
     }
   }, [siteName]);
 
-  return { siteName };
+  return {
+    siteName,
+    announcement: data?.announcement ?? '',
+    announcementTitle: data?.announcementTitle ?? '',
+  };
 }

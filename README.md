@@ -19,6 +19,8 @@ Mac CMS 聚合，基于 React + Vite + [@ouonnki/cms-core](https://www.npmjs.com
 | 变量                 | 必填   | 说明                                       |
 | -------------------- | ------ | ------------------------------------------ |
 | `SITE_NAME`          | 否     | 站点名称，默认 `vodhub`                    |
+| `SITE_ANNOUNCEMENT`  | 否     | 站点公告内容，登录后首页顶部展示（留空则不显示） |
+| `SITE_ANNOUNCEMENT_TITLE` | 否 | 站点公告标题（可选，配合 `SITE_ANNOUNCEMENT`） |
 | `ADMIN_PASSWORD`     | 是     | 站点登录密码                               |
 | `AUTH_SECRET`        | 是     | 登录 token 签名密钥（建议 32+ 字符随机串） |
 | `AUTH_TOKEN_TTL`     | 否     | token 有效期（秒），默认 604800            |

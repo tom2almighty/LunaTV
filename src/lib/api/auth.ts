@@ -2,6 +2,8 @@ import { apiFetch, apiJson } from './client';
 
 export interface SiteConfig {
   siteName: string;
+  announcement?: string;
+  announcementTitle?: string;
 }
 
 export async function login(password: string): Promise<string | null> {
@@ -27,8 +29,12 @@ export async function verify(): Promise<boolean> {
 export async function fetchSiteConfig(): Promise<SiteConfig> {
   try {
     const data = await apiJson<Partial<SiteConfig>>('/api/site-config');
-    return { siteName: data?.siteName || 'vodhub' };
+    return {
+      siteName: data?.siteName || 'vodhub',
+      announcement: data?.announcement || '',
+      announcementTitle: data?.announcementTitle || '',
+    };
   } catch {
-    return { siteName: 'vodhub' };
+    return { siteName: 'vodhub', announcement: '', announcementTitle: '' };
   }
 }
